@@ -1,0 +1,3396 @@
+import 'package:flutter/widgets.dart';
+
+class S {
+  S._(this._locale);
+
+  final String _locale;
+
+  static S of(BuildContext context) {
+    final locale = Localizations.localeOf(context);
+    return S._(_resolveLocaleKey(locale));
+  }
+
+  /// `ru_RU` → `ru`, `uz_CYRL` → `uz_CYRL` — faqat [\_all] kalitlari bilan ishlaydi.
+  static String _resolveLocaleKey(Locale locale) {
+    final raw = locale.countryCode != null && locale.countryCode!.isNotEmpty
+        ? '${locale.languageCode}_${locale.countryCode}'
+        : locale.languageCode;
+    if (_all.containsKey(raw)) return raw;
+    final lang = locale.languageCode;
+    if (_all.containsKey(lang)) return lang;
+    return 'uz';
+  }
+
+  String _t(String key) => _all[_locale]?[key] ?? _all['uz']![key] ?? key;
+
+  // ─── Dashboard ───
+  String greeting(String name) => '${_t('hello')}, $name';
+  String get defaultUser => _t('defaultUser');
+  String get bakery => _t('bakery');
+  String get bakeries => _t('bakeries');
+  String get selectBusiness => _t('selectBusiness');
+  String get selectBusinessSubtitle => _t('selectBusinessSubtitle');
+  String get noBusiness => _t('noBusiness');
+  String get createFirstBusiness => _t('createFirstBusiness');
+  String get addBusiness => _t('addBusiness');
+  String get manage => _t('manage');
+  String get todayProfit => _t('todayProfit');
+  String get todayLoss => _t('todayLoss');
+  String get netRevenue => _t('netRevenue');
+  String get expense => _t('expense');
+  String get baked => _t('baked');
+  String get sack => _t('sack');
+  String get sold => _t('sold');
+  String get returned => _t('returned');
+  String get pcs => _t('pcs');
+  String get sacks => _t('sacks');
+  String get noBreadToday => _t('noBreadToday');
+  String get income => _t('income');
+  String get profit => _t('profit');
+  String get productOut => _t('productOut');
+  String get productReturned => _t('productReturned');
+  String get currency => _t('currency');
+
+  /// Asosiy sahifa — KPI va bo‘lim (biznesga umumiy)
+  String get dashboardKpiOutput => _t('dashboardKpiOutput');
+  String get dashboardKpiBatch => _t('dashboardKpiBatch');
+  String get dashboardKpiSold => _t('dashboardKpiSold');
+  String get dashboardKpiReturned => _t('dashboardKpiReturned');
+  String get dashboardEmptyOutput => _t('dashboardEmptyOutput');
+  String get dashboardSectionOutput => _t('dashboardSectionOutput');
+  /// To‘plam / partiya soni yonidagi umumiy birlik (mahsulotga xos emas)
+  String get dashboardBatchUnitGeneric => _t('dashboardBatchUnitGeneric');
+
+  // ─── Shell ───
+  String get home => _t('home');
+  String get cashRegister => _t('cashRegister');
+  String get statistics => _t('statistics');
+  String get profileTab => _t('profileTab');
+  String get navHistory => _t('navHistory');
+  String get historyTitle => _t('historyTitle');
+  String get historyTabCreated => _t('historyTabCreated');
+  String get historyTabReturns => _t('historyTabReturns');
+  String get historyTabCash => _t('historyTabCash');
+  String get historyCreatedEmpty => _t('historyCreatedEmpty');
+  String get historyReturnsEmpty => _t('historyReturnsEmpty');
+  String get returnDetailTitle => _t('returnDetailTitle');
+
+  // ─── Hisobot (/report) ───
+  String get reportScreenTitle => _t('reportScreenTitle');
+  String get reportPickRange => _t('reportPickRange');
+  String get reportPickSingleDate => _t('reportPickSingleDate');
+  String get reportChipToday => _t('reportChipToday');
+  String get reportChipYesterday => _t('reportChipYesterday');
+  String get reportRangeLast7 => _t('reportRangeLast7');
+  String get reportRangeLast30 => _t('reportRangeLast30');
+  String get reportSectionSummary => _t('reportSectionSummary');
+  String get reportSectionReturnsByType => _t('reportSectionReturnsByType');
+  String get reportSectionProducts => _t('reportSectionProducts');
+  String get reportGrossRevenue => _t('reportGrossRevenue');
+  String get reportReturnsRecords => _t('reportReturnsRecords');
+  String get reportProductionRecords => _t('reportProductionRecords');
+  String get reportEmptyReturns => _t('reportEmptyReturns');
+  String get reportEmptyProducts => _t('reportEmptyProducts');
+  String get reportProductProduced => _t('reportProductProduced');
+  /// Hisobot — ochiluvchi bo‘lim ichida: tur / mahsulot soni
+  String reportExpandTypesCount(int n) =>
+      _t('reportExpandTypesCount').replaceAll('{n}', '$n');
+  String reportExpandProductsCount(int n) =>
+      _t('reportExpandProductsCount').replaceAll('{n}', '$n');
+
+  // ─── Kassa ───
+  String get noExpenseToday => _t('noExpenseToday');
+  String get addExpense => _t('addExpense');
+  String get expenseCreateTitle => _t('expenseCreateTitle');
+  String get expenseCreateSubtitle => _t('expenseCreateSubtitle');
+  String get expenseCategorySearchHint => _t('expenseCategorySearchHint');
+  String get expenseAddCategory => _t('expenseAddCategory');
+  String get expenseAddCategoryTitle => _t('expenseAddCategoryTitle');
+  String get expenseAddCategoryNameHint => _t('expenseAddCategoryNameHint');
+  String get expenseAddCategorySave => _t('expenseAddCategorySave');
+  String get expenseSelectCategory => _t('expenseSelectCategory');
+  String get expenseAmountLabel => _t('expenseAmountLabel');
+  String get expenseDescriptionLabel => _t('expenseDescriptionLabel');
+  String get expenseSubmit => _t('expenseSubmit');
+  String get expenseCategoriesEmpty => _t('expenseCategoriesEmpty');
+  String get expenseCategoriesLoadError => _t('expenseCategoriesLoadError');
+
+  // ─── Statistics ───
+  String get daily => _t('daily');
+  String get weekly => _t('weekly');
+  String get monthly => _t('monthly');
+  String get loss => _t('loss');
+  String get noData => _t('noData');
+  String get production => _t('production');
+  String get flourUsage => _t('flourUsage');
+  String get bakedBread => _t('bakedBread');
+  String get ingredients => _t('ingredients');
+  String get salesAndReturns => _t('salesAndReturns');
+  String get totalProduced => _t('totalProduced');
+  String get returns => _t('returns');
+  String get soldAuto => _t('soldAuto');
+  String get returnAmount => _t('returnAmount');
+  String get netIncome => _t('netIncome');
+  String get expenses => _t('expenses');
+  String get internalIngredients => _t('internalIngredients');
+  String get external => _t('external');
+  String get total => _t('total');
+
+  // ─── Setup ───
+  String get settings => _t('settings');
+  String get breadTypes => _t('breadTypes');
+  String get breadTypesDesc => _t('breadTypesDesc');
+  String get products => _t('products');
+  String get productsDesc => _t('productsDesc');
+  String get recipes => _t('recipes');
+  String get recipesDesc => _t('recipesDesc');
+  String get settingsCardTypesTitle => _t('settingsCardTypesTitle');
+  String get settingsCardIngredientsTitle => _t('settingsCardIngredientsTitle');
+  String get settingsCardRecipesTitle => _t('settingsCardRecipesTitle');
+
+  /// Biznes `key` bo‘yicha (bakery, shashlik, …) misollar matni.
+  String settingsTypesDesc(String? businessKey) =>
+      _t('settingsTypesDesc_${_settingsBizGroup(businessKey)}');
+  String settingsIngredientsDesc(String? businessKey) =>
+      _t('settingsIngredientsDesc_${_settingsBizGroup(businessKey)}');
+  String settingsRecipesDesc(String? businessKey) =>
+      _t('settingsRecipesDesc_${_settingsBizGroup(businessKey)}');
+
+  /// Sozlamalar — boshlash tartibi (step)
+  String get setupJourneyTitle => _t('setupJourneyTitle');
+  String get setupJourneyHint => _t('setupJourneyHint');
+  String get setupJourneyStepLabel1 => _t('setupJourneyStepLabel1');
+  String get setupJourneyStepLabel2 => _t('setupJourneyStepLabel2');
+  String get setupJourneyStepLabel3 => _t('setupJourneyStepLabel3');
+  String get setupJourneyAllDone => _t('setupJourneyAllDone');
+
+  // ─── Retseptlar (hisoblash) ───
+  String get recipeScreenTitle => _t('recipeScreenTitle');
+  String get recipeEmptyTitle => _t('recipeEmptyTitle');
+  String get recipeEmptySubtitle => _t('recipeEmptySubtitle');
+  String get recipeAddCta => _t('recipeAddCta');
+  String get recipeDeletedSnackbar => _t('recipeDeletedSnackbar');
+  String get recipeErrorSnackbar => _t('recipeErrorSnackbar');
+  String get recipeCreateTitle => _t('recipeCreateTitle');
+  String get recipeStepProduct => _t('recipeStepProduct');
+  String get recipeStepBatch => _t('recipeStepBatch');
+  String get recipeStepIngredients => _t('recipeStepIngredients');
+  String get recipeSelectProductTitle => _t('recipeSelectProductTitle');
+  String get recipeSelectProductSubtitle => _t('recipeSelectProductSubtitle');
+  String get recipeBatchCarouselTitle => _t('recipeBatchCarouselTitle');
+  String get recipeBatchCarouselSubtitle => _t('recipeBatchCarouselSubtitle');
+  String get recipeOutputLabel => _t('recipeOutputLabel');
+  String get recipeOutputHint => _t('recipeOutputHint');
+  String get recipeIngredientsSectionTitle => _t('recipeIngredientsSectionTitle');
+  String get recipeIngredientsSectionSubtitle => _t('recipeIngredientsSectionSubtitle');
+  String get recipeAddIngredient => _t('recipeAddIngredient');
+  String get recipeValidationSelectProduct => _t('recipeValidationSelectProduct');
+  String get recipeValidationBatch => _t('recipeValidationBatch');
+  String get recipeValidationOutput => _t('recipeValidationOutput');
+  String get recipeValidationIngredients => _t('recipeValidationIngredients');
+  String get recipeValidationDuplicateIngredient =>
+      _t('recipeValidationDuplicateIngredient');
+  String get recipeSaveSuccess => _t('recipeSaveSuccess');
+  String recipeRecipeBatchLine(String unit, String qty) => _t('recipeRecipeBatchLine')
+      .replaceAll('{unit}', unit)
+      .replaceAll('{qty}', qty);
+  String get recipeBack => _t('recipeBack');
+  String get recipeIngredientSelectHint => _t('recipeIngredientSelectHint');
+
+  /// Hisoblash ro‘yxagi — kartochka statistikasi
+  String get recipeCardStatTitleOutput => _t('recipeCardStatTitleOutput');
+  String get recipeCardStatTitleBatchCost => _t('recipeCardStatTitleBatchCost');
+  String get recipeCardStatTitleUnitCost => _t('recipeCardStatTitleUnitCost');
+  String get recipeCardSectionIngredients => _t('recipeCardSectionIngredients');
+  String recipeCardIngredientLine(String name, String qty, String unit) =>
+      _t('recipeCardIngredientLine')
+          .replaceAll('{name}', name)
+          .replaceAll('{qty}', qty)
+          .replaceAll('{unit}', unit);
+  String get recipeDeleteConfirmTitle => _t('recipeDeleteConfirmTitle');
+  String recipeDeleteConfirmBody(String productName) =>
+      _t('recipeDeleteConfirmBody').replaceAll('{name}', productName);
+  String get recipeCardTooltipOutput => _t('recipeCardTooltipOutput');
+  String get recipeCardTooltipBatchCost => _t('recipeCardTooltipBatchCost');
+  String get recipeCardTooltipUnitCost => _t('recipeCardTooltipUnitCost');
+
+  /// Partiya batafsil sahifasi
+  String get productionDetailTitle => _t('productionDetailTitle');
+  String get productionDetailSummary => _t('productionDetailSummary');
+  String get productionDetailBatch => _t('productionDetailBatch');
+  String get productionDetailOutput => _t('productionDetailOutput');
+  String get productionDetailFlour => _t('productionDetailFlour');
+  String get productionDetailIngredientCost => _t('productionDetailIngredientCost');
+  String get productionDetailSalesEstimate => _t('productionDetailSalesEstimate');
+  String get productionDetailBreakdown => _t('productionDetailBreakdown');
+  String get productionDetailOneRecipeBatch => _t('productionDetailOneRecipeBatch');
+  String get productionDetailQtyTotal => _t('productionDetailQtyTotal');
+  String productionDetailGrams(String grams) =>
+      _t('productionDetailGrams').replaceAll('{g}', grams);
+  String get productionDetailPricePerUnit => _t('productionDetailPricePerUnit');
+  String get productionDetailNoIngredients => _t('productionDetailNoIngredients');
+  String get productionDetailReturnToday => _t('productionDetailReturnToday');
+  String get productionDetailEdit => _t('productionDetailEdit');
+  String get productionDetailEditSheetTitle => _t('productionDetailEditSheetTitle');
+  String get productionDetailEditBatchLabel => _t('productionDetailEditBatchLabel');
+  String get productionDetailEditReturnsTitle => _t('productionDetailEditReturnsTitle');
+  String get productionDetailEditNoReturns => _t('productionDetailEditNoReturns');
+  String get productionDetailEditSaveBatch => _t('productionDetailEditSaveBatch');
+  String get productionDetailBatchUpdated => _t('productionDetailBatchUpdated');
+  String get productionDetailReturnDeleted => _t('productionDetailReturnDeleted');
+  String get productionDetailDeleteReturnTitle => _t('productionDetailDeleteReturnTitle');
+  String get productionDetailDeleteReturnBody => _t('productionDetailDeleteReturnBody');
+  String get productionDetailDeleteProductionTitle =>
+      _t('productionDetailDeleteProductionTitle');
+  String get productionDetailDeleteProductionBody =>
+      _t('productionDetailDeleteProductionBody');
+  String get productionDetailProductionDeleted =>
+      _t('productionDetailProductionDeleted');
+
+  /// Mahsulot chiqimi (chiqim qayd)
+  String get productionOutTitle => _t('productionOutTitle');
+  String get productionOutStep1 => _t('productionOutStep1');
+  String get productionOutStep2 => _t('productionOutStep2');
+  String get productionOutStep3 => _t('productionOutStep3');
+  String get productionOutStep1Title => _t('productionOutStep1Title');
+  String get productionOutStep1Subtitle => _t('productionOutStep1Subtitle');
+  String get productionOutCategoryLabel => _t('productionOutCategoryLabel');
+  String get productionOutCategoryHint => _t('productionOutCategoryHint');
+  String get productionOutNoRecipeWarning => _t('productionOutNoRecipeWarning');
+  String get productionOutStep2Title => _t('productionOutStep2Title');
+  String productionOutStep2Subtitle(String unit, String outputQty, String productUnit) =>
+      _t('productionOutStep2Subtitle')
+          .replaceAll('{unit}', unit)
+          .replaceAll('{qty}', outputQty)
+          .replaceAll('{productUnit}', productUnit);
+  String productionOutBatchFieldLabel(String unit) =>
+      _t('productionOutBatchFieldLabel').replaceAll('{unit}', unit);
+  String get productionOutSummaryTitle => _t('productionOutSummaryTitle');
+  String productionOutTotalOutput(String qty, String productUnit) =>
+      _t('productionOutTotalOutput')
+          .replaceAll('{qty}', qty)
+          .replaceAll('{unit}', productUnit);
+  String get productionOutCostLabel => _t('productionOutCostLabel');
+  String get productionOutIngredientsPreview => _t('productionOutIngredientsPreview');
+  String get productionOutCta => _t('productionOutCta');
+  String productionOutSuccess(String qty, String productUnit) =>
+      _t('productionOutSuccess')
+          .replaceAll('{qty}', qty)
+          .replaceAll('{unit}', productUnit);
+  String get productionOutValidationSelectProduct =>
+      _t('productionOutValidationSelectProduct');
+  String get productionOutValidationNoRecipe => _t('productionOutValidationNoRecipe');
+  String get productionOutValidationBatch => _t('productionOutValidationBatch');
+  String get productionOutStep3Title => _t('productionOutStep3Title');
+  String get productionOutStep3Subtitle => _t('productionOutStep3Subtitle');
+  String get productionOutNext => _t('productionOutNext');
+  String get productionOutSearchHint => _t('productionOutSearchHint');
+  String get productionOutSearchEmpty => _t('productionOutSearchEmpty');
+
+  /// Mahsulot qaytdi (vozvrat)
+  String get returnCreateTitle => _t('returnCreateTitle');
+  String get returnCreateSubtitle => _t('returnCreateSubtitle');
+  String get returnProfitInfoTitle => _t('returnProfitInfoTitle');
+  String get returnProfitInfoBody => _t('returnProfitInfoBody');
+  String get returnProfitInfoShort => _t('returnProfitInfoShort');
+  String get returnProductionLabel => _t('returnProductionLabel');
+  String get returnNoProductionForCategory =>
+      _t('returnNoProductionForCategory');
+  String get returnSearchHint => _t('returnSearchHint');
+  String get returnSearchEmpty => _t('returnSearchEmpty');
+  String get returnCategoryLabel => _t('returnCategoryLabel');
+  String get returnQuantityTitle => _t('returnQuantityTitle');
+  String get returnQuantitySubtitle => _t('returnQuantitySubtitle');
+  String get returnPriceLabel => _t('returnPriceLabel');
+  String get returnReasonLabel => _t('returnReasonLabel');
+  String get returnReasonHint => _t('returnReasonHint');
+  String get returnCta => _t('returnCta');
+  String get returnValidationSelectProduct =>
+      _t('returnValidationSelectProduct');
+  String get returnValidationQty => _t('returnValidationQty');
+  String get returnValidationPrice => _t('returnValidationPrice');
+  String get returnSuccess => _t('returnSuccess');
+  String get returnPieceSuffix => _t('returnPieceSuffix');
+
+  // ─── Mahsulot turlari (bread-categories) ───
+  String get productCategoriesTitle => _t('productCategoriesTitle');
+  String get productCategoriesEmptyTitle => _t('productCategoriesEmptyTitle');
+  String get productCategoriesEmptySubtitle =>
+      _t('productCategoriesEmptySubtitle');
+  String get addProductCategoryModalTitle => _t('addProductCategoryModalTitle');
+  String get addProductCategoryModalSubtitle =>
+      _t('addProductCategoryModalSubtitle');
+  String get productCategoriesNameLabel => _t('productCategoriesNameLabel');
+  String get productCategoriesNameHint => _t('productCategoriesNameHint');
+  String get sellingPriceLabel => _t('sellingPriceLabel');
+  String get sellingPriceHint => _t('sellingPriceHint');
+  String get currencyPickerLabel => _t('currencyPickerLabel');
+  String get productCategoriesAddCta => _t('productCategoriesAddCta');
+  String get snackbarFillAllFields => _t('snackbarFillAllFields');
+  String get snackbarErrorGeneric => _t('snackbarErrorGeneric');
+  String get actionAdd => _t('actionAdd');
+  String get actionSave => _t('actionSave');
+  String get editProductCategoryModalTitle => _t('editProductCategoryModalTitle');
+  String get editIngredientModalTitle => _t('editIngredientModalTitle');
+  String snackbarCategoryAdded(String name) =>
+      _t('snackbarCategoryAdded').replaceAll('{name}', name);
+  String snackbarCategoryDeleted(String name) =>
+      _t('snackbarCategoryDeleted').replaceAll('{name}', name);
+  String snackbarCategoryUpdated(String name) =>
+      _t('snackbarCategoryUpdated').replaceAll('{name}', name);
+
+  // ─── Xom ashyolar (ingredients) ───
+  String get ingredientsEmptyTitle => _t('ingredientsEmptyTitle');
+  String get ingredientsEmptySubtitle => _t('ingredientsEmptySubtitle');
+  String get addIngredientModalTitle => _t('addIngredientModalTitle');
+  String get addIngredientModalSubtitle => _t('addIngredientModalSubtitle');
+  String get ingredientNameLabel => _t('ingredientNameLabel');
+  String get ingredientNameHint => _t('ingredientNameHint');
+  String get ingredientUnitFieldLabel => _t('ingredientUnitFieldLabel');
+  String get ingredientPricePerUnitLabel => _t('ingredientPricePerUnitLabel');
+  String get ingredientsAddCta => _t('ingredientsAddCta');
+  String get ingredientAddHeroTitle => _t('ingredientAddHeroTitle');
+  String get ingredientPriceHintBanner => _t('ingredientPriceHintBanner');
+  String get ingredientUnitChipsLabel => _t('ingredientUnitChipsLabel');
+  String get ingredientPriceInfoTitle => _t('ingredientPriceInfoTitle');
+  String get ingredientPriceInfoBody => _t('ingredientPriceInfoBody');
+  String get gotIt => _t('gotIt');
+  String ingredientUnitLabel(String code) {
+    switch (code) {
+      case 'kg':
+        return _t('ingredientUnit_kg');
+      case 'gram':
+        return _t('ingredientUnit_gram');
+      case 'litr':
+        return _t('ingredientUnit_litr');
+      case 'dona':
+        return _t('ingredientUnit_dona');
+      default:
+        return code;
+    }
+  }
+
+  String snackbarIngredientAdded(String name) =>
+      _t('snackbarIngredientAdded').replaceAll('{name}', name);
+  String snackbarIngredientDeleted(String name) =>
+      _t('snackbarIngredientDeleted').replaceAll('{name}', name);
+  String snackbarIngredientUpdated(String name) =>
+      _t('snackbarIngredientUpdated').replaceAll('{name}', name);
+
+  static String _settingsBizGroup(String? key) {
+    if (key == null) return 'default';
+    if (const {'bakery', 'samsa', 'sweets'}.contains(key)) return 'bakery';
+    if (const {'shashlik', 'meat'}.contains(key)) return 'grill';
+    if (const {'fastfood', 'restaurant', 'beverages'}.contains(key)) {
+      return 'restaurant';
+    }
+    return 'default';
+  }
+
+  // ─── Profile ───
+  String get general => _t('general');
+  String get manageAndSwitch => _t('manageAndSwitch');
+  String get staff => _t('staff');
+  String get staffManagement => _t('staffManagement');
+  String get darkMode => _t('darkMode');
+  String get enabled => _t('enabled');
+  String get disabled => _t('disabled');
+  String get language => _t('language');
+  String get aboutApp => _t('aboutApp');
+  String get version => _t('version');
+  String get logout => _t('logout');
+  String get unknown => _t('unknown');
+  String get balance => _t('balance');
+  String get topUp => _t('topUp');
+  String get profileInfo => _t('profileInfo');
+  String get phoneNumber => _t('phoneNumber');
+  String get email => _t('email');
+  String get telegram => _t('telegram');
+  String get linked => _t('linked');
+  String get notLinked => _t('notLinked');
+  String get link => _t('link');
+  String get changePhoto => _t('changePhoto');
+  String get businessOwner => _t('businessOwner');
+  String get seller => _t('seller');
+  String get profileInfoDesc => _t('profileInfoDesc');
+  String get deleteAccount => _t('deleteAccount');
+  String get deleteAccountDesc => _t('deleteAccountDesc');
+  String get deleteAccountConfirm => _t('deleteAccountConfirm');
+  String get cancel => _t('cancel');
+  String get delete => _t('delete');
+
+  // ─── Onboarding ───
+  String get onboardingTitle1 => _t('onboardingTitle1');
+  String get onboardingDesc1 => _t('onboardingDesc1');
+  String get onboardingTitle2 => _t('onboardingTitle2');
+  String get onboardingDesc2 => _t('onboardingDesc2');
+  String get onboardingTitle3 => _t('onboardingTitle3');
+  String get onboardingDesc3 => _t('onboardingDesc3');
+  String get skip => _t('skip');
+  String get next => _t('next');
+  String get getStarted => _t('getStarted');
+
+  // ─── Auth ───
+  String get welcomeBack => _t('welcomeBack');
+  String get loginSubtitle => _t('loginSubtitle');
+  String get password => _t('password');
+  String get enterPhone => _t('enterPhone');
+  String get enterPassword => _t('enterPassword');
+  String get loginButton => _t('loginButton');
+  String get noAccount => _t('noAccount');
+  String get registerLink => _t('registerLink');
+  String get tryAgain    => _t('tryAgain');
+  String get noInternet  => _t('noInternet');
+
+  // ─── Business Type / Shop Create ───
+  String get createBusiness         => _t('createBusiness');
+  String get businessTypeStep       => _t('businessTypeStep');
+  String get businessDetailsStep    => _t('businessDetailsStep');
+  String get businessLocationStep   => _t('businessLocationStep');
+  String get selectBusinessType     => _t('selectBusinessType');
+  String get selectBusinessTypeDesc => _t('selectBusinessTypeDesc');
+  String get businessDetailsTitle   => _t('businessDetailsTitle');
+  String get businessDetailsDesc    => _t('businessDetailsDesc');
+  String get businessName           => _t('businessName');
+  String get businessDescHint       => _t('businessDescHint');
+  String get description            => _t('description');
+  String get address                => _t('address');
+  String get businessLocationTitle  => _t('businessLocationTitle');
+  String get businessLocationDesc   => _t('businessLocationDesc');
+  String get useGpsLocation         => _t('useGpsLocation');
+  String get fetchingLocation       => _t('fetchingLocation');
+  String get locationSaved          => _t('locationSaved');
+  String get orManualAddress        => _t('orManualAddress');
+  String get addressHint            => _t('addressHint');
+  String get locationOptionalNote   => _t('locationOptionalNote');
+  String get businessCreated        => _t('businessCreated');
+  String get startWorking           => _t('startWorking');
+  String get fieldRequired          => _t('fieldRequired');
+  String get continueWizard         => _t('continueWizard');
+  String get customBusinessTypeInfo => _t('customBusinessTypeInfo');
+  String get customBusinessTypeHint => _t('customBusinessTypeHint');
+  String get businessNameHint       => _t('businessNameHint');
+  String get businessNameRequired => _t('businessNameRequired');
+  String get businessNameMinLength  => _t('businessNameMinLength');
+  String get selectCurrency         => _t('selectCurrency');
+  String get selectCurrencyDesc     => _t('selectCurrencyDesc');
+  String get gpsAutoDetectSubtitle  => _t('gpsAutoDetectSubtitle');
+  String get orDivider              => _t('orDivider');
+  String get manualAddressLabel     => _t('manualAddressLabel');
+  String get createBusinessSubmit   => _t('createBusinessSubmit');
+
+  String termBatchUnit(String unit) => unit;
+  String businessCreatedDesc(String name) =>
+      _t('businessCreatedDesc').replaceAll('{name}', name);
+
+  /// BuildContext bo‘lmaganda (masalan, [ApiException]) — joriy til kodi bilan.
+  static String apiClientString(String localeCode, String key) {
+    final direct = _all[localeCode];
+    if (direct != null) {
+      return direct[key] ?? _all['uz']![key] ?? key;
+    }
+    final lang = localeCode.split('_').first.split('-').first;
+    return _all[lang]?[key] ?? _all['uz']![key] ?? key;
+  }
+
+  // ─── All translations ───
+  static const _all = <String, Map<String, String>>{
+    'uz': _uz,
+    'uz_CYRL': _uzCyrl,
+    'ru': _ru,
+    'kk': _kk,
+    'ky': _ky,
+    'tr': _tr,
+    'tg': _tg,
+  };
+
+  static const _uz = {
+    'hello': 'Salom',
+    'defaultUser': 'Foydalanuvchi',
+    'bakery': 'Biznes',
+    'bakeries': 'Bizneslar',
+    'selectBusiness': 'Biznes tanlang',
+    'selectBusinessSubtitle': 'Boshqarmoqchi bo\'lgan biznesingizni tanlang',
+    'noBusiness': 'Hali biznes yo\'q',
+    'createFirstBusiness': 'Birinchi biznesingizni yarating\nva boshqaruvni boshlang',
+    'addBusiness': 'Yangi biznes qo\'shish',
+    'manage': 'Boshqarish',
+    'todayProfit': 'Bugungi foyda',
+    'todayLoss': 'Bugungi zarar',
+    'netRevenue': 'Tushum (vozvratdan keyin)',
+    'expense': 'Xarajat',
+    'baked': 'Yopilgan',
+    'sack': 'Qop',
+    'sold': 'Sotilgan',
+    'returned': 'Qaytdi',
+    'pcs': 'ta',
+    'sacks': 'qop',
+    'noBreadToday': 'Bugun hali non yopilmadi',
+    'income': 'Daromad',
+    'profit': 'Foyda',
+    'productOut': 'Maxsulot chiqdi',
+    'productReturned': 'Maxsulot qaytdi',
+    'dashboardKpiOutput': 'Mahsulot chiqimi',
+    'dashboardKpiBatch': 'To\'plam',
+    'dashboardKpiSold': 'Sotilgan',
+    'dashboardKpiReturned': 'Qaytarilgan',
+    'dashboardEmptyOutput': 'Bugun hali chiqim qayd etilmagan',
+    'dashboardSectionOutput': 'Bugungi chiqimlar',
+    'dashboardBatchUnitGeneric': 'partiya',
+    'currency': 'so\'m',
+    'home': 'Asosiy',
+    'cashRegister': 'Kassa',
+    'statistics': 'Statistika',
+    'reportScreenTitle': 'Hisobot',
+    'reportPickRange': 'Oraliq',
+    'reportPickSingleDate': 'Sana',
+    'reportChipToday': 'Bugun',
+    'reportChipYesterday': 'Kecha',
+    'reportRangeLast7': '7 kun',
+    'reportRangeLast30': '30 kun',
+    'reportSectionSummary': 'Umumiy ko‘rsatkichlar',
+    'reportSectionReturnsByType': 'Vozvratlar (tur bo‘yicha)',
+    'reportSectionProducts': 'Mahsulot bo‘yicha',
+    'reportGrossRevenue': 'Tushum (vozvratdan oldin)',
+    'reportReturnsRecords': 'qayd',
+    'reportProductionRecords': 'Chiqim yozuvlari',
+    'reportEmptyReturns': 'Bu davrda vozvrat yo‘q',
+    'reportEmptyProducts': 'Mahsulot bo‘yicha ma’lumot yo‘q',
+    'reportProductProduced': 'Ishlab chiqarilgan',
+    'reportExpandTypesCount': '{n} tur',
+    'reportExpandProductsCount': '{n} mahsulot',
+    'profileTab': 'Profil',
+    'navHistory': 'Tarix',
+    'historyTitle': 'Tarix',
+    'historyTabCreated': 'Yaratilgan',
+    'historyTabReturns': 'Qaytarilgan',
+    'historyTabCash': 'Kassa',
+    'historyCreatedEmpty': 'Hali mahsulot chiqimi yo\'q',
+    'historyReturnsEmpty': 'Hali vozvrat qayd etilmagan',
+    'returnDetailTitle': 'Vozvrat batafsil',
+    'noExpenseToday': 'Bugun xarajat yozilmagan',
+    'addExpense': 'Xarajat',
+    'expenseCreateTitle': 'Xarajat qo‘shish',
+    'expenseCreateSubtitle': 'Turini tanlang, summani kiriting — tez va tushunarli.',
+    'expenseCategorySearchHint': 'Kategoriyalarni qidirish',
+    'expenseAddCategory': 'Yangi kategoriya',
+    'expenseAddCategoryTitle': 'O‘zingiz uchun kategoriya',
+    'expenseAddCategoryNameHint': 'Masalan: reklama, soliq',
+    'expenseAddCategorySave': 'Kategoriyani saqlash',
+    'expenseSelectCategory': 'Tur',
+    'expenseAmountLabel': 'Summa',
+    'expenseDescriptionLabel': 'Izoh (ixtiyoriy)',
+    'expenseSubmit': 'Xarajatni saqlash',
+    'expenseCategoriesEmpty': 'Kategoriyalar topilmadi',
+    'expenseCategoriesLoadError': 'Kategoriyalar yuklanmadi',
+    'daily': 'Kunlik',
+    'weekly': 'Xaftalik',
+    'monthly': 'Oylik',
+    'loss': 'Zarar',
+    'noData': 'Ma\'lumot yo\'q',
+    'production': 'Ishlab chiqarish',
+    'flourUsage': 'Un sarfi',
+    'bakedBread': 'Yopilgan non',
+    'ingredients': 'Ingredientlar',
+    'salesAndReturns': 'Sotuv va vozvrat',
+    'totalProduced': 'Jami ishlab chiqarilgan',
+    'returns': 'Vozvrat',
+    'soldAuto': 'Sotilgan (avto)',
+    'returnAmount': 'Vozvrat summa',
+    'netIncome': 'Sof daromad',
+    'expenses': 'Xarajatlar',
+    'internalIngredients': 'Ichki xarajatlar',
+    'external': 'Tashqi',
+    'total': 'Jami',
+    'settings': 'Sozlamalar',
+    'breadTypes': 'Mahsulot turlari',
+    'breadTypesDesc':
+        'Sotadigan mahsulot yoki xizmat turlari — har biri uchun narx',
+    'products': 'Mahsulotlar',
+    'productsDesc': 'Un, suv, tuz, xamirturush, yog\'...',
+    'recipes': 'Retseptlar',
+    'recipesDesc': 'Non uchun tarkibiy qismlar va miqdorlar',
+    'settingsCardTypesTitle': 'Mahsulotlaringiz turlari',
+    'settingsCardIngredientsTitle': 'Xom ashyolar',
+    'settingsCardRecipesTitle': 'Hisoblash tizimi',
+    'settingsTypesDesc_default':
+        'Sotadigan mahsulot va xizmat turlarini qo‘shing, narxlarni boshqaring.',
+    'settingsTypesDesc_bakery':
+        'Masalan: patir, somsa, lavash, tandir non... Har bir tur uchun alohida narx.',
+    'settingsTypesDesc_grill':
+        'Masalan: shashlik, tijora, rulet... Har bir pozitsiya uchun alohida narx.',
+    'settingsTypesDesc_restaurant':
+        'Masalan: taomlar, garnirlar, ichimliklar... Menyu bo‘yicha tartiblang.',
+    'settingsIngredientsDesc_default':
+        'Ingredientlar va xom ashyolarni narxlari va o‘lchov bilan kiriting.',
+    'settingsIngredientsDesc_bakery':
+        'Un, suv, tuz, xamirturush, yog‘ — har birining narxi va o‘lchovi.',
+    'settingsIngredientsDesc_grill':
+        'Go‘sht, ziravorlar, yog‘ — har birining narxi va o‘lchovi.',
+    'settingsIngredientsDesc_restaurant':
+        'Mahsulot va ingredientlar — ombor va tannarx bilan bog‘lang.',
+    'settingsRecipesDesc_default':
+        'Har bir mahsulot turiga bitta retsept: partiya birligi, chiqim va tannarx — foyda aniq.',
+    'settingsRecipesDesc_bakery':
+        'Har bir mahsulot uchun bitta retsept: partiya (qop va h.k.), chiqim va tannarx.',
+    'settingsRecipesDesc_grill':
+        'Har bir pozitsiya uchun bitta retsept: partiya, miqdor va tannarx.',
+    'settingsRecipesDesc_restaurant':
+        'Har bir menyu pozitsiyasi uchun bitta retsept va tannarx hisobi.',
+    'setupJourneyTitle': 'Sozlash tartibi',
+    'setupJourneyHint':
+        'Avval sotadigan mahsulot turini yarating, keyin xom ashyo va narxlarni kiriting, oxirida retsept orqali hisoblashni tizimlashtiring — shunda tannarx va foyda aniq bo‘ladi.',
+    'setupJourneyStepLabel1': 'Mahsulot',
+    'setupJourneyStepLabel2': 'Xom ashyo',
+    'setupJourneyStepLabel3': 'Hisoblash',
+    'setupJourneyAllDone': 'Barcha qadamlar bajarildi',
+    'recipeScreenTitle': 'Retseptlar',
+    'recipeEmptyTitle': 'Hali retseptlar yo‘q',
+    'recipeEmptySubtitle':
+        'Mahsulot turlari uchun retsept qo‘shing — ishlab chiqarish hisobi aniq bo‘ladi.',
+    'recipeAddCta': 'Retsept qo‘shish',
+    'recipeDeletedSnackbar': 'Retsept o‘chirildi',
+    'recipeErrorSnackbar': 'Xatolik yuz berdi',
+    'recipeCreateTitle': 'Yangi retsept',
+    'recipeStepProduct': 'Mahsulot',
+    'recipeStepBatch': 'Partiya',
+    'recipeStepIngredients': 'Tarkib',
+    'recipeSelectProductTitle': 'Qaysi mahsulot uchun?',
+    'recipeSelectProductSubtitle':
+        'Bitta tur tanlang — har bir tur uchun bitta retsept bo‘ladi.',
+    'recipeBatchCarouselTitle': 'Partiya birligi',
+    'recipeBatchCarouselSubtitle':
+        'Ishlab chiqarishda qanday hisoblaysiz: qop, blok, to‘plam...',
+    'recipeOutputLabel': 'Bitta partiyadan chiqadigan mahsulot soni',
+    'recipeOutputHint': 'Masalan: 100',
+    'recipeIngredientsSectionTitle': 'Bitta partiya uchun xom ashyo',
+    'recipeIngredientsSectionSubtitle':
+        'Tanlangan birlikdagi bitta partiyaga ketadigan miqdorlarni kiriting.',
+    'recipeAddIngredient': 'Mahsulot qo‘shish',
+    'recipeValidationSelectProduct': 'Mahsulot turini tanlang',
+    'recipeValidationBatch': 'Partiya birligini tanlang',
+    'recipeValidationOutput': 'Chiqim sonini kiriting',
+    'recipeValidationIngredients': 'Kamida bitta xom ashyo qo‘shing',
+    'recipeValidationDuplicateIngredient':
+        'Bir xil mahsulot ikki marta qo‘shilgan',
+    'recipeSaveSuccess': 'Retsept saqlandi',
+    'recipeRecipeBatchLine': '1 {unit} → {qty} ta',
+    'recipeBack': 'Orqaga',
+    'recipeIngredientSelectHint': 'Xom ashyo',
+    'recipeCardStatTitleOutput': 'Chiqim',
+    'recipeCardStatTitleBatchCost': 'Partiya tannaxi',
+    'recipeCardStatTitleUnitCost': '1 ta tannarx',
+    'recipeCardSectionIngredients': 'Tarkib',
+    'recipeCardIngredientLine': '{name} · {qty} {unit}',
+    'recipeDeleteConfirmTitle': 'Retseptni o‘chirish?',
+    'recipeDeleteConfirmBody':
+        '“{name}” retsepti o‘chiriladi. Bu amalni qaytarib bo‘lmaydi.',
+    'recipeCardTooltipOutput':
+        'Bitta partiyadan chiqadigan mahsulot soni.',
+    'recipeCardTooltipBatchCost':
+        'Bitta partiya uchun xom ashyo tannaxi (jami).',
+    'recipeCardTooltipUnitCost':
+        'Bitta mahsulot birligi tannaxi (jami ÷ chiqim).',
+    'productionDetailTitle': 'Partiya batafsil',
+    'productionDetailSummary': 'Bugungi yopilgan partiya',
+    'productionDetailBatch': 'Partiya soni',
+    'productionDetailOutput': 'Chiqim',
+    'productionDetailFlour': 'Sarflangan un',
+    'productionDetailIngredientCost': 'Xom ashyo tannaxi',
+    'productionDetailSalesEstimate': 'Taxminiy tushum',
+    'productionDetailBreakdown': 'Ingredientlar bo\'yicha',
+    'productionDetailOneRecipeBatch': '1 partiya (retsept)',
+    'productionDetailQtyTotal': 'Jami miqdor',
+    'productionDetailGrams': '{g} g',
+    'productionDetailPricePerUnit': '1 birlik narxi',
+    'productionDetailNoIngredients':
+        'Retsept ingredientlari mavjud emas yoki yuklanmadi.',
+    'productionDetailReturnToday': 'Bugungi vozvrat (shu tur bo\'yicha)',
+    'productionDetailEdit': 'Tahrirlash',
+    'productionDetailEditSheetTitle': 'Partiya va vozvratlar',
+    'productionDetailEditBatchLabel': 'Bugungi partiya soni',
+    'productionDetailEditReturnsTitle': 'Shu tur bo\'yicha vozvratlar (bugun)',
+    'productionDetailEditNoReturns': 'Bugun bu tur uchun vozvrat qayd etilmagan',
+    'productionDetailEditSaveBatch': 'Partiyani saqlash',
+    'productionDetailBatchUpdated': 'Partiya yangilandi',
+    'productionDetailReturnDeleted': 'Vozvrat o\'chirildi',
+    'productionDetailDeleteReturnTitle': 'Vozvratni o\'chirish?',
+    'productionDetailDeleteReturnBody':
+        'Bu qayd o\'chiriladi. Bosh sahifa va summalar yangilanadi.',
+    'productionDetailDeleteProductionTitle': 'Chiqimni o\'chirish?',
+    'productionDetailDeleteProductionBody':
+        'Ushbu chiqim qaydi o\'chiriladi. Shu tur va sanada boshqa partiya qolmasa, shu kunga yozilgan barcha vozvratlar ham o\'chiriladi.',
+    'productionDetailProductionDeleted': 'Chiqim o\'chirildi',
+    'productionOutTitle': 'Mahsulot chiqimi',
+    'productionOutStep1': 'Mahsulot',
+    'productionOutStep2': 'To\'plam',
+    'productionOutStep3': 'Yakun',
+    'productionOutStep1Title': 'Qaysi mahsulot?',
+    'productionOutStep1Subtitle':
+        'Hisoblashda bog\'langan mahsulot turini tanlang.',
+    'productionOutCategoryLabel': 'Mahsulot turi',
+    'productionOutCategoryHint': 'Tanlang',
+    'productionOutNoRecipeWarning':
+        'Bu tur uchun retsept yo\'q. Avval «Hisoblash» bo\'limida retsept yarating.',
+    'productionOutStep2Title': 'Partiya miqdori',
+    'productionOutStep2Subtitle':
+        '1 {unit} = {qty} {productUnit}. Kasr sonlar mumkin (masalan: 1.5).',
+    'productionOutBatchFieldLabel': '{unit} miqdori',
+    'productionOutSummaryTitle': 'Hisob-kitob',
+    'productionOutTotalOutput': '{qty} {unit}',
+    'productionOutCostLabel': 'Xarajat',
+    'productionOutIngredientsPreview': 'Sarflanadigan xom ashyo',
+    'productionOutCta': 'Chiqimni qayd etish',
+    'productionOutSuccess': '{qty} {unit} chiqim qayd etildi',
+    'productionOutValidationSelectProduct': 'Mahsulot turini tanlang',
+    'productionOutValidationNoRecipe': 'Bu tur uchun retsept topilmadi',
+    'productionOutValidationBatch': 'Partiya miqdori 0 dan katta bo\'lsin',
+    'productionOutStep3Title': 'Tekshirish va saqlash',
+    'productionOutStep3Subtitle': 'Ma\'lumotlar to\'g\'ri bo\'lsa, saqlang.',
+    'productionOutNext': 'Keyingi',
+    'productionOutSearchHint': 'Mahsulot qidirish',
+    'productionOutSearchEmpty': 'Hech narsa topilmadi',
+    'returnCreateTitle': 'Mahsulot qaytdi',
+    'returnCreateSubtitle':
+        'Qaytarilgan tur va miqdorni kiriting. Tur tanlanganda sotuv narxi avtomatik chiqadi.',
+    'returnProfitInfoTitle': 'Foyda va hisob',
+    'returnProfitInfoBody':
+        'Vozvrat qayd etilganda kunlik sotuv, tushum va foyda ko‘rsatkichlari (bosh sahifa va hisobotlar) shunga mos ravishda yangilanadi — bu real moliyaviy holatingizni aks ettiradi.',
+    'returnProfitInfoShort':
+        'Mahsulot qaytishi (vozvrat)ni kiritish foydani to‘g‘ri hisoblash uchun muhim.',
+    'returnProductionLabel': 'Partiya (chiqim)',
+    'returnNoProductionForCategory':
+        'Bu tur uchun bugun chiqim qayd etilmagan. Avval chiqim kiriting.',
+    'returnSearchHint': 'Mahsulot qidirish',
+    'returnSearchEmpty': 'Hech narsa topilmadi',
+    'returnCategoryLabel': 'Mahsulot turi',
+    'returnQuantityTitle': 'Qaytarilgan miqdor',
+    'returnQuantitySubtitle': 'Butun son (dona) kiriting.',
+    'returnPriceLabel': 'Bir dona narxi',
+    'returnReasonLabel': 'Sabab (ixtiyoriy)',
+    'returnReasonHint': 'Masalan: mijoz, sifat',
+    'returnCta': 'Vozvratni qayd etish',
+    'returnValidationSelectProduct': 'Mahsulot turini tanlang',
+    'returnValidationQty': 'Miqdor 0 dan katta bo‘lsin',
+    'returnValidationPrice': 'Narxni to‘g‘ri kiriting',
+    'returnSuccess': 'Vozvrat qayd etildi',
+    'returnPieceSuffix': 'ta',
+    'productCategoriesTitle': 'Mahsulot turlari',
+    'productCategoriesEmptyTitle': 'Hali mahsulot turlari yo\'q',
+    'productCategoriesEmptySubtitle':
+        'Biznesingizda sotiladigan mahsulot yoki xizmat turlarini qo\'shing',
+    'addProductCategoryModalTitle': 'Yangi tur',
+    'addProductCategoryModalSubtitle': 'Nom va sotuv narxini kiriting',
+    'productCategoriesNameLabel': 'Mahsulot nomi',
+    'productCategoriesNameHint': 'Masalan: lavash, somsa, set-menu',
+    'sellingPriceLabel': 'Sotuv narxi',
+    'sellingPriceHint': '0',
+    'currencyPickerLabel': 'Valyuta',
+    'productCategoriesAddCta': 'Tur qo\'shish',
+    'snackbarFillAllFields': 'Iltimos, barcha maydonlarni to\'ldiring',
+    'snackbarErrorGeneric': 'Xatolik yuz berdi',
+    'apiClientTimeout': 'Ulanish vaqti tugadi',
+    'apiClientNoConnection': 'Internet aloqasi yo\'q',
+    'apiClientUnexpected': 'Kutilmagan xatolik',
+    'apiInvalidResponseFormat': 'Kutilmagan javob formati',
+    'actionAdd': 'Qo\'shish',
+    'actionSave': 'Saqlash',
+    'editProductCategoryModalTitle': 'Tur tahrirlash',
+    'editIngredientModalTitle': 'Xom ashyoni tahrirlash',
+    'snackbarCategoryAdded': '{name} qo\'shildi',
+    'snackbarCategoryDeleted': '{name} o\'chirildi',
+    'snackbarCategoryUpdated': '{name} yangilandi',
+    'ingredientsEmptyTitle': 'Hali xom ashyo yo\'q',
+    'ingredientsEmptySubtitle':
+        'Retsept va tannarx uchun nom, o\'lchov birligi va 1 birlik narxini kiriting.',
+    'addIngredientModalTitle': 'Yangi xom ashyo',
+    'addIngredientModalSubtitle':
+        'Nom, birlik va narx. Valyutani narx yonidagi tugma orqali tanlang.',
+    'ingredientNameLabel': 'Nomi',
+    'ingredientNameHint': 'Masalan: un, suv, tuz',
+    'ingredientUnitFieldLabel': 'O\'lchov birligi',
+    'ingredientPricePerUnitLabel': '1 birlik narxi',
+    'ingredientUnit_kg': 'Kilogramm (kg)',
+    'ingredientUnit_gram': 'Gramm (g)',
+    'ingredientUnit_litr': 'Litr (l)',
+    'ingredientUnit_dona': 'Dona',
+    'ingredientsAddCta': 'Xom ashyo qo\'shish',
+    'ingredientAddHeroTitle': 'Yangi xom ashyo',
+    'ingredientPriceHintBanner':
+        'Narxni tanlangan birlik bo\'yicha to\'liq kiriting (masalan, 1 kg, 1 L yoki 1 dona). Retseptda g yoki ml ishlatsangiz ham, bu yerda umumiy narxni saqlaysiz.',
+    'ingredientUnitChipsLabel': 'O\'lchov birligi',
+    'snackbarIngredientAdded': '{name} qo\'shildi',
+    'snackbarIngredientDeleted': '{name} o\'chirildi',
+    'snackbarIngredientUpdated': '{name} yangilandi',
+    'ingredientPriceInfoTitle': 'Narx haqida',
+    'ingredientPriceInfoBody':
+        'Xom ashyo narxini umumiy qilib kiriting (1 kg, 1 dona yoki 1 litr narxi). Keyin tizim o‘zi gram yoki ml bo‘yicha hisoblab beradi.',
+    'gotIt': 'Tushunarli',
+    'general': 'Umumiy',
+    'manageAndSwitch': 'Boshqarish va almashtirish',
+    'staff': 'Xodimlar',
+    'staffManagement': 'Xodimlar boshqaruvi',
+    'darkMode': 'Tungi rejim',
+    'enabled': 'Yoqilgan',
+    'disabled': 'O\'chirilgan',
+    'language': 'Til',
+    'aboutApp': 'Ilova haqida',
+    'version': 'Versiya',
+    'logout': 'Tizimdan chiqish',
+    'unknown': 'Noma\'lum',
+    'balance': 'Asosiy Balans',
+    'topUp': 'To\'ldirish',
+    'profileInfo': 'Profil ma\'lumotlari',
+    'profileInfoDesc': 'Telefon, email va Telegram sozlamalari',
+    'phoneNumber': 'Telefon raqam',
+    'email': 'Email',
+    'telegram': 'Telegram',
+    'linked': 'Ulangan',
+    'notLinked': 'Ulanmagan',
+    'link': 'Ulash',
+    'changePhoto': 'Rasm o\'zgartirish',
+    'businessOwner': 'Biznes egasi',
+    'seller': 'Sotuvchi',
+    'deleteAccount': 'Hisobni o\'chirish',
+    'deleteAccountDesc': 'Hisobingizni o\'chirsangiz, barcha do\'konlaringiz, hisobotlaringiz va ma\'lumotlaringiz butunlay o\'chiriladi. Bu amalni qaytarib bo\'lmaydi.',
+    'deleteAccountConfirm': 'Haqiqatan ham hisobingizni o\'chirmoqchimisiz?',
+    'cancel': 'Bekor qilish',
+    'delete': 'O\'chirish',
+    'onboardingTitle1': 'Har qanday biznes uchun',
+    'onboardingDesc1': 'Nonvoyxona, shashlikxona, somsahona, shirinliklar, fastfood — barchasini bir joydan boshqaring',
+    'onboardingTitle2': 'Tan narx va foyda hisobi',
+    'onboardingDesc2': 'Har bir mahsulotning tan narxini aniq hisoblab, real foydangizni bilib oling',
+    'onboardingTitle3': 'Biznesingiz nazoratda',
+    'onboardingDesc3': 'Sotuv, xarajat va ishlab chiqarishni real vaqtda kuzatib boring',
+    'skip': 'O\'tkazib yuborish',
+    'next': 'Keyingi',
+    'getStarted': 'Boshlash',
+    'welcomeBack': 'Xush kelibsiz!',
+    'loginSubtitle': 'Davom etish uchun tizimga kiring',
+    'password': 'Parol',
+    'enterPhone': 'Telefon kiriting',
+    'enterPassword': 'Parol kiriting',
+    'loginButton': 'Kirish',
+    'noAccount': 'Akkaunt yo\'qmi?',
+    'registerLink': 'Ro\'yxatdan o\'ting',
+    'tryAgain': 'Qayta urinish',
+    'noInternet': 'Internet ulanishda xatolik',
+    'createBusiness': 'Biznes yaratish',
+    'businessTypeStep': 'Kategoriya',
+    'businessDetailsStep': "Ma'lumotlar",
+    'businessLocationStep': 'Lokatsiya',
+    'selectBusinessType': 'Biznes turini tanlang',
+    'selectBusinessTypeDesc': 'O\'zingizga mos kategoriyani tanlang — ilova ichida hamma narsa shunga moslashadi',
+    'businessDetailsTitle': 'Biznes haqida',
+    'businessDetailsDesc': 'Biznesingizning asosiy ma\'lumotlarini kiriting',
+    'businessName': 'Biznes nomi',
+    'businessDescHint': 'Qisqacha tavsif (ixtiyoriy)',
+    'description': 'Tavsif',
+    'address': 'Manzil',
+    'businessLocationTitle': 'Lokatsiya',
+    'businessLocationDesc': 'GPS orqali aniq joylashuvni saqlang yoki manzilni qo\'lda kiriting',
+    'useGpsLocation': 'GPS orqali joylashuv',
+    'fetchingLocation': 'Joylashuv aniqlanmoqda...',
+    'locationSaved': 'Joylashuv saqlandi',
+    'orManualAddress': 'yoki qo\'lda kiriting',
+    'addressHint': 'Masalan: Toshkent sh., Amir Temur ko\'chasi, 1',
+    'locationOptionalNote': 'Lokatsiya ixtiyoriy. Keyinchalik ham qo\'shish mumkin.',
+    'businessCreated': 'Biznes yaratildi! 🎉',
+    'businessCreatedDesc': '{name} muvaffaqiyatli yaratildi. Endi boshqaruv panelidan foydalanishingiz mumkin.',
+    'startWorking': 'Ishni boshlash',
+    'fieldRequired': 'Bu maydon majburiy',
+    'continueWizard': 'Davom etish',
+    'customBusinessTypeInfo':
+        'Biznesingiz turini yozing — biz uni hisobga olamiz',
+    'customBusinessTypeHint': 'Masalan: Pishiriqlar, Limon limonadi...',
+    'businessNameHint': 'Masalan: Markaziy Novvoyxona',
+    'businessNameRequired': 'Biznes nomini kiriting',
+    'businessNameMinLength': 'Kamida 2 ta harf',
+    'selectCurrency': 'Valyuta',
+    'selectCurrencyDesc':
+        'Hisobot va narxlarda ishlatiladigan valyutani tanlang',
+    'gpsAutoDetectSubtitle': 'Hozirgi joylashuvingizni avtomatik aniqlash',
+    'orDivider': 'yoki',
+    'manualAddressLabel': 'Manzilni qo\'lda kiriting',
+    'createBusinessSubmit': 'Biznesni yaratish',
+  };
+
+  static const _uzCyrl = {
+    'hello': 'Салом',
+    'defaultUser': 'Фойдаланувчи',
+    'bakery': 'Бизнес',
+    'bakeries': 'Бизнеслар',
+    'selectBusiness': 'Бизнес танланг',
+    'selectBusinessSubtitle': 'Бошқармоқчи бўлган бизнесингизни танланг',
+    'noBusiness': 'Ҳали бизнес йўқ',
+    'createFirstBusiness': 'Биринчи бизнесингизни яратинг\nва бошқарувни бошланг',
+    'addBusiness': 'Янги бизнес қўшиш',
+    'manage': 'Бошқариш',
+    'todayProfit': 'Бугунги фойда',
+    'todayLoss': 'Бугунги зарар',
+    'netRevenue': 'Тушум (возвратдан кейин)',
+    'expense': 'Харажат',
+    'baked': 'Ёпилган',
+    'sack': 'Қоп',
+    'sold': 'Сотилган',
+    'returned': 'Қайтди',
+    'pcs': 'та',
+    'sacks': 'қоп',
+    'noBreadToday': 'Бугун ҳали нон ёпилмади',
+    'income': 'Даромад',
+    'profit': 'Фойда',
+    'productOut': 'Маҳсулот чиқди',
+    'productReturned': 'Маҳсулот қайтди',
+    'dashboardKpiOutput': 'Маҳсулот чиқими',
+    'dashboardKpiBatch': 'Тўплам',
+    'dashboardKpiSold': 'Сотилган',
+    'dashboardKpiReturned': 'Қайтарилган',
+    'dashboardEmptyOutput': 'Бугун ҳали чиқим қайд этилмаган',
+    'dashboardSectionOutput': 'Бугунги чиқимлар',
+    'dashboardBatchUnitGeneric': 'партия',
+    'currency': 'сўм',
+    'home': 'Асосий',
+    'cashRegister': 'Касса',
+    'statistics': 'Статистика',
+    'reportScreenTitle': 'Ҳисобот',
+    'reportPickRange': 'Оралиқ',
+    'reportPickSingleDate': 'Сана',
+    'reportChipToday': 'Бугун',
+    'reportChipYesterday': 'Кеча',
+    'reportRangeLast7': '7 кун',
+    'reportRangeLast30': '30 кун',
+    'reportSectionSummary': 'Умумий кўрсаткичлар',
+    'reportSectionReturnsByType': 'Возвратлар (тур бўйича)',
+    'reportSectionProducts': 'Маҳсулот бўйича',
+    'reportGrossRevenue': 'Тушум (возвратдан олдин)',
+    'reportReturnsRecords': 'қайд',
+    'reportProductionRecords': 'Чиқим ёзувлари',
+    'reportEmptyReturns': 'Бу даврда возврат йўқ',
+    'reportEmptyProducts': 'Маҳсулот бўйича маълумот йўқ',
+    'reportProductProduced': 'Ишлаб чиқарилган',
+    'reportExpandTypesCount': '{n} тур',
+    'reportExpandProductsCount': '{n} маҳсулот',
+    'profileTab': 'Профил',
+    'navHistory': 'Тарих',
+    'historyTitle': 'Тарих',
+    'historyTabCreated': 'Яратилган',
+    'historyTabReturns': 'Қайтарилган',
+    'historyTabCash': 'Касса',
+    'historyCreatedEmpty': 'Ҳали маҳсулот чиқими йўқ',
+    'historyReturnsEmpty': 'Ҳали возврат ёзилмаган',
+    'returnDetailTitle': 'Возврат батафсил',
+    'noExpenseToday': 'Бугун харажат ёзилмаган',
+    'addExpense': 'Харажат',
+    'expenseCreateTitle': 'Харажат қўшиш',
+    'expenseCreateSubtitle': 'Турини танланг, суммани киритинг.',
+    'expenseCategorySearchHint': 'Категорияларни қидириш',
+    'expenseAddCategory': 'Янги категория',
+    'expenseAddCategoryTitle': 'Ўзингиз учун категория',
+    'expenseAddCategoryNameHint': 'Масалан: реклама',
+    'expenseAddCategorySave': 'Сақлаш',
+    'expenseSelectCategory': 'Тур',
+    'expenseAmountLabel': 'Сумма',
+    'expenseDescriptionLabel': 'Изоҳ (ихтиёрий)',
+    'expenseSubmit': 'Сақлаш',
+    'expenseCategoriesEmpty': 'Топилмади',
+    'expenseCategoriesLoadError': 'Юкланмади',
+    'daily': 'Кунлик',
+    'weekly': 'Ҳафталик',
+    'monthly': 'Ойлик',
+    'loss': 'Зарар',
+    'noData': 'Маълумот йўқ',
+    'production': 'Ишлаб чиқариш',
+    'flourUsage': 'Ун сарфи',
+    'bakedBread': 'Ёпилган нон',
+    'ingredients': 'Ингредиентлар',
+    'salesAndReturns': 'Сотув ва возврат',
+    'totalProduced': 'Жами ишлаб чиқарилган',
+    'returns': 'Возврат',
+    'soldAuto': 'Сотилган (авто)',
+    'returnAmount': 'Возврат суммаси',
+    'netIncome': 'Соф даромад',
+    'expenses': 'Харажатлар',
+    'internalIngredients': 'Ички харажатлар',
+    'external': 'Ташқи',
+    'total': 'Жами',
+    'settings': 'Созламалар',
+    'breadTypes': 'Маҳсулот турлари',
+    'breadTypesDesc':
+        'Сотадиган маҳсулот ёки хизмат турлари — ҳар бири учун нарх',
+    'products': 'Маҳсулотлар',
+    'productsDesc': 'Ун, сув, туз, хамиртуруш, ёғ...',
+    'recipes': 'Рецептлар',
+    'recipesDesc': 'Нон учун таркибий қисмлар ва миқдорлар',
+    'settingsCardTypesTitle': 'Маҳсулотларингиз турлари',
+    'settingsCardIngredientsTitle': 'Хом ашёлар',
+    'settingsCardRecipesTitle': 'Ҳисоблаш тизими',
+    'settingsTypesDesc_default':
+        'Сотадиган маҳсулот ва хизмат турларини қўшинг, нархларни бошқаринг.',
+    'settingsTypesDesc_bakery':
+        'Масалан: патир, самса, лаваш, тандир нон... Ҳар бир тур учун алоҳида нарх.',
+    'settingsTypesDesc_grill':
+        'Масалан: шашлик, тижора, рулет... Ҳар бир позиция учун алоҳида нарх.',
+    'settingsTypesDesc_restaurant':
+        'Масалан: таомлар, гарнирлар, ичимликлар... Меню бўйича тартибланг.',
+    'settingsIngredientsDesc_default':
+        'Ингредиентлар ва хом ашёларни нархлари ва ўлчов билан киритинг.',
+    'settingsIngredientsDesc_bakery':
+        'Ун, сув, туз, хамиртуруш, ёғ — ҳар бирининг нархи ва ўлчови.',
+    'settingsIngredientsDesc_grill':
+        'Гўшт, зираворлар, ёғ — ҳар бирининг нархи ва ўлчови.',
+    'settingsIngredientsDesc_restaurant':
+        'Маҳсулот ва ингредиентлар — омбор ва таннарх билан боғланг.',
+    'settingsRecipesDesc_default':
+        'Рецептлар ва таннарх — ҳар бир маҳсулот учун маржа ва фойда ҳисоби.',
+    'settingsRecipesDesc_bakery':
+        'Ҳар бир маҳсулот учун ингредиентлар нисбати ва таннарх — фойда аниқ.',
+    'settingsRecipesDesc_grill':
+        'Ҳар бир таом учун грамм ва таннарх — нарх ва фойда ҳисоби.',
+    'settingsRecipesDesc_restaurant':
+        'Таом ва ичимликлар учун таннарх ва сотувлар — ҳисоботлар автоматик.',
+    'setupJourneyTitle': 'Созлаш тартиби',
+    'setupJourneyHint':
+        'Аввал сотилаётган маҳсулот турини яратинг, кейин хом ашё ва нархларни киритинг, охирида рецепт орқали ҳисоблашни тизимлаштиринг — шунда таннарх ва фойда аниқ бўлади.',
+    'setupJourneyStepLabel1': 'Маҳсулот',
+    'setupJourneyStepLabel2': 'Хом ашё',
+    'setupJourneyStepLabel3': 'Ҳисоблаш',
+    'setupJourneyAllDone': 'Барча қадамлар бажарилди',
+    'recipeScreenTitle': 'Рецептлар',
+    'recipeEmptyTitle': 'Ҳали рецептлар йўқ',
+    'recipeEmptySubtitle':
+        'Маҳсулот турлари учун рецепт қўшинг — ишлаб чиқариш ҳисоби аниқ бўлади.',
+    'recipeAddCta': 'Рецепт қўшиш',
+    'recipeDeletedSnackbar': 'Рецепт ўчирилди',
+    'recipeErrorSnackbar': 'Хатолик юз берди',
+    'recipeCreateTitle': 'Янги рецепт',
+    'recipeStepProduct': 'Маҳсулот',
+    'recipeStepBatch': 'Партия',
+    'recipeStepIngredients': 'Таркиб',
+    'recipeSelectProductTitle': 'Қайси маҳсулот учун?',
+    'recipeSelectProductSubtitle':
+        'Битта тур танланг — ҳар бир тур учун бита рецепт бўлади.',
+    'recipeBatchCarouselTitle': 'Партия бирлиги',
+    'recipeBatchCarouselSubtitle':
+        'Ишлаб чиқаришда қандай ҳисоблайсиз: қоп, блок, тўплам...',
+    'recipeOutputLabel': 'Битта партиядан чиқадиган маҳсулот сони',
+    'recipeOutputHint': 'Масалан: 100',
+    'recipeIngredientsSectionTitle': 'Битта партия учун хом ашё',
+    'recipeIngredientsSectionSubtitle':
+        'Танланган бирликдаги битта партияга кетадиган миқдорларни киритинг.',
+    'recipeAddIngredient': 'Маҳсулот қўшиш',
+    'recipeValidationSelectProduct': 'Маҳсулот турини танланг',
+    'recipeValidationBatch': 'Партия бирлигини танланг',
+    'recipeValidationOutput': 'Чиқим сонини киритинг',
+    'recipeValidationIngredients': 'Камида бита хом ашё қўшинг',
+    'recipeValidationDuplicateIngredient':
+        'Бир хил маҳсулот икки марта қўшилган',
+    'recipeSaveSuccess': 'Рецепт сақланди',
+    'recipeRecipeBatchLine': '1 {unit} → {qty} та',
+    'recipeBack': 'Орқага',
+    'recipeIngredientSelectHint': 'Хом ашё',
+    'recipeCardStatTitleOutput': 'Чиқим',
+    'recipeCardStatTitleBatchCost': 'Партия таннахи',
+    'recipeCardStatTitleUnitCost': '1 та таннах',
+    'recipeCardSectionIngredients': 'Таркиб',
+    'recipeCardIngredientLine': '{name} · {qty} {unit}',
+    'recipeDeleteConfirmTitle': 'Рецептни ўчириш?',
+    'recipeDeleteConfirmBody':
+        '«{name}» рецепти ўчирилади. Бу амални қайтариб бўлмайди.',
+    'recipeCardTooltipOutput':
+        'Битта партиядан чиқадиган маҳсулот сони.',
+    'recipeCardTooltipBatchCost':
+        'Битта партия учун хом ашё таннахи (жами).',
+    'recipeCardTooltipUnitCost':
+        'Битта маҳсулот бирлиги таннахи (жами ÷ чиқим).',
+    'productionDetailTitle': 'Партия батафсил',
+    'productionDetailSummary': 'Бугун ёпилган партия',
+    'productionDetailBatch': 'Партия сони',
+    'productionDetailOutput': 'Чиқим',
+    'productionDetailFlour': 'Сарфланган ун',
+    'productionDetailIngredientCost': 'Хом ашё таннахи',
+    'productionDetailSalesEstimate': 'Тахминий тушум',
+    'productionDetailBreakdown': 'Ингредиентлар бўйича',
+    'productionDetailOneRecipeBatch': '1 партия (рецепт)',
+    'productionDetailQtyTotal': 'Жами миқдор',
+    'productionDetailGrams': '{g} г',
+    'productionDetailPricePerUnit': '1 бирлик нархи',
+    'productionDetailNoIngredients':
+        'Рецепт ингредиентлари мавжуд эмас ёки юкланмади.',
+    'productionDetailReturnToday': 'Бугунги возврат (шу тур бўйича)',
+    'productionDetailEdit': 'Таҳрирлаш',
+    'productionDetailEditSheetTitle': 'Партия ва возвратлар',
+    'productionDetailEditBatchLabel': 'Бугунги партия сони',
+    'productionDetailEditReturnsTitle': 'Шу тур бўйича возвратлар (бугун)',
+    'productionDetailEditNoReturns': 'Бугун бу тур учун возврат ёзилмаган',
+    'productionDetailEditSaveBatch': 'Партияни сақлаш',
+    'productionDetailBatchUpdated': 'Партия янгиланди',
+    'productionDetailReturnDeleted': 'Возврат ўчирилди',
+    'productionDetailDeleteReturnTitle': 'Возвратни ўчириш?',
+    'productionDetailDeleteReturnBody':
+        'Бу ёзув ўчирилади. Асосий саҳифа ва суммалар янгиланади.',
+    'productionDetailDeleteProductionTitle': 'Чиқимни ўчириш?',
+    'productionDetailDeleteProductionBody':
+        'Бу чиқим ёзуви ўчирилади. Шу тур ва санада бошқа партия қолмаса, шу кунга ёзилган барча возвратлар ҳам ўчирилади.',
+    'productionDetailProductionDeleted': 'Чиқим ўчирилди',
+    'productionOutTitle': 'Маҳсулот чиқими',
+    'productionOutStep1': 'Маҳсулот',
+    'productionOutStep2': 'Тўплам',
+    'productionOutStep3': 'Якун',
+    'productionOutStep1Title': 'Қайси маҳсулот?',
+    'productionOutStep1Subtitle':
+        'Ҳисоблашда боғланган маҳсулот турини танланг.',
+    'productionOutCategoryLabel': 'Маҳсулот тури',
+    'productionOutCategoryHint': 'Танланг',
+    'productionOutNoRecipeWarning':
+        'Бу тур учун рецепт йўқ. Аввал «Ҳисоблаш» бўлимида рецепт яратинг.',
+    'productionOutStep2Title': 'Партия миқдори',
+    'productionOutStep2Subtitle':
+        '1 {unit} = {qty} {productUnit}. Каср сонлар мумкин (масалан: 1.5).',
+    'productionOutBatchFieldLabel': '{unit} миқдори',
+    'productionOutSummaryTitle': 'Ҳисоб-китоб',
+    'productionOutTotalOutput': '{qty} {unit}',
+    'productionOutCostLabel': 'Харажат',
+    'productionOutIngredientsPreview': 'Сарфланадиган хом ашё',
+    'productionOutCta': 'Чиқимни қайд этиш',
+    'productionOutSuccess': '{qty} {unit} чиқим қайд этилди',
+    'productionOutValidationSelectProduct': 'Маҳсулот турини танланг',
+    'productionOutValidationNoRecipe': 'Бу тур учун рецепт топилмади',
+    'productionOutValidationBatch': 'Партия миқдори 0 дан катта бўлсин',
+    'productionOutStep3Title': 'Текшириш ва сақлаш',
+    'productionOutStep3Subtitle': 'Маълумотлар тўғри бўлса, сақланг.',
+    'productionOutNext': 'Кейинги',
+    'productionOutSearchHint': 'Маҳсулот қидириш',
+    'productionOutSearchEmpty': 'Ҳеч нарса топилмади',
+    'returnCreateTitle': 'Маҳсулот қайтди',
+    'returnCreateSubtitle':
+        'Қайтарилган тур ва миқдорни киритинг. Тур танланганда сотув нархи автоматик чиқади.',
+    'returnProfitInfoTitle': 'Фойда ва ҳисоб',
+    'returnProfitInfoBody':
+        'Возврат қайд этилганда кунлик сотув, тушум ва фойда кўрсаткичлари (бош саҳифа ва ҳисоботлар) шунга мос равишда янгиланади — бу реал молиявий ҳолатни акс эттиради.',
+    'returnProfitInfoShort':
+        'Маҳсулот қайтиши (возврат)ни киритиш фойдани тўғри ҳисоблаш учун муҳим.',
+    'returnProductionLabel': 'Партия (чиқим)',
+    'returnNoProductionForCategory':
+        'Бу тур учун бугун чиқим ёзилмаган. Аввал чиқим киритинг.',
+    'returnSearchHint': 'Маҳсулот қидириш',
+    'returnSearchEmpty': 'Ҳеч нарса топилмади',
+    'returnCategoryLabel': 'Маҳсулот тури',
+    'returnQuantityTitle': 'Қайтарилган миқдор',
+    'returnQuantitySubtitle': 'Бутун сон (дона) киритинг.',
+    'returnPriceLabel': 'Бир дона нархи',
+    'returnReasonLabel': 'Сабаб (ихтиёрий)',
+    'returnReasonHint': 'Масалан: мижоз, сифат',
+    'returnCta': 'Возвратни қайд этиш',
+    'returnValidationSelectProduct': 'Маҳсулот турини танланг',
+    'returnValidationQty': 'Миқдор 0 дан катта бўлсин',
+    'returnValidationPrice': 'Нархни тўғри киритинг',
+    'returnSuccess': 'Возврат қайд этилди',
+    'returnPieceSuffix': 'та',
+    'productCategoriesTitle': 'Маҳсулот турлари',
+    'productCategoriesEmptyTitle': 'Ҳали маҳсулот турлари йўқ',
+    'productCategoriesEmptySubtitle':
+        'Бизнесингизда сотиладиган маҳсулот ёки хизмат турларини қўшинг',
+    'addProductCategoryModalTitle': 'Янги тур',
+    'addProductCategoryModalSubtitle': 'Ном ва сотув нархини киритинг',
+    'productCategoriesNameLabel': 'Маҳсулот номи',
+    'productCategoriesNameHint': 'Масалан: лаваш, самса, сет-меню',
+    'sellingPriceLabel': 'Сотув нархи',
+    'sellingPriceHint': '0',
+    'currencyPickerLabel': 'Валюта',
+    'productCategoriesAddCta': 'Тур қўшиш',
+    'snackbarFillAllFields': 'Илтимос, барча майдонларни тўлдиринг',
+    'snackbarErrorGeneric': 'Хатолик юз берди',
+    'apiClientTimeout': 'Уланиш вақти тугади',
+    'apiClientNoConnection': 'Интернет алоқаси йўқ',
+    'apiClientUnexpected': 'Кутилмаган хатолик',
+    'apiInvalidResponseFormat': 'Кутилмаган жавоб формати',
+    'actionAdd': 'Қўшиш',
+    'actionSave': 'Сақлаш',
+    'editProductCategoryModalTitle': 'Турни таҳрирлаш',
+    'editIngredientModalTitle': 'Хом ашёни таҳрирлаш',
+    'snackbarCategoryAdded': '{name} қўшилди',
+    'snackbarCategoryDeleted': '{name} ўчирилди',
+    'snackbarCategoryUpdated': '{name} янгиланди',
+    'ingredientsEmptyTitle': 'Ҳали хом ашё йўқ',
+    'ingredientsEmptySubtitle':
+        'Рецепт ва таннарх учун ном, ўлчов бирлиги ва 1 бирлик нархини киритинг.',
+    'addIngredientModalTitle': 'Янги хом ашё',
+    'addIngredientModalSubtitle':
+        'Ном, бирлик ва нарх. Валютани нарх ёнидаги тугма орқали танланг.',
+    'ingredientNameLabel': 'Номи',
+    'ingredientNameHint': 'Масалан: ун, сув, туз',
+    'ingredientUnitFieldLabel': 'Ўлчов бирлиги',
+    'ingredientPricePerUnitLabel': '1 бирлик нархи',
+    'ingredientUnit_kg': 'Килограмм (kg)',
+    'ingredientUnit_gram': 'Грамм (g)',
+    'ingredientUnit_litr': 'Литр (l)',
+    'ingredientUnit_dona': 'Дона',
+    'ingredientsAddCta': 'Хом ашё қўшиш',
+    'ingredientAddHeroTitle': 'Янги хом ашё',
+    'ingredientPriceHintBanner':
+        'Нархни танланган бирлик бўйича тўлиқ киритинг (масалан, 1 кг, 1 Л ёки 1 дона). Рецептда г ёки мл ишлатсангиз ҳам, бу ерда умумий нархни сақлайсиз.',
+    'ingredientUnitChipsLabel': 'Ўлчов бирлиги',
+    'snackbarIngredientAdded': '{name} қўшилди',
+    'snackbarIngredientDeleted': '{name} ўчирилди',
+    'snackbarIngredientUpdated': '{name} янгиланди',
+    'ingredientPriceInfoTitle': 'Нарх ҳақида',
+    'ingredientPriceInfoBody':
+        'Хом ашё нархини умумий қилиб киритинг (1 кг, 1 дона ёки 1 л нархи). Кейин тизим ўзи грамм ёки мл бўйича ҳисоблаб беради.',
+    'gotIt': 'Тушунарли',
+    'general': 'Умумий',
+    'manageAndSwitch': 'Бошқариш ва алмаштириш',
+    'staff': 'Ходимлар',
+    'staffManagement': 'Ходимлар бошқаруви',
+    'darkMode': 'Тунги режим',
+    'enabled': 'Ёқилган',
+    'disabled': 'Ўчирилган',
+    'language': 'Тил',
+    'aboutApp': 'Илова ҳақида',
+    'version': 'Версия',
+    'logout': 'Тизимдан чиқиш',
+    'unknown': 'Номаълум',
+    'balance': 'Асосий Баланс',
+    'topUp': 'Тўлдириш',
+    'profileInfo': 'Профил маълумотлари',
+    'profileInfoDesc': 'Телефон, эмайл ва Телеграм созламалари',
+    'phoneNumber': 'Телефон рақам',
+    'email': 'Эмайл',
+    'telegram': 'Телеграм',
+    'linked': 'Уланган',
+    'notLinked': 'Уланмаган',
+    'link': 'Улаш',
+    'changePhoto': 'Расм ўзгартириш',
+    'businessOwner': 'Бизнес эгаси',
+    'seller': 'Сотувчи',
+    'deleteAccount': 'Ҳисобни ўчириш',
+    'deleteAccountDesc': 'Ҳисобингизни ўчирсангиз, барча дўконларингиз, ҳисоботларингиз ва маълумотларингиз бутунлай ўчирилади.',
+    'deleteAccountConfirm': 'Ҳақиқатан ҳам ҳисобингизни ўчирмоқчимисиз?',
+    'cancel': 'Бекор қилиш',
+    'delete': 'Ўчириш',
+    'onboardingTitle1': 'Ҳар қандай бизнес учун',
+    'onboardingDesc1': 'Нонвойхона, шашликхона, сомсахона, ширинликлар, фастфуд — барчасини бир жойдан бошқаринг',
+    'onboardingTitle2': 'Тан нарх ва фойда ҳисоби',
+    'onboardingDesc2': 'Ҳар бир маҳсулотнинг тан нархини аниқ ҳисоблаб, реал фойдангизни билиб олинг',
+    'onboardingTitle3': 'Бизнесингиз назоратда',
+    'onboardingDesc3': 'Сотув, харажат ва ишлаб чиқаришни реал вақтда кузатиб боринг',
+    'skip': 'Ўтказиб юбориш',
+    'next': 'Кейинги',
+    'getStarted': 'Бошлаш',
+    'welcomeBack': 'Хуш келибсиз!',
+    'loginSubtitle': 'Давом этиш учун тизимга киринг',
+    'password': 'Парол',
+    'enterPhone': 'Телефон киритинг',
+    'enterPassword': 'Парол киритинг',
+    'loginButton': 'Кириш',
+    'noAccount': 'Аккаунт йўқми?',
+    'registerLink': 'Рўйхатдан ўтинг',
+    'tryAgain': 'Қайта уриниш',
+    'noInternet': 'Интернет уланишда хатолик',
+    'createBusiness': 'Бизнес яратиш',
+    'businessTypeStep': 'Категория',
+    'businessDetailsStep': 'Маълумотлар',
+    'businessLocationStep': 'Локация',
+    'selectBusinessType': 'Бизнес турини танланг',
+    'selectBusinessTypeDesc': 'Ўзингизга мос категорияни танланг',
+    'businessDetailsTitle': 'Бизнес ҳақида',
+    'businessDetailsDesc': 'Бизнесингизнинг асосий маълумотларини киритинг',
+    'businessName': 'Бизнес номи',
+    'businessDescHint': 'Қисқача тавсиф (ихтиёрий)',
+    'description': 'Тавсиф',
+    'address': 'Манзил',
+    'businessLocationTitle': 'Локация',
+    'businessLocationDesc': 'GPS орқали жойлашувни сақланг ёки мanzilni қўлда киритинг',
+    'useGpsLocation': 'GPS орқали жойлашув',
+    'fetchingLocation': 'Жойлашув аниқланмоқда...',
+    'locationSaved': 'Жойлашув сақланди',
+    'orManualAddress': 'ёки қўлда киритинг',
+    'addressHint': 'Масалан: Тошкент ш., Амир Темур кўчаси, 1',
+    'locationOptionalNote': 'Локация ихтиёрий. Кейинчалик ҳам қўшиш мумкин.',
+    'businessCreated': 'Бизнес яратилди! 🎉',
+    'businessCreatedDesc': '{name} муваффақиятли яратилди.',
+    'startWorking': 'Ишни бошлаш',
+    'fieldRequired': 'Бу майдон мажбурий',
+    'continueWizard': 'Давом этиш',
+    'customBusinessTypeInfo':
+        'Бизнесингиз турини ёзинг — биз уни ҳисобга оламиз',
+    'customBusinessTypeHint': 'Масалан: Пишириқлар, Лимон лимонади...',
+    'businessNameHint': 'Масалан: Марказий Новвойхона',
+    'businessNameRequired': 'Бизнес номини киритинг',
+    'businessNameMinLength': 'Камида 2 та ҳарф',
+    'selectCurrency': 'Валюта',
+    'selectCurrencyDesc':
+        'Ҳисобот ва нархларда ишлатиладиган валютани танланг',
+    'gpsAutoDetectSubtitle':
+        'Ҳозирги жойлашувингизни автоматик аниқлаш',
+    'orDivider': 'ёки',
+    'manualAddressLabel': 'Манзилни қўлда киритинг',
+    'createBusinessSubmit': 'Бизнесни яратиш',
+  };
+
+  static const _ru = {
+    'hello': 'Привет',
+    'defaultUser': 'Пользователь',
+    'bakery': 'Бизнес',
+    'bakeries': 'Бизнесы',
+    'selectBusiness': 'Выберите бизнес',
+    'selectBusinessSubtitle': 'Выберите бизнес, которым хотите управлять',
+    'noBusiness': 'Бизнесов пока нет',
+    'createFirstBusiness': 'Создайте свой первый бизнес\nи начните управление',
+    'addBusiness': 'Добавить бизнес',
+    'manage': 'Управление',
+    'todayProfit': 'Прибыль за сегодня',
+    'todayLoss': 'Убыток за сегодня',
+    'netRevenue': 'Выручка после возвратов',
+    'expense': 'Расход',
+    'baked': 'Выпечено',
+    'sack': 'Мешок',
+    'sold': 'Продано',
+    'returned': 'Возврат',
+    'pcs': 'шт',
+    'sacks': 'мешк.',
+    'noBreadToday': 'Сегодня хлеб ещё не выпекался',
+    'income': 'Доход',
+    'profit': 'Прибыль',
+    'productOut': 'Продукция выпущена',
+    'productReturned': 'Возврат продукции',
+    'dashboardKpiOutput': 'Выпуск',
+    'dashboardKpiBatch': 'Партии',
+    'dashboardKpiSold': 'Продано',
+    'dashboardKpiReturned': 'Возврат',
+    'dashboardEmptyOutput': 'Сегодня выпуск ещё не записан',
+    'dashboardSectionOutput': 'Выпуск за сегодня',
+    'dashboardBatchUnitGeneric': 'парт.',
+    'currency': 'сум',
+    'home': 'Главная',
+    'cashRegister': 'Касса',
+    'statistics': 'Статистика',
+    'reportScreenTitle': 'Отчёт',
+    'reportPickRange': 'Период',
+    'reportPickSingleDate': 'Дата',
+    'reportChipToday': 'Сегодня',
+    'reportChipYesterday': 'Вчера',
+    'reportRangeLast7': '7 дней',
+    'reportRangeLast30': '30 дней',
+    'reportSectionSummary': 'Сводка',
+    'reportSectionReturnsByType': 'Возвраты по типу',
+    'reportSectionProducts': 'По продуктам',
+    'reportGrossRevenue': 'Выручка до возвратов',
+    'reportReturnsRecords': 'зап.',
+    'reportProductionRecords': 'Записей выпуска',
+    'reportEmptyReturns': 'Нет возвратов за период',
+    'reportEmptyProducts': 'Нет данных по продуктам',
+    'reportProductProduced': 'Выпущено',
+    'reportExpandTypesCount': '{n} типов',
+    'reportExpandProductsCount': '{n} поз.',
+    'profileTab': 'Профиль',
+    'navHistory': 'История',
+    'historyTitle': 'История',
+    'historyTabCreated': 'Создано',
+    'historyTabReturns': 'Возвраты',
+    'historyTabCash': 'Касса',
+    'historyCreatedEmpty': 'Пока нет выпусков продукции',
+    'historyReturnsEmpty': 'Пока нет возвратов',
+    'returnDetailTitle': 'Возврат',
+    'noExpenseToday': 'Сегодня расходов нет',
+    'addExpense': 'Расход',
+    'expenseCreateTitle': 'Добавить расход',
+    'expenseCreateSubtitle': 'Выберите тип и введите сумму.',
+    'expenseCategorySearchHint': 'Поиск категорий',
+    'expenseAddCategory': 'Новая категория',
+    'expenseAddCategoryTitle': 'Своя категория',
+    'expenseAddCategoryNameHint': 'Например: реклама',
+    'expenseAddCategorySave': 'Сохранить категорию',
+    'expenseSelectCategory': 'Тип',
+    'expenseAmountLabel': 'Сумма',
+    'expenseDescriptionLabel': 'Комментарий (необязательно)',
+    'expenseSubmit': 'Сохранить расход',
+    'expenseCategoriesEmpty': 'Ничего не найдено',
+    'expenseCategoriesLoadError': 'Не удалось загрузить',
+    'daily': 'Дневной',
+    'weekly': 'Недельный',
+    'monthly': 'Месячный',
+    'loss': 'Убыток',
+    'noData': 'Нет данных',
+    'production': 'Производство',
+    'flourUsage': 'Расход муки',
+    'bakedBread': 'Выпечено хлеба',
+    'ingredients': 'Ингредиенты',
+    'salesAndReturns': 'Продажи и возвраты',
+    'totalProduced': 'Всего произведено',
+    'returns': 'Возвраты',
+    'soldAuto': 'Продано (авто)',
+    'returnAmount': 'Сумма возвратов',
+    'netIncome': 'Чистый доход',
+    'expenses': 'Расходы',
+    'internalIngredients': 'Внутренние расходы',
+    'external': 'Внешние',
+    'total': 'Итого',
+    'settings': 'Настройки',
+    'breadTypes': 'Типы продукции',
+    'breadTypesDesc':
+        'Виды товаров или услуг — цена для каждой позиции',
+    'products': 'Продукты',
+    'productsDesc': 'Мука, вода, соль, дрожжи, масло...',
+    'recipes': 'Рецепты',
+    'recipesDesc': 'Состав и количество для хлеба',
+    'settingsCardTypesTitle': 'Типы вашей продукции',
+    'settingsCardIngredientsTitle': 'Сырьё и ингредиенты',
+    'settingsCardRecipesTitle': 'Система расчёта',
+    'settingsTypesDesc_default':
+        'Добавляйте категории продукции и услуг, управляйте ценами.',
+    'settingsTypesDesc_bakery':
+        'Например: патир, самса, лаваш, тандыр... Отдельная цена для каждого вида.',
+    'settingsTypesDesc_grill':
+        'Например: шашлык, люля, рулет... Отдельная цена за каждую позицию.',
+    'settingsTypesDesc_restaurant':
+        'Например: блюда, гарниры, напитки... Структурируйте по меню.',
+    'settingsIngredientsDesc_default':
+        'Введите ингредиенты и сырьё с ценами и единицами измерения.',
+    'settingsIngredientsDesc_bakery':
+        'Мука, вода, соль, дрожжи, масло — цена и единица для каждого.',
+    'settingsIngredientsDesc_grill':
+        'Мясо, специи, масло — цена и единица для каждого.',
+    'settingsIngredientsDesc_restaurant':
+        'Продукты и ингредиенты — связь со складом и себестоимостью.',
+    'settingsRecipesDesc_default':
+        'Рецепты и себестоимость — маржа и прибыль по каждому товару.',
+    'settingsRecipesDesc_bakery':
+        'Соотношение ингредиентов и себестоимость — прибыль понятна.',
+    'settingsRecipesDesc_grill':
+        'Граммы и себестоимость на блюдо — цена и прибыль.',
+    'settingsRecipesDesc_restaurant':
+        'Себестоимость блюд и напитков — отчёты автоматически.',
+    'setupJourneyTitle': 'Порядок настройки',
+    'setupJourneyHint':
+        'Сначала создайте тип продукции, затем добавьте сырьё и цены, затем настройте расчёт по рецепту — так себестоимость и прибыль будут точными.',
+    'setupJourneyStepLabel1': 'Продукция',
+    'setupJourneyStepLabel2': 'Сырьё',
+    'setupJourneyStepLabel3': 'Расчёт',
+    'setupJourneyAllDone': 'Все шаги выполнены',
+    'recipeScreenTitle': 'Рецепты',
+    'recipeEmptyTitle': 'Рецептов пока нет',
+    'recipeEmptySubtitle':
+        'Добавьте рецепты для типов продукции — учёт производства будет точным.',
+    'recipeAddCta': 'Добавить рецепт',
+    'recipeDeletedSnackbar': 'Рецепт удалён',
+    'recipeErrorSnackbar': 'Произошла ошибка',
+    'recipeCreateTitle': 'Новый рецепт',
+    'recipeStepProduct': 'Продукция',
+    'recipeStepBatch': 'Партия',
+    'recipeStepIngredients': 'Состав',
+    'recipeSelectProductTitle': 'Для какого продукта?',
+    'recipeSelectProductSubtitle':
+        'Выберите один тип — для каждого типа один рецепт.',
+    'recipeBatchCarouselTitle': 'Единица партии',
+    'recipeBatchCarouselSubtitle':
+        'Как считаете на производстве: мешок, блок, комплект...',
+    'recipeOutputLabel': 'Количество продукции за одну партию',
+    'recipeOutputHint': 'Например: 100',
+    'recipeIngredientsSectionTitle': 'Сырьё на одну партию',
+    'recipeIngredientsSectionSubtitle':
+        'Введите количества на одну партию в выбранной единице.',
+    'recipeAddIngredient': 'Добавить позицию',
+    'recipeValidationSelectProduct': 'Выберите тип продукции',
+    'recipeValidationBatch': 'Выберите единицу партии',
+    'recipeValidationOutput': 'Введите количество выпуска',
+    'recipeValidationIngredients': 'Добавьте хотя бы одно сырьё',
+    'recipeValidationDuplicateIngredient':
+        'Один и тот же ингредиент добавлен дважды',
+    'recipeSaveSuccess': 'Рецепт сохранён',
+    'recipeRecipeBatchLine': '1 {unit} → {qty} шт',
+    'recipeBack': 'Назад',
+    'recipeIngredientSelectHint': 'Сырьё',
+    'recipeCardStatTitleOutput': 'Выпуск',
+    'recipeCardStatTitleBatchCost': 'Себестоимость партии',
+    'recipeCardStatTitleUnitCost': 'Себестоимость 1 шт',
+    'recipeCardSectionIngredients': 'Состав',
+    'recipeCardIngredientLine': '{name} · {qty} {unit}',
+    'recipeDeleteConfirmTitle': 'Удалить рецепт?',
+    'recipeDeleteConfirmBody':
+        'Рецепт «{name}» будет удалён. Это действие нельзя отменить.',
+    'recipeCardTooltipOutput':
+        'Количество продукции за одну партию.',
+    'recipeCardTooltipBatchCost':
+        'Себестоимость сырья на одну партию (всего).',
+    'recipeCardTooltipUnitCost':
+        'Себестоимость единицы продукции (всего ÷ выпуск).',
+    'productionDetailTitle': 'Партия подробно',
+    'productionDetailSummary': 'Закрытая сегодня партия',
+    'productionDetailBatch': 'Количество партий',
+    'productionDetailOutput': 'Выпуск',
+    'productionDetailFlour': 'Расход муки',
+    'productionDetailIngredientCost': 'Себестоимость сырья',
+    'productionDetailSalesEstimate': 'Ориентировочная выручка',
+    'productionDetailBreakdown': 'По ингредиентам',
+    'productionDetailOneRecipeBatch': '1 партия (рецепт)',
+    'productionDetailQtyTotal': 'Итого количество',
+    'productionDetailGrams': '{g} г',
+    'productionDetailPricePerUnit': 'Цена за единицу',
+    'productionDetailNoIngredients':
+        'Ингредиенты рецепта отсутствуют или не загрузились.',
+    'productionDetailReturnToday': 'Возврат за сегодня (по этому типу)',
+    'productionDetailEdit': 'Редактировать',
+    'productionDetailEditSheetTitle': 'Партия и возвраты',
+    'productionDetailEditBatchLabel': 'Количество партий сегодня',
+    'productionDetailEditReturnsTitle': 'Возвраты по этому типу (сегодня)',
+    'productionDetailEditNoReturns': 'За сегодня возвратов по этому типу нет',
+    'productionDetailEditSaveBatch': 'Сохранить партию',
+    'productionDetailBatchUpdated': 'Партия обновлена',
+    'productionDetailReturnDeleted': 'Возврат удалён',
+    'productionDetailDeleteReturnTitle': 'Удалить возврат?',
+    'productionDetailDeleteReturnBody':
+        'Запись будет удалена. Главная и суммы обновятся.',
+    'productionDetailDeleteProductionTitle': 'Удалить выпуск?',
+    'productionDetailDeleteProductionBody':
+        'Запись о выпуске будет удалена. Если по этому типу за дату не останется других партий, все возвраты за этот день для этого типа тоже будут удалены.',
+    'productionDetailProductionDeleted': 'Выпуск удалён',
+    'productionOutTitle': 'Выпуск продукции',
+    'productionOutStep1': 'Продукция',
+    'productionOutStep2': 'Партия',
+    'productionOutStep3': 'Итог',
+    'productionOutStep1Title': 'Какая продукция?',
+    'productionOutStep1Subtitle':
+        'Выберите тип, привязанный к расчёту (рецепту).',
+    'productionOutCategoryLabel': 'Тип продукции',
+    'productionOutCategoryHint': 'Выберите',
+    'productionOutNoRecipeWarning':
+        'Для этого типа нет рецепта. Сначала создайте расчёт в разделе «Система расчёта».',
+    'productionOutStep2Title': 'Количество партий',
+    'productionOutStep2Subtitle':
+        '1 {unit} = {qty} {productUnit}. Допускаются дроби (например: 1.5).',
+    'productionOutBatchFieldLabel': 'Количество ({unit})',
+    'productionOutSummaryTitle': 'Расчёт',
+    'productionOutTotalOutput': '{qty} {unit}',
+    'productionOutCostLabel': 'Затраты',
+    'productionOutIngredientsPreview': 'Расход сырья',
+    'productionOutCta': 'Записать выпуск',
+    'productionOutSuccess': 'Выпуск {qty} {unit} записан',
+    'productionOutValidationSelectProduct': 'Выберите тип продукции',
+    'productionOutValidationNoRecipe': 'Для этого типа нет рецепта',
+    'productionOutValidationBatch': 'Введите количество партий больше 0',
+    'productionOutStep3Title': 'Проверка и сохранение',
+    'productionOutStep3Subtitle': 'Проверьте данные и сохраните.',
+    'productionOutNext': 'Далее',
+    'productionOutSearchHint': 'Поиск продукции',
+    'productionOutSearchEmpty': 'Ничего не найдено',
+    'returnCreateTitle': 'Возврат продукции',
+    'returnCreateSubtitle':
+        'Укажите тип и количество возврата. При выборе типа цена продажи подставится автоматически.',
+    'returnProfitInfoTitle': 'Прибыль и учёт',
+    'returnProfitInfoBody':
+        'После записи возврата обновятся дневные продажи, выручка и прибыль (главная и отчёты) — так отражается реальное финансовое положение.',
+    'returnProfitInfoShort':
+        'Учёт возврата важен для корректной прибыли.',
+    'returnProductionLabel': 'Партия (выпуск)',
+    'returnNoProductionForCategory':
+        'За сегодня нет выпуска по этому типу. Сначала запишите выпуск.',
+    'returnSearchHint': 'Поиск продукции',
+    'returnSearchEmpty': 'Ничего не найдено',
+    'returnCategoryLabel': 'Тип продукции',
+    'returnQuantityTitle': 'Количество возврата',
+    'returnQuantitySubtitle': 'Введите целое число (шт.).',
+    'returnPriceLabel': 'Цена за штуку',
+    'returnReasonLabel': 'Причина (необязательно)',
+    'returnReasonHint': 'Например: клиент, качество',
+    'returnCta': 'Записать возврат',
+    'returnValidationSelectProduct': 'Выберите тип продукции',
+    'returnValidationQty': 'Количество должно быть больше 0',
+    'returnValidationPrice': 'Введите корректную цену',
+    'returnSuccess': 'Возврат записан',
+    'returnPieceSuffix': 'шт.',
+    'productCategoriesTitle': 'Типы продукции',
+    'productCategoriesEmptyTitle': 'Пока нет типов продукции',
+    'productCategoriesEmptySubtitle':
+        'Добавьте виды товаров или услуг, которые продаёте',
+    'addProductCategoryModalTitle': 'Новый тип',
+    'addProductCategoryModalSubtitle': 'Введите название и цену продажи',
+    'productCategoriesNameLabel': 'Название',
+    'productCategoriesNameHint': 'Например: лаваш, сет-меню',
+    'sellingPriceLabel': 'Цена продажи',
+    'sellingPriceHint': '0',
+    'currencyPickerLabel': 'Валюта',
+    'productCategoriesAddCta': 'Добавить тип',
+    'snackbarFillAllFields': 'Заполните все поля',
+    'snackbarErrorGeneric': 'Произошла ошибка',
+    'apiClientTimeout': 'Время ожидания истекло',
+    'apiClientNoConnection': 'Нет подключения к интернету',
+    'apiClientUnexpected': 'Неожиданная ошибка',
+    'apiInvalidResponseFormat': 'Неверный формат ответа',
+    'actionAdd': 'Добавить',
+    'actionSave': 'Сохранить',
+    'editProductCategoryModalTitle': 'Редактировать тип',
+    'editIngredientModalTitle': 'Редактировать сырьё',
+    'snackbarCategoryAdded': '{name} добавлено',
+    'snackbarCategoryDeleted': '{name} удалено',
+    'snackbarCategoryUpdated': '{name} обновлено',
+    'ingredientsEmptyTitle': 'Сырья пока нет',
+    'ingredientsEmptySubtitle':
+        'Укажите название, единицу измерения и цену за единицу для рецептов и себестоимости.',
+    'addIngredientModalTitle': 'Новое сырьё',
+    'addIngredientModalSubtitle':
+        'Название, единица и цена. Валюта — кнопка справа от суммы.',
+    'ingredientNameLabel': 'Название',
+    'ingredientNameHint': 'Например: мука, вода, соль',
+    'ingredientUnitFieldLabel': 'Единица измерения',
+    'ingredientPricePerUnitLabel': 'Цена за 1 единицу',
+    'ingredientUnit_kg': 'Килограмм (kg)',
+    'ingredientUnit_gram': 'Грамм (g)',
+    'ingredientUnit_litr': 'Литр (l)',
+    'ingredientUnit_dona': 'Штука',
+    'ingredientsAddCta': 'Добавить сырьё',
+    'ingredientAddHeroTitle': 'Новое сырьё',
+    'ingredientPriceHintBanner':
+        'Введите полную цену за выбранную единицу (например, за 1 кг, 1 л или 1 шт.). В рецепте можно использовать г или мл — здесь хранится общая цена.',
+    'ingredientUnitChipsLabel': 'Единица измерения',
+    'snackbarIngredientAdded': '{name} добавлено',
+    'snackbarIngredientDeleted': '{name} удалено',
+    'snackbarIngredientUpdated': '{name} обновлено',
+    'ingredientPriceInfoTitle': 'О цене',
+    'ingredientPriceInfoBody':
+        'Введите общую цену сырья за единицу (1 кг, 1 шт. или 1 л). В рецептах система сама пересчитает в граммы или миллилитры.',
+    'gotIt': 'Понятно',
+    'general': 'Общие',
+    'manageAndSwitch': 'Управление и переключение',
+    'staff': 'Сотрудники',
+    'staffManagement': 'Управление персоналом',
+    'darkMode': 'Тёмная тема',
+    'enabled': 'Включено',
+    'disabled': 'Выключено',
+    'language': 'Язык',
+    'aboutApp': 'О приложении',
+    'version': 'Версия',
+    'logout': 'Выйти из системы',
+    'unknown': 'Неизвестно',
+    'balance': 'Основной Баланс',
+    'topUp': 'Пополнить',
+    'profileInfo': 'Данные профиля',
+    'profileInfoDesc': 'Телефон, почта и настройки Telegram',
+    'phoneNumber': 'Номер телефона',
+    'email': 'Эл. почта',
+    'telegram': 'Телеграм',
+    'linked': 'Привязан',
+    'notLinked': 'Не привязан',
+    'link': 'Привязать',
+    'changePhoto': 'Изменить фото',
+    'businessOwner': 'Владелец бизнеса',
+    'seller': 'Продавец',
+    'deleteAccount': 'Удалить аккаунт',
+    'deleteAccountDesc': 'При удалении аккаунта все ваши магазины, отчёты и данные будут безвозвратно удалены.',
+    'deleteAccountConfirm': 'Вы действительно хотите удалить аккаунт?',
+    'cancel': 'Отмена',
+    'delete': 'Удалить',
+    'onboardingTitle1': 'Для любого бизнеса',
+    'onboardingDesc1': 'Пекарня, шашлычная, самсахана, кондитерская, фастфуд — управляйте из одного места',
+    'onboardingTitle2': 'Себестоимость и прибыль',
+    'onboardingDesc2': 'Точно рассчитайте себестоимость каждого продукта и узнайте реальную прибыль',
+    'onboardingTitle3': 'Бизнес под контролем',
+    'onboardingDesc3': 'Отслеживайте продажи, расходы и производство в реальном времени',
+    'skip': 'Пропустить',
+    'next': 'Далее',
+    'getStarted': 'Начать',
+    'welcomeBack': 'Добро пожаловать!',
+    'loginSubtitle': 'Войдите для продолжения',
+    'password': 'Пароль',
+    'enterPhone': 'Введите телефон',
+    'enterPassword': 'Введите пароль',
+    'loginButton': 'Войти',
+    'noAccount': 'Нет аккаунта?',
+    'registerLink': 'Зарегистрируйтесь',
+    'tryAgain': 'Повторить',
+    'noInternet': 'Ошибка подключения к интернету',
+    'createBusiness': 'Создать бизнес',
+    'businessTypeStep': 'Категория',
+    'businessDetailsStep': 'Информация',
+    'businessLocationStep': 'Локация',
+    'selectBusinessType': 'Выберите тип бизнеса',
+    'selectBusinessTypeDesc': 'Выберите подходящую категорию — интерфейс адаптируется',
+    'businessDetailsTitle': 'О бизнесе',
+    'businessDetailsDesc': 'Введите основные данные вашего бизнеса',
+    'businessName': 'Название бизнеса',
+    'businessDescHint': 'Краткое описание (необязательно)',
+    'description': 'Описание',
+    'address': 'Адрес',
+    'businessLocationTitle': 'Местоположение',
+    'businessLocationDesc': 'Сохраните GPS-координаты или введите адрес вручную',
+    'useGpsLocation': 'Определить по GPS',
+    'fetchingLocation': 'Определение местоположения...',
+    'locationSaved': 'Местоположение сохранено',
+    'orManualAddress': 'или введите вручную',
+    'addressHint': 'Например: г. Ташкент, ул. Амира Темура, 1',
+    'locationOptionalNote': 'Местоположение необязательно. Можно добавить позже.',
+    'businessCreated': 'Бизнес создан! 🎉',
+    'businessCreatedDesc': '{name} успешно создан.',
+    'startWorking': 'Начать работу',
+    'fieldRequired': 'Это поле обязательно',
+    'continueWizard': 'Продолжить',
+    'customBusinessTypeInfo':
+        'Укажите тип бизнеса — мы это учтём',
+    'customBusinessTypeHint': 'Например: Выпечка, Лимонады...',
+    'businessNameHint': 'Например: Центральная пекарня',
+    'businessNameRequired': 'Введите название бизнеса',
+    'businessNameMinLength': 'Минимум 2 символа',
+    'selectCurrency': 'Валюта',
+    'selectCurrencyDesc':
+        'Валюта для отчётов и цен',
+    'gpsAutoDetectSubtitle':
+        'Автоматически определить текущее местоположение',
+    'orDivider': 'или',
+    'manualAddressLabel': 'Введите адрес вручную',
+    'createBusinessSubmit': 'Создать бизнес',
+  };
+
+  static const _kk = {
+    'hello': 'Сәлем',
+    'defaultUser': 'Пайдаланушы',
+    'bakery': 'Бизнес',
+    'bakeries': 'Бизнестер',
+    'selectBusiness': 'Бизнес таңдаңыз',
+    'selectBusinessSubtitle': 'Басқарғыңыз келген бизнесті таңдаңыз',
+    'noBusiness': 'Бизнес жоқ',
+    'createFirstBusiness': 'Алғашқы бизнесіңізді жасаңыз\nжәне басқаруды бастаңыз',
+    'addBusiness': 'Жаңа бизнес қосу',
+    'manage': 'Басқару',
+    'todayProfit': 'Бүгінгі пайда',
+    'todayLoss': 'Бүгінгі шығын',
+    'netRevenue': 'Түсім (қайтарудан кейін)',
+    'expense': 'Шығын',
+    'baked': 'Пісірілген',
+    'sack': 'Қап',
+    'sold': 'Сатылған',
+    'returned': 'Қайтарылды',
+    'pcs': 'дана',
+    'sacks': 'қап',
+    'noBreadToday': 'Бүгін нан әлі пісірілмеді',
+    'income': 'Табыс',
+    'profit': 'Пайда',
+    'productOut': 'Өнім шығарылды',
+    'productReturned': 'Өнім қайтарылды',
+    'dashboardKpiOutput': 'Өнім шығымы',
+    'dashboardKpiBatch': 'Топтам',
+    'dashboardKpiSold': 'Сатылған',
+    'dashboardKpiReturned': 'Қайтарылған',
+    'dashboardEmptyOutput': 'Бүгін әлі шығыс тіркелмеген',
+    'dashboardSectionOutput': 'Бүгінгі шығыстар',
+    'dashboardBatchUnitGeneric': 'партия',
+    'currency': 'сом',
+    'home': 'Басты',
+    'cashRegister': 'Касса',
+    'statistics': 'Статистика',
+    'reportScreenTitle': 'Есеп',
+    'reportPickRange': 'Аралық',
+    'reportPickSingleDate': 'Күн',
+    'reportChipToday': 'Бүгін',
+    'reportChipYesterday': 'Кеше',
+    'reportRangeLast7': '7 күн',
+    'reportRangeLast30': '30 күн',
+    'reportSectionSummary': 'Жалпы көрсеткіштер',
+    'reportSectionReturnsByType': 'Қайтарулар (түрі бойынша)',
+    'reportSectionProducts': 'Өнім бойынша',
+    'reportGrossRevenue': 'Түсім (қайтарудан бұрын)',
+    'reportReturnsRecords': 'жазба',
+    'reportProductionRecords': 'Шығыс жазбалары',
+    'reportEmptyReturns': 'Бұл кезеңде қайтару жоқ',
+    'reportEmptyProducts': 'Өнім бойынша дерек жоқ',
+    'reportProductProduced': 'Өндірілген',
+    'reportExpandTypesCount': '{n} түр',
+    'reportExpandProductsCount': '{n} өнім',
+    'profileTab': 'Профиль',
+    'navHistory': 'Тарих',
+    'historyTitle': 'Тарих',
+    'historyTabCreated': 'Жасалған',
+    'historyTabReturns': 'Қайтарылған',
+    'historyTabCash': 'Касса',
+    'historyCreatedEmpty': 'Әлі өнім шығымы жоқ',
+    'historyReturnsEmpty': 'Әлі қайтару жазылмаған',
+    'returnDetailTitle': 'Қайтару толығырақ',
+    'noExpenseToday': 'Бүгін шығын жазылмаған',
+    'addExpense': 'Шығын',
+    'expenseCreateTitle': 'Шығын қосу',
+    'expenseCreateSubtitle': 'Түрін таңдаңыз, соманы енгізіңіз.',
+    'expenseCategorySearchHint': 'Іздеу',
+    'expenseAddCategory': 'Жаңа санат',
+    'expenseAddCategoryTitle': 'Өз санатыңыз',
+    'expenseAddCategoryNameHint': 'Мысалы: жарнама',
+    'expenseAddCategorySave': 'Сақтау',
+    'expenseSelectCategory': 'Түрі',
+    'expenseAmountLabel': 'Сома',
+    'expenseDescriptionLabel': 'Түсініктеме (міндетті емес)',
+    'expenseSubmit': 'Сақтау',
+    'expenseCategoriesEmpty': 'Табылмады',
+    'expenseCategoriesLoadError': 'Жүктелмеді',
+    'daily': 'Күнделікті',
+    'weekly': 'Апталық',
+    'monthly': 'Айлық',
+    'loss': 'Шығын',
+    'noData': 'Деректер жоқ',
+    'production': 'Өндіріс',
+    'flourUsage': 'Ұн шығыны',
+    'bakedBread': 'Пісірілген нан',
+    'ingredients': 'Ингредиенттер',
+    'salesAndReturns': 'Сату және қайтару',
+    'totalProduced': 'Барлығы өндірілген',
+    'returns': 'Қайтару',
+    'soldAuto': 'Сатылған (авто)',
+    'returnAmount': 'Қайтару сомасы',
+    'netIncome': 'Таза табыс',
+    'expenses': 'Шығындар',
+    'internalIngredients': 'Ішкі шығындар',
+    'external': 'Сыртқы',
+    'total': 'Барлығы',
+    'settings': 'Баптаулар',
+    'breadTypes': 'Өнім түрлері',
+    'breadTypesDesc':
+        'Сататын өнім немесе қызмет түрлері — әрқайсысына баға',
+    'products': 'Өнімдер',
+    'productsDesc': 'Ұн, су, тұз, ашытқы, май...',
+    'recipes': 'Рецепттер',
+    'recipesDesc': 'Нан үшін құрамы мен мөлшері',
+    'settingsCardTypesTitle': 'Өнім түрлеріңіз',
+    'settingsCardIngredientsTitle': 'Шикізат',
+    'settingsCardRecipesTitle': 'Есептеу жүйесі',
+    'settingsTypesDesc_default':
+        'Сататын өнім мен қызмет түрлерін қосыңыз, бағаларды басқарыңыз.',
+    'settingsTypesDesc_bakery':
+        'Мысалы: патир, самса, лаваш, тандыр... Әр түр үшін бөлек баға.',
+    'settingsTypesDesc_grill':
+        'Мысалы: шашлық, люля, рулет... Әр позиция үшін бөлек баға.',
+    'settingsTypesDesc_restaurant':
+        'Мысалы: тағамдар, гарнирлер, сусындар... Мәзір бойынша реттеңіз.',
+    'settingsIngredientsDesc_default':
+        'Ингредиенттер мен шикізатты бағасы мен өлшемімен енгізіңіз.',
+    'settingsIngredientsDesc_bakery':
+        'Ұн, су, тұз, ашытқы, май — әрқайсысының бағасы мен өлшемі.',
+    'settingsIngredientsDesc_grill':
+        'Ет, дәмдеуіштер, май — әрқайсысының бағасы мен өлшемі.',
+    'settingsIngredientsDesc_restaurant':
+        'Өнім мен ингредиенттер — қойма және өзіндік құнмен байланысыңыз.',
+    'settingsRecipesDesc_default':
+        'Рецепттер мен өзіндік құн — әр тауар үшін маржа мен пайда.',
+    'settingsRecipesDesc_bakery':
+        'Әр өнім үшін ингредиенттер қатынасы мен өзіндік құн — пайда анық.',
+    'settingsRecipesDesc_grill':
+        'Әр тағам үшін грамм және өзіндік құн — баға мен пайда есебі.',
+    'settingsRecipesDesc_restaurant':
+        'Тағам мен сусындар үшін өзіндік құн және сату — есептер автоматты.',
+    'setupJourneyTitle': 'Баптау реті',
+    'setupJourneyHint':
+        'Алдымен сатылатын өнім түрін жасаңыз, содан кейін шикізат пен бағаларды енгізіңіз, соңында рецепт арқылы есептеуді жүйелеңіз — сонда өзіндік құн пен пайда нақты болады.',
+    'setupJourneyStepLabel1': 'Өнім',
+    'setupJourneyStepLabel2': 'Шикізат',
+    'setupJourneyStepLabel3': 'Есептеу',
+    'setupJourneyAllDone': 'Барлық қадам орындалды',
+    'recipeScreenTitle': 'Рецепттер',
+    'recipeEmptyTitle': 'Әлі рецепттер жоқ',
+    'recipeEmptySubtitle':
+        'Өнім түрлері үшін рецепт қосыңыз — өндіріс есебі дәл болады.',
+    'recipeAddCta': 'Рецепт қосу',
+    'recipeDeletedSnackbar': 'Рецепт жойылды',
+    'recipeErrorSnackbar': 'Қате пайда болды',
+    'recipeCreateTitle': 'Жаңа рецепт',
+    'recipeStepProduct': 'Өнім',
+    'recipeStepBatch': 'Партия',
+    'recipeStepIngredients': 'Құрам',
+    'recipeSelectProductTitle': 'Қай өнім үшін?',
+    'recipeSelectProductSubtitle':
+        'Бір түрді таңдаңыз — әр түр үшін бір рецепт.',
+    'recipeBatchCarouselTitle': 'Партия бірлігі',
+    'recipeBatchCarouselSubtitle':
+        'Өндірісте қалай есептейсіз: қап, блок, жиынтық...',
+    'recipeOutputLabel': 'Бір партиядан шығатын өнім саны',
+    'recipeOutputHint': 'Мысалы: 100',
+    'recipeIngredientsSectionTitle': 'Бір партияға шикізат',
+    'recipeIngredientsSectionSubtitle':
+        'Таңдалған бірліктегі бір партияға кететін мөлшерлерді енгізіңіз.',
+    'recipeAddIngredient': 'Қосу',
+    'recipeValidationSelectProduct': 'Өнім түрін таңдаңыз',
+    'recipeValidationBatch': 'Партия бірлігін таңдаңыз',
+    'recipeValidationOutput': 'Шығу санын енгізіңіз',
+    'recipeValidationIngredients': 'Кемінде бір шикізат қосыңыз',
+    'recipeValidationDuplicateIngredient':
+        'Бір ингредиент екі рет қосылған',
+    'recipeSaveSuccess': 'Рецепт сақталды',
+    'recipeRecipeBatchLine': '1 {unit} → {qty} дана',
+    'recipeBack': 'Артқа',
+    'recipeIngredientSelectHint': 'Шикізат',
+    'recipeCardStatTitleOutput': 'Шығару',
+    'recipeCardStatTitleBatchCost': 'Партия өзіндік құны',
+    'recipeCardStatTitleUnitCost': '1 дана өзіндік құны',
+    'recipeCardSectionIngredients': 'Құрам',
+    'recipeCardIngredientLine': '{name} · {qty} {unit}',
+    'recipeDeleteConfirmTitle': 'Рецептті жою?',
+    'recipeDeleteConfirmBody':
+        '«{name}» рецепті жойылады. Бұл әрекетті болдырмауға болмайды.',
+    'recipeCardTooltipOutput':
+        'Бір партиядан шығатын өнім саны.',
+    'recipeCardTooltipBatchCost':
+        'Бір партияға шикізаттың өзіндік құны (жалпы).',
+    'recipeCardTooltipUnitCost':
+        'Бір өнім бірлігінің өзіндік құны (жалпы ÷ шығару).',
+    'productionDetailTitle': 'Партия толығырақ',
+    'productionDetailSummary': 'Бүгін жабылған партия',
+    'productionDetailBatch': 'Партия саны',
+    'productionDetailOutput': 'Шығару',
+    'productionDetailFlour': 'Ұн шығыны',
+    'productionDetailIngredientCost': 'Шикізат құны',
+    'productionDetailSalesEstimate': 'Болжамды түсім',
+    'productionDetailBreakdown': 'Ингредиенттер бойынша',
+    'productionDetailOneRecipeBatch': '1 партия (рецепт)',
+    'productionDetailQtyTotal': 'Жалпы мөлшер',
+    'productionDetailGrams': '{g} г',
+    'productionDetailPricePerUnit': 'Бірлік бағасы',
+    'productionDetailNoIngredients':
+        'Рецепт ингредиенттері жоқ немесе жүктелмеді.',
+    'productionDetailReturnToday': 'Бүгінгі қайтару (осы түр бойынша)',
+    'productionDetailEdit': 'Өңдеу',
+    'productionDetailEditSheetTitle': 'Партия және қайтарулар',
+    'productionDetailEditBatchLabel': 'Бүгінгі партия саны',
+    'productionDetailEditReturnsTitle': 'Осы түр бойынша қайтарулар (бүгін)',
+    'productionDetailEditNoReturns': 'Бүгін осы түр бойынша қайтару жоқ',
+    'productionDetailEditSaveBatch': 'Партияны сақтау',
+    'productionDetailBatchUpdated': 'Партия жаңартылды',
+    'productionDetailReturnDeleted': 'Қайтару жойылды',
+    'productionDetailDeleteReturnTitle': 'Қайтаруды жою керек пе?',
+    'productionDetailDeleteReturnBody':
+        'Жазба жойылады. Басты бет пен соммалар жаңартылады.',
+    'productionDetailDeleteProductionTitle': 'Шығымды жою керек пе?',
+    'productionDetailDeleteProductionBody':
+        'Бұл шығыс жазбасы жойылады. Осы түр мен күнде басқа партия қалмаса, сол күнге жазылған барлық қайтарулар да жойылады.',
+    'productionDetailProductionDeleted': 'Шығыс жойылды',
+    'productionOutTitle': 'Өнім шығарылымы',
+    'productionOutStep1': 'Өнім',
+    'productionOutStep2': 'Топтам',
+    'productionOutStep3': 'Қорытынды',
+    'productionOutStep1Title': 'Қай өнім?',
+    'productionOutStep1Subtitle':
+        'Есептеуге байланған өнім түрін таңдаңыз.',
+    'productionOutCategoryLabel': 'Өнім түрі',
+    'productionOutCategoryHint': 'Таңдаңыз',
+    'productionOutNoRecipeWarning':
+        'Бұл түр үшін рецепт жоқ. Алдымен «Есептеу» бөлімінде рецепт жасаңыз.',
+    'productionOutStep2Title': 'Партия мөлшері',
+    'productionOutStep2Subtitle':
+        '1 {unit} = {qty} {productUnit}. Бөлшек сандарға рұқсат (мысалы: 1.5).',
+    'productionOutBatchFieldLabel': '{unit} мөлшері',
+    'productionOutSummaryTitle': 'Есеп',
+    'productionOutTotalOutput': '{qty} {unit}',
+    'productionOutCostLabel': 'Шығын',
+    'productionOutIngredientsPreview': 'Шикізат шығыны',
+    'productionOutCta': 'Шығымды тіркеу',
+    'productionOutSuccess': '{qty} {unit} шығым тіркелді',
+    'productionOutValidationSelectProduct': 'Өнім түрін таңдаңыз',
+    'productionOutValidationNoRecipe': 'Бұл түр үшін рецепт жоқ',
+    'productionOutValidationBatch': 'Партия мөлшері 0-дан үлкен болсын',
+    'productionOutStep3Title': 'Тексеру және сақтау',
+    'productionOutStep3Subtitle': 'Дұрыс болса, сақтаңыз.',
+    'productionOutNext': 'Келесі',
+    'productionOutSearchHint': 'Өнім іздеу',
+    'productionOutSearchEmpty': 'Ештеңе табылмады',
+    'returnCreateTitle': 'Өнім қайтарылды',
+    'returnCreateSubtitle':
+        'Қайтарылған түр мен мөлшерді енгізіңіз. Түр таңдалғанда сату бағасы автоматты шығады.',
+    'returnProfitInfoTitle': 'Пайда және есеп',
+    'returnProfitInfoBody':
+        'Қайтару тіркелгенде күнделікті сату, түсім және пайда көрсеткіштері (басты бет және есептер) сәйкес жаңартылады — бұл нақты қаржылық жағдайды білдіреді.',
+    'returnProfitInfoShort':
+        'Өнім қайтарылуын енгізу пайданы дұрыс есептеу үшін маңызды.',
+    'returnProductionLabel': 'Партия (шығару)',
+    'returnNoProductionForCategory':
+        'Бұл түр үшін бүгін шығарыл жоқ. Алдымен шығарылым қосыңыз.',
+    'returnSearchHint': 'Өнім іздеу',
+    'returnSearchEmpty': 'Ештеңе табылмады',
+    'returnCategoryLabel': 'Өнім түрі',
+    'returnQuantityTitle': 'Қайтарылған мөлшер',
+    'returnQuantitySubtitle': 'Бүтін сан (дана) енгізіңіз.',
+    'returnPriceLabel': 'Бір дана бағасы',
+    'returnReasonLabel': 'Себебі (міндетті емес)',
+    'returnReasonHint': 'Мысалы: тұтынушы, сапа',
+    'returnCta': 'Қайтаруды тіркеу',
+    'returnValidationSelectProduct': 'Өнім түрін таңдаңыз',
+    'returnValidationQty': 'Мөлшер 0-дан үлкен болсын',
+    'returnValidationPrice': 'Бағаны дұрыс енгізіңіз',
+    'returnSuccess': 'Қайтару тіркелді',
+    'returnPieceSuffix': 'дана',
+    'productCategoriesTitle': 'Өнім түрлері',
+    'productCategoriesEmptyTitle': 'Әлі өнім түрлері жоқ',
+    'productCategoriesEmptySubtitle':
+        'Сататын өнім немесе қызмет түрлерін қосыңыз',
+    'addProductCategoryModalTitle': 'Жаңа түр',
+    'addProductCategoryModalSubtitle': 'Атауы мен сату бағасын енгізіңіз',
+    'productCategoriesNameLabel': 'Өнім атауы',
+    'productCategoriesNameHint': 'Мысалы: лаваш, сет-меню',
+    'sellingPriceLabel': 'Сату бағасы',
+    'sellingPriceHint': '0',
+    'currencyPickerLabel': 'Валюта',
+    'productCategoriesAddCta': 'Түр қосу',
+    'snackbarFillAllFields': 'Барлық өрістерді толтырыңыз',
+    'snackbarErrorGeneric': 'Қате пайда болды',
+    'apiClientTimeout': 'Қосылу уақыты бітті',
+    'apiClientNoConnection': 'Интернет байланысы жоқ',
+    'apiClientUnexpected': 'Күтпеген қате',
+    'apiInvalidResponseFormat': 'Күтпеген жауап форматы',
+    'actionAdd': 'Қосу',
+    'actionSave': 'Сақтау',
+    'editProductCategoryModalTitle': 'Түрді өңдеу',
+    'editIngredientModalTitle': 'Шикізатты өңдеу',
+    'snackbarCategoryAdded': '{name} қосылды',
+    'snackbarCategoryDeleted': '{name} жойылды',
+    'snackbarCategoryUpdated': '{name} жаңартылды',
+    'ingredientsEmptyTitle': 'Әлі шикізат жоқ',
+    'ingredientsEmptySubtitle':
+        'Рецепт және өзіндік құн үшін атау, өлшем бірлігі және 1 бірлік бағасын енгізіңіз.',
+    'addIngredientModalTitle': 'Жаңа шикізат',
+    'addIngredientModalSubtitle':
+        'Атау, бірлік және баға. Валютаны баға жанындағы түйме арқылы таңдаңыз.',
+    'ingredientNameLabel': 'Атауы',
+    'ingredientNameHint': 'Мысалы: ұн, су, тұз',
+    'ingredientUnitFieldLabel': 'Өлшем бірлігі',
+    'ingredientPricePerUnitLabel': '1 бірлік бағасы',
+    'ingredientUnit_kg': 'Килограмм (kg)',
+    'ingredientUnit_gram': 'Грамм (g)',
+    'ingredientUnit_litr': 'Литр (l)',
+    'ingredientUnit_dona': 'Дана',
+    'ingredientsAddCta': 'Шикізат қосу',
+    'ingredientAddHeroTitle': 'Жаңа шикізат',
+    'ingredientPriceHintBanner':
+        'Бағаны таңдалған бірлік бойынша толық енгізіңіз (мысалы, 1 кг, 1 л немесе 1 дана). Рецептте г немесе мл қолдансаңыз да, мұнда жалпы баға сақталады.',
+    'ingredientUnitChipsLabel': 'Өлшем бірлігі',
+    'snackbarIngredientAdded': '{name} қосылды',
+    'snackbarIngredientDeleted': '{name} жойылды',
+    'snackbarIngredientUpdated': '{name} жаңартылды',
+    'ingredientPriceInfoTitle': 'Баға туралы',
+    'ingredientPriceInfoBody':
+        'Шикізат бағасын бірлікке қарай жазыңыз (1 кг, 1 дана немесе 1 л). Рецепттерде жүйе грамм немесе мл-ге өзі есептейді.',
+    'gotIt': 'Түсінікті',
+    'general': 'Жалпы',
+    'manageAndSwitch': 'Басқару және ауыстыру',
+    'staff': 'Қызметкерлер',
+    'staffManagement': 'Персоналды басқару',
+    'darkMode': 'Түнгі режим',
+    'enabled': 'Қосулған',
+    'disabled': 'Өшірілген',
+    'language': 'Тіл',
+    'aboutApp': 'Қолданба туралы',
+    'version': 'Нұсқа',
+    'logout': 'Жүйеден шығу',
+    'unknown': 'Белгісіз',
+    'balance': 'Негізгі Баланс',
+    'topUp': 'Толтыру',
+    'profileInfo': 'Профиль деректері',
+    'profileInfoDesc': 'Телефон, пошта және Телеграм баптаулары',
+    'phoneNumber': 'Телефон нөмірі',
+    'email': 'Эл. пошта',
+    'telegram': 'Телеграм',
+    'linked': 'Байланған',
+    'notLinked': 'Байланбаған',
+    'link': 'Байлау',
+    'changePhoto': 'Суретті өзгерту',
+    'businessOwner': 'Бизнес иесі',
+    'seller': 'Сатушы',
+    'deleteAccount': 'Аккаунтты жою',
+    'deleteAccountDesc': 'Аккаунтыңызды жойсаңыз, барлық дүкендеріңіз, есептеріңіз және деректеріңіз мүлдем жойылады.',
+    'deleteAccountConfirm': 'Шынымен аккаунтыңызды жоюды қалайсыз ба?',
+    'cancel': 'Бас тарту',
+    'delete': 'Жою',
+    'onboardingTitle1': 'Кез келген бизнес үшін',
+    'onboardingDesc1': 'Наубайхана, шашлықхана, самсахана, кондитерлік, фастфуд — барлығын бір жерден басқарыңыз',
+    'onboardingTitle2': 'Өзіндік құн және пайда есебі',
+    'onboardingDesc2': 'Әр өнімнің өзіндік құнын дәл есептеп, нақты пайданы біліңіз',
+    'onboardingTitle3': 'Бизнесіңіз бақылауда',
+    'onboardingDesc3': 'Сатылым, шығын және өндірісті нақты уақытта қадағалаңыз',
+    'skip': 'Өткізіп жіберу',
+    'next': 'Келесі',
+    'getStarted': 'Бастау',
+    'welcomeBack': 'Қош келдіңіз!',
+    'loginSubtitle': 'Жалғастыру үшін жүйеге кіріңіз',
+    'password': 'Құпия сөз',
+    'enterPhone': 'Телефонды енгізіңіз',
+    'enterPassword': 'Құпия сөзді енгізіңіз',
+    'loginButton': 'Кіру',
+    'noAccount': 'Аккаунт жоқ па?',
+    'registerLink': 'Тіркеліңіз',
+    'tryAgain': 'Қайта көру',
+    'noInternet': 'Интернет қосылымында қате',
+    'createBusiness': 'Бизнес жасау',
+    'businessTypeStep': 'Санат',
+    'businessDetailsStep': 'Деректер',
+    'businessLocationStep': 'Орналасу',
+    'selectBusinessType': 'Бизнес түрін таңдаңыз',
+    'selectBusinessTypeDesc': 'Өзіңізге сәйкес санатты таңдаңыз',
+    'businessDetailsTitle': 'Бизнес туралы',
+    'businessDetailsDesc': 'Бизнесіңіздің негізгі деректерін енгізіңіз',
+    'businessName': 'Бизнес атауы',
+    'businessDescHint': 'Қысқаша сипаттама (міндетті емес)',
+    'description': 'Сипаттама',
+    'address': 'Мекенжай',
+    'businessLocationTitle': 'Орналасу',
+    'businessLocationDesc': 'GPS арқылы орнын сақтаңыз немесе мекенжайды қолмен енгізіңіз',
+    'useGpsLocation': 'GPS арқылы анықтау',
+    'fetchingLocation': 'Орналасу анықталуда...',
+    'locationSaved': 'Орналасу сақталды',
+    'orManualAddress': 'немесе қолмен енгізіңіз',
+    'addressHint': 'Мысалы: Ташкент қ., Амир Темур к., 1',
+    'locationOptionalNote': 'Орналасу міндетті емес. Кейінірек қосуға болады.',
+    'businessCreated': 'Бизнес жасалды! 🎉',
+    'businessCreatedDesc': '{name} сәтті жасалды.',
+    'startWorking': 'Жұмысты бастау',
+    'fieldRequired': 'Бұл өріс міндетті',
+    'continueWizard': 'Жалғастыру',
+    'customBusinessTypeInfo':
+        'Бизнес түріңізді жазыңыз — біз ескереміз',
+    'customBusinessTypeHint': 'Мысалы: Пісірімдер, Лимонад...',
+    'businessNameHint': 'Мысалы: Орталық наубайхана',
+    'businessNameRequired': 'Бизнес атауын енгізіңіз',
+    'businessNameMinLength': 'Кемінде 2 таңба',
+    'selectCurrency': 'Валюта',
+    'selectCurrencyDesc':
+        'Есептер мен бағалар үшін валюта',
+    'gpsAutoDetectSubtitle':
+        'Ағымдағы орныңызды автоматты анықтау',
+    'orDivider': 'немесе',
+    'manualAddressLabel': 'Мекенжайды қолмен енгізіңіз',
+    'createBusinessSubmit': 'Бизнес жасау',
+  };
+
+  static const _ky = {
+    'hello': 'Салам',
+    'defaultUser': 'Колдонуучу',
+    'bakery': 'Бизнес',
+    'bakeries': 'Бизнестер',
+    'selectBusiness': 'Бизнес тандаңыз',
+    'selectBusinessSubtitle': 'Башкаргыңыз келген бизнести тандаңыз',
+    'noBusiness': 'Азырынча бизнес жок',
+    'createFirstBusiness': 'Биринчи бизнесиңизди жасаңыз\nжана башкарууну баштаңыз',
+    'addBusiness': 'Жаңы бизнес кошуу',
+    'manage': 'Башкаруу',
+    'todayProfit': 'Бүгүнкү пайда',
+    'todayLoss': 'Бүгүнкү зыян',
+    'netRevenue': 'Түшүм (кайтаруудан кийин)',
+    'expense': 'Чыгым',
+    'baked': 'Бышырылган',
+    'sack': 'Кап',
+    'sold': 'Сатылган',
+    'returned': 'Кайтарылды',
+    'pcs': 'даана',
+    'sacks': 'кап',
+    'noBreadToday': 'Бүгүн нан бышырылган жок',
+    'income': 'Киреше',
+    'profit': 'Пайда',
+    'productOut': 'Продукция чыгарылды',
+    'productReturned': 'Продукция кайтарылды',
+    'dashboardKpiOutput': 'Өнүм чыгымы',
+    'dashboardKpiBatch': 'Топтом',
+    'dashboardKpiSold': 'Сатылган',
+    'dashboardKpiReturned': 'Кайтарылган',
+    'dashboardEmptyOutput': 'Бүгүн азырынча чыгым жазылган эмес',
+    'dashboardSectionOutput': 'Бүгүнкү чыгымдар',
+    'dashboardBatchUnitGeneric': 'партия',
+    'currency': 'сом',
+    'home': 'Башкы',
+    'cashRegister': 'Касса',
+    'statistics': 'Статистика',
+    'reportScreenTitle': 'Отчёт',
+    'reportPickRange': 'Аралык',
+    'reportPickSingleDate': 'Күн',
+    'reportChipToday': 'Бүгүн',
+    'reportChipYesterday': 'Кечээ',
+    'reportRangeLast7': '7 күн',
+    'reportRangeLast30': '30 күн',
+    'reportSectionSummary': 'Жалпы көрсөткүчтөр',
+    'reportSectionReturnsByType': 'Кайтаруулар (түрү боюнча)',
+    'reportSectionProducts': 'Өнүм боюнча',
+    'reportGrossRevenue': 'Түшүм (кайтаруудан мурун)',
+    'reportReturnsRecords': 'жазуу',
+    'reportProductionRecords': 'Чыгым жазмалары',
+    'reportEmptyReturns': 'Бул мезгилде кайтаруу жок',
+    'reportEmptyProducts': 'Өнүм боюнча маалымат жок',
+    'reportProductProduced': 'Чыгарылган',
+    'reportExpandTypesCount': '{n} түр',
+    'reportExpandProductsCount': '{n} өнүм',
+    'profileTab': 'Профиль',
+    'navHistory': 'Тарых',
+    'historyTitle': 'Тарых',
+    'historyTabCreated': 'Жаратылган',
+    'historyTabReturns': 'Кайтарылган',
+    'historyTabCash': 'Касса',
+    'historyCreatedEmpty': 'Азырынча өнүм чыгымы жок',
+    'historyReturnsEmpty': 'Азырынча кайтаруу жок',
+    'returnDetailTitle': 'Кайтаруу',
+    'noExpenseToday': 'Бүгүн чыгым жазылган жок',
+    'addExpense': 'Чыгым',
+    'expenseCreateTitle': 'Чыгым кошуу',
+    'expenseCreateSubtitle': 'Түрүн тандаңыз, сумманы киргизиңиз.',
+    'expenseCategorySearchHint': 'Издөө',
+    'expenseAddCategory': 'Жаңы категория',
+    'expenseAddCategoryTitle': 'Өзүңүз үчүн',
+    'expenseAddCategoryNameHint': 'Мисалы: жарнама',
+    'expenseAddCategorySave': 'Сактоо',
+    'expenseSelectCategory': 'Түрү',
+    'expenseAmountLabel': 'Сумма',
+    'expenseDescriptionLabel': 'Эскертүү (милдеттүү эмес)',
+    'expenseSubmit': 'Сактоо',
+    'expenseCategoriesEmpty': 'Табылган жок',
+    'expenseCategoriesLoadError': 'Жүктөлбөй калды',
+    'daily': 'Күндүк',
+    'weekly': 'Жумалык',
+    'monthly': 'Айлык',
+    'loss': 'Зыян',
+    'noData': 'Маалымат жок',
+    'production': 'Өндүрүш',
+    'flourUsage': 'Ун чыгымы',
+    'bakedBread': 'Бышырылган нан',
+    'ingredients': 'Ингредиенттер',
+    'salesAndReturns': 'Сатуу жана кайтаруу',
+    'totalProduced': 'Жалпы өндүрүлгөн',
+    'returns': 'Кайтаруу',
+    'soldAuto': 'Сатылган (авто)',
+    'returnAmount': 'Кайтаруу суммасы',
+    'netIncome': 'Таза киреше',
+    'expenses': 'Чыгымдар',
+    'internalIngredients': 'Ички чыгымдар',
+    'external': 'Тышкы',
+    'total': 'Бардыгы',
+    'settings': 'Жөндөөлөр',
+    'breadTypes': 'Өнүм түрлөрү',
+    'breadTypesDesc':
+        'Сатылган өнүм же кызмат түрлөрү — ар бирине баа',
+    'products': 'Продукттар',
+    'productsDesc': 'Ун, суу, туз, ачыткы, май...',
+    'recipes': 'Рецепттер',
+    'recipesDesc': 'Нан үчүн курамы жана өлчөмү',
+    'settingsCardTypesTitle': 'Өнүм түрлөрүңүз',
+    'settingsCardIngredientsTitle': 'Чийки зат',
+    'settingsCardRecipesTitle': 'Эсептөө системасы',
+    'settingsTypesDesc_default':
+        'Сатылган өнүм жана кызмат түрлөрүн кошуңуз, бааларды башкарыңыз.',
+    'settingsTypesDesc_bakery':
+        'Мисалы: патир, самса, лаваш, тандыр... Ар бир түр үчүн өзүнчө баа.',
+    'settingsTypesDesc_grill':
+        'Мисалы: шашлык, люля, рулет... Ар бир позиция үчүн өзүнчө баа.',
+    'settingsTypesDesc_restaurant':
+        'Мисалы: тамактар, гарнирлер, суусундуктар... Меню боюнча тартиптеңиз.',
+    'settingsIngredientsDesc_default':
+        'Ингредиенттер жана чийки заттарды баасы жана өлчөмү менен киргизиңиз.',
+    'settingsIngredientsDesc_bakery':
+        'Ун, суу, туз, ачыткы, май — ар биринин баасы жана өлчөмү.',
+    'settingsIngredientsDesc_grill':
+        'Эт, татымалдар, май — ар биринин баасы жана өлчөмү.',
+    'settingsIngredientsDesc_restaurant':
+        'Өнүм жана ингредиенттер — кампа жана өзүнүн баасы менен байланышыңыз.',
+    'settingsRecipesDesc_default':
+        'Рецепттер жана өзүнүн баасы — ар бир өнүм үчүн маржа жана пайда.',
+    'settingsRecipesDesc_bakery':
+        'Ар бир өнүм үчүн ингредиенттер катышы жана өзүнүн баасы — пайда анык.',
+    'settingsRecipesDesc_grill':
+        'Ар бир тамак үчүн грамм жана өзүнүн баасы — баа жана пайда эсеби.',
+    'settingsRecipesDesc_restaurant':
+        'Тамак жана суусундуктар үчүн өзүнүн баасы жана сатуу — отчёттор автоматтык.',
+    'setupJourneyTitle': 'Орнотуу тартиби',
+    'setupJourneyHint':
+        'Алды менен сатылган өнүм түрүн түзүңүз, андан кийин чийки зат жана бааларды киргизиңиз, акырында рецепт аркылуу эсептөөнү жөндөңүз — ошондо өзүнүн баасы жана пайда так болот.',
+    'setupJourneyStepLabel1': 'Өнүм',
+    'setupJourneyStepLabel2': 'Чийки зат',
+    'setupJourneyStepLabel3': 'Эсептөө',
+    'setupJourneyAllDone': 'Бардык кадамдар аткарылды',
+    'recipeScreenTitle': 'Рецепттер',
+    'recipeEmptyTitle': 'Азырынча рецепттер жок',
+    'recipeEmptySubtitle':
+        'Өнүм түрлөрү үчүн рецепт кошуңуз — өндүрүш эсеби так болот.',
+    'recipeAddCta': 'Рецепт кошуу',
+    'recipeDeletedSnackbar': 'Рецепт өчүрүлдү',
+    'recipeErrorSnackbar': 'Ката кетти',
+    'recipeCreateTitle': 'Жаңы рецепт',
+    'recipeStepProduct': 'Өнүм',
+    'recipeStepBatch': 'Партия',
+    'recipeStepIngredients': 'Курамы',
+    'recipeSelectProductTitle': 'Кайсы өнүм үчүн?',
+    'recipeSelectProductSubtitle':
+        'Бир түрдү тандаңыз — ар бир түр үчүн бир рецепт.',
+    'recipeBatchCarouselTitle': 'Партия бирдиги',
+    'recipeBatchCarouselSubtitle':
+        'Өндүрүштө кантип эсептейсиз: кап, блок, топтом...',
+    'recipeOutputLabel': 'Бир партиядан чыккан өнүм саны',
+    'recipeOutputHint': 'Мисалы: 100',
+    'recipeIngredientsSectionTitle': 'Бир партия үчүн чийки зат',
+    'recipeIngredientsSectionSubtitle':
+        'Тандалган бирдикте бир партияга кеткен көлөмдөрдү киргизиңиз.',
+    'recipeAddIngredient': 'Кошуу',
+    'recipeValidationSelectProduct': 'Өнүм түрүн тандаңыз',
+    'recipeValidationBatch': 'Партия бирдигин тандаңыз',
+    'recipeValidationOutput': 'Чыгым санын киргизиңиз',
+    'recipeValidationIngredients': 'Эң аз бир чийки зат кошуңуз',
+    'recipeValidationDuplicateIngredient':
+        'Ошол эле ингредиент эки жолу кошулган',
+    'recipeSaveSuccess': 'Рецепт сакталды',
+    'recipeRecipeBatchLine': '1 {unit} → {qty} даана',
+    'recipeBack': 'Артка',
+    'recipeIngredientSelectHint': 'Чийки зат',
+    'recipeCardStatTitleOutput': 'Чыгым',
+    'recipeCardStatTitleBatchCost': 'Партия өзүнүн баасы',
+    'recipeCardStatTitleUnitCost': '1 даана өзүнүн баасы',
+    'recipeCardSectionIngredients': 'Курамы',
+    'recipeCardIngredientLine': '{name} · {qty} {unit}',
+    'recipeDeleteConfirmTitle': 'Рецептти өчүрүү?',
+    'recipeDeleteConfirmBody':
+        '«{name}» рецепти өчүрүлөт. Бул аракетти кайтаруу мүмкүн эмес.',
+    'recipeCardTooltipOutput':
+        'Бир партиядан чыккан өнүм саны.',
+    'recipeCardTooltipBatchCost':
+        'Бир партия үчүн чийки заттын өзүнүн баасы (жалпы).',
+    'recipeCardTooltipUnitCost':
+        'Бир өнүм бирдигинин өзүнүн баасы (жалпы ÷ чыгым).',
+    'productionDetailTitle': 'Партия толук маалымат',
+    'productionDetailSummary': 'Бүгүн жабылган партия',
+    'productionDetailBatch': 'Партия саны',
+    'productionDetailOutput': 'Чыгым',
+    'productionDetailFlour': 'Ун чыгымы',
+    'productionDetailIngredientCost': 'Чийки зат баасы',
+    'productionDetailSalesEstimate': 'Болжолдуу түшүм',
+    'productionDetailBreakdown': 'Ингредиенттер боюнча',
+    'productionDetailOneRecipeBatch': '1 партия (рецепт)',
+    'productionDetailQtyTotal': 'Жалпы көлөм',
+    'productionDetailGrams': '{g} г',
+    'productionDetailPricePerUnit': 'Бирдик баасы',
+    'productionDetailNoIngredients':
+        'Рецепт ингредиенттери жок же жүктөлбөдү.',
+    'productionDetailReturnToday': 'Бүгүнкү кайтаруу (бул түр боюнча)',
+    'productionDetailEdit': 'Оңдоо',
+    'productionDetailEditSheetTitle': 'Партия жана кайтаруулар',
+    'productionDetailEditBatchLabel': 'Бүгүнкү партия саны',
+    'productionDetailEditReturnsTitle': 'Бул түр боюнча кайтаруулар (бүгүн)',
+    'productionDetailEditNoReturns': 'Бүгүн бул түр боюнча кайтаруу жок',
+    'productionDetailEditSaveBatch': 'Партияны сактоо',
+    'productionDetailBatchUpdated': 'Партия жаңыланды',
+    'productionDetailReturnDeleted': 'Кайтаруу өчүрүлдү',
+    'productionDetailDeleteReturnTitle': 'Кайтарууну өчүрөсүзбү?',
+    'productionDetailDeleteReturnBody':
+        'Жазуу өчүрүлөт. Башкы бет жана суммалар жаңыланат.',
+    'productionDetailDeleteProductionTitle': 'Чыгымды өчүрүү?',
+    'productionDetailDeleteProductionBody':
+        'Бул чыгым жазуусу өчүрүлөт. Ошол түр жана күнү боюнча башка партия калбаса, ошол күнгө жазылган бардык кайтаруулар да өчүрүлөт.',
+    'productionDetailProductionDeleted': 'Чыгым өчүрүлдү',
+    'productionOutTitle': 'Өнүм чыгымы',
+    'productionOutStep1': 'Өнүм',
+    'productionOutStep2': 'Топтом',
+    'productionOutStep3': 'Жыйынтык',
+    'productionOutStep1Title': 'Кайсы өнүм?',
+    'productionOutStep1Subtitle':
+        'Эсептөөгө байланган өнүм түрүн тандаңыз.',
+    'productionOutCategoryLabel': 'Өнүм түрү',
+    'productionOutCategoryHint': 'Тандаңыз',
+    'productionOutNoRecipeWarning':
+        'Бул түр үчүн рецепт жок. Алдын ала «Эсептөө» бөлүмүндө рецепт түзүңүз.',
+    'productionOutStep2Title': 'Партия көлөмү',
+    'productionOutStep2Subtitle':
+        '1 {unit} = {qty} {productUnit}. Бөлүнгөн сандар (мисалы: 1.5).',
+    'productionOutBatchFieldLabel': '{unit} көлөмү',
+    'productionOutSummaryTitle': 'Эсеп',
+    'productionOutTotalOutput': '{qty} {unit}',
+    'productionOutCostLabel': 'Чыгым',
+    'productionOutIngredientsPreview': 'Чийки зат чыгымы',
+    'productionOutCta': 'Чыгымды каттоо',
+    'productionOutSuccess': '{qty} {unit} чыгым катталды',
+    'productionOutValidationSelectProduct': 'Өнүм түрүн тандаңыз',
+    'productionOutValidationNoRecipe': 'Бул түр үчүн рецепт жок',
+    'productionOutValidationBatch': 'Партия көлөмү 0дон чоң болсун',
+    'productionOutStep3Title': 'Текшерүү жана сактоо',
+    'productionOutStep3Subtitle': 'Туура болсо, сактаңыз.',
+    'productionOutNext': 'Кийинки',
+    'productionOutSearchHint': 'Өнүм издөө',
+    'productionOutSearchEmpty': 'Эч нерсе табылган жок',
+    'returnCreateTitle': 'Өнүм кайтарылды',
+    'returnCreateSubtitle':
+        'Кайтарылган түр жана көлөмдү киргизиңиз. Түр тандалганда сату баасы автоматтык чыгат.',
+    'returnProfitInfoTitle': 'Пайда жана эсеп',
+    'returnProfitInfoBody':
+        'Кайтаруу катталганда күндөлүк сатуу, түшүм жана пайда көрсөткүчтөрү (башкы бет жана отчеттор) ошого ылайык жаңыланат — бул чыныгы каржылык абалды чагылдырат.',
+    'returnProfitInfoShort':
+        'Өнүм кайтаруусун киргизүү пайданы туура эсептөө үчүн маанилүү.',
+    'returnProductionLabel': 'Партия (чыгым)',
+    'returnNoProductionForCategory':
+        'Бул түр боюнча бүгүн чыгым жазылган жок. Алды менен чыгым киргизиңиз.',
+    'returnSearchHint': 'Өнүм издөө',
+    'returnSearchEmpty': 'Эч нерсе табылган жок',
+    'returnCategoryLabel': 'Өнүм түрү',
+    'returnQuantityTitle': 'Кайтарылган көлөм',
+    'returnQuantitySubtitle': 'Бүтүн сан (дана) киргизиңиз.',
+    'returnPriceLabel': 'Бир дана баасы',
+    'returnReasonLabel': 'Себеп (милдеттүү эмес)',
+    'returnReasonHint': 'Мисалы: кардар, сапат',
+    'returnCta': 'Кайтарууну каттоо',
+    'returnValidationSelectProduct': 'Өнүм түрүн тандаңыз',
+    'returnValidationQty': 'Көлөм 0дон чоң болсун',
+    'returnValidationPrice': 'Бааны туура киргизиңиз',
+    'returnSuccess': 'Кайтаруу катталды',
+    'returnPieceSuffix': 'дана',
+    'productCategoriesTitle': 'Өнүм түрлөрү',
+    'productCategoriesEmptyTitle': 'Азырынча өнүм түрлөрү жок',
+    'productCategoriesEmptySubtitle':
+        'Сатылган өнүм же кызмат түрлөрүн кошуңуз',
+    'addProductCategoryModalTitle': 'Жаңы түр',
+    'addProductCategoryModalSubtitle': 'Ат жана сатуу баасын киргизиңиз',
+    'productCategoriesNameLabel': 'Өнүм аты',
+    'productCategoriesNameHint': 'Мисалы: лаваш, сет-меню',
+    'sellingPriceLabel': 'Сатуу баасы',
+    'sellingPriceHint': '0',
+    'currencyPickerLabel': 'Валюта',
+    'productCategoriesAddCta': 'Түр кошуу',
+    'snackbarFillAllFields': 'Бардык талааларды толтуруңуз',
+    'snackbarErrorGeneric': 'Ката кетти',
+    'apiClientTimeout': 'Байланыш убактысы бүттү',
+    'apiClientNoConnection': 'Интернет байланышы жок',
+    'apiClientUnexpected': 'Күтүлбөгөн ката',
+    'apiInvalidResponseFormat': 'Күтүлбөгөн жооп форматы',
+    'actionAdd': 'Кошуу',
+    'actionSave': 'Сактоо',
+    'editProductCategoryModalTitle': 'Түрдү оңдоо',
+    'editIngredientModalTitle': 'Чийки затты оңдоо',
+    'snackbarCategoryAdded': '{name} кошулду',
+    'snackbarCategoryDeleted': '{name} өчүрүлдү',
+    'snackbarCategoryUpdated': '{name} жаңыланды',
+    'ingredientsEmptyTitle': 'Азырынча чийки зат жок',
+    'ingredientsEmptySubtitle':
+        'Рецепт жана өздүк баа үчүн ат, өлчөм бирдиги жана 1 бирдик баасын киргизиңиз.',
+    'addIngredientModalTitle': 'Жаңы чийки зат',
+    'addIngredientModalSubtitle':
+        'Ат, бирдик жана баа. Валютаны баанын жанындагы баскыч менен тандаңыз.',
+    'ingredientNameLabel': 'Аталышы',
+    'ingredientNameHint': 'Мисалы: ун, суу, туз',
+    'ingredientUnitFieldLabel': 'Өлчөм бирдиги',
+    'ingredientPricePerUnitLabel': '1 бирдик баасы',
+    'ingredientUnit_kg': 'Килограмм (kg)',
+    'ingredientUnit_gram': 'Грамм (g)',
+    'ingredientUnit_litr': 'Литр (l)',
+    'ingredientUnit_dona': 'Дана',
+    'ingredientsAddCta': 'Чийки зат кошуу',
+    'ingredientAddHeroTitle': 'Жаңы чийки зат',
+    'ingredientPriceHintBanner':
+        'Бааны тандалган бирдик боюнча толук киргизиңиз (мисалы, 1 кг, 1 л же 1 дана). Рецептте г же мл колдонсоңуз да, бул жерде жалпы баа сакталат.',
+    'ingredientUnitChipsLabel': 'Өлчөм бирдиги',
+    'snackbarIngredientAdded': '{name} кошулду',
+    'snackbarIngredientDeleted': '{name} өчүрүлдү',
+    'snackbarIngredientUpdated': '{name} жаңыланды',
+    'ingredientPriceInfoTitle': 'Баа жөнүндө',
+    'ingredientPriceInfoBody':
+        'Чийки заттын баасын бирдикке карата киргизиңиз (1 кг, 1 дана же 1 л). Рецепттерде система грамм же мл өзү эсептейт.',
+    'gotIt': 'Түшүнүктү',
+    'general': 'Жалпы',
+    'manageAndSwitch': 'Башкаруу жана алмаштыруу',
+    'staff': 'Кызматкерлер',
+    'staffManagement': 'Персоналды башкаруу',
+    'darkMode': 'Түнкү режим',
+    'enabled': 'Күйгүзүлгөн',
+    'disabled': 'Өчүрүлгөн',
+    'language': 'Тил',
+    'aboutApp': 'Тиркеме жөнүндө',
+    'version': 'Версия',
+    'logout': 'Тутумдан чыгуу',
+    'unknown': 'Белгисиз',
+    'balance': 'Негизги Баланс',
+    'topUp': 'Толтуруу',
+    'profileInfo': 'Профиль маалыматы',
+    'profileInfoDesc': 'Телефон, почта жана Телеграм жөндөөлөрү',
+    'phoneNumber': 'Телефон номери',
+    'email': 'Эл. почта',
+    'telegram': 'Телеграм',
+    'linked': 'Байланган',
+    'notLinked': 'Байланбаган',
+    'link': 'Байлоо',
+    'changePhoto': 'Сүрөттү өзгөртүү',
+    'businessOwner': 'Бизнес ээси',
+    'seller': 'Сатуучу',
+    'deleteAccount': 'Аккаунтту жок кылуу',
+    'deleteAccountDesc': 'Аккаунтуңузду жок кылсаңыз, бардык дүкөндөрүңүз, эсептериңиз жана маалыматтарыңыз толугу менен жок кылынат.',
+    'deleteAccountConfirm': 'Чынында эле аккаунтуңузду жок кылгыңыз келеби?',
+    'cancel': 'Жокко чыгаруу',
+    'delete': 'Жок кылуу',
+    'onboardingTitle1': 'Каалаган бизнес үчүн',
+    'onboardingDesc1': 'Нан цехи, шашлыкхана, самсахана, кондитердик, фастфуд — баарын бир жерден башкарыңыз',
+    'onboardingTitle2': 'Баа жана пайда эсеби',
+    'onboardingDesc2': 'Ар бир продуктун өздүк баасын так эсептеп, чыныгы пайданы билиңиз',
+    'onboardingTitle3': 'Бизнесиңиз көзөмөлдө',
+    'onboardingDesc3': 'Сатуу, чыгым жана өндүрүштү реалдуу убакытта көзөмөлдөңүз',
+    'skip': 'Өткөрүп жиберүү',
+    'next': 'Кийинки',
+    'getStarted': 'Баштоо',
+    'welcomeBack': 'Кош келиңиз!',
+    'loginSubtitle': 'Улантуу үчүн тутумга кириңиз',
+    'password': 'Сыр сөз',
+    'enterPhone': 'Телефонду киргизиңиз',
+    'enterPassword': 'Сыр сөздү киргизиңиз',
+    'loginButton': 'Кирүү',
+    'noAccount': 'Аккаунт жокпу?',
+    'registerLink': 'Катталыңыз',
+    'tryAgain': 'Кайра аракет',
+    'noInternet': 'Интернет туташуусунда ката',
+    'createBusiness': 'Бизнес түзүү',
+    'businessTypeStep': 'Категория',
+    'businessDetailsStep': 'Маалыматтар',
+    'businessLocationStep': 'Жайгашуу',
+    'selectBusinessType': 'Бизнес түрүн тандаңыз',
+    'selectBusinessTypeDesc': 'Өзүңүзгө ылайык категорияны тандаңыз',
+    'businessDetailsTitle': 'Бизнес жөнүндө',
+    'businessDetailsDesc': 'Бизнесиңиздин негизги маалыматтарын киргизиңиз',
+    'businessName': 'Бизнес аты',
+    'businessDescHint': 'Кыскача сыпаттама (милдеттүү эмес)',
+    'description': 'Сыпаттама',
+    'address': 'Дарек',
+    'businessLocationTitle': 'Жайгашуу',
+    'businessLocationDesc': 'GPS аркылуу жайгашуун сактаңыз же даректи кол менен киргизиңиз',
+    'useGpsLocation': 'GPS аркылуу аныктоо',
+    'fetchingLocation': 'Жайгашуу аныкталууда...',
+    'locationSaved': 'Жайгашуу сакталды',
+    'orManualAddress': 'же кол менен киргизиңиз',
+    'addressHint': 'Мисалы: Ташкент ш., Амир Темур көч., 1',
+    'locationOptionalNote': 'Жайгашуу милдеттүү эмес. Кийинчерек кошсо болот.',
+    'businessCreated': 'Бизнес түзүлдү! 🎉',
+    'businessCreatedDesc': '{name} ийгиликтүү түзүлдү.',
+    'startWorking': 'Иштеп баштоо',
+    'fieldRequired': 'Бул талаа милдеттүү',
+    'continueWizard': 'Улантуу',
+    'customBusinessTypeInfo':
+        'Бизнес түрүңүздү жазыңыз — биз эске алабыз',
+    'customBusinessTypeHint': 'Мисалы: Пишириктер, Лимонад...',
+    'businessNameHint': 'Мисалы: Борбордук наан цехи',
+    'businessNameRequired': 'Бизнес атын киргизиңиз',
+    'businessNameMinLength': 'Эң аз 2 символ',
+    'selectCurrency': 'Валюта',
+    'selectCurrencyDesc':
+        'Отчёттор жана баалар үчүн валюта',
+    'gpsAutoDetectSubtitle':
+        'Учурдагы жайгашуунузду автоматтык аныктоо',
+    'orDivider': 'же',
+    'manualAddressLabel': 'Даректи кол менен киргизиңиз',
+    'createBusinessSubmit': 'Бизнес түзүү',
+  };
+
+  static const _tr = {
+    'hello': 'Merhaba',
+    'defaultUser': 'Kullanıcı',
+    'bakery': 'İşletme',
+    'bakeries': 'İşletmeler',
+    'selectBusiness': 'İşletme seçin',
+    'selectBusinessSubtitle': 'Yönetmek istediğiniz işletmeyi seçin',
+    'noBusiness': 'Henüz işletme yok',
+    'createFirstBusiness': 'İlk işletmenizi oluşturun\nve yönetmeye başlayın',
+    'addBusiness': 'Yeni işletme ekle',
+    'manage': 'Yönet',
+    'todayProfit': 'Bugünkü kâr',
+    'todayLoss': 'Bugünkü zarar',
+    'netRevenue': 'Gelir (iadeden sonra)',
+    'expense': 'Gider',
+    'baked': 'Pişirilen',
+    'sack': 'Çuval',
+    'sold': 'Satılan',
+    'returned': 'İade',
+    'pcs': 'adet',
+    'sacks': 'çuval',
+    'noBreadToday': 'Bugün henüz ekmek pişirilmedi',
+    'income': 'Gelir',
+    'profit': 'Kâr',
+    'productOut': 'Ürün çıktı',
+    'productReturned': 'Ürün iadesi',
+    'dashboardKpiOutput': 'Ürün çıkışı',
+    'dashboardKpiBatch': 'Toplam',
+    'dashboardKpiSold': 'Satılan',
+    'dashboardKpiReturned': 'İade',
+    'dashboardEmptyOutput': 'Bugün henüz çıkış kaydı yok',
+    'dashboardSectionOutput': 'Bugünkü çıkışlar',
+    'dashboardBatchUnitGeneric': 'parti',
+    'currency': 'som',
+    'home': 'Ana sayfa',
+    'cashRegister': 'Kasa',
+    'statistics': 'İstatistik',
+    'reportScreenTitle': 'Rapor',
+    'reportPickRange': 'Aralık',
+    'reportPickSingleDate': 'Tarih',
+    'reportChipToday': 'Bugün',
+    'reportChipYesterday': 'Dün',
+    'reportRangeLast7': '7 gün',
+    'reportRangeLast30': '30 gün',
+    'reportSectionSummary': 'Özet',
+    'reportSectionReturnsByType': 'İadeler (türe göre)',
+    'reportSectionProducts': 'Ürüne göre',
+    'reportGrossRevenue': 'Gelir (iadeden önce)',
+    'reportReturnsRecords': 'kayıt',
+    'reportProductionRecords': 'Çıkış kayıtları',
+    'reportEmptyReturns': 'Bu dönemde iade yok',
+    'reportEmptyProducts': 'Ürün verisi yok',
+    'reportProductProduced': 'Üretilen',
+    'reportExpandTypesCount': '{n} tür',
+    'reportExpandProductsCount': '{n} ürün',
+    'profileTab': 'Profil',
+    'navHistory': 'Geçmiş',
+    'historyTitle': 'Geçmiş',
+    'historyTabCreated': 'Üretilen',
+    'historyTabReturns': 'İadeler',
+    'historyTabCash': 'Kasa',
+    'historyCreatedEmpty': 'Henüz ürün çıkışı yok',
+    'historyReturnsEmpty': 'Henüz iade kaydı yok',
+    'returnDetailTitle': 'İade detayı',
+    'noExpenseToday': 'Bugün gider kaydedilmedi',
+    'addExpense': 'Gider',
+    'expenseCreateTitle': 'Gider ekle',
+    'expenseCreateSubtitle': 'Türü seçin ve tutarı girin.',
+    'expenseCategorySearchHint': 'Kategori ara',
+    'expenseAddCategory': 'Yeni kategori',
+    'expenseAddCategoryTitle': 'Kendi kategoriniz',
+    'expenseAddCategoryNameHint': 'Örn: reklam',
+    'expenseAddCategorySave': 'Kategoriyi kaydet',
+    'expenseSelectCategory': 'Tür',
+    'expenseAmountLabel': 'Tutar',
+    'expenseDescriptionLabel': 'Açıklama (isteğe bağlı)',
+    'expenseSubmit': 'Kaydet',
+    'expenseCategoriesEmpty': 'Sonuç yok',
+    'expenseCategoriesLoadError': 'Yüklenemedi',
+    'daily': 'Günlük',
+    'weekly': 'Haftalık',
+    'monthly': 'Aylık',
+    'loss': 'Zarar',
+    'noData': 'Veri yok',
+    'production': 'Üretim',
+    'flourUsage': 'Un tüketimi',
+    'bakedBread': 'Pişirilen ekmek',
+    'ingredients': 'Malzemeler',
+    'salesAndReturns': 'Satış ve iade',
+    'totalProduced': 'Toplam üretilen',
+    'returns': 'İade',
+    'soldAuto': 'Satılan (oto)',
+    'returnAmount': 'İade tutarı',
+    'netIncome': 'Net gelir',
+    'expenses': 'Giderler',
+    'internalIngredients': 'İç giderler',
+    'external': 'Dış',
+    'total': 'Toplam',
+    'settings': 'Ayarlar',
+    'breadTypes': 'Ürün türleri',
+    'breadTypesDesc':
+        'Satılan ürün veya hizmet türleri — her biri için fiyat',
+    'products': 'Ürünler',
+    'productsDesc': 'Un, su, tuz, maya, yağ...',
+    'recipes': 'Tarifler',
+    'recipesDesc': 'Ekmek için malzeme ve miktarlar',
+    'settingsCardTypesTitle': 'Ürün türleriniz',
+    'settingsCardIngredientsTitle': 'Hammaddeler',
+    'settingsCardRecipesTitle': 'Hesaplama sistemi',
+    'settingsTypesDesc_default':
+        'Satış ürün ve hizmet türlerini ekleyin, fiyatları yönetin.',
+    'settingsTypesDesc_bakery':
+        'Örneğin: patır, samsa, lavaş, tandır... Her tür için ayrı fiyat.',
+    'settingsTypesDesc_grill':
+        'Örneğin: şiş, köfte, rulo... Her kalem için ayrı fiyat.',
+    'settingsTypesDesc_restaurant':
+        'Örneğin: yemekler, garnitürler, içecekler... Menüye göre düzenleyin.',
+    'settingsIngredientsDesc_default':
+        'Malzemeleri fiyat ve birimle girin.',
+    'settingsIngredientsDesc_bakery':
+        'Un, su, tuz, maya, yağ — her biri için fiyat ve birim.',
+    'settingsIngredientsDesc_grill':
+        'Et, baharat, yağ — her biri için fiyat ve birim.',
+    'settingsIngredientsDesc_restaurant':
+        'Ürün ve malzemeler — depo ve maliyetle bağlayın.',
+    'settingsRecipesDesc_default':
+        'Tarifler ve maliyet — her ürün için marj ve kâr.',
+    'settingsRecipesDesc_bakery':
+        'Her ürün için oran ve maliyet — kâr net.',
+    'settingsRecipesDesc_grill':
+        'Her yemek için gram ve maliyet — fiyat ve kâr.',
+    'settingsRecipesDesc_restaurant':
+        'Yemek ve içecekler için maliyet ve satış — raporlar otomatik.',
+    'setupJourneyTitle': 'Kurulum sırası',
+    'setupJourneyHint':
+        'Önce ürün türünü oluşturun, ardından hammaddeleri ve fiyatları girin, son olarak reçete ile hesaplamayı düzenleyin — böylece maliyet ve kâr net olur.',
+    'setupJourneyStepLabel1': 'Ürün',
+    'setupJourneyStepLabel2': 'Hammadde',
+    'setupJourneyStepLabel3': 'Hesaplama',
+    'setupJourneyAllDone': 'Tüm adımlar tamam',
+    'recipeScreenTitle': 'Tarifler',
+    'recipeEmptyTitle': 'Henüz tarif yok',
+    'recipeEmptySubtitle':
+        'Ürün türleri için tarif ekleyin — üretim hesabı net olsun.',
+    'recipeAddCta': 'Tarif ekle',
+    'recipeDeletedSnackbar': 'Tarif silindi',
+    'recipeErrorSnackbar': 'Bir hata oluştu',
+    'recipeCreateTitle': 'Yeni tarif',
+    'recipeStepProduct': 'Ürün',
+    'recipeStepBatch': 'Parti',
+    'recipeStepIngredients': 'İçerik',
+    'recipeSelectProductTitle': 'Hangi ürün için?',
+    'recipeSelectProductSubtitle':
+        'Tek tür seçin — her tür için bir tarif olur.',
+    'recipeBatchCarouselTitle': 'Parti birimi',
+    'recipeBatchCarouselSubtitle':
+        'Üretimde nasıl sayıyorsunuz: çuval, blok, set...',
+    'recipeOutputLabel': 'Tek partide çıkan ürün adedi',
+    'recipeOutputHint': 'Örn: 100',
+    'recipeIngredientsSectionTitle': 'Tek parti için hammadde',
+    'recipeIngredientsSectionSubtitle':
+        'Seçilen birimde tek partiye giren miktarları girin.',
+    'recipeAddIngredient': 'Kalem ekle',
+    'recipeValidationSelectProduct': 'Ürün türünü seçin',
+    'recipeValidationBatch': 'Parti birimini seçin',
+    'recipeValidationOutput': 'Çıkış miktarını girin',
+    'recipeValidationIngredients': 'En az bir hammadde ekleyin',
+    'recipeValidationDuplicateIngredient':
+        'Aynı malzeme iki kez eklenmiş',
+    'recipeSaveSuccess': 'Tarif kaydedildi',
+    'recipeRecipeBatchLine': '1 {unit} → {qty} adet',
+    'recipeBack': 'Geri',
+    'recipeIngredientSelectHint': 'Hammadde',
+    'recipeCardStatTitleOutput': 'Çıkış',
+    'recipeCardStatTitleBatchCost': 'Parti maliyeti',
+    'recipeCardStatTitleUnitCost': '1 adet maliyeti',
+    'recipeCardSectionIngredients': 'İçerik',
+    'recipeCardIngredientLine': '{name} · {qty} {unit}',
+    'recipeDeleteConfirmTitle': 'Tarif silinsin mi?',
+    'recipeDeleteConfirmBody':
+        '«{name}» tarifi silinecek. Bu işlem geri alınamaz.',
+    'recipeCardTooltipOutput':
+        'Tek partide çıkan ürün adedi.',
+    'recipeCardTooltipBatchCost':
+        'Tek parti için hammadde maliyeti (toplam).',
+    'recipeCardTooltipUnitCost':
+        'Birim ürün maliyeti (toplam ÷ çıkış).',
+    'productionDetailTitle': 'Parti detayı',
+    'productionDetailSummary': 'Bugün kapanan parti',
+    'productionDetailBatch': 'Parti sayısı',
+    'productionDetailOutput': 'Çıkış',
+    'productionDetailFlour': 'Kullanılan un',
+    'productionDetailIngredientCost': 'Hammadde maliyeti',
+    'productionDetailSalesEstimate': 'Tahmini gelir',
+    'productionDetailBreakdown': 'Malzemelere göre',
+    'productionDetailOneRecipeBatch': '1 parti (reçete)',
+    'productionDetailQtyTotal': 'Toplam miktar',
+    'productionDetailGrams': '{g} g',
+    'productionDetailPricePerUnit': 'Birim fiyat',
+    'productionDetailNoIngredients':
+        'Reçete malzemeleri yok veya yüklenemedi.',
+    'productionDetailReturnToday': 'Bugünkü iade (bu tür için)',
+    'productionDetailEdit': 'Düzenle',
+    'productionDetailEditSheetTitle': 'Parti ve iadeler',
+    'productionDetailEditBatchLabel': 'Bugünkü parti sayısı',
+    'productionDetailEditReturnsTitle': 'Bu türe ait iadeler (bugün)',
+    'productionDetailEditNoReturns': 'Bugün bu tür için iade kaydı yok',
+    'productionDetailEditSaveBatch': 'Partiyi kaydet',
+    'productionDetailBatchUpdated': 'Parti güncellendi',
+    'productionDetailReturnDeleted': 'İade silindi',
+    'productionDetailDeleteReturnTitle': 'İade silinsin mi?',
+    'productionDetailDeleteReturnBody':
+        'Kayıt silinecek. Ana sayfa ve tutarlar güncellenir.',
+    'productionDetailDeleteProductionTitle': 'Çıkışı sil?',
+    'productionDetailDeleteProductionBody':
+        'Bu çıkış kaydı silinir. Bu tür ve tarihte başka parti kalmazsa, o güne ait tüm iadeler de silinir.',
+    'productionDetailProductionDeleted': 'Çıkış silindi',
+    'productionOutTitle': 'Ürün çıkışı',
+    'productionOutStep1': 'Ürün',
+    'productionOutStep2': 'Toplam',
+    'productionOutStep3': 'Onay',
+    'productionOutStep1Title': 'Hangi ürün?',
+    'productionOutStep1Subtitle':
+        'Hesaplamaya bağlı ürün türünü seçin.',
+    'productionOutCategoryLabel': 'Ürün türü',
+    'productionOutCategoryHint': 'Seçin',
+    'productionOutNoRecipeWarning':
+        'Bu tür için tarif yok. Önce «Hesaplama» bölümünde tarif oluşturun.',
+    'productionOutStep2Title': 'Parti miktarı',
+    'productionOutStep2Subtitle':
+        '1 {unit} = {qty} {productUnit}. Ondalıklar kullanılabilir (ör. 1.5).',
+    'productionOutBatchFieldLabel': '{unit} miktarı',
+    'productionOutSummaryTitle': 'Hesap',
+    'productionOutTotalOutput': '{qty} {unit}',
+    'productionOutCostLabel': 'Maliyet',
+    'productionOutIngredientsPreview': 'Hammadde kullanımı',
+    'productionOutCta': 'Çıkışı kaydet',
+    'productionOutSuccess': '{qty} {unit} çıkış kaydedildi',
+    'productionOutValidationSelectProduct': 'Ürün türünü seçin',
+    'productionOutValidationNoRecipe': 'Bu tür için tarif yok',
+    'productionOutValidationBatch': 'Parti miktarı 0\'dan büyük olsun',
+    'productionOutStep3Title': 'Kontrol ve kayıt',
+    'productionOutStep3Subtitle': 'Doğruysa kaydedin.',
+    'productionOutNext': 'İleri',
+    'productionOutSearchHint': 'Ürün ara',
+    'productionOutSearchEmpty': 'Sonuç yok',
+    'returnCreateTitle': 'Ürün iadesi',
+    'returnCreateSubtitle':
+        'İade türü ve miktarı girin. Tür seçildiğinde satış fiyatı otomatik gelir.',
+    'returnProfitInfoTitle': 'Kâr ve hesap',
+    'returnProfitInfoBody':
+        'İade kaydedildiğinde günlük satış, gelir ve kâr göstergeleri (ana sayfa ve raporlar) buna göre güncellenir — gerçek finansal durumu yansıtır.',
+    'returnProfitInfoShort':
+        'İade girmek kârın doğru hesaplanması için önemlidir.',
+    'returnProductionLabel': 'Parti (çıkış)',
+    'returnNoProductionForCategory':
+        'Bu tür için bugün çıkış yok. Önce çıkış girin.',
+    'returnSearchHint': 'Ürün ara',
+    'returnSearchEmpty': 'Sonuç yok',
+    'returnCategoryLabel': 'Ürün türü',
+    'returnQuantityTitle': 'İade miktarı',
+    'returnQuantitySubtitle': 'Tam sayı (adet) girin.',
+    'returnPriceLabel': 'Birim fiyat',
+    'returnReasonLabel': 'Sebep (isteğe bağlı)',
+    'returnReasonHint': 'Örn.: müşteri, kalite',
+    'returnCta': 'İadeyi kaydet',
+    'returnValidationSelectProduct': 'Ürün türünü seçin',
+    'returnValidationQty': 'Miktar 0’dan büyük olmalı',
+    'returnValidationPrice': 'Geçerli bir fiyat girin',
+    'returnSuccess': 'İade kaydedildi',
+    'returnPieceSuffix': 'adet',
+    'productCategoriesTitle': 'Ürün türleri',
+    'productCategoriesEmptyTitle': 'Henüz ürün türü yok',
+    'productCategoriesEmptySubtitle':
+        'Sattığınız ürün veya hizmet türlerini ekleyin',
+    'addProductCategoryModalTitle': 'Yeni tür',
+    'addProductCategoryModalSubtitle': 'Ad ve satış fiyatını girin',
+    'productCategoriesNameLabel': 'Ürün adı',
+    'productCategoriesNameHint': 'Örn: lavaş, set menü',
+    'sellingPriceLabel': 'Satış fiyatı',
+    'sellingPriceHint': '0',
+    'currencyPickerLabel': 'Para birimi',
+    'productCategoriesAddCta': 'Tür ekle',
+    'snackbarFillAllFields': 'Lütfen tüm alanları doldurun',
+    'snackbarErrorGeneric': 'Bir hata oluştu',
+    'apiClientTimeout': 'Bağlantı zaman aşımı',
+    'apiClientNoConnection': 'İnternet bağlantısı yok',
+    'apiClientUnexpected': 'Beklenmeyen hata',
+    'apiInvalidResponseFormat': 'Geçersiz yanıt formatı',
+    'actionAdd': 'Ekle',
+    'actionSave': 'Kaydet',
+    'editProductCategoryModalTitle': 'Türü düzenle',
+    'editIngredientModalTitle': 'Hammaddeyi düzenle',
+    'snackbarCategoryAdded': '{name} eklendi',
+    'snackbarCategoryDeleted': '{name} silindi',
+    'snackbarCategoryUpdated': '{name} güncellendi',
+    'ingredientsEmptyTitle': 'Henüz hammadde yok',
+    'ingredientsEmptySubtitle':
+        'Reçete ve maliyet için ad, birim ve birim fiyatını girin.',
+    'addIngredientModalTitle': 'Yeni hammadde',
+    'addIngredientModalSubtitle':
+        'Ad, birim ve fiyat. Para birimini fiyatın yanındaki düğmeden seçin.',
+    'ingredientNameLabel': 'Ad',
+    'ingredientNameHint': 'Örn: un, su, tuz',
+    'ingredientUnitFieldLabel': 'Ölçü birimi',
+    'ingredientPricePerUnitLabel': '1 birim fiyatı',
+    'ingredientUnit_kg': 'Kilogram (kg)',
+    'ingredientUnit_gram': 'Gram (g)',
+    'ingredientUnit_litr': 'Litre (l)',
+    'ingredientUnit_dona': 'Adet',
+    'ingredientsAddCta': 'Hammadde ekle',
+    'ingredientAddHeroTitle': 'Yeni hammadde',
+    'ingredientPriceHintBanner':
+        'Fiyatı seçilen birim için tam girin (ör. 1 kg, 1 L veya 1 adet). Reçetede g veya ml kullanılsa da burada toplam fiyat saklanır.',
+    'ingredientUnitChipsLabel': 'Ölçü birimi',
+    'snackbarIngredientAdded': '{name} eklendi',
+    'snackbarIngredientDeleted': '{name} silindi',
+    'snackbarIngredientUpdated': '{name} güncellendi',
+    'ingredientPriceInfoTitle': 'Fiyat hakkında',
+    'ingredientPriceInfoBody':
+        'Hammadde fiyatını birim başına girin (1 kg, 1 adet veya 1 l). Tariflerde sistem gram veya ml’ye kendisi çevirir.',
+    'gotIt': 'Anladım',
+    'general': 'Genel',
+    'manageAndSwitch': 'Yönetim ve değiştirme',
+    'staff': 'Çalışanlar',
+    'staffManagement': 'Personel yönetimi',
+    'darkMode': 'Karanlık mod',
+    'enabled': 'Açık',
+    'disabled': 'Kapalı',
+    'language': 'Dil',
+    'aboutApp': 'Uygulama hakkında',
+    'version': 'Sürüm',
+    'logout': 'Çıkış yap',
+    'unknown': 'Bilinmiyor',
+    'balance': 'Ana Bakiye',
+    'topUp': 'Yükle',
+    'profileInfo': 'Profil bilgileri',
+    'profileInfoDesc': 'Telefon, e-posta ve Telegram ayarları',
+    'phoneNumber': 'Telefon numarası',
+    'email': 'E-posta',
+    'telegram': 'Telegram',
+    'linked': 'Bağlı',
+    'notLinked': 'Bağlı değil',
+    'link': 'Bağla',
+    'changePhoto': 'Fotoğrafı değiştir',
+    'businessOwner': 'İşletme sahibi',
+    'seller': 'Satıcı',
+    'deleteAccount': 'Hesabı sil',
+    'deleteAccountDesc': 'Hesabınızı silerseniz tüm mağazalarınız, raporlarınız ve verileriniz kalıcı olarak silinir.',
+    'deleteAccountConfirm': 'Hesabınızı gerçekten silmek istiyor musunuz?',
+    'cancel': 'İptal',
+    'delete': 'Sil',
+    'onboardingTitle1': 'Her işletme için',
+    'onboardingDesc1': 'Fırın, mangal evi, börekçi, pastane, fast food — hepsini tek yerden yönetin',
+    'onboardingTitle2': 'Maliyet ve kâr hesabı',
+    'onboardingDesc2': 'Her ürünün maliyetini doğru hesaplayın ve gerçek kârınızı öğrenin',
+    'onboardingTitle3': 'İşletmeniz kontrol altında',
+    'onboardingDesc3': 'Satış, gider ve üretimi gerçek zamanlı takip edin',
+    'skip': 'Atla',
+    'next': 'İleri',
+    'getStarted': 'Başla',
+    'welcomeBack': 'Hoş geldiniz!',
+    'loginSubtitle': 'Devam etmek için giriş yapın',
+    'password': 'Şifre',
+    'enterPhone': 'Telefon girin',
+    'enterPassword': 'Şifre girin',
+    'loginButton': 'Giriş yap',
+    'noAccount': 'Hesabınız yok mu?',
+    'registerLink': 'Kayıt olun',
+    'tryAgain': 'Tekrar dene',
+    'noInternet': 'İnternet bağlantısında hata',
+    'createBusiness': 'İşletme oluştur',
+    'businessTypeStep': 'Kategori',
+    'businessDetailsStep': 'Bilgiler',
+    'businessLocationStep': 'Konum',
+    'selectBusinessType': 'İşletme türü seçin',
+    'selectBusinessTypeDesc': 'Size uygun kategoriyi seçin — uygulama buna göre uyarlanır',
+    'businessDetailsTitle': 'İşletme hakkında',
+    'businessDetailsDesc': 'İşletmenizin temel bilgilerini girin',
+    'businessName': 'İşletme adı',
+    'businessDescHint': 'Kısa açıklama (isteğe bağlı)',
+    'description': 'Açıklama',
+    'address': 'Adres',
+    'businessLocationTitle': 'Konum',
+    'businessLocationDesc': 'GPS ile konumu kaydedin veya adresi elle girin',
+    'useGpsLocation': 'GPS ile konumu belirle',
+    'fetchingLocation': 'Konum belirleniyor...',
+    'locationSaved': 'Konum kaydedildi',
+    'orManualAddress': 'veya elle girin',
+    'addressHint': 'Örneğin: Taşkent, Amir Timur Cd., 1',
+    'locationOptionalNote': 'Konum isteğe bağlıdır. Daha sonra da eklenebilir.',
+    'businessCreated': 'İşletme oluşturuldu! 🎉',
+    'businessCreatedDesc': '{name} başarıyla oluşturuldu.',
+    'startWorking': 'Çalışmaya başla',
+    'fieldRequired': 'Bu alan zorunludur',
+    'continueWizard': 'Devam et',
+    'customBusinessTypeInfo':
+        'İşletme türünüzü yazın — dikkate alırız',
+    'customBusinessTypeHint': 'Örneğin: Hamur işleri, Limonata...',
+    'businessNameHint': 'Örneğin: Merkez Fırın',
+    'businessNameRequired': 'İşletme adını girin',
+    'businessNameMinLength': 'En az 2 karakter',
+    'selectCurrency': 'Para birimi',
+    'selectCurrencyDesc':
+        'Raporlar ve fiyatlar için para birimi',
+    'gpsAutoDetectSubtitle':
+        'Mevcut konumunuzu otomatik belirle',
+    'orDivider': 'veya',
+    'manualAddressLabel': 'Adresi elle girin',
+    'createBusinessSubmit': 'İşletmeyi oluştur',
+  };
+
+  /// Тоҷикӣ (fallback: узбекча калитлар йўқ бўлса)
+  static const _tg = {
+    'hello': 'Салом',
+    'defaultUser': 'Корбар',
+    'bakery': 'Бизнес',
+    'bakeries': 'Бизнесҳо',
+    'selectBusiness': 'Бизнес интихоб кунед',
+    'selectBusinessSubtitle':
+        'Бизнесеро интихоб кунед, ки мехоҳед идора кунед',
+    'noBusiness': 'Ҳоло бизнес нест',
+    'createFirstBusiness':
+        'Якумин бизнеси худро эҷод кунед\nва идораро оғоз кунед',
+    'addBusiness': 'Бизнеси нав',
+    'manage': 'Идора',
+    'todayProfit': 'Фоидаи имрӯз',
+    'todayLoss': 'Зарари имрӯз',
+    'netRevenue': 'Даромад (пас аз бозгашт)',
+    'expense': 'Харҷ',
+    'baked': 'Пухта',
+    'sack': 'Киса',
+    'sold': 'Фурӯхта шуд',
+    'returned': 'Бозгашт',
+    'pcs': 'даона',
+    'sacks': 'киса',
+    'noBreadToday': 'Имрӯз ҳанӯз нон пухта нашудааст',
+    'income': 'Даромад',
+    'profit': 'Фоида',
+    'productOut': 'Маҳсулот баромад',
+    'productReturned': 'Маҳсулот бозгашт',
+    'dashboardKpiOutput': 'Баромади маҳсулот',
+    'dashboardKpiBatch': 'Маҷмуъ',
+    'dashboardKpiSold': 'Фурӯхта шуд',
+    'dashboardKpiReturned': 'Бозгашт',
+    'dashboardEmptyOutput': 'Имрӯз ҳанӯз баромад сабт нашудааст',
+    'dashboardSectionOutput': 'Баромади имрӯз',
+    'dashboardBatchUnitGeneric': 'партия',
+    'currency': 'сомонӣ',
+    'home': 'Асосӣ',
+    'cashRegister': 'Касса',
+    'statistics': 'Омор',
+    'reportScreenTitle': 'Ҳисобот',
+    'reportPickRange': 'Муддат',
+    'reportPickSingleDate': 'Сана',
+    'reportChipToday': 'Имрӯз',
+    'reportChipYesterday': 'Дирӯз',
+    'reportRangeLast7': '7 рӯз',
+    'reportRangeLast30': '30 рӯз',
+    'reportSectionSummary': 'Хулосаи умумӣ',
+    'reportSectionReturnsByType': 'Бозгаштҳо (аз рӯи намуд)',
+    'reportSectionProducts': 'Аз рӯи маҳсулот',
+    'reportGrossRevenue': 'Даромад (пеш аз бозгашт)',
+    'reportReturnsRecords': 'сабт',
+    'reportProductionRecords': 'Сабтҳои баромад',
+    'reportEmptyReturns': 'Барои ин муддат бозгашт нест',
+    'reportEmptyProducts': 'Маълумот аз рӯи маҳсулот нест',
+    'reportProductProduced': 'Истеҳсодшуда',
+    'reportExpandTypesCount': '{n} намуд',
+    'reportExpandProductsCount': '{n} маҳсулот',
+    'profileTab': 'Профил',
+    'navHistory': 'Таърих',
+    'historyTitle': 'Таърих',
+    'historyTabCreated': 'Эҷодшуда',
+    'historyTabReturns': 'Бозгаштҳо',
+    'historyTabCash': 'Касса',
+    'historyCreatedEmpty': 'Ҳанӯз баромади маҳсулот нест',
+    'historyReturnsEmpty': 'Ҳанӯз бозгашт нест',
+    'returnDetailTitle': 'Бозгашт',
+    'noExpenseToday': 'Имрӯз харҷ сабт нашудааст',
+    'addExpense': 'Харҷ',
+    'expenseCreateTitle': 'Харҷ илова кардан',
+    'expenseCreateSubtitle': 'Навъро интихоб кунед ва маблағ ворид кунед.',
+    'expenseCategorySearchHint': 'Ҷустуҷӯ',
+    'expenseAddCategory': 'Категорияи нав',
+    'expenseAddCategoryTitle': 'Барои худ',
+    'expenseAddCategoryNameHint': 'Масалан: реклама',
+    'expenseAddCategorySave': 'Сабт',
+    'expenseSelectCategory': 'Навъ',
+    'expenseAmountLabel': 'Маблағ',
+    'expenseDescriptionLabel': 'Шарҳ (ихтиёрӣ)',
+    'expenseSubmit': 'Сабт',
+    'expenseCategoriesEmpty': 'Ёфт нашуд',
+    'expenseCategoriesLoadError': 'Бор нашуд',
+    'daily': 'Рӯзона',
+    'weekly': 'Ҳафтаина',
+    'monthly': 'Моҳона',
+    'loss': 'Зарар',
+    'noData': 'Маълумот нест',
+    'production': 'Истеҳсолот',
+    'flourUsage': 'Сарфи орд',
+    'bakedBread': 'Нони пухта',
+    'ingredients': 'Муҳим ҷузъҳо',
+    'salesAndReturns': 'Фурӯш ва бозгашт',
+    'totalProduced': 'Ҳамагӣ истеҳсолшуда',
+    'returns': 'Бозгашт',
+    'soldAuto': 'Фурӯхташуда (авто)',
+    'returnAmount': 'Маблағи бозгашт',
+    'netIncome': 'Даромади соф',
+    'expenses': 'Харҷҳо',
+    'internalIngredients': 'Харҷҳои дохилӣ',
+    'external': 'Беруна',
+    'total': 'Ҳамагӣ',
+    'settings': 'Танзимот',
+    'breadTypes': 'Навъҳои маҳсулот',
+    'breadTypesDesc':
+        'Навъҳои маҳсулот ё хизмат — барои ҳар як нарх',
+    'products': 'Маҳсулотҳо',
+    'productsDesc': 'Орд, об, намак, хамиртуруш...',
+    'recipes': 'Дастурхатҳо',
+    'recipesDesc': 'Таркиб ва миқдор барои нон',
+    'settingsCardTypesTitle': 'Навъҳои маҳсулоти шумо',
+    'settingsCardIngredientsTitle': 'Хомаашё',
+    'settingsCardRecipesTitle': 'Системаи ҳисоб',
+    'settingsTypesDesc_default':
+        'Навъҳои маҳсулот ва хизматро илова кунед, нархҳоро идора кунед.',
+    'settingsTypesDesc_bakery':
+        'Масалан: патир, самса, лаваш, тандур... Нархи алоҳида барои ҳар навъ.',
+    'settingsTypesDesc_grill':
+        'Масалан: шашлик, люля, рулет... Нархи алоҳида барои ҳар позитсия.',
+    'settingsTypesDesc_restaurant':
+        'Масалан: таомҳо, гарнирҳо, нӯшокиҳо... Бо меню тартиб диҳед.',
+    'settingsIngredientsDesc_default':
+        'Ингредиентҳо ва хомаашёро бо нарх ва воҳид ворид кунед.',
+    'settingsIngredientsDesc_bakery':
+        'Орд, об, намак, хамиртуруш, рӯғон — нарх ва воҳид барои ҳар як.',
+    'settingsIngredientsDesc_grill':
+        'Гӯшт, маззаҳо, рӯғон — нарх ва воҳид барои ҳар як.',
+    'settingsIngredientsDesc_restaurant':
+        'Маҳсулот ва ингредиентҳо — бо анбор ва арзиши хом пайванд кунед.',
+    'settingsRecipesDesc_default':
+        'Дастурхатҳо ва арзиши хом — маржа ва фоида барои ҳар маҳсулот.',
+    'settingsRecipesDesc_bakery':
+        'Барои ҳар маҳсулот нисбат ва арзиши хом — фоида равшан аст.',
+    'settingsRecipesDesc_grill':
+        'Барои ҳар таом грамм ва арзиши хом — нарх ва фоида.',
+    'settingsRecipesDesc_restaurant':
+        'Барои таом ва нӯшокиҳо арзиши хом ва фурӯш — ҳисоботҳо худкор.',
+    'setupJourneyTitle': 'Тартиби танзимот',
+    'setupJourneyHint':
+        'Аввал намуди маҳсулоти фурӯхташавандаро эҷод кунед, баъд хомаашё ва нархҳоро ворид кунед, дар охир ҳисобро бо рецепт танзим кунед — ин таннарх ва фоидаи дақиқ аст.',
+    'setupJourneyStepLabel1': 'Маҳсулот',
+    'setupJourneyStepLabel2': 'Хомаашё',
+    'setupJourneyStepLabel3': 'Ҳисоб',
+    'setupJourneyAllDone': 'Ҳама қадамҳо иҷро шуд',
+    'recipeScreenTitle': 'Дастурхатҳо',
+    'recipeEmptyTitle': 'Ҳоло дастурхат нест',
+    'recipeEmptySubtitle':
+        'Барои навъҳои маҳсулот дастурхат илова кунед — ҳисоби истеҳсол дақиқ мешавад.',
+    'recipeAddCta': 'Иловаи дастурхат',
+    'recipeDeletedSnackbar': 'Дастурхат нест шуд',
+    'recipeErrorSnackbar': 'Хато рӯй дод',
+    'recipeCreateTitle': 'Дастурхати нав',
+    'recipeStepProduct': 'Маҳсулот',
+    'recipeStepBatch': 'Партия',
+    'recipeStepIngredients': 'Таркиб',
+    'recipeSelectProductTitle': 'Барои кадом маҳсулот?',
+    'recipeSelectProductSubtitle':
+        'Як навъро интихоб кунед — барои ҳар навъ як дастурхат.',
+    'recipeBatchCarouselTitle': 'Воҳиди партия',
+    'recipeBatchCarouselSubtitle':
+        'Дар истеҳсол чӣ тавр месупоред: қоп, блок, маҷмӯа...',
+    'recipeOutputLabel': 'Аз як партия чанд маҳсулот мебарояд',
+    'recipeOutputHint': 'Масалан: 100',
+    'recipeIngredientsSectionTitle': 'Хомаашё барои як партия',
+    'recipeIngredientsSectionSubtitle':
+        'Миқдорҳои як партияро дар воҳиди интихобшуда ворид кунед.',
+    'recipeAddIngredient': 'Илова кардан',
+    'recipeValidationSelectProduct': 'Навъи маҳсулотро интихоб кунед',
+    'recipeValidationBatch': 'Воҳиди партияро интихоб кунед',
+    'recipeValidationOutput': 'Миқдори баромадро ворид кунед',
+    'recipeValidationIngredients': 'Ақаллан як хомаашё илова кунед',
+    'recipeValidationDuplicateIngredient':
+        'Як хомаашё ду маротиба илова шудааст',
+    'recipeSaveSuccess': 'Дастурхат сабт шуд',
+    'recipeRecipeBatchLine': '1 {unit} → {qty} дона',
+    'recipeBack': 'Бозгашт',
+    'recipeIngredientSelectHint': 'Хомаашё',
+    'recipeCardStatTitleOutput': 'Баромад',
+    'recipeCardStatTitleBatchCost': 'Арзиши хоми партия',
+    'recipeCardStatTitleUnitCost': 'Арзиши 1 дона',
+    'recipeCardSectionIngredients': 'Таркиб',
+    'recipeCardIngredientLine': '{name} · {qty} {unit}',
+    'recipeDeleteConfirmTitle': 'Дастурхат нест шавад?',
+    'recipeDeleteConfirmBody':
+        'Дастурхати «{name}» нест мешавад. Ин амалро бекор карда намешавад.',
+    'recipeCardTooltipOutput':
+        'Шумораи маҳсулот аз як партия.',
+    'recipeCardTooltipBatchCost':
+        'Арзиши хомаашё барои як партия (ҷамъ).',
+    'recipeCardTooltipUnitCost':
+        'Арзиши як маҳсулот (ҷамъ ÷ баромад).',
+    'productionDetailTitle': 'Партия тафсилот',
+    'productionDetailSummary': 'Имрӯз пӯшида шуд',
+    'productionDetailBatch': 'Шумораи партия',
+    'productionDetailOutput': 'Баромад',
+    'productionDetailFlour': 'Орди сарфшуда',
+    'productionDetailIngredientCost': 'Хароҷоти хом матоъ',
+    'productionDetailSalesEstimate': 'Даромади тахминӣ',
+    'productionDetailBreakdown': 'Аз рӯи компонентҳо',
+    'productionDetailOneRecipeBatch': '1 партия (рецепт)',
+    'productionDetailQtyTotal': 'Ҳамагӣ миқдор',
+    'productionDetailGrams': '{g} г',
+    'productionDetailPricePerUnit': 'Нархи як воҳид',
+    'productionDetailNoIngredients':
+        'Компонентҳои рецепт нест ё бор нашуд.',
+    'productionDetailReturnToday': 'Бозгашти имрӯза (ин навъ)',
+    'productionDetailEdit': 'Таҳрир',
+    'productionDetailEditSheetTitle': 'Партия ва бозгаштҳо',
+    'productionDetailEditBatchLabel': 'Шумораи партияи имрӯз',
+    'productionDetailEditReturnsTitle': 'Бозгаштҳо ба ин навъ (имрӯз)',
+    'productionDetailEditNoReturns': 'Имрӯз барои ин навъ бозгашт нест',
+    'productionDetailEditSaveBatch': 'Сабти партия',
+    'productionDetailBatchUpdated': 'Партия навсозӣ шуд',
+    'productionDetailReturnDeleted': 'Бозгашт нест шуд',
+    'productionDetailDeleteReturnTitle': 'Бозгаштро нест мекунед?',
+    'productionDetailDeleteReturnBody':
+        'Сабт нест мешавад. Саҳифаи асосӣ ва ҷамъҳо нав мешаванд.',
+    'productionDetailDeleteProductionTitle': 'Баромадро нест мекунед?',
+    'productionDetailDeleteProductionBody':
+        'Ин сабти баромад нест мешавад. Агар ин навъ ва сана дигар партия набошад, барои ҳамин рӯз ҳамаи бозгаштҳо низ нест мешаванд.',
+    'productionDetailProductionDeleted': 'Баромад нест шуд',
+    'productionOutTitle': 'Баромади маҳсулот',
+    'productionOutStep1': 'Маҳсулот',
+    'productionOutStep2': 'Маҷмуъ',
+    'productionOutStep3': 'Анҷом',
+    'productionOutStep1Title': 'Кадом маҳсулот?',
+    'productionOutStep1Subtitle':
+        'Навъи вобаста ба ҳисобро интихоб кунед.',
+    'productionOutCategoryLabel': 'Навъи маҳсулот',
+    'productionOutCategoryHint': 'Интихоб',
+    'productionOutNoRecipeWarning':
+        'Барои ин навъ рецепт нест. Аввал дар «Ҳисоб» рецепт эҷод кунед.',
+    'productionOutStep2Title': 'Миқдори партия',
+    'productionOutStep2Subtitle':
+        '1 {unit} = {qty} {productUnit}. Ададҳои касрӣ (масалан: 1.5).',
+    'productionOutBatchFieldLabel': 'Миқдори {unit}',
+    'productionOutSummaryTitle': 'Ҳисоб',
+    'productionOutTotalOutput': '{qty} {unit}',
+    'productionOutCostLabel': 'Хароҷот',
+    'productionOutIngredientsPreview': 'Хомаашёи сарфшаванда',
+    'productionOutCta': 'Баромадро сабт кардан',
+    'productionOutSuccess': '{qty} {unit} сабт шуд',
+    'productionOutValidationSelectProduct': 'Навъро интихоб кунед',
+    'productionOutValidationNoRecipe': 'Барои ин навъ рецепт нест',
+    'productionOutValidationBatch': 'Миқдор аз 0 калонтар бошад',
+    'productionOutStep3Title': 'Санҷиш ва сабт',
+    'productionOutStep3Subtitle': 'Агар дуруст бошад, сабт кунед.',
+    'productionOutNext': 'Оянда',
+    'productionOutSearchHint': 'Ҷустуҷӯи маҳсулот',
+    'productionOutSearchEmpty': 'Чизе ёфт нашуд',
+    'returnCreateTitle': 'Маҳсулот бозгашт',
+    'returnCreateSubtitle':
+        'Намуд ва миқдори бозгаштро ворид кунед. Намуд интихоб шуда, нархи фурӯш худкор мешавад.',
+    'returnProfitInfoTitle': 'Фоида ва ҳисоб',
+    'returnProfitInfoBody':
+        'Бозгашт сабт шуд, нишондиҳандаҳои фурӯш, даромад ва фоида (саҳифаи асосӣ ва гузоришҳо) мутобиқ нав мешаванд — ин вазъи молиявии воқеиро нишон медиҳад.',
+    'returnProfitInfoShort':
+        'Бозгаштро ворид кардан барои ҳисоби дурусти фоида муҳим аст.',
+    'returnProductionLabel': 'Партия (баромад)',
+    'returnNoProductionForCategory':
+        'Барои ин навъ имрӯз баромад сабт нашудааст. Аввал баромад сабт кунед.',
+    'returnSearchHint': 'Ҷустуҷӯи маҳсулот',
+    'returnSearchEmpty': 'Чизе ёфт нашуд',
+    'returnCategoryLabel': 'Намуди маҳсулот',
+    'returnQuantityTitle': 'Миқдори бозгашт',
+    'returnQuantitySubtitle': 'Рақами комил (дона) ворид кунед.',
+    'returnPriceLabel': 'Нархи як дона',
+    'returnReasonLabel': 'Сабаб (ихтиёрӣ)',
+    'returnReasonHint': 'Масалан: мизоҷ, сифат',
+    'returnCta': 'Бозгаштро сабт кунед',
+    'returnValidationSelectProduct': 'Намуди маҳсулотро интихоб кунед',
+    'returnValidationQty': 'Миқдор аз 0 калон бошад',
+    'returnValidationPrice': 'Нархи дурустро ворид кунед',
+    'returnSuccess': 'Бозгашт сабт шуд',
+    'returnPieceSuffix': 'дона',
+    'productCategoriesTitle': 'Навъҳои маҳсулот',
+    'productCategoriesEmptyTitle': 'Ҳоло навъҳои маҳсулот нест',
+    'productCategoriesEmptySubtitle':
+        'Навъҳои маҳсулот ё хизматро, ки мефурӯшед, илова кунед',
+    'addProductCategoryModalTitle': 'Навъи нав',
+    'addProductCategoryModalSubtitle': 'Ном ва нархи фурӯшро ворид кунед',
+    'productCategoriesNameLabel': 'Номи маҳсулот',
+    'productCategoriesNameHint': 'Масалан: лаваш, сет-меню',
+    'sellingPriceLabel': 'Нархи фурӯш',
+    'sellingPriceHint': '0',
+    'currencyPickerLabel': 'Асъор',
+    'productCategoriesAddCta': 'Иловаи навъ',
+    'snackbarFillAllFields': 'Лутфан ҳамаи майдонҳоро пур кунед',
+    'snackbarErrorGeneric': 'Хато рӯй дод',
+    'apiClientTimeout': 'Вақти пайвастшавӣ ба охир расид',
+    'apiClientNoConnection': 'Пайвасти интернет нест',
+    'apiClientUnexpected': 'Хатои ногаҳон',
+    'apiInvalidResponseFormat': 'Формати ҷавоби номувафиқ',
+    'actionAdd': 'Илова',
+    'actionSave': 'Сабт',
+    'editProductCategoryModalTitle': 'Таҳрири навъ',
+    'editIngredientModalTitle': 'Таҳрири хомаашё',
+    'snackbarCategoryAdded': '{name} илова шуд',
+    'snackbarCategoryDeleted': '{name} нест шуд',
+    'snackbarCategoryUpdated': '{name} навсозӣ шуд',
+    'ingredientsEmptyTitle': 'Ҳанӯз хомаашё нест',
+    'ingredientsEmptySubtitle':
+        'Барои рецепт ва арзиши худи ном, воҳиди ченак ва нархи як воҳидро ворид кунед.',
+    'addIngredientModalTitle': 'Хомаашёи нав',
+    'addIngredientModalSubtitle':
+        'Ном, воҳид ва нарх. Асъорро аз тугмача дар канори нарх интихоб кунед.',
+    'ingredientNameLabel': 'Ном',
+    'ingredientNameHint': 'Масалан: орд, об, намак',
+    'ingredientUnitFieldLabel': 'Воҳиди ченак',
+    'ingredientPricePerUnitLabel': 'Нархи як воҳид',
+    'ingredientUnit_kg': 'Килограмм (kg)',
+    'ingredientUnit_gram': 'Грамм (g)',
+    'ingredientUnit_litr': 'Литр (l)',
+    'ingredientUnit_dona': 'Дона',
+    'ingredientsAddCta': 'Иловаи хомаашё',
+    'ingredientAddHeroTitle': 'Хомаашёи нав',
+    'ingredientPriceHintBanner':
+        'Нархро барои воҳиди интихобшуда пурра ворид кунед (масалан, 1 кг, 1 л ё 1 дона). Дар рецепт г ё мл истифода шавад ҳам, дар ин ҷо нархи умумӣ нигоҳ дошта мешавад.',
+    'ingredientUnitChipsLabel': 'Воҳиди ченак',
+    'snackbarIngredientAdded': '{name} илова шуд',
+    'snackbarIngredientDeleted': '{name} нест шуд',
+    'snackbarIngredientUpdated': '{name} навсозӣ шуд',
+    'ingredientPriceInfoTitle': 'Дар бораи нарх',
+    'ingredientPriceInfoBody':
+        'Нархи хомаашёро барои як воҳид ворид кунед (1 кг, 1 дона ё 1 л). Дар рецептҳо система ба грамм ё мл худ ҳисоб мекунад.',
+    'gotIt': 'Фаҳмоӣ',
+    'general': 'Умумӣ',
+    'manageAndSwitch': 'Идора ва иваз',
+    'staff': 'Кормандон',
+    'staffManagement': 'Идораи кормандон',
+    'darkMode': 'Режими торик',
+    'enabled': 'Фаъол',
+    'disabled': 'Ғайрифаъол',
+    'language': 'Забон',
+    'aboutApp': 'Дар бораи барнома',
+    'version': 'Версия',
+    'logout': 'Баромадан',
+    'unknown': 'Номаълум',
+    'balance': 'Баланси асосӣ',
+    'topUp': 'Пур кардан',
+    'profileInfo': 'Маълумоти профил',
+    'profileInfoDesc': 'Телефон, почта ва Telegram',
+    'phoneNumber': 'Рақами телефон',
+    'email': 'Почта',
+    'telegram': 'Telegram',
+    'linked': 'Пайваст',
+    'notLinked': 'Пайваст нест',
+    'link': 'Пайваст кардан',
+    'changePhoto': 'Акс иваз кардан',
+    'businessOwner': 'Соҳиби бизнес',
+    'seller': 'Фурӯшанда',
+    'deleteAccount': 'Ҳисобро нест кардан',
+    'deleteAccountDesc':
+        'Бо нест кардани ҳисоб, ҳама маълумот нест мешавад.',
+    'deleteAccountConfirm': 'Ҳақиқатан ҳисобро нест мекунед?',
+    'cancel': 'Бекор',
+    'delete': 'Нест кардан',
+    'onboardingTitle1': 'Барои ҳар гуна бизнес',
+    'onboardingDesc1':
+        'Нонвойхона, шашликхона, самса, ширинӣ, фастфуд — ҳама дар як ҷо',
+    'onboardingTitle2': 'Баҳо ва фоида',
+    'onboardingDesc2': 'Баҳои ҳар маҳсулотро дақиқ ҳисоб кунед',
+    'onboardingTitle3': 'Бизнес зери назорат',
+    'onboardingDesc3': 'Фурӯш, харҷ ва истеҳсолро пайгирӣ кунед',
+    'skip': 'Гузаронидан',
+    'next': 'Оянда',
+    'getStarted': 'Оғоз',
+    'welcomeBack': 'Хуш омадед!',
+    'loginSubtitle': 'Барои идома ворид шавед',
+    'password': 'Рамз',
+    'enterPhone': 'Телефон ворид кунед',
+    'enterPassword': 'Рамз ворид кунед',
+    'loginButton': 'Воридшавӣ',
+    'noAccount': 'Ҳисоб нест?',
+    'registerLink': 'Сабт ном',
+    'tryAgain': 'Такрор',
+    'noInternet': 'Хатои интернет',
+    'createBusiness': 'Эҷоди бизнес',
+    'businessTypeStep': 'Категория',
+    'businessDetailsStep': 'Маълумот',
+    'businessLocationStep': 'Ҷойгиршавӣ',
+    'selectBusinessType': 'Навъи бизнесро интихоб кунед',
+    'selectBusinessTypeDesc':
+        'Категорияи мувофиқро интихоб кунед — интерфейс мутобиқ мешавад',
+    'businessDetailsTitle': 'Дар бораи бизнес',
+    'businessDetailsDesc': 'Маълумоти асосии бизнеси худро ворид кунед',
+    'businessName': 'Номи бизнес',
+    'businessDescHint': 'Тавсифи кӯтоҳ (ихтиёрӣ)',
+    'description': 'Тавсиф',
+    'address': 'Суроға',
+    'businessLocationTitle': 'Ҷойгиршавӣ',
+    'businessLocationDesc':
+        'GPS ё суроғаи дастӣ — ихтиёрӣ',
+    'useGpsLocation': 'Муайян кардан бо GPS',
+    'fetchingLocation': 'Ҷойгиршавӣ муайян мешавад...',
+    'locationSaved': 'Ҷойгиршавӣ сабт шуд',
+    'orManualAddress': 'ё дастӣ ворид кунед',
+    'addressHint': 'Масалан: Душанбе, кӯчаи Рӯдакӣ, 1',
+    'locationOptionalNote': 'Ҷойгиршавӣ ихтиёрӣ аст',
+    'businessCreated': 'Бизнес эҷод шуд! 🎉',
+    'businessCreatedDesc': '{name} бомуваффақият эҷод шуд.',
+    'startWorking': 'Оғози кор',
+    'fieldRequired': 'Ин майдон ҳатмӣ аст',
+    'continueWizard': 'Идома додан',
+    'customBusinessTypeInfo':
+        'Навъи бизнеси худро нависед — мо инро ба назар мегирем',
+    'customBusinessTypeHint': 'Масалан: Ширинӣ, Лимонад...',
+    'businessNameHint': 'Масалан: Новвойхонаи марказӣ',
+    'businessNameRequired': 'Номи бизнесро ворид кунед',
+    'businessNameMinLength': 'Ҳадди ақал 2 ҳарф',
+    'selectCurrency': 'Асъор',
+    'selectCurrencyDesc':
+        'Асъор барои ҳисобот ва нархҳо',
+    'gpsAutoDetectSubtitle':
+        'Ҷойгиршавии ҷориро ба таври худкор муайян кардан',
+    'orDivider': 'ё',
+    'manualAddressLabel': 'Суроғаро дастӣ ворид кунед',
+    'createBusinessSubmit': 'Эҷоди бизнес',
+  };
+}

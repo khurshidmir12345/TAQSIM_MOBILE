@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <path d="M0 30 Q10 10, 20 30 Q30 50, 40 30 Q50 10, 60 30 Q70 50, 80 30 Q90 10, 100 30 Q110 50, 120 30 Q130 10, 140 30 Q150 50, 160 30 Q170 10, 180 30 Q190 50, 200 30" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/>
+  <circle cx="20" cy="30" r="4" fill="currentColor" opacity="0.15"/>
+  <circle cx="60" cy="30" r="4" fill="currentColor" opacity="0.15"/>
+  <circle cx="100" cy="30" r="4" fill="currentColor" opacity="0.15"/>
+  <circle cx="140" cy="30" r="4" fill="currentColor" opacity="0.15"/>
+  <circle cx="180" cy="30" r="4" fill="currentColor" opacity="0.15"/>
+  <path d="M10 30 L14 26 L18 30 L14 34 Z" fill="currentColor" opacity="0.1"/>
+  <path d="M50 30 L54 26 L58 30 L54 34 Z" fill="currentColor" opacity="0.1"/>
+  <path d="M90 30 L94 26 L98 30 L94 34 Z" fill="currentColor" opacity="0.1"/>
+  <path d="M130 30 L134 26 L138 30 L134 34 Z" fill="currentColor" opacity="0.1"/>
+  <path d="M170 30 L174 26 L178 30 L174 34 Z" fill="currentColor" opacity="0.1"/>
+</svg>
