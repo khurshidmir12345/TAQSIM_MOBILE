@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_icons.dart';
+import '../../../../core/widgets/taqsim_logo_asset.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/app_locale.dart';
 
@@ -30,7 +31,6 @@ class _LanguageSelectionScreenState
     AppLocale.kk: '🇰🇿',
     AppLocale.ky: '🇰🇬',
     AppLocale.tr: '🇹🇷',
-    AppLocale.tg: '🇹🇯',
   };
 
   static const _continueLabels = <AppLocale, String>{
@@ -40,7 +40,6 @@ class _LanguageSelectionScreenState
     AppLocale.kk: 'Жалғастыру',
     AppLocale.ky: 'Улантуу',
     AppLocale.tr: 'Devam et',
-    AppLocale.tg: 'Идома додан',
   };
 
   @override
@@ -81,7 +80,7 @@ class _LanguageSelectionScreenState
                 _buildLogo(),
                 const SizedBox(height: 14),
                 Text(
-                  'Taqsim',
+                  AppConstants.appName,
                   style: theme.textTheme.displayLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
@@ -145,8 +144,7 @@ class _LanguageSelectionScreenState
       width: 86,
       height: 86,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.2),
@@ -160,14 +158,7 @@ class _LanguageSelectionScreenState
           ),
         ],
       ),
-      padding: const EdgeInsets.all(10),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: Image.asset(
-          AppIcons.taqsimLogo,
-          fit: BoxFit.contain,
-        ),
-      ),
+      child: const TaqsimLogoAsset(clipRadius: 22),
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'app_locale.dart';
 
 class S {
   S._(this._locale);
@@ -6,8 +9,32 @@ class S {
   final String _locale;
 
   static S of(BuildContext context) {
-    final locale = Localizations.localeOf(context);
-    return S._(_resolveLocaleKey(locale));
+    try {
+      final container = ProviderScope.containerOf(context);
+      final async = container.read(localeProvider);
+      final appLocale = async.value ?? AppLocale.uz;
+      return S._(_appLocaleToKey(appLocale));
+    } catch (_) {
+      final locale = Localizations.localeOf(context);
+      return S._(_resolveLocaleKey(locale));
+    }
+  }
+
+  static String _appLocaleToKey(AppLocale app) {
+    switch (app) {
+      case AppLocale.uz:
+        return 'uz';
+      case AppLocale.uzCyrl:
+        return 'uz_CYRL';
+      case AppLocale.ru:
+        return 'ru';
+      case AppLocale.kk:
+        return 'kk';
+      case AppLocale.ky:
+        return 'ky';
+      case AppLocale.tr:
+        return 'tr';
+    }
   }
 
   /// `ru_RU` → `ru`, `uz_CYRL` → `uz_CYRL` — faqat [\_all] kalitlari bilan ishlaydi.
@@ -22,6 +49,9 @@ class S {
   }
 
   String _t(String key) => _all[_locale]?[key] ?? _all['uz']![key] ?? key;
+
+  /// Kalit bo‘yicha matn (`s.tr('assetImagesPreview')` kabi).
+  String tr(String key) => _t(key);
 
   // ─── Dashboard ───
   String greeting(String name) => '${_t('hello')}, $name';
@@ -65,12 +95,22 @@ class S {
   String get home => _t('home');
   String get cashRegister => _t('cashRegister');
   String get statistics => _t('statistics');
+  String get orders => _t('orders');
+  String get ordersComingSoon => _t('ordersComingSoon');
+  String get ordersComingSoonDesc => _t('ordersComingSoonDesc');
+  String get charts => _t('charts');
+  String get chartsScreenTitle => _t('chartsScreenTitle');
+  String get chartRevenue => _t('chartRevenue');
+  String get chartProduction => _t('chartProduction');
+  String get chartExpenses => _t('chartExpenses');
+  String get chartProfitTrend => _t('chartProfitTrend');
   String get profileTab => _t('profileTab');
   String get navHistory => _t('navHistory');
   String get historyTitle => _t('historyTitle');
   String get historyTabCreated => _t('historyTabCreated');
   String get historyTabReturns => _t('historyTabReturns');
   String get historyTabCash => _t('historyTabCash');
+  String get historyTotalReturns => _t('historyTotalReturns');
   String get historyCreatedEmpty => _t('historyCreatedEmpty');
   String get historyReturnsEmpty => _t('historyReturnsEmpty');
   String get returnDetailTitle => _t('returnDetailTitle');
@@ -181,6 +221,8 @@ class S {
   String get recipeBatchCarouselSubtitle => _t('recipeBatchCarouselSubtitle');
   String get recipeOutputLabel => _t('recipeOutputLabel');
   String get recipeOutputHint => _t('recipeOutputHint');
+  String get recipeOutputSectionTitle => _t('recipeOutputSectionTitle');
+  String get recipeOutputSectionHelper => _t('recipeOutputSectionHelper');
   String get recipeIngredientsSectionTitle => _t('recipeIngredientsSectionTitle');
   String get recipeIngredientsSectionSubtitle => _t('recipeIngredientsSectionSubtitle');
   String get recipeAddIngredient => _t('recipeAddIngredient');
@@ -501,7 +543,6 @@ class S {
     'kk': _kk,
     'ky': _ky,
     'tr': _tr,
-    'tg': _tg,
   };
 
   static const _uz = {
@@ -541,6 +582,15 @@ class S {
     'home': 'Asosiy',
     'cashRegister': 'Kassa',
     'statistics': 'Statistika',
+    'orders': 'Zakazlar',
+    'ordersComingSoon': 'Tez kunda',
+    'ordersComingSoonDesc': 'Zakazlar bo\'limi ustida ish olib borilmoqda.\nYaqin kunlarda tayyor bo\'ladi!',
+    'charts': 'Grafiklar',
+    'chartsScreenTitle': 'Batafsil grafiklar',
+    'chartRevenue': 'Daromad taqsimoti',
+    'chartProduction': 'Ishlab chiqarish',
+    'chartExpenses': 'Xarajat taqsimoti',
+    'chartProfitTrend': 'Foyda tendensiyasi',
     'reportScreenTitle': 'Hisobot',
     'reportPickRange': 'Oraliq',
     'reportPickSingleDate': 'Sana',
@@ -565,6 +615,7 @@ class S {
     'historyTabCreated': 'Yaratilgan',
     'historyTabReturns': 'Qaytarilgan',
     'historyTabCash': 'Kassa',
+    'historyTotalReturns': 'Umumiy qaytarilgan',
     'historyCreatedEmpty': 'Hali mahsulot chiqimi yo\'q',
     'historyReturnsEmpty': 'Hali vozvrat qayd etilmagan',
     'returnDetailTitle': 'Vozvrat batafsil',
@@ -661,8 +712,11 @@ class S {
     'recipeBatchCarouselTitle': 'Partiya birligi',
     'recipeBatchCarouselSubtitle':
         'Ishlab chiqarishda qanday hisoblaysiz: qop, blok, to‘plam...',
-    'recipeOutputLabel': 'Bitta partiyadan chiqadigan mahsulot soni',
+    'recipeOutputLabel': 'Mahsulot soni',
     'recipeOutputHint': 'Masalan: 100',
+    'recipeOutputSectionTitle': '1. Partiyadan chiqadigan mahsulot',
+    'recipeOutputSectionHelper':
+        'Quyidagi yashil chegarali maydonga raqam kiriting — bitta partiyadan nechta dona (yoki boshqa birlikda) mahsulot chiqishini.',
     'recipeIngredientsSectionTitle': 'Bitta partiya uchun xom ashyo',
     'recipeIngredientsSectionSubtitle':
         'Tanlangan birlikdagi bitta partiyaga ketadigan miqdorlarni kiriting.',
@@ -835,6 +889,7 @@ class S {
     'disabled': 'O\'chirilgan',
     'language': 'Til',
     'aboutApp': 'Ilova haqida',
+    'assetImagesPreview': 'Rasmlar (ko‘rinish)',
     'version': 'Versiya',
     'logout': 'Tizimdan chiqish',
     'unknown': 'Noma\'lum',
@@ -952,6 +1007,15 @@ class S {
     'home': 'Асосий',
     'cashRegister': 'Касса',
     'statistics': 'Статистика',
+    'orders': 'Заказлар',
+    'ordersComingSoon': 'Тез кунда',
+    'ordersComingSoonDesc': 'Заказлар бўлими устида иш олиб борилмоқда.\nЯқин кунларда тайёр бўлади!',
+    'charts': 'Графиклар',
+    'chartsScreenTitle': 'Батафсил графиклар',
+    'chartRevenue': 'Даромад тақсимоти',
+    'chartProduction': 'Ишлаб чиқариш',
+    'chartExpenses': 'Ҳаражат тақсимоти',
+    'chartProfitTrend': 'Фойда тенденцияси',
     'reportScreenTitle': 'Ҳисобот',
     'reportPickRange': 'Оралиқ',
     'reportPickSingleDate': 'Сана',
@@ -976,6 +1040,7 @@ class S {
     'historyTabCreated': 'Яратилган',
     'historyTabReturns': 'Қайтарилган',
     'historyTabCash': 'Касса',
+    'historyTotalReturns': 'Умумий қайтарилган',
     'historyCreatedEmpty': 'Ҳали маҳсулот чиқими йўқ',
     'historyReturnsEmpty': 'Ҳали возврат ёзилмаган',
     'returnDetailTitle': 'Возврат батафсил',
@@ -1072,8 +1137,11 @@ class S {
     'recipeBatchCarouselTitle': 'Партия бирлиги',
     'recipeBatchCarouselSubtitle':
         'Ишлаб чиқаришда қандай ҳисоблайсиз: қоп, блок, тўплам...',
-    'recipeOutputLabel': 'Битта партиядан чиқадиган маҳсулот сони',
+    'recipeOutputLabel': 'Маҳсулот сони',
     'recipeOutputHint': 'Масалан: 100',
+    'recipeOutputSectionTitle': '1. Партиядан чиқадиган маҳсулот',
+    'recipeOutputSectionHelper':
+        'Пастдаги ёшил чегарали майдонга рақам киритинг — битта партиядан нечта дона (ёки бошқа бирликда) маҳсулот чиқишини.',
     'recipeIngredientsSectionTitle': 'Битта партия учун хом ашё',
     'recipeIngredientsSectionSubtitle':
         'Танланган бирликдаги битта партияга кетадиган миқдорларни киритинг.',
@@ -1246,6 +1314,7 @@ class S {
     'disabled': 'Ўчирилган',
     'language': 'Тил',
     'aboutApp': 'Илова ҳақида',
+    'assetImagesPreview': 'Расмлар (кўриниш)',
     'version': 'Версия',
     'logout': 'Тизимдан чиқиш',
     'unknown': 'Номаълум',
@@ -1364,6 +1433,15 @@ class S {
     'home': 'Главная',
     'cashRegister': 'Касса',
     'statistics': 'Статистика',
+    'orders': 'Заказы',
+    'ordersComingSoon': 'Скоро',
+    'ordersComingSoonDesc': 'Раздел заказов находится в разработке.\nСкоро будет готов!',
+    'charts': 'Графики',
+    'chartsScreenTitle': 'Подробные графики',
+    'chartRevenue': 'Распределение доходов',
+    'chartProduction': 'Производство',
+    'chartExpenses': 'Распределение расходов',
+    'chartProfitTrend': 'Тренд прибыли',
     'reportScreenTitle': 'Отчёт',
     'reportPickRange': 'Период',
     'reportPickSingleDate': 'Дата',
@@ -1388,6 +1466,7 @@ class S {
     'historyTabCreated': 'Создано',
     'historyTabReturns': 'Возвраты',
     'historyTabCash': 'Касса',
+    'historyTotalReturns': 'Всего возвратов',
     'historyCreatedEmpty': 'Пока нет выпусков продукции',
     'historyReturnsEmpty': 'Пока нет возвратов',
     'returnDetailTitle': 'Возврат',
@@ -1484,8 +1563,11 @@ class S {
     'recipeBatchCarouselTitle': 'Единица партии',
     'recipeBatchCarouselSubtitle':
         'Как считаете на производстве: мешок, блок, комплект...',
-    'recipeOutputLabel': 'Количество продукции за одну партию',
+    'recipeOutputLabel': 'Количество продукции',
     'recipeOutputHint': 'Например: 100',
+    'recipeOutputSectionTitle': '1. Продукция за одну партию',
+    'recipeOutputSectionHelper':
+        'Введите целое число в поле ниже — сколько штук (или в других единицах) получается из одной партии.',
     'recipeIngredientsSectionTitle': 'Сырьё на одну партию',
     'recipeIngredientsSectionSubtitle':
         'Введите количества на одну партию в выбранной единице.',
@@ -1658,6 +1740,7 @@ class S {
     'disabled': 'Выключено',
     'language': 'Язык',
     'aboutApp': 'О приложении',
+    'assetImagesPreview': 'Изображения (просмотр)',
     'version': 'Версия',
     'logout': 'Выйти из системы',
     'unknown': 'Неизвестно',
@@ -1776,6 +1859,15 @@ class S {
     'home': 'Басты',
     'cashRegister': 'Касса',
     'statistics': 'Статистика',
+    'orders': 'Тапсырыстар',
+    'ordersComingSoon': 'Жақында',
+    'ordersComingSoonDesc': 'Тапсырыстар бөлімі әзірленуде.\nЖақын арада дайын болады!',
+    'charts': 'Графиктер',
+    'chartsScreenTitle': 'Толық графиктер',
+    'chartRevenue': 'Табыс бөлінісі',
+    'chartProduction': 'Өндіріс',
+    'chartExpenses': 'Шығын бөлінісі',
+    'chartProfitTrend': 'Пайда трендi',
     'reportScreenTitle': 'Есеп',
     'reportPickRange': 'Аралық',
     'reportPickSingleDate': 'Күн',
@@ -1800,6 +1892,7 @@ class S {
     'historyTabCreated': 'Жасалған',
     'historyTabReturns': 'Қайтарылған',
     'historyTabCash': 'Касса',
+    'historyTotalReturns': 'Жалпы қайтарылған',
     'historyCreatedEmpty': 'Әлі өнім шығымы жоқ',
     'historyReturnsEmpty': 'Әлі қайтару жазылмаған',
     'returnDetailTitle': 'Қайтару толығырақ',
@@ -1896,8 +1989,11 @@ class S {
     'recipeBatchCarouselTitle': 'Партия бірлігі',
     'recipeBatchCarouselSubtitle':
         'Өндірісте қалай есептейсіз: қап, блок, жиынтық...',
-    'recipeOutputLabel': 'Бір партиядан шығатын өнім саны',
+    'recipeOutputLabel': 'Өнім саны',
     'recipeOutputHint': 'Мысалы: 100',
+    'recipeOutputSectionTitle': '1. Партиядан шығатын өнім',
+    'recipeOutputSectionHelper':
+        'Төмендегі жасыл шекаралы өріске бүтін сан енгізіңіз — бір партиядан неше дана (немесе басқа бірлік) өнім шығады.',
     'recipeIngredientsSectionTitle': 'Бір партияға шикізат',
     'recipeIngredientsSectionSubtitle':
         'Таңдалған бірліктегі бір партияға кететін мөлшерлерді енгізіңіз.',
@@ -2070,6 +2166,7 @@ class S {
     'disabled': 'Өшірілген',
     'language': 'Тіл',
     'aboutApp': 'Қолданба туралы',
+    'assetImagesPreview': 'Суреттер (көрініс)',
     'version': 'Нұсқа',
     'logout': 'Жүйеден шығу',
     'unknown': 'Белгісіз',
@@ -2188,6 +2285,15 @@ class S {
     'home': 'Башкы',
     'cashRegister': 'Касса',
     'statistics': 'Статистика',
+    'orders': 'Буйрутмалар',
+    'ordersComingSoon': 'Жакында',
+    'ordersComingSoonDesc': 'Буйрутмалар бөлүмү иштелүүдө.\nЖакын арада даяр болот!',
+    'charts': 'Графиктер',
+    'chartsScreenTitle': 'Толук графиктер',
+    'chartRevenue': 'Киреше бөлүнүшү',
+    'chartProduction': 'Өндүрүш',
+    'chartExpenses': 'Чыгым бөлүнүшү',
+    'chartProfitTrend': 'Пайда тренди',
     'reportScreenTitle': 'Отчёт',
     'reportPickRange': 'Аралык',
     'reportPickSingleDate': 'Күн',
@@ -2212,6 +2318,7 @@ class S {
     'historyTabCreated': 'Жаратылган',
     'historyTabReturns': 'Кайтарылган',
     'historyTabCash': 'Касса',
+    'historyTotalReturns': 'Жалпы кайтарылган',
     'historyCreatedEmpty': 'Азырынча өнүм чыгымы жок',
     'historyReturnsEmpty': 'Азырынча кайтаруу жок',
     'returnDetailTitle': 'Кайтаруу',
@@ -2308,8 +2415,11 @@ class S {
     'recipeBatchCarouselTitle': 'Партия бирдиги',
     'recipeBatchCarouselSubtitle':
         'Өндүрүштө кантип эсептейсиз: кап, блок, топтом...',
-    'recipeOutputLabel': 'Бир партиядан чыккан өнүм саны',
+    'recipeOutputLabel': 'Өнүм саны',
     'recipeOutputHint': 'Мисалы: 100',
+    'recipeOutputSectionTitle': '1. Партиядан чыккан өнүм',
+    'recipeOutputSectionHelper':
+        'Төмөнкү жашыл чек аралуу талаага бүтүн сан киргизиңиз — бир партиядан канча даана (же башка бирдикте) өнүм чыгат.',
     'recipeIngredientsSectionTitle': 'Бир партия үчүн чийки зат',
     'recipeIngredientsSectionSubtitle':
         'Тандалган бирдикте бир партияга кеткен көлөмдөрдү киргизиңиз.',
@@ -2482,6 +2592,7 @@ class S {
     'disabled': 'Өчүрүлгөн',
     'language': 'Тил',
     'aboutApp': 'Тиркеме жөнүндө',
+    'assetImagesPreview': 'Сүрөттөр (көрүнүш)',
     'version': 'Версия',
     'logout': 'Тутумдан чыгуу',
     'unknown': 'Белгисиз',
@@ -2600,6 +2711,15 @@ class S {
     'home': 'Ana sayfa',
     'cashRegister': 'Kasa',
     'statistics': 'İstatistik',
+    'orders': 'Siparişler',
+    'ordersComingSoon': 'Yakında',
+    'ordersComingSoonDesc': 'Siparişler bölümü geliştiriliyor.\nYakında hazır olacak!',
+    'charts': 'Grafikler',
+    'chartsScreenTitle': 'Detaylı grafikler',
+    'chartRevenue': 'Gelir dağılımı',
+    'chartProduction': 'Üretim',
+    'chartExpenses': 'Gider dağılımı',
+    'chartProfitTrend': 'Kâr trendi',
     'reportScreenTitle': 'Rapor',
     'reportPickRange': 'Aralık',
     'reportPickSingleDate': 'Tarih',
@@ -2624,6 +2744,7 @@ class S {
     'historyTabCreated': 'Üretilen',
     'historyTabReturns': 'İadeler',
     'historyTabCash': 'Kasa',
+    'historyTotalReturns': 'Toplam iadeler',
     'historyCreatedEmpty': 'Henüz ürün çıkışı yok',
     'historyReturnsEmpty': 'Henüz iade kaydı yok',
     'returnDetailTitle': 'İade detayı',
@@ -2720,8 +2841,11 @@ class S {
     'recipeBatchCarouselTitle': 'Parti birimi',
     'recipeBatchCarouselSubtitle':
         'Üretimde nasıl sayıyorsunuz: çuval, blok, set...',
-    'recipeOutputLabel': 'Tek partide çıkan ürün adedi',
+    'recipeOutputLabel': 'Ürün adedi',
     'recipeOutputHint': 'Örn: 100',
+    'recipeOutputSectionTitle': '1. Partiden çıkan ürün',
+    'recipeOutputSectionHelper':
+        'Aşağıdaki yeşil çerçeveli alana tam sayı girin — tek partide kaç adet (veya başka birim) ürün çıktığını.',
     'recipeIngredientsSectionTitle': 'Tek parti için hammadde',
     'recipeIngredientsSectionSubtitle':
         'Seçilen birimde tek partiye giren miktarları girin.',
@@ -2894,6 +3018,7 @@ class S {
     'disabled': 'Kapalı',
     'language': 'Dil',
     'aboutApp': 'Uygulama hakkında',
+    'assetImagesPreview': 'Görseller (önizleme)',
     'version': 'Sürüm',
     'logout': 'Çıkış yap',
     'unknown': 'Bilinmiyor',
@@ -2973,424 +3098,5 @@ class S {
     'orDivider': 'veya',
     'manualAddressLabel': 'Adresi elle girin',
     'createBusinessSubmit': 'İşletmeyi oluştur',
-  };
-
-  /// Тоҷикӣ (fallback: узбекча калитлар йўқ бўлса)
-  static const _tg = {
-    'hello': 'Салом',
-    'defaultUser': 'Корбар',
-    'bakery': 'Бизнес',
-    'bakeries': 'Бизнесҳо',
-    'selectBusiness': 'Бизнес интихоб кунед',
-    'selectBusinessSubtitle':
-        'Бизнесеро интихоб кунед, ки мехоҳед идора кунед',
-    'noBusiness': 'Ҳоло бизнес нест',
-    'createFirstBusiness':
-        'Якумин бизнеси худро эҷод кунед\nва идораро оғоз кунед',
-    'addBusiness': 'Бизнеси нав',
-    'manage': 'Идора',
-    'todayProfit': 'Фоидаи имрӯз',
-    'todayLoss': 'Зарари имрӯз',
-    'netRevenue': 'Даромад (пас аз бозгашт)',
-    'expense': 'Харҷ',
-    'baked': 'Пухта',
-    'sack': 'Киса',
-    'sold': 'Фурӯхта шуд',
-    'returned': 'Бозгашт',
-    'pcs': 'даона',
-    'sacks': 'киса',
-    'noBreadToday': 'Имрӯз ҳанӯз нон пухта нашудааст',
-    'income': 'Даромад',
-    'profit': 'Фоида',
-    'productOut': 'Маҳсулот баромад',
-    'productReturned': 'Маҳсулот бозгашт',
-    'dashboardKpiOutput': 'Баромади маҳсулот',
-    'dashboardKpiBatch': 'Маҷмуъ',
-    'dashboardKpiSold': 'Фурӯхта шуд',
-    'dashboardKpiReturned': 'Бозгашт',
-    'dashboardEmptyOutput': 'Имрӯз ҳанӯз баромад сабт нашудааст',
-    'dashboardSectionOutput': 'Баромади имрӯз',
-    'dashboardBatchUnitGeneric': 'партия',
-    'currency': 'сомонӣ',
-    'home': 'Асосӣ',
-    'cashRegister': 'Касса',
-    'statistics': 'Омор',
-    'reportScreenTitle': 'Ҳисобот',
-    'reportPickRange': 'Муддат',
-    'reportPickSingleDate': 'Сана',
-    'reportChipToday': 'Имрӯз',
-    'reportChipYesterday': 'Дирӯз',
-    'reportRangeLast7': '7 рӯз',
-    'reportRangeLast30': '30 рӯз',
-    'reportSectionSummary': 'Хулосаи умумӣ',
-    'reportSectionReturnsByType': 'Бозгаштҳо (аз рӯи намуд)',
-    'reportSectionProducts': 'Аз рӯи маҳсулот',
-    'reportGrossRevenue': 'Даромад (пеш аз бозгашт)',
-    'reportReturnsRecords': 'сабт',
-    'reportProductionRecords': 'Сабтҳои баромад',
-    'reportEmptyReturns': 'Барои ин муддат бозгашт нест',
-    'reportEmptyProducts': 'Маълумот аз рӯи маҳсулот нест',
-    'reportProductProduced': 'Истеҳсодшуда',
-    'reportExpandTypesCount': '{n} намуд',
-    'reportExpandProductsCount': '{n} маҳсулот',
-    'profileTab': 'Профил',
-    'navHistory': 'Таърих',
-    'historyTitle': 'Таърих',
-    'historyTabCreated': 'Эҷодшуда',
-    'historyTabReturns': 'Бозгаштҳо',
-    'historyTabCash': 'Касса',
-    'historyCreatedEmpty': 'Ҳанӯз баромади маҳсулот нест',
-    'historyReturnsEmpty': 'Ҳанӯз бозгашт нест',
-    'returnDetailTitle': 'Бозгашт',
-    'noExpenseToday': 'Имрӯз харҷ сабт нашудааст',
-    'addExpense': 'Харҷ',
-    'expenseCreateTitle': 'Харҷ илова кардан',
-    'expenseCreateSubtitle': 'Навъро интихоб кунед ва маблағ ворид кунед.',
-    'expenseCategorySearchHint': 'Ҷустуҷӯ',
-    'expenseAddCategory': 'Категорияи нав',
-    'expenseAddCategoryTitle': 'Барои худ',
-    'expenseAddCategoryNameHint': 'Масалан: реклама',
-    'expenseAddCategorySave': 'Сабт',
-    'expenseSelectCategory': 'Навъ',
-    'expenseAmountLabel': 'Маблағ',
-    'expenseDescriptionLabel': 'Шарҳ (ихтиёрӣ)',
-    'expenseSubmit': 'Сабт',
-    'expenseCategoriesEmpty': 'Ёфт нашуд',
-    'expenseCategoriesLoadError': 'Бор нашуд',
-    'daily': 'Рӯзона',
-    'weekly': 'Ҳафтаина',
-    'monthly': 'Моҳона',
-    'loss': 'Зарар',
-    'noData': 'Маълумот нест',
-    'production': 'Истеҳсолот',
-    'flourUsage': 'Сарфи орд',
-    'bakedBread': 'Нони пухта',
-    'ingredients': 'Муҳим ҷузъҳо',
-    'salesAndReturns': 'Фурӯш ва бозгашт',
-    'totalProduced': 'Ҳамагӣ истеҳсолшуда',
-    'returns': 'Бозгашт',
-    'soldAuto': 'Фурӯхташуда (авто)',
-    'returnAmount': 'Маблағи бозгашт',
-    'netIncome': 'Даромади соф',
-    'expenses': 'Харҷҳо',
-    'internalIngredients': 'Харҷҳои дохилӣ',
-    'external': 'Беруна',
-    'total': 'Ҳамагӣ',
-    'settings': 'Танзимот',
-    'breadTypes': 'Навъҳои маҳсулот',
-    'breadTypesDesc':
-        'Навъҳои маҳсулот ё хизмат — барои ҳар як нарх',
-    'products': 'Маҳсулотҳо',
-    'productsDesc': 'Орд, об, намак, хамиртуруш...',
-    'recipes': 'Дастурхатҳо',
-    'recipesDesc': 'Таркиб ва миқдор барои нон',
-    'settingsCardTypesTitle': 'Навъҳои маҳсулоти шумо',
-    'settingsCardIngredientsTitle': 'Хомаашё',
-    'settingsCardRecipesTitle': 'Системаи ҳисоб',
-    'settingsTypesDesc_default':
-        'Навъҳои маҳсулот ва хизматро илова кунед, нархҳоро идора кунед.',
-    'settingsTypesDesc_bakery':
-        'Масалан: патир, самса, лаваш, тандур... Нархи алоҳида барои ҳар навъ.',
-    'settingsTypesDesc_grill':
-        'Масалан: шашлик, люля, рулет... Нархи алоҳида барои ҳар позитсия.',
-    'settingsTypesDesc_restaurant':
-        'Масалан: таомҳо, гарнирҳо, нӯшокиҳо... Бо меню тартиб диҳед.',
-    'settingsIngredientsDesc_default':
-        'Ингредиентҳо ва хомаашёро бо нарх ва воҳид ворид кунед.',
-    'settingsIngredientsDesc_bakery':
-        'Орд, об, намак, хамиртуруш, рӯғон — нарх ва воҳид барои ҳар як.',
-    'settingsIngredientsDesc_grill':
-        'Гӯшт, маззаҳо, рӯғон — нарх ва воҳид барои ҳар як.',
-    'settingsIngredientsDesc_restaurant':
-        'Маҳсулот ва ингредиентҳо — бо анбор ва арзиши хом пайванд кунед.',
-    'settingsRecipesDesc_default':
-        'Дастурхатҳо ва арзиши хом — маржа ва фоида барои ҳар маҳсулот.',
-    'settingsRecipesDesc_bakery':
-        'Барои ҳар маҳсулот нисбат ва арзиши хом — фоида равшан аст.',
-    'settingsRecipesDesc_grill':
-        'Барои ҳар таом грамм ва арзиши хом — нарх ва фоида.',
-    'settingsRecipesDesc_restaurant':
-        'Барои таом ва нӯшокиҳо арзиши хом ва фурӯш — ҳисоботҳо худкор.',
-    'setupJourneyTitle': 'Тартиби танзимот',
-    'setupJourneyHint':
-        'Аввал намуди маҳсулоти фурӯхташавандаро эҷод кунед, баъд хомаашё ва нархҳоро ворид кунед, дар охир ҳисобро бо рецепт танзим кунед — ин таннарх ва фоидаи дақиқ аст.',
-    'setupJourneyStepLabel1': 'Маҳсулот',
-    'setupJourneyStepLabel2': 'Хомаашё',
-    'setupJourneyStepLabel3': 'Ҳисоб',
-    'setupJourneyAllDone': 'Ҳама қадамҳо иҷро шуд',
-    'recipeScreenTitle': 'Дастурхатҳо',
-    'recipeEmptyTitle': 'Ҳоло дастурхат нест',
-    'recipeEmptySubtitle':
-        'Барои навъҳои маҳсулот дастурхат илова кунед — ҳисоби истеҳсол дақиқ мешавад.',
-    'recipeAddCta': 'Иловаи дастурхат',
-    'recipeDeletedSnackbar': 'Дастурхат нест шуд',
-    'recipeErrorSnackbar': 'Хато рӯй дод',
-    'recipeCreateTitle': 'Дастурхати нав',
-    'recipeStepProduct': 'Маҳсулот',
-    'recipeStepBatch': 'Партия',
-    'recipeStepIngredients': 'Таркиб',
-    'recipeSelectProductTitle': 'Барои кадом маҳсулот?',
-    'recipeSelectProductSubtitle':
-        'Як навъро интихоб кунед — барои ҳар навъ як дастурхат.',
-    'recipeBatchCarouselTitle': 'Воҳиди партия',
-    'recipeBatchCarouselSubtitle':
-        'Дар истеҳсол чӣ тавр месупоред: қоп, блок, маҷмӯа...',
-    'recipeOutputLabel': 'Аз як партия чанд маҳсулот мебарояд',
-    'recipeOutputHint': 'Масалан: 100',
-    'recipeIngredientsSectionTitle': 'Хомаашё барои як партия',
-    'recipeIngredientsSectionSubtitle':
-        'Миқдорҳои як партияро дар воҳиди интихобшуда ворид кунед.',
-    'recipeAddIngredient': 'Илова кардан',
-    'recipeValidationSelectProduct': 'Навъи маҳсулотро интихоб кунед',
-    'recipeValidationBatch': 'Воҳиди партияро интихоб кунед',
-    'recipeValidationOutput': 'Миқдори баромадро ворид кунед',
-    'recipeValidationIngredients': 'Ақаллан як хомаашё илова кунед',
-    'recipeValidationDuplicateIngredient':
-        'Як хомаашё ду маротиба илова шудааст',
-    'recipeSaveSuccess': 'Дастурхат сабт шуд',
-    'recipeRecipeBatchLine': '1 {unit} → {qty} дона',
-    'recipeBack': 'Бозгашт',
-    'recipeIngredientSelectHint': 'Хомаашё',
-    'recipeCardStatTitleOutput': 'Баромад',
-    'recipeCardStatTitleBatchCost': 'Арзиши хоми партия',
-    'recipeCardStatTitleUnitCost': 'Арзиши 1 дона',
-    'recipeCardSectionIngredients': 'Таркиб',
-    'recipeCardIngredientLine': '{name} · {qty} {unit}',
-    'recipeDeleteConfirmTitle': 'Дастурхат нест шавад?',
-    'recipeDeleteConfirmBody':
-        'Дастурхати «{name}» нест мешавад. Ин амалро бекор карда намешавад.',
-    'recipeCardTooltipOutput':
-        'Шумораи маҳсулот аз як партия.',
-    'recipeCardTooltipBatchCost':
-        'Арзиши хомаашё барои як партия (ҷамъ).',
-    'recipeCardTooltipUnitCost':
-        'Арзиши як маҳсулот (ҷамъ ÷ баромад).',
-    'productionDetailTitle': 'Партия тафсилот',
-    'productionDetailSummary': 'Имрӯз пӯшида шуд',
-    'productionDetailBatch': 'Шумораи партия',
-    'productionDetailOutput': 'Баромад',
-    'productionDetailFlour': 'Орди сарфшуда',
-    'productionDetailIngredientCost': 'Хароҷоти хом матоъ',
-    'productionDetailSalesEstimate': 'Даромади тахминӣ',
-    'productionDetailBreakdown': 'Аз рӯи компонентҳо',
-    'productionDetailOneRecipeBatch': '1 партия (рецепт)',
-    'productionDetailQtyTotal': 'Ҳамагӣ миқдор',
-    'productionDetailGrams': '{g} г',
-    'productionDetailPricePerUnit': 'Нархи як воҳид',
-    'productionDetailNoIngredients':
-        'Компонентҳои рецепт нест ё бор нашуд.',
-    'productionDetailReturnToday': 'Бозгашти имрӯза (ин навъ)',
-    'productionDetailEdit': 'Таҳрир',
-    'productionDetailEditSheetTitle': 'Партия ва бозгаштҳо',
-    'productionDetailEditBatchLabel': 'Шумораи партияи имрӯз',
-    'productionDetailEditReturnsTitle': 'Бозгаштҳо ба ин навъ (имрӯз)',
-    'productionDetailEditNoReturns': 'Имрӯз барои ин навъ бозгашт нест',
-    'productionDetailEditSaveBatch': 'Сабти партия',
-    'productionDetailBatchUpdated': 'Партия навсозӣ шуд',
-    'productionDetailReturnDeleted': 'Бозгашт нест шуд',
-    'productionDetailDeleteReturnTitle': 'Бозгаштро нест мекунед?',
-    'productionDetailDeleteReturnBody':
-        'Сабт нест мешавад. Саҳифаи асосӣ ва ҷамъҳо нав мешаванд.',
-    'productionDetailDeleteProductionTitle': 'Баромадро нест мекунед?',
-    'productionDetailDeleteProductionBody':
-        'Ин сабти баромад нест мешавад. Агар ин навъ ва сана дигар партия набошад, барои ҳамин рӯз ҳамаи бозгаштҳо низ нест мешаванд.',
-    'productionDetailProductionDeleted': 'Баромад нест шуд',
-    'productionOutTitle': 'Баромади маҳсулот',
-    'productionOutStep1': 'Маҳсулот',
-    'productionOutStep2': 'Маҷмуъ',
-    'productionOutStep3': 'Анҷом',
-    'productionOutStep1Title': 'Кадом маҳсулот?',
-    'productionOutStep1Subtitle':
-        'Навъи вобаста ба ҳисобро интихоб кунед.',
-    'productionOutCategoryLabel': 'Навъи маҳсулот',
-    'productionOutCategoryHint': 'Интихоб',
-    'productionOutNoRecipeWarning':
-        'Барои ин навъ рецепт нест. Аввал дар «Ҳисоб» рецепт эҷод кунед.',
-    'productionOutStep2Title': 'Миқдори партия',
-    'productionOutStep2Subtitle':
-        '1 {unit} = {qty} {productUnit}. Ададҳои касрӣ (масалан: 1.5).',
-    'productionOutBatchFieldLabel': 'Миқдори {unit}',
-    'productionOutSummaryTitle': 'Ҳисоб',
-    'productionOutTotalOutput': '{qty} {unit}',
-    'productionOutCostLabel': 'Хароҷот',
-    'productionOutIngredientsPreview': 'Хомаашёи сарфшаванда',
-    'productionOutCta': 'Баромадро сабт кардан',
-    'productionOutSuccess': '{qty} {unit} сабт шуд',
-    'productionOutValidationSelectProduct': 'Навъро интихоб кунед',
-    'productionOutValidationNoRecipe': 'Барои ин навъ рецепт нест',
-    'productionOutValidationBatch': 'Миқдор аз 0 калонтар бошад',
-    'productionOutStep3Title': 'Санҷиш ва сабт',
-    'productionOutStep3Subtitle': 'Агар дуруст бошад, сабт кунед.',
-    'productionOutNext': 'Оянда',
-    'productionOutSearchHint': 'Ҷустуҷӯи маҳсулот',
-    'productionOutSearchEmpty': 'Чизе ёфт нашуд',
-    'returnCreateTitle': 'Маҳсулот бозгашт',
-    'returnCreateSubtitle':
-        'Намуд ва миқдори бозгаштро ворид кунед. Намуд интихоб шуда, нархи фурӯш худкор мешавад.',
-    'returnProfitInfoTitle': 'Фоида ва ҳисоб',
-    'returnProfitInfoBody':
-        'Бозгашт сабт шуд, нишондиҳандаҳои фурӯш, даромад ва фоида (саҳифаи асосӣ ва гузоришҳо) мутобиқ нав мешаванд — ин вазъи молиявии воқеиро нишон медиҳад.',
-    'returnProfitInfoShort':
-        'Бозгаштро ворид кардан барои ҳисоби дурусти фоида муҳим аст.',
-    'returnProductionLabel': 'Партия (баромад)',
-    'returnNoProductionForCategory':
-        'Барои ин навъ имрӯз баромад сабт нашудааст. Аввал баромад сабт кунед.',
-    'returnSearchHint': 'Ҷустуҷӯи маҳсулот',
-    'returnSearchEmpty': 'Чизе ёфт нашуд',
-    'returnCategoryLabel': 'Намуди маҳсулот',
-    'returnQuantityTitle': 'Миқдори бозгашт',
-    'returnQuantitySubtitle': 'Рақами комил (дона) ворид кунед.',
-    'returnPriceLabel': 'Нархи як дона',
-    'returnReasonLabel': 'Сабаб (ихтиёрӣ)',
-    'returnReasonHint': 'Масалан: мизоҷ, сифат',
-    'returnCta': 'Бозгаштро сабт кунед',
-    'returnValidationSelectProduct': 'Намуди маҳсулотро интихоб кунед',
-    'returnValidationQty': 'Миқдор аз 0 калон бошад',
-    'returnValidationPrice': 'Нархи дурустро ворид кунед',
-    'returnSuccess': 'Бозгашт сабт шуд',
-    'returnPieceSuffix': 'дона',
-    'productCategoriesTitle': 'Навъҳои маҳсулот',
-    'productCategoriesEmptyTitle': 'Ҳоло навъҳои маҳсулот нест',
-    'productCategoriesEmptySubtitle':
-        'Навъҳои маҳсулот ё хизматро, ки мефурӯшед, илова кунед',
-    'addProductCategoryModalTitle': 'Навъи нав',
-    'addProductCategoryModalSubtitle': 'Ном ва нархи фурӯшро ворид кунед',
-    'productCategoriesNameLabel': 'Номи маҳсулот',
-    'productCategoriesNameHint': 'Масалан: лаваш, сет-меню',
-    'sellingPriceLabel': 'Нархи фурӯш',
-    'sellingPriceHint': '0',
-    'currencyPickerLabel': 'Асъор',
-    'productCategoriesAddCta': 'Иловаи навъ',
-    'snackbarFillAllFields': 'Лутфан ҳамаи майдонҳоро пур кунед',
-    'snackbarErrorGeneric': 'Хато рӯй дод',
-    'apiClientTimeout': 'Вақти пайвастшавӣ ба охир расид',
-    'apiClientNoConnection': 'Пайвасти интернет нест',
-    'apiClientUnexpected': 'Хатои ногаҳон',
-    'apiInvalidResponseFormat': 'Формати ҷавоби номувафиқ',
-    'actionAdd': 'Илова',
-    'actionSave': 'Сабт',
-    'editProductCategoryModalTitle': 'Таҳрири навъ',
-    'editIngredientModalTitle': 'Таҳрири хомаашё',
-    'snackbarCategoryAdded': '{name} илова шуд',
-    'snackbarCategoryDeleted': '{name} нест шуд',
-    'snackbarCategoryUpdated': '{name} навсозӣ шуд',
-    'ingredientsEmptyTitle': 'Ҳанӯз хомаашё нест',
-    'ingredientsEmptySubtitle':
-        'Барои рецепт ва арзиши худи ном, воҳиди ченак ва нархи як воҳидро ворид кунед.',
-    'addIngredientModalTitle': 'Хомаашёи нав',
-    'addIngredientModalSubtitle':
-        'Ном, воҳид ва нарх. Асъорро аз тугмача дар канори нарх интихоб кунед.',
-    'ingredientNameLabel': 'Ном',
-    'ingredientNameHint': 'Масалан: орд, об, намак',
-    'ingredientUnitFieldLabel': 'Воҳиди ченак',
-    'ingredientPricePerUnitLabel': 'Нархи як воҳид',
-    'ingredientUnit_kg': 'Килограмм (kg)',
-    'ingredientUnit_gram': 'Грамм (g)',
-    'ingredientUnit_litr': 'Литр (l)',
-    'ingredientUnit_dona': 'Дона',
-    'ingredientsAddCta': 'Иловаи хомаашё',
-    'ingredientAddHeroTitle': 'Хомаашёи нав',
-    'ingredientPriceHintBanner':
-        'Нархро барои воҳиди интихобшуда пурра ворид кунед (масалан, 1 кг, 1 л ё 1 дона). Дар рецепт г ё мл истифода шавад ҳам, дар ин ҷо нархи умумӣ нигоҳ дошта мешавад.',
-    'ingredientUnitChipsLabel': 'Воҳиди ченак',
-    'snackbarIngredientAdded': '{name} илова шуд',
-    'snackbarIngredientDeleted': '{name} нест шуд',
-    'snackbarIngredientUpdated': '{name} навсозӣ шуд',
-    'ingredientPriceInfoTitle': 'Дар бораи нарх',
-    'ingredientPriceInfoBody':
-        'Нархи хомаашёро барои як воҳид ворид кунед (1 кг, 1 дона ё 1 л). Дар рецептҳо система ба грамм ё мл худ ҳисоб мекунад.',
-    'gotIt': 'Фаҳмоӣ',
-    'general': 'Умумӣ',
-    'manageAndSwitch': 'Идора ва иваз',
-    'staff': 'Кормандон',
-    'staffManagement': 'Идораи кормандон',
-    'darkMode': 'Режими торик',
-    'enabled': 'Фаъол',
-    'disabled': 'Ғайрифаъол',
-    'language': 'Забон',
-    'aboutApp': 'Дар бораи барнома',
-    'version': 'Версия',
-    'logout': 'Баромадан',
-    'unknown': 'Номаълум',
-    'balance': 'Баланси асосӣ',
-    'topUp': 'Пур кардан',
-    'profileInfo': 'Маълумоти профил',
-    'profileInfoDesc': 'Телефон, почта ва Telegram',
-    'phoneNumber': 'Рақами телефон',
-    'email': 'Почта',
-    'telegram': 'Telegram',
-    'linked': 'Пайваст',
-    'notLinked': 'Пайваст нест',
-    'link': 'Пайваст кардан',
-    'changePhoto': 'Акс иваз кардан',
-    'businessOwner': 'Соҳиби бизнес',
-    'seller': 'Фурӯшанда',
-    'deleteAccount': 'Ҳисобро нест кардан',
-    'deleteAccountDesc':
-        'Бо нест кардани ҳисоб, ҳама маълумот нест мешавад.',
-    'deleteAccountConfirm': 'Ҳақиқатан ҳисобро нест мекунед?',
-    'cancel': 'Бекор',
-    'delete': 'Нест кардан',
-    'onboardingTitle1': 'Барои ҳар гуна бизнес',
-    'onboardingDesc1':
-        'Нонвойхона, шашликхона, самса, ширинӣ, фастфуд — ҳама дар як ҷо',
-    'onboardingTitle2': 'Баҳо ва фоида',
-    'onboardingDesc2': 'Баҳои ҳар маҳсулотро дақиқ ҳисоб кунед',
-    'onboardingTitle3': 'Бизнес зери назорат',
-    'onboardingDesc3': 'Фурӯш, харҷ ва истеҳсолро пайгирӣ кунед',
-    'skip': 'Гузаронидан',
-    'next': 'Оянда',
-    'getStarted': 'Оғоз',
-    'welcomeBack': 'Хуш омадед!',
-    'loginSubtitle': 'Барои идома ворид шавед',
-    'password': 'Рамз',
-    'enterPhone': 'Телефон ворид кунед',
-    'enterPassword': 'Рамз ворид кунед',
-    'loginButton': 'Воридшавӣ',
-    'noAccount': 'Ҳисоб нест?',
-    'registerLink': 'Сабт ном',
-    'tryAgain': 'Такрор',
-    'noInternet': 'Хатои интернет',
-    'createBusiness': 'Эҷоди бизнес',
-    'businessTypeStep': 'Категория',
-    'businessDetailsStep': 'Маълумот',
-    'businessLocationStep': 'Ҷойгиршавӣ',
-    'selectBusinessType': 'Навъи бизнесро интихоб кунед',
-    'selectBusinessTypeDesc':
-        'Категорияи мувофиқро интихоб кунед — интерфейс мутобиқ мешавад',
-    'businessDetailsTitle': 'Дар бораи бизнес',
-    'businessDetailsDesc': 'Маълумоти асосии бизнеси худро ворид кунед',
-    'businessName': 'Номи бизнес',
-    'businessDescHint': 'Тавсифи кӯтоҳ (ихтиёрӣ)',
-    'description': 'Тавсиф',
-    'address': 'Суроға',
-    'businessLocationTitle': 'Ҷойгиршавӣ',
-    'businessLocationDesc':
-        'GPS ё суроғаи дастӣ — ихтиёрӣ',
-    'useGpsLocation': 'Муайян кардан бо GPS',
-    'fetchingLocation': 'Ҷойгиршавӣ муайян мешавад...',
-    'locationSaved': 'Ҷойгиршавӣ сабт шуд',
-    'orManualAddress': 'ё дастӣ ворид кунед',
-    'addressHint': 'Масалан: Душанбе, кӯчаи Рӯдакӣ, 1',
-    'locationOptionalNote': 'Ҷойгиршавӣ ихтиёрӣ аст',
-    'businessCreated': 'Бизнес эҷод шуд! 🎉',
-    'businessCreatedDesc': '{name} бомуваффақият эҷод шуд.',
-    'startWorking': 'Оғози кор',
-    'fieldRequired': 'Ин майдон ҳатмӣ аст',
-    'continueWizard': 'Идома додан',
-    'customBusinessTypeInfo':
-        'Навъи бизнеси худро нависед — мо инро ба назар мегирем',
-    'customBusinessTypeHint': 'Масалан: Ширинӣ, Лимонад...',
-    'businessNameHint': 'Масалан: Новвойхонаи марказӣ',
-    'businessNameRequired': 'Номи бизнесро ворид кунед',
-    'businessNameMinLength': 'Ҳадди ақал 2 ҳарф',
-    'selectCurrency': 'Асъор',
-    'selectCurrencyDesc':
-        'Асъор барои ҳисобот ва нархҳо',
-    'gpsAutoDetectSubtitle':
-        'Ҷойгиршавии ҷориро ба таври худкор муайян кардан',
-    'orDivider': 'ё',
-    'manualAddressLabel': 'Суроғаро дастӣ ворид кунед',
-    'createBusinessSubmit': 'Эҷоди бизнес',
   };
 }

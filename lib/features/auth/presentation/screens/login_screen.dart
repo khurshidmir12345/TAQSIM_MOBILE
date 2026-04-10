@@ -4,12 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_icons.dart';
+import '../../../../core/constants/app_raster_assets.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/models/country_phone.dart';
 import '../../../../core/widgets/country_phone_input.dart';
+import '../../../../core/widgets/taqsim_logo_asset.dart';
 import '../../domain/providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -234,63 +236,115 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 28,
-        bottom: 28,
+    final top = MediaQuery.paddingOf(context).top;
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(36),
+        bottomRight: Radius.circular(36),
       ),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: AppColors.splashGradient,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(36),
-          bottomRight: Radius.circular(36),
-        ),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 84,
-            height: 84,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+      child: SizedBox(
+        width: double.infinity,
+        height: top + 248,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Banner to‘liq ko‘rinsin — butun ekranni primary gradient bosmasin.
+            ColoredBox(
+              color: AppColors.primary,
+              child: Image.asset(
+                AppRasterAssets.appBanner,
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+                gaplessPlayback: true,
+                filterQuality: FilterQuality.medium,
+                errorBuilder: (context, error, stackTrace) => Center(
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    color: Colors.white.withValues(alpha: 0.7),
+                    size: 48,
+                  ),
                 ),
-              ],
+              ),
             ),
-            padding: const EdgeInsets.all(8),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset(AppIcons.taqsimLogo,
-                  fit: BoxFit.contain),
+            // Faqat pastda matn uchun yengil soyani — rasm yashirinmaydi.
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 120,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.35),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            'Taqsim',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.3,
-                ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Kichik biznes uchun aqlli tizim',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.only(
+                top: top + 24,
+                bottom: 24,
+                left: 24,
+                right: 24,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 84,
+                    height: 84,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: const TaqsimLogoAsset(clipRadius: 22),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    AppConstants.appName,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.3,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.45),
+                              blurRadius: 12,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Kichik biznes uchun aqlli tizim',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.95),
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.35),
+                              blurRadius: 8,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

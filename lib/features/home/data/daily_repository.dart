@@ -322,4 +322,43 @@ class DailyRepository {
       throw ApiException.fromDioException(e);
     }
   }
+
+  Future<ShopSummaryModel> getShopSummary(String shopId) async {
+    try {
+      final res = await _apiClient.dio.get(
+        '${_shopPath(shopId)}/reports/summary',
+      );
+      final data = _body(res)['data'] as Map<String, dynamic>;
+      return ShopSummaryModel.fromJson(data['summary'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+}
+
+class ShopSummaryModel {
+  final double prodIncome;
+  final double prodExpense;
+  final double prodProfit;
+  final double returnsTotal;
+  final double expensesTotal;
+
+  const ShopSummaryModel({
+    required this.prodIncome,
+    required this.prodExpense,
+    required this.prodProfit,
+    required this.returnsTotal,
+    required this.expensesTotal,
+  });
+
+  factory ShopSummaryModel.fromJson(Map<String, dynamic> json) {
+    final prod = json['production'] as Map<String, dynamic>? ?? {};
+    return ShopSummaryModel(
+      prodIncome: (prod['income'] as num?)?.toDouble() ?? 0,
+      prodExpense: (prod['expense'] as num?)?.toDouble() ?? 0,
+      prodProfit: (prod['profit'] as num?)?.toDouble() ?? 0,
+      returnsTotal: (json['returns_total'] as num?)?.toDouble() ?? 0,
+      expensesTotal: (json['expenses_total'] as num?)?.toDouble() ?? 0,
+    );
+  }
 }

@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_icons.dart';
+import '../../../../core/widgets/taqsim_logo_asset.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -104,7 +105,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   child: Column(
                     children: [
                       Text(
-                        'Taqsim',
+                        AppConstants.appName,
                         style:
                             Theme.of(context).textTheme.displayLarge?.copyWith(
                                   color: Colors.white,
@@ -159,11 +160,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       width: 118,
       height: 118,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 30,
             offset: const Offset(0, 12),
           ),
@@ -174,14 +174,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           ),
         ],
       ),
-      padding: const EdgeInsets.all(12),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Image.asset(
-          AppIcons.taqsimLogo,
-          fit: BoxFit.contain,
-        ),
-      ),
+      child: const TaqsimLogoAsset(clipRadius: 30),
     );
   }
 }

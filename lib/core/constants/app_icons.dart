@@ -1,9 +1,11 @@
+import 'app_raster_assets.dart';
+
 abstract final class AppIcons {
   static const String _base = 'assets/svg';
 
-  // App
+  // App (splash, login, register, til tanlash — bitta manba)
   static const String logo = '$_base/icons/logo.svg';
-  static const String taqsimLogo = '$_base/app_image/taqsim_logo.png';
+  static const String taqsimLogo = AppRasterAssets.taqsimLogo;
 
   // Non turlari
   static const String breadRound = '$_base/icons/bread_round.svg';

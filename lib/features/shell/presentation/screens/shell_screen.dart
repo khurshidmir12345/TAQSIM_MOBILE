@@ -5,7 +5,7 @@ import '../../../../core/l10n/translations.dart';
 import '../../domain/shell_tab_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../../home/presentation/screens/history_screen.dart';
-import '../../../statistics/presentation/screens/statistics_screen.dart';
+import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
@@ -19,7 +19,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
   static const _screens = [
     DashboardScreen(),
     HistoryScreen(),
-    StatisticsScreen(),
+    OrdersScreen(),
     ProfileScreen(),
   ];
 
@@ -64,9 +64,9 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
                       ref.read(shellTabIndexProvider.notifier).setIndex(1),
                 ),
                 _NavItem(
-                  icon: Icons.bar_chart_outlined,
-                  activeIcon: Icons.bar_chart_rounded,
-                  label: s.statistics,
+                  icon: Icons.shopping_bag_outlined,
+                  activeIcon: Icons.shopping_bag_rounded,
+                  label: s.orders,
                   isActive: currentIndex == 2,
                   onTap: () =>
                       ref.read(shellTabIndexProvider.notifier).setIndex(2),

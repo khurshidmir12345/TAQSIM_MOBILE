@@ -1,5 +1,5 @@
 abstract final class AppConstants {
-  static const String appName = 'Taqsim';
+  static const String appName = 'TAQSIM';
 
   static const String baseUrl = 'http://localhost:8086/api';
 

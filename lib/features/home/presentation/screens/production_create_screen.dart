@@ -245,12 +245,7 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
     final categories = ref.watch(breadCategoryProvider).items;
 
     return Scaffold(
-      backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.surface,
-        surfaceTintColor: Colors.transparent,
-        foregroundColor: cs.onSurface,
-        iconTheme: IconThemeData(color: cs.onSurface),
         title: Text(s.productionOutTitle),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
@@ -419,7 +414,7 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
           )
         else
           SizedBox(
-            height: 204,
+            height: 120,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.only(bottom: 4),
@@ -463,7 +458,7 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
   ) {
     final r = _matchedRecipe!;
     final unitLabel = _batchUnitLabel(r, context);
-    final unitCode = r.measurementUnit?.code ?? '';
+    final unitCode = r.measurementUnit?.batchDisplayLabel ?? '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -664,7 +659,7 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
                         return _SummaryCell(
                           label: batchLbl.isNotEmpty
                               ? batchLbl
-                              : (r.measurementUnit?.code ?? '·'),
+                              : (r.measurementUnit?.batchDisplayLabel ?? '·'),
                           value: _fmtNum(context, _batchCount),
                         );
                       },
@@ -837,7 +832,7 @@ class _CategoryCarouselCard extends StatelessWidget {
   final VoidCallback onTap;
   final ColorScheme cs;
 
-  static const double _cardWidth = 168;
+  static const double _cardWidth = 132;
 
   @override
   Widget build(BuildContext context) {
@@ -847,15 +842,15 @@ class _CategoryCarouselCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         child: Ink(
           width: _cardWidth,
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: isDark ? 0.14 : 0.1)
                 : cs.surface,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: selected
                   ? AppColors.primary
@@ -864,28 +859,29 @@ class _CategoryCarouselCard extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
                   Container(
-                    width: 38,
-                    height: 38,
+                    width: 30,
+                    height: 30,
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(11),
+                      borderRadius: BorderRadius.circular(9),
                     ),
                     child: Icon(
                       Icons.inventory_2_rounded,
                       color: AppColors.primary,
-                      size: 21,
+                      size: 17,
                     ),
                   ),
                   const Spacer(),
@@ -893,32 +889,30 @@ class _CategoryCarouselCard extends StatelessWidget {
                     Icon(
                       Icons.check_circle_rounded,
                       color: AppColors.primary,
-                      size: 22,
+                      size: 18,
                     ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: Text(
-                  category.name,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        height: 1.2,
-                        color: cs.onSurface,
-                        letterSpacing: -0.2,
-                      ),
-                ),
+              Text(
+                category.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                      color: cs.onSurface,
+                      letterSpacing: -0.15,
+                      fontSize: 13,
+                    ),
               ),
-              const SizedBox(height: 8),
               Text(
                 priceLine,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: cs.primary.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w700,
+                      fontSize: 11,
                     ),
               ),
             ],

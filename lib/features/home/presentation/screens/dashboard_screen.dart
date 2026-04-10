@@ -207,20 +207,12 @@ class _DashboardHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final brightness = Theme.of(context).brightness;
+    final cs = Theme.of(context).colorScheme;
     final title = (shop?.name.isNotEmpty == true) ? shop!.name : s.bakery;
     final addr = shop?.address?.trim();
     final initial = title.isNotEmpty ? title[0].toUpperCase() : '?';
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.headerGradient(brightness),
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: SafeArea(
+    return SafeArea(
         bottom: false,
         child: Padding(
           padding: EdgeInsets.fromLTRB(pad, 12, pad, 16),
@@ -236,14 +228,14 @@ class _DashboardHeader extends StatelessWidget {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(13),
                     ),
                     child: Center(
                       child: Text(
                         initial,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: cs.onPrimaryContainer,
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
                         ),
@@ -282,8 +274,8 @@ class _DashboardHeader extends StatelessWidget {
                                       title,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: TextStyle(
+                                        color: cs.onSurface,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: -0.25,
@@ -294,7 +286,7 @@ class _DashboardHeader extends StatelessWidget {
                                   const SizedBox(width: 2),
                                   Icon(
                                     Icons.expand_more_rounded,
-                                    color: Colors.white.withValues(alpha: 0.88),
+                                    color: cs.onSurface.withValues(alpha: 0.5),
                                     size: 22,
                                   ),
                                 ],
@@ -308,7 +300,7 @@ class _DashboardHeader extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.72),
+                                color: cs.onSurface.withValues(alpha: 0.55),
                                 fontSize: 11.5,
                                 fontWeight: FontWeight.w500,
                                 height: 1.2,
@@ -328,8 +320,7 @@ class _DashboardHeader extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -340,8 +331,9 @@ class _TealIconBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Material(
-      color: Colors.white.withValues(alpha: 0.15),
+      color: cs.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
@@ -349,7 +341,7 @@ class _TealIconBtn extends StatelessWidget {
         child: SizedBox(
           width: 40,
           height: 40,
-          child: Icon(icon, color: Colors.white, size: 20),
+          child: Icon(icon, color: cs.onSurface, size: 20),
         ),
       ),
     );

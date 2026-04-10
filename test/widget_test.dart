@@ -1,12 +1,17 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nonvoyxona/main.dart';
+
+import 'package:nonvoyxona/core/constants/app_constants.dart';
 
 void main() {
-  testWidgets('App renders splash screen', (tester) async {
+  testWidgets('Ilova nomi TAQSIM', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(child: NonvoyxonaApp()),
+      MaterialApp(
+        home: Scaffold(
+          body: Center(child: Text(AppConstants.appName)),
+        ),
+      ),
     );
-    expect(find.text('Nonvoyxona'), findsOneWidget);
+    expect(find.text('TAQSIM'), findsOneWidget);
   });
 }

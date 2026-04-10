@@ -10,8 +10,7 @@ enum AppLocale {
   ru(Locale('ru'), 'Русский', ''),
   kk(Locale('kk'), 'Қазақша', ''),
   ky(Locale('ky'), 'Кыргызча', ''),
-  tr(Locale('tr'), 'Türkçe', ''),
-  tg(Locale('tg'), 'Тоҷикӣ', '');
+  tr(Locale('tr'), 'Türkçe', '');
 
   final Locale locale;
   final String label;
@@ -30,6 +29,17 @@ enum AppLocale {
 
   static AppLocale fromCode(String code) =>
       AppLocale.values.firstWhere((e) => e.code == code, orElse: () => uz);
+}
+
+/// Flutter `GlobalMaterialLocalizations` `ky` ni qo‘llab-quvvatlamaydi —
+/// Material (sana tanlash, dialog) uchun `ru` ishlatiladi. Matnlar [S] — [localeProvider] bo‘yicha.
+Locale materialLocaleFor(AppLocale app) {
+  switch (app) {
+    case AppLocale.ky:
+      return const Locale('ru');
+    default:
+      return app.locale;
+  }
 }
 
 const _prefKey = 'app_locale';

@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/models/country_phone.dart';
 import '../../../../core/widgets/country_phone_input.dart';
 import '../../../../core/widgets/otp_input.dart';
+import '../../../../core/widgets/taqsim_logo_asset.dart';
 import '../../domain/providers/auth_provider.dart';
 
 enum _Step { phone, otp, profile }
@@ -319,22 +320,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              Container(
+              SizedBox(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                padding: const EdgeInsets.all(6),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(AppIcons.taqsimLogo, fit: BoxFit.contain),
-                ),
+                child: const TaqsimLogoAsset(clipRadius: 12),
               ),
               const SizedBox(width: 12),
               Text(
-                'Taqsim',
+                AppConstants.appName,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,

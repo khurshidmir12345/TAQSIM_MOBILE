@@ -121,7 +121,7 @@ class _ReturnCreateScreenState extends ConsumerState<ReturnCreateScreen> {
   }
 
   String _productionLine(BuildContext context, ProductionModel p, S s) {
-    final unit = p.recipe?.measurementUnit?.code ?? '';
+    final unit = p.recipe?.measurementUnit?.batchDisplayLabel ?? '';
     final b = _fmtBatch(context, p.batchCount);
     return '$b $unit · ${p.breadProduced} ${s.pcs}';
   }
@@ -253,12 +253,7 @@ class _ReturnCreateScreenState extends ConsumerState<ReturnCreateScreen> {
     });
 
     return Scaffold(
-      backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: cs.surface,
-        surfaceTintColor: Colors.transparent,
-        foregroundColor: cs.onSurface,
-        iconTheme: IconThemeData(color: cs.onSurface),
         title: Text(s.returnCreateTitle),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),

@@ -31,7 +31,7 @@ class RecipeCard extends StatelessWidget {
         ? '${loc.languageCode}_${loc.countryCode}'
         : loc.languageCode;
 
-    final unitName = recipe.measurementUnit?.code ??
+    final unitName = recipe.measurementUnit?.batchDisplayLabel ??
         recipe.measurementUnit?.localizedName(localeTag) ??
         '';
 

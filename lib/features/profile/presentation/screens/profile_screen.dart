@@ -33,7 +33,7 @@ class ProfileScreen extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          _buildGradientHeader(context, user, cs, s, ref, pad),
+          _buildHeader(context, user, cs, s, ref, pad),
           Expanded(
             child: ListView(
               padding: EdgeInsets.fromLTRB(pad, 16, pad, 32),
@@ -77,6 +77,13 @@ class ProfileScreen extends ConsumerWidget {
                         _showLanguagePicker(context, ref, currentLocale),
                   ),
                   _MenuItemWidget(
+                    icon: Icons.photo_library_outlined,
+                    title: s.tr('assetImagesPreview'),
+                    subtitle: 'assets/svg/app_images',
+                    iconColor: cs.tertiary,
+                    onTap: () => context.push('/asset-preview'),
+                  ),
+                  _MenuItemWidget(
                     icon: Icons.info_outline_rounded,
                     title: s.aboutApp,
                     subtitle: '${s.version} 1.0.0',
@@ -92,146 +99,136 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGradientHeader(BuildContext context, UserModel? user,
+  Widget _buildHeader(BuildContext context, UserModel? user,
       ColorScheme cs, S s, WidgetRef ref, double pad) {
     final name    = (user?.name?.isNotEmpty == true) ? user!.name! : s.defaultUser;
     final initial = name[0].toUpperCase();
 
-    final brightness = Theme.of(context).brightness;
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.headerGradient(brightness),
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(pad, 16, pad, 20),
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () => _pickAvatar(context, ref),
-                child: SizedBox(
-                  width: 64,
-                  height: 64,
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: user?.avatarUrl != null &&
-                                user!.avatarUrl!.isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: user.avatarUrl!,
-                                fit: BoxFit.cover,
-                                placeholder: (_, __) => Center(
-                                  child: Text(
-                                    initial,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                                errorWidget: (_, __, ___) => Center(
-                                  child: Text(
-                                    initial,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : Center(
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(pad, 16, pad, 20),
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () => _pickAvatar(context, ref),
+              child: SizedBox(
+                width: 64,
+                height: 64,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: user?.avatarUrl != null &&
+                              user!.avatarUrl!.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: user.avatarUrl!,
+                              fit: BoxFit.cover,
+                              placeholder: (_, _) => Center(
                                 child: Text(
                                   initial,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: cs.onPrimaryContainer,
                                     fontSize: 24,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
                               ),
-                      ),
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(7),
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt_rounded,
-                            color: AppColors.primary,
-                            size: 12,
-                          ),
+                              errorWidget: (_, _, _) => Center(
+                                child: Text(
+                                  initial,
+                                  style: TextStyle(
+                                    color: cs.onPrimaryContainer,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Center(
+                              child: Text(
+                                initial,
+                                style: TextStyle(
+                                  color: cs.onPrimaryContainer,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: cs.surface,
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                        child: Icon(
+                          Icons.camera_alt_rounded,
+                          color: cs.primary,
+                          size: 12,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      _buildSubtitleText(user),
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-              GestureDetector(
-                onTap: () async {
-                  await ref.read(authProvider.notifier).logout();
-                  if (context.mounted) context.go('/login');
-                },
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.logout_rounded,
-                    color: Colors.white,
-                    size: 20,
+                  const SizedBox(height: 3),
+                  Text(
+                    _buildSubtitleText(user),
+                    style: TextStyle(
+                      color: cs.onSurface.withValues(alpha: 0.55),
+                      fontSize: 13,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () async {
+                await ref.read(authProvider.notifier).logout();
+                if (context.mounted) context.go('/login');
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.logout_rounded,
+                  color: cs.onSurface,
+                  size: 20,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -45,6 +45,9 @@ class MeasurementUnitModel {
   bool get isIngredient => type == 'ingredient';
   bool get isBatch      => type == 'batch';
 
+  /// Kartochka / chiqimda qisqa ko‘rinish (`kg_batch` → `KG`).
+  String get batchDisplayLabel => code == 'kg_batch' ? 'KG' : code;
+
   String localizedName(String locale) {
     if (names.isEmpty) return name;
     return names[locale] ?? names['uz'] ?? name;

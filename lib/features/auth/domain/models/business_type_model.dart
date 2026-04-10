@@ -118,7 +118,7 @@ class BusinessTypeModel {
     }
   }
 
-  /// API `names` kalitlari: uz, uz_CYRL, ru, kk, ky, tr, tg, ...
+  /// API `names` kalitlari: uz, uz_CYRL, ru, kk, ky, tr, ...
   String displayNameForLocale(Locale locale) {
     final country = locale.countryCode;
     final fullCode = country != null && country.isNotEmpty

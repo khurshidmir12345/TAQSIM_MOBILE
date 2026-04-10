@@ -140,7 +140,6 @@ class _ShopCreateScreenState extends ConsumerState<ShopCreateScreen>
     final progress = (stepIdx + 1) / steps.length;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -233,17 +232,9 @@ class _WizardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    final isDark = brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.headerGradient(brightness),
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
+    return Padding(
       padding: const EdgeInsets.fromLTRB(8, 8, 16, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,13 +244,13 @@ class _WizardHeader extends StatelessWidget {
               IconButton(
                 onPressed: onBack,
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                color: Colors.white,
+                color: cs.onSurface,
               ),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: cs.onSurface,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
@@ -268,7 +259,7 @@ class _WizardHeader extends StatelessWidget {
               Text(
                 '${stepIndex + 1}/$totalSteps',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: cs.onSurface.withValues(alpha: 0.55),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -283,9 +274,8 @@ class _WizardHeader extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 4,
-                backgroundColor:
-                    Colors.white.withValues(alpha: isDark ? 0.15 : 0.3),
-                valueColor: const AlwaysStoppedAnimation(Colors.white),
+                backgroundColor: cs.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation(cs.primary),
               ),
             ),
           ),

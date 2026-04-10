@@ -124,7 +124,7 @@ class _ProductionDetailScreenState extends ConsumerState<ProductionDetailScreen>
     final ingredients = recipe?.ingredients ?? [];
     final batchCount = _production.batchCount;
     final name = _production.breadCategory?.name ?? recipe?.productDisplayName ?? s.unknown;
-    final unitCode = recipe?.measurementUnit?.code ?? '';
+    final unitCode = recipe?.measurementUnit?.batchDisplayLabel ?? '';
 
     final bread = _production.breadProduced.toDouble();
     final cost = _production.ingredientCost;
@@ -134,13 +134,11 @@ class _ProductionDetailScreenState extends ConsumerState<ProductionDetailScreen>
     final returnAmtToday = _production.returnsAmount;
 
     return Scaffold(
-      backgroundColor: cs.surface,
       body: CustomScrollView(
         slivers: [
           SliverAppBar.large(
             pinned: true,
-            backgroundColor: cs.surface,
-            surfaceTintColor: cs.surfaceTint,
+            surfaceTintColor: Colors.transparent,
             actions: [
               IconButton(
                 icon: const Icon(Icons.build_rounded),

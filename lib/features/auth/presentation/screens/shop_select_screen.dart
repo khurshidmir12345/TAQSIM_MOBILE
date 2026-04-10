@@ -53,70 +53,56 @@ class _ShopSelectScreenState extends ConsumerState<ShopSelectScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final s          = S.of(context);
-    final brightness = Theme.of(context).brightness;
+    final s  = S.of(context);
+    final cs = Theme.of(context).colorScheme;
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 20,
-        bottom: 28,
-        left: 24,
-        right: 16,
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: AppColors.headerGradient(brightness),
-        ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  s.selectBusiness,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 16, 28),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    s.selectBusiness,
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  s.selectBusinessSubtitle,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
-                    fontSize: 14,
+                  const SizedBox(height: 4),
+                  Text(
+                    s.selectBusinessSubtitle,
+                    style: TextStyle(
+                      color: cs.onSurface.withValues(alpha: 0.55),
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () async {
-              await ref.read(authProvider.notifier).logout();
-              if (mounted) context.go('/login');
-            },
-            icon: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                ],
               ),
-              child: const Icon(Icons.logout_rounded,
-                  color: Colors.white, size: 20),
             ),
-          ),
-        ],
+            IconButton(
+              onPressed: () async {
+                await ref.read(authProvider.notifier).logout();
+                if (mounted) context.go('/login');
+              },
+              icon: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.logout_rounded,
+                    color: cs.onSurface, size: 20),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

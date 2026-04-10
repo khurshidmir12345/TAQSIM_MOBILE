@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/api/api_exceptions.dart';
@@ -11,8 +12,8 @@ import '../../../../core/widgets/app_loading.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../home/domain/models/daily_report_model.dart';
 import '../../../home/domain/providers/daily_provider.dart';
+import '../widgets/period_selector.dart';
 
-/// Hisobot: bir qarashda raqamlar, batafsil — ochiladigan bloklarda.
 class ReportScreen extends ConsumerStatefulWidget {
   const ReportScreen({super.key});
 
@@ -22,31 +23,23 @@ class ReportScreen extends ConsumerStatefulWidget {
 
 class _ReportScreenState extends ConsumerState<ReportScreen> {
   DailyReportModel? _report;
-  bool _isLoading = false;
+  bool _isLoading = true;
+  int _loadId = 0;
 
-  bool _rangeMode = false;
-  DateTime _singleDay = DateTime.now();
-  DateTimeRange _range = DateTimeRange(
-    start: DateTime.now().subtract(const Duration(days: 6)),
-    end: DateTime.now(),
-  );
+  PeriodType _period = PeriodType.daily;
+  late DateTime _from;
+  late DateTime _to;
 
   @override
   void initState() {
     super.initState();
-    _normalizeSingleDay();
+    final now = DateTime.now();
+    _from = DateTime(now.year, now.month, now.day);
+    _to = _from;
     _loadReport();
   }
 
-  void _normalizeSingleDay() {
-    final n = DateTime.now();
-    _singleDay = DateTime(n.year, n.month, n.day);
-  }
-
   String _iso(DateTime d) => DateFormat('yyyy-MM-dd').format(d);
-
-  bool _sameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 
   String _moneySuffix(S s, WidgetRef ref) {
     final sym = ref.read(shopProvider).selected?.currency?.symbol;
@@ -61,48 +54,49 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
     return '$n ${_moneySuffix(S.of(context), ref)}';
   }
 
-  String _periodLabel(BuildContext context, S s) {
-    if (!_rangeMode) {
-      final d = _singleDay;
-      return DateFormat.yMMMEd(
-        Localizations.localeOf(context).toLanguageTag(),
-      ).format(d);
-    }
-    final from = _range.start;
-    final to = _range.end;
+  String _periodLabel(BuildContext context) {
     final loc = Localizations.localeOf(context).toLanguageTag();
-    if (_sameDay(from, to)) {
-      return DateFormat.yMMMEd(loc).format(from);
+    switch (_period) {
+      case PeriodType.daily:
+        return DateFormat.yMMMEd(loc).format(_from);
+      case PeriodType.weekly:
+        return '${DateFormat.MMMd(loc).format(_from)} — ${DateFormat.yMMMd(loc).format(_to)}';
+      case PeriodType.monthly:
+        return DateFormat.yMMMM(loc).format(_from);
     }
-    return '${DateFormat.MMMd(loc).format(from)} — ${DateFormat.yMMMEd(loc).format(to)}';
+  }
+
+  void _onPeriodChanged(PeriodType period, DateTime from, DateTime to) {
+    if (_period == period && _from == from && _to == to) return;
+    _period = period;
+    _from = from;
+    _to = to;
+    _loadReport();
   }
 
   Future<void> _loadReport() async {
     final shop = ref.read(shopProvider).selected;
     if (shop == null) return;
 
+    final id = ++_loadId;
     setState(() => _isLoading = true);
     final repo = ref.read(dailyRepositoryProvider);
 
     try {
       final DailyReportModel r;
-      if (!_rangeMode) {
-        r = await repo.getDailyReport(shop.id, _iso(_singleDay));
+      if (_period == PeriodType.daily) {
+        r = await repo.getDailyReport(shop.id, _iso(_from));
       } else {
-        r = await repo.getRangeReport(
-          shop.id,
-          _iso(_range.start),
-          _iso(_range.end),
-        );
+        r = await repo.getRangeReport(shop.id, _iso(_from), _iso(_to));
       }
-      if (mounted) {
+      if (mounted && _loadId == id) {
         setState(() {
           _report = r;
           _isLoading = false;
         });
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted && _loadId == id) {
         setState(() => _isLoading = false);
         final msg = e is ApiException ? e.message : e.toString();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -116,123 +110,33 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
     }
   }
 
-  Future<void> _pickSingleDay() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _singleDay,
-      firstDate: DateTime(2024),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && mounted) {
-      setState(() {
-        _rangeMode = false;
-        _singleDay = DateTime(picked.year, picked.month, picked.day);
-      });
-      await _loadReport();
-    }
-  }
-
-  Future<void> _pickRange() async {
-    final picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2024),
-      lastDate: DateTime.now(),
-      initialDateRange: _range,
-    );
-    if (picked != null && mounted) {
-      setState(() {
-        _rangeMode = true;
-        _range = picked;
-      });
-      await _loadReport();
-    }
-  }
-
-  void _selectDayChip(DateTime day) {
-    setState(() {
-      _rangeMode = false;
-      _singleDay = DateTime(day.year, day.month, day.day);
-    });
-    _loadReport();
-  }
-
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final cs = Theme.of(context).colorScheme;
     final pad = Responsive.horizontalPadding(context);
-    final today = DateTime.now();
-    final today0 = DateTime(today.year, today.month, today.day);
 
     return Scaffold(
-      backgroundColor: cs.surface,
       appBar: AppBar(
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         title: Text(s.reportScreenTitle),
         actions: [
           IconButton(
-            tooltip: s.reportPickRange,
-            icon: const Icon(Icons.date_range_rounded),
-            onPressed: _pickRange,
-          ),
-          IconButton(
-            tooltip: s.reportPickSingleDate,
-            icon: const Icon(Icons.calendar_month_rounded),
-            onPressed: _pickSingleDay,
+            tooltip: s.charts,
+            icon: const Icon(Icons.insert_chart_outlined_rounded),
+            onPressed: () => context.push('/charts'),
           ),
         ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          PeriodSelector(onChanged: _onPeriodChanged),
           Padding(
-            padding: EdgeInsets.fromLTRB(pad, 4, pad, 0),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _DayChip(
-                    label: s.reportChipToday,
-                    selected: !_rangeMode && _sameDay(_singleDay, today0),
-                    onTap: () => _selectDayChip(today0),
-                    cs: cs,
-                  ),
-                  _DayChip(
-                    label: s.reportChipYesterday,
-                    selected: !_rangeMode &&
-                        _sameDay(
-                          _singleDay,
-                          today0.subtract(const Duration(days: 1)),
-                        ),
-                    onTap: () => _selectDayChip(
-                      today0.subtract(const Duration(days: 1)),
-                    ),
-                    cs: cs,
-                  ),
-                  for (int i = 2; i <= 7; i++)
-                    _DayChip(
-                      label: DateFormat('dd.MM').format(
-                        today0.subtract(Duration(days: i)),
-                      ),
-                      selected: !_rangeMode &&
-                          _sameDay(
-                            _singleDay,
-                            today0.subtract(Duration(days: i)),
-                          ),
-                      onTap: () => _selectDayChip(
-                        today0.subtract(Duration(days: i)),
-                      ),
-                      cs: cs,
-                    ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(pad, 4, pad, 8),
+            padding: EdgeInsets.fromLTRB(pad, 0, pad, 8),
             child: Text(
-              _periodLabel(context, s),
+              _periodLabel(context),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.5),
                     fontWeight: FontWeight.w600,
@@ -281,44 +185,6 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
   }
 }
 
-class _DayChip extends StatelessWidget {
-  const _DayChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    required this.cs,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final ColorScheme cs;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: AppSpacing.sm),
-      child: FilterChip(
-        label: Text(label),
-        selected: selected,
-        onSelected: (_) => onTap(),
-        showCheckmark: false,
-        selectedColor: cs.primaryContainer,
-        labelStyle: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 13,
-          color: selected ? cs.onPrimaryContainer : cs.onSurface,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
-    );
-  }
-}
-
-/// Asosiy 4 ta ko‘rsatkich — to‘liq kenglik, katta raqam.
 class _ReportKpiBlock extends StatelessWidget {
   const _ReportKpiBlock({
     required this.report,
@@ -333,7 +199,8 @@ class _ReportKpiBlock extends StatelessWidget {
   final ColorScheme cs;
 
   double _gross() =>
-      report.sales.grossAmount ?? (report.netSales + report.returns.totalAmount);
+      report.sales.grossAmount ??
+      (report.netSales + report.returns.totalAmount);
 
   @override
   Widget build(BuildContext context) {
@@ -398,13 +265,15 @@ class _ReportKpiBlock extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withValues(alpha: isDark ? 0.35 : 0.7),
+            color: cs.surfaceContainerHighest
+                .withValues(alpha: isDark ? 0.35 : 0.7),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.info_outline_rounded, size: 16, color: cs.primary.withValues(alpha: 0.85)),
+              Icon(Icons.info_outline_rounded,
+                  size: 16, color: cs.primary.withValues(alpha: 0.85)),
               const SizedBox(width: 6),
               Flexible(
                 child: Text(
@@ -486,7 +355,6 @@ class _KpiTile extends StatelessWidget {
   }
 }
 
-/// Batafsil — ochiladigan bloklar (kam matn, skanerlash oson).
 class _ReportExpandables extends StatelessWidget {
   const _ReportExpandables({
     required this.report,
@@ -515,9 +383,8 @@ class _ReportExpandables extends StatelessWidget {
           cs: cs,
           leading: Icon(Icons.undo_rounded, color: AppColors.error, size: 22),
           title: s.reportSectionReturnsByType,
-          subtitle: returns.isEmpty
-              ? s.reportEmptyReturns
-              : fmt(retSum),
+          subtitle:
+              returns.isEmpty ? s.reportEmptyReturns : fmt(retSum),
           initiallyExpanded: returns.isNotEmpty && returns.length <= 4,
           child: returns.isEmpty
               ? const SizedBox.shrink()
@@ -531,7 +398,8 @@ class _ReportExpandables extends StatelessWidget {
         const SizedBox(height: 10),
         _RoundExpansion(
           cs: cs,
-          leading: Icon(Icons.inventory_2_outlined, color: cs.primary, size: 22),
+          leading:
+              Icon(Icons.inventory_2_outlined, color: cs.primary, size: 22),
           title: s.reportSectionProducts,
           subtitle: products.isEmpty
               ? s.reportEmptyProducts
@@ -549,7 +417,8 @@ class _ReportExpandables extends StatelessWidget {
         const SizedBox(height: 10),
         _RoundExpansion(
           cs: cs,
-          leading: Icon(Icons.savings_outlined, color: cs.tertiary, size: 22),
+          leading:
+              Icon(Icons.savings_outlined, color: cs.tertiary, size: 22),
           title: s.expenses,
           subtitle: fmt(report.expenses.total),
           initiallyExpanded: false,
@@ -563,7 +432,8 @@ class _ReportExpandables extends StatelessWidget {
         const SizedBox(height: 10),
         _RoundExpansion(
           cs: cs,
-          leading: Icon(Icons.analytics_outlined, color: cs.outline, size: 22),
+          leading:
+              Icon(Icons.analytics_outlined, color: cs.outline, size: 22),
           title: s.reportSectionSummary,
           subtitle: fmt(report.netSales),
           initiallyExpanded: false,
@@ -601,14 +471,16 @@ class _RoundExpansion extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
-      color: cs.surfaceContainerHighest.withValues(alpha: isDark ? 0.4 : 0.55),
+      color: cs.surfaceContainerHighest
+          .withValues(alpha: isDark ? 0.4 : 0.55),
       borderRadius: BorderRadius.circular(20),
       clipBehavior: Clip.antiAlias,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           initiallyExpanded: initiallyExpanded,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           leading: leading,
           title: Text(
@@ -677,7 +549,8 @@ class _ReturnsHorizontal extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: cs.surface.withValues(alpha: 0.65),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.error.withValues(alpha: 0.2)),
+                  border: Border.all(
+                      color: AppColors.error.withValues(alpha: 0.2)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -687,24 +560,28 @@ class _ReturnsHorizontal extends StatelessWidget {
                       name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            height: 1.15,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                height: 1.15,
+                              ),
                     ),
                     Text(
                       fmt(e.totalAmount),
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.error,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.error,
+                              ),
                     ),
                     Text(
                       '${e.quantity} ${s.pcs}',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: cs.onSurface.withValues(alpha: 0.5),
-                            fontWeight: FontWeight.w600,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color:
+                                    cs.onSurface.withValues(alpha: 0.5),
+                                fontWeight: FontWeight.w600,
+                              ),
                     ),
                   ],
                 ),
@@ -746,74 +623,86 @@ class _ProductRows extends StatelessWidget {
           ),
         ),
         ...items.map((e) {
-        final profitPos = e.profit >= 0;
-        final letter = e.name.isNotEmpty
-            ? e.name.substring(0, 1).toUpperCase()
-            : '?';
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: Material(
-            color: cs.surface.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(16),
-            child: InkWell(
+          final profitPos = e.profit >= 0;
+          final letter = e.name.isNotEmpty
+              ? e.name.substring(0, 1).toUpperCase()
+              : '?';
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Material(
+              color: cs.surface.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(16),
-              onTap: () => _showProductDetail(context, e, fmt, s, cs),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: cs.primaryContainer,
-                      child: Text(
-                        letter,
-                        style: TextStyle(
-                          color: cs.onPrimaryContainer,
-                          fontWeight: FontWeight.w800,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () =>
+                    _showProductDetail(context, e, fmt, s, cs),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: cs.primaryContainer,
+                        child: Text(
+                          letter,
+                          style: TextStyle(
+                            color: cs.onPrimaryContainer,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            e.name.isEmpty ? s.unknown : e.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '${fmt(e.netRevenue)} · ${e.totalProduced} ${s.pcs}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: cs.onSurface.withValues(alpha: 0.55),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ],
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              e.name.isEmpty ? s.unknown : e.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${fmt(e.netRevenue)} · ${e.totalProduced} ${s.pcs}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: cs.onSurface
+                                        .withValues(alpha: 0.55),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      fmt(e.profit),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            color: profitPos ? AppColors.success : AppColors.error,
-                          ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        fmt(e.profit),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: profitPos
+                                  ? AppColors.success
+                                  : AppColors.error,
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
       ],
     );
   }
@@ -852,9 +741,12 @@ class _ProductRows extends StatelessWidget {
                     ),
               ),
               const SizedBox(height: 16),
-              _sheetRow(ctx, s.reportProductProduced, '${e.totalProduced} ${s.pcs}', cs),
-              _sheetRow(ctx, s.reportGrossRevenue, fmt(e.grossRevenue), cs),
-              _sheetRow(ctx, s.internalIngredients, fmt(e.ingredientCost), cs),
+              _sheetRow(ctx, s.reportProductProduced,
+                  '${e.totalProduced} ${s.pcs}', cs),
+              _sheetRow(
+                  ctx, s.reportGrossRevenue, fmt(e.grossRevenue), cs),
+              _sheetRow(ctx, s.internalIngredients,
+                  fmt(e.ingredientCost), cs),
               _sheetRow(
                 ctx,
                 s.returns,
@@ -876,7 +768,9 @@ class _ProductRows extends StatelessWidget {
                     fmt(e.profit),
                     style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w900,
-                          color: e.profit >= 0 ? AppColors.success : AppColors.error,
+                          color: e.profit >= 0
+                              ? AppColors.success
+                              : AppColors.error,
                         ),
                   ),
                 ],
@@ -888,7 +782,8 @@ class _ProductRows extends StatelessWidget {
     );
   }
 
-  Widget _sheetRow(BuildContext context, String a, String b, ColorScheme cs) {
+  Widget _sheetRow(
+      BuildContext context, String a, String b, ColorScheme cs) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -937,7 +832,8 @@ class _ExpenseInner extends StatelessWidget {
     final by = report.expenses.byCategory;
     return Column(
       children: [
-        _row(context, s.internalIngredients, fmt(report.expenses.ingredientCost)),
+        _row(context, s.internalIngredients,
+            fmt(report.expenses.ingredientCost)),
         _row(context, s.external, fmt(report.expenses.external)),
         ...by.entries.map((e) => _row(context, e.key, fmt(e.value))),
         const Padding(
@@ -949,7 +845,8 @@ class _ExpenseInner extends StatelessWidget {
     );
   }
 
-  Widget _row(BuildContext context, String label, String v, {bool bold = false}) {
+  Widget _row(BuildContext context, String label, String v,
+      {bool bold = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -991,8 +888,8 @@ class _MoreStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gross =
-        report.sales.grossAmount ?? (report.netSales + report.returns.totalAmount);
+    final gross = report.sales.grossAmount ??
+        (report.netSales + report.returns.totalAmount);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1007,11 +904,14 @@ class _MoreStats extends StatelessWidget {
           ),
         ),
         _row(context, s.reportGrossRevenue, fmt(gross)),
-        _row(context, s.totalProduced, '${report.production.totalBread} ${s.pcs}'),
+        _row(context, s.totalProduced,
+            '${report.production.totalBread} ${s.pcs}'),
         _row(context, s.returns,
             '${report.returns.totalQuantity} ${s.pcs} · ${fmt(report.returns.totalAmount)}'),
-        _row(context, s.soldAuto, '${report.sales.totalQuantity} ${s.pcs}'),
-        _row(context, s.reportProductionRecords, '${report.production.count}'),
+        _row(context, s.soldAuto,
+            '${report.sales.totalQuantity} ${s.pcs}'),
+        _row(context, s.reportProductionRecords,
+            '${report.production.count}'),
       ],
     );
   }

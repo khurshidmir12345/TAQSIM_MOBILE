@@ -33,12 +33,8 @@ abstract final class _SetupRoutes {
   static const shell = '/shell';
 }
 
-SystemUiOverlayStyle _setupStatusBarOverlay(Brightness b) => SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      statusBarBrightness:
-          b == Brightness.dark ? Brightness.dark : Brightness.light,
-    );
+SystemUiOverlayStyle _setupStatusBarOverlay(Brightness b) =>
+    b == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;
 
 void _setupPopOrShell(BuildContext context) {
   if (context.canPop()) {
@@ -415,62 +411,44 @@ class _GradientHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final b = Theme.of(context).brightness;
-    final gradient = AppColors.headerGradient(b);
+    final cs = Theme.of(context).colorScheme;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: gradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.xs,
+          AppSpacing.sm,
+          endPadding,
+          _SetupDim.headerBottomPad,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: b == Brightness.dark ? 0.35 : 0.12),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.xs,
-            AppSpacing.sm,
-            endPadding,
-            _SetupDim.headerBottomPad,
-          ),
-          child: Row(
-            children: [
-              Material(
-                color: Colors.white.withValues(alpha: 0.12),
-                shape: const CircleBorder(),
-                clipBehavior: Clip.antiAlias,
-                child: IconButton(
-                  onPressed: onBack,
-                  icon: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: _SetupDim.backIconSize,
-                  ),
-                  color: Colors.white,
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        child: Row(
+          children: [
+            Material(
+              color: cs.surfaceContainerHighest,
+              shape: const CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: IconButton(
+                onPressed: onBack,
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: _SetupDim.backIconSize,
                 ),
+                color: cs.onSurface,
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
               ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.3,
-                      ),
-                ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                    ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

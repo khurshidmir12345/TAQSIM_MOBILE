@@ -16,11 +16,6 @@ void main() async {
   await initializeDateFormatting('ru');
   await initializeDateFormatting('kk');
   await initializeDateFormatting('tr');
-  try {
-    await initializeDateFormatting('tg');
-  } catch (_) {
-    await initializeDateFormatting('ru');
-  }
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -45,15 +40,15 @@ class NonvoyxonaApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      locale: appLocale.locale,
-      supportedLocales: AppLocale.values.map((e) => e.locale),
+      locale: materialLocaleFor(appLocale),
+      supportedLocales: AppLocale.values.map((e) => e.locale).toList(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       localeResolutionCallback: (deviceLocale, supported) {
-        return appLocale.locale;
+        return materialLocaleFor(appLocale);
       },
       routerConfig: router,
     );

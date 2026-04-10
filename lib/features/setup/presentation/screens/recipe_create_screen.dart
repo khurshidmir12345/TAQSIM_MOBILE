@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../auth/domain/models/measurement_unit_model.dart';
 import '../../../auth/domain/providers/shop_provider.dart';
@@ -21,8 +22,9 @@ class RecipeCreateScreen extends ConsumerStatefulWidget {
 }
 
 class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
-  final _pageController = PageController(viewportFraction: 0.88);
-  final _batchCarouselController = PageController(viewportFraction: 0.82);
+  /// To‘liq kenglik — `viewportFraction` < 1 bo‘lsa qo‘shni sahifa/karta yon tomonda ko‘rinadi.
+  final _pageController = PageController();
+  final _batchCarouselController = PageController();
   int _currentStep = 0;
   static const _totalSteps = 3;
 
@@ -31,6 +33,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   int _batchPageIndex = 0;
 
   final _outputCtl = TextEditingController();
+  final _outputFocusNode = FocusNode();
   final List<_IngredientEntry> _ingredientEntries = [];
 
   bool _isSaving = false;
@@ -49,6 +52,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     _pageController.dispose();
     _batchCarouselController.dispose();
     _outputCtl.dispose();
+    _outputFocusNode.dispose();
     super.dispose();
   }
 
@@ -85,6 +89,11 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      if (_currentStep == 1) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _outputFocusNode.requestFocus();
+        });
+      }
     }
   }
 
@@ -238,6 +247,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(s.recipeCreateTitle),
         leading: IconButton(
@@ -253,14 +263,16 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
             labels: [s.recipeStepProduct, s.recipeStepBatch, s.recipeStepIngredients],
           ),
           Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildStep1Product(context, s, cs),
-                _buildStep2Batch(s, cs, batchAsync),
-                _buildStep3Ingredients(s, cs),
-              ],
+            child: ClipRect(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildStep1Product(context, s, cs),
+                  _buildStep2Batch(context, s, cs, batchAsync),
+                  _buildStep3Ingredients(context, s, cs),
+                ],
+              ),
             ),
           ),
           Container(
@@ -317,9 +329,11 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
 
   Widget _buildStep1Product(BuildContext context, S s, ColorScheme cs) {
     final categories = ref.watch(breadCategoryProvider).items;
+    final bottomPad =
+        20 + MediaQuery.viewInsetsOf(context).bottom;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+      padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
       children: [
         Text(
           s.recipeSelectProductTitle,
@@ -462,15 +476,118 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   }
 
   Widget _buildStep2Batch(
+    BuildContext context,
     S s,
     ColorScheme cs,
     AsyncValue<List<MeasurementUnitModel>> batchAsync,
   ) {
+    final borderAccent = AppColors.primary.withValues(alpha: 0.45);
+    final bottomPad =
+        20 + MediaQuery.viewInsetsOf(context).bottom;
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+      padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
       children: [
+        Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+              border: Border.all(color: borderAccent, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.touch_app_rounded, color: AppColors.primary, size: 28),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        s.recipeOutputSectionTitle,
+                        style: TextStyle(
+                          color: cs.onSurface,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          height: 1.25,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  s.recipeOutputSectionHelper,
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.55),
+                    fontSize: 14,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextFormField(
+                  controller: _outputCtl,
+                  focusNode: _outputFocusNode,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: cs.surface,
+                    labelText: s.recipeOutputLabel,
+                    hintText: s.recipeOutputHint,
+                    suffixText: s.pcs,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 18,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.borderRadiusLg),
+                      borderSide: BorderSide(
+                        color: cs.outline.withValues(alpha: 0.35),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.borderRadiusLg),
+                      borderSide: BorderSide(
+                        color: cs.outline.withValues(alpha: 0.35),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppSpacing.borderRadiusLg),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: cs.onSurface,
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
         Text(
-          s.recipeBatchCarouselTitle,
+          '2. ${s.recipeBatchCarouselTitle}',
           style: TextStyle(
             color: cs.onSurface,
             fontSize: 22,
@@ -553,7 +670,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                u.code,
+                                u.batchDisplayLabel,
                                 style: TextStyle(
                                   color: cs.onSurface,
                                   fontSize: 20,
@@ -630,32 +747,17 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 28),
-        TextFormField(
-          controller: _outputCtl,
-          decoration: InputDecoration(
-            labelText: s.recipeOutputLabel,
-            hintText: s.recipeOutputHint,
-            suffixText: s.pcs,
-          ),
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: cs.onSurface,
-          ),
-          textAlign: TextAlign.center,
-        ),
       ],
     );
   }
 
-  Widget _buildStep3Ingredients(S s, ColorScheme cs) {
+  Widget _buildStep3Ingredients(BuildContext context, S s, ColorScheme cs) {
     final allIngredients = ref.watch(ingredientProvider).items;
+    final bottomPad =
+        20 + MediaQuery.viewInsetsOf(context).bottom;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+      padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
       children: [
         Text(
           s.recipeIngredientsSectionTitle,

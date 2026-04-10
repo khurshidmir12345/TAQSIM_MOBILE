@@ -6,7 +6,7 @@ String expenseApiLocale(BuildContext context) {
   final full = l.countryCode != null && l.countryCode!.isNotEmpty
       ? '${l.languageCode}_${l.countryCode}'
       : l.languageCode;
-  const allowed = {'uz', 'ru', 'kk', 'ky', 'tr', 'tg', 'uz_CYRL'};
+  const allowed = {'uz', 'ru', 'kk', 'ky', 'tr', 'uz_CYRL'};
   if (allowed.contains(full)) return full;
   if (allowed.contains(l.languageCode)) return l.languageCode;
   return 'uz';

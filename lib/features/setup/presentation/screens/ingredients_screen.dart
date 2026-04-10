@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -588,28 +587,9 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final fallbackCur = _currencySuffix(s);
-    final scaffoldBg = cs.surfaceContainerLowest;
-
     return Scaffold(
-      backgroundColor: scaffoldBg,
       appBar: AppBar(
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: scaffoldBg,
-        foregroundColor: cs.onSurface,
-        iconTheme: IconThemeData(color: cs.onSurface),
-        actionsIconTheme: IconThemeData(color: cs.onSurface),
-        systemOverlayStyle: theme.brightness == Brightness.light
-            ? SystemUiOverlayStyle.dark
-            : SystemUiOverlayStyle.light,
-        title: Text(
-          s.settingsCardIngredientsTitle,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: cs.onSurface,
-          ),
-        ),
+        title: Text(s.settingsCardIngredientsTitle),
       ),
       body: state.isLoading
           ? const AppLoading()

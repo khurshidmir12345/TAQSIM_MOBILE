@@ -88,19 +88,16 @@ abstract final class AppTheme {
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: isLight ? surface : AppColors.primaryDark,
-        foregroundColor: isLight ? textPrimary : Colors.white,
-        surfaceTintColor: isLight ? Colors.transparent : null,
-        iconTheme: IconThemeData(color: isLight ? textPrimary : Colors.white),
-        actionsIconTheme:
-            IconThemeData(color: isLight ? textPrimary : Colors.white),
+        backgroundColor: background,
+        foregroundColor: textPrimary,
+        surfaceTintColor: Colors.transparent,
+        iconTheme: IconThemeData(color: textPrimary),
+        actionsIconTheme: IconThemeData(color: textPrimary),
         centerTitle: false,
-        systemOverlayStyle: isLight
-            ? SystemUiOverlayStyle.dark
-            : SystemUiOverlayStyle.light,
+        systemOverlayStyle: overlayStyle,
         titleTextStyle: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w700,
-          color: isLight ? textPrimary : Colors.white,
+          color: textPrimary,
         ),
       ),
       cardTheme: CardThemeData(

@@ -9,4 +9,5 @@ export 'empty_state_widget.dart';
 export 'error_retry_widget.dart';
 export 'otp_input.dart';
 export 'skeleton_loader.dart';
+export 'taqsim_logo_asset.dart';
 export 'uzbek_pattern_decoration.dart';
