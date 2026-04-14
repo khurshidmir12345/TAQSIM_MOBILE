@@ -19,13 +19,16 @@ class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
   @override
-  ConsumerState<HistoryScreen> createState() => _HistoryScreenState();
+  HistoryScreenState createState() => HistoryScreenState();
 }
 
-class _HistoryScreenState extends ConsumerState<HistoryScreen>
+class HistoryScreenState extends ConsumerState<HistoryScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabCtl;
   _HistoryTab _selectedTab = _HistoryTab.created;
+  final _productionTabKey = GlobalKey<ProductionHistoryTabState>();
+  final _returnsTabKey = GlobalKey<ReturnsHistoryTabState>();
+  final _kassaTabKey = GlobalKey<KassaTabContentState>();
 
   ShopSummaryModel? _summary;
   bool _summaryLoading = true;
@@ -58,6 +61,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
     if (_selectedTab == tab) return;
     setState(() => _selectedTab = tab);
     _tabCtl.animateTo(tab.index);
+  }
+
+  void refresh() {
+    _loadSummary();
+    _productionTabKey.currentState?.refresh();
+    _returnsTabKey.currentState?.refresh();
+    _kassaTabKey.currentState?.refresh();
   }
 
   Future<void> _loadSummary() async {
@@ -152,10 +162,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen>
           Expanded(
             child: TabBarView(
               controller: _tabCtl,
-              children: const [
-                ProductionHistoryTab(),
-                ReturnsHistoryTab(),
-                KassaTabContent(),
+              children: [
+                ProductionHistoryTab(key: _productionTabKey),
+                ReturnsHistoryTab(key: _returnsTabKey),
+                KassaTabContent(key: _kassaTabKey),
               ],
             ),
           ),

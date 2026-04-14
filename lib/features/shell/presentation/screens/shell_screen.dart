@@ -7,6 +7,7 @@ import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../../home/presentation/screens/history_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../setup/domain/providers/setup_provider.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
   const ShellScreen({super.key});
@@ -16,12 +17,30 @@ class ShellScreen extends ConsumerStatefulWidget {
 }
 
 class _ShellScreenState extends ConsumerState<ShellScreen> {
-  static const _screens = [
-    DashboardScreen(),
-    HistoryScreen(),
-    OrdersScreen(),
-    ProfileScreen(),
-  ];
+  final _dashboardKey = GlobalKey<DashboardScreenState>();
+  final _historyKey = GlobalKey<HistoryScreenState>();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(breadCategoryProvider.notifier).load();
+      ref.read(ingredientProvider.notifier).load();
+      ref.read(recipeProvider.notifier).load();
+    });
+  }
+
+  void _onTabTap(int index) {
+    final prev = ref.read(shellTabIndexProvider);
+    ref.read(shellTabIndexProvider.notifier).setIndex(index);
+
+    if (index == prev || index == 0) {
+      _dashboardKey.currentState?.refresh();
+    }
+    if (index == prev || index == 1) {
+      _historyKey.currentState?.refresh();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +51,12 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
     return Scaffold(
       body: IndexedStack(
         index: currentIndex,
-        children: _screens,
+        children: [
+          DashboardScreen(key: _dashboardKey),
+          HistoryScreen(key: _historyKey),
+          const OrdersScreen(),
+          const ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -52,32 +76,28 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
                   activeIcon: Icons.home_rounded,
                   label: s.home,
                   isActive: currentIndex == 0,
-                  onTap: () =>
-                      ref.read(shellTabIndexProvider.notifier).setIndex(0),
+                  onTap: () => _onTabTap(0),
                 ),
                 _NavItem(
                   icon: Icons.history_outlined,
                   activeIcon: Icons.history_rounded,
                   label: s.navHistory,
                   isActive: currentIndex == 1,
-                  onTap: () =>
-                      ref.read(shellTabIndexProvider.notifier).setIndex(1),
+                  onTap: () => _onTabTap(1),
                 ),
                 _NavItem(
                   icon: Icons.shopping_bag_outlined,
                   activeIcon: Icons.shopping_bag_rounded,
                   label: s.orders,
                   isActive: currentIndex == 2,
-                  onTap: () =>
-                      ref.read(shellTabIndexProvider.notifier).setIndex(2),
+                  onTap: () => _onTabTap(2),
                 ),
                 _NavItem(
                   icon: Icons.person_outline_rounded,
                   activeIcon: Icons.person_rounded,
                   label: s.profileTab,
                   isActive: currentIndex == 3,
-                  onTap: () =>
-                      ref.read(shellTabIndexProvider.notifier).setIndex(3),
+                  onTap: () => _onTabTap(3),
                 ),
               ],
             ),

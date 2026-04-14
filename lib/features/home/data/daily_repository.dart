@@ -184,7 +184,7 @@ class DailyRepository {
           'date': date,
           'quantity': quantity,
           'price_per_unit': pricePerUnit,
-          if (reason != null) 'reason': reason,
+          'reason': ?reason,
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
@@ -212,7 +212,7 @@ class DailyRepository {
         '${_shopPath(shopId)}/expenses',
         queryParameters: {
           'date': date,
-          if (locale != null) 'locale': locale,
+          'locale': ?locale,
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
@@ -237,7 +237,7 @@ class DailyRepository {
           'category': category,
           'amount': amount,
           'date': date,
-          if (description != null) 'description': description,
+          'description': ?description,
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
@@ -281,7 +281,7 @@ class DailyRepository {
         '${_shopPath(shopId)}/expense-categories',
         data: {
           'name': name,
-          if (locale != null) 'locale': locale,
+          'locale': ?locale,
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;

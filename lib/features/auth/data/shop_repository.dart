@@ -116,7 +116,7 @@ class ShopRepository {
 
   Future<ShopModel> createShop({
     required String businessTypeId,
-    required String currencyId,
+    String? currencyId,
     required String name,
     String? customBusinessTypeName,
     List<String> ingredientUnitIds = const [],
@@ -130,17 +130,16 @@ class ShopRepository {
     try {
       final response = await _apiClient.dio.post('/v1/shops', data: {
         'business_type_id':           businessTypeId,
-        'currency_id':                currencyId,
+        'currency_id': ?currencyId,
         'name':                       name,
-        if (customBusinessTypeName != null)
-          'custom_business_type_name': customBusinessTypeName,
+        'custom_business_type_name': ?customBusinessTypeName,
         if (ingredientUnitIds.isNotEmpty) 'ingredient_unit_ids': ingredientUnitIds,
         if (batchUnitIds.isNotEmpty)      'batch_unit_ids':      batchUnitIds,
-        if (description != null) 'description': description,
-        if (address     != null) 'address':     address,
-        if (phone       != null) 'phone':        phone,
-        if (latitude    != null) 'latitude':    latitude,
-        if (longitude   != null) 'longitude':   longitude,
+        'description': ?description,
+        'address': ?address,
+        'phone': ?phone,
+        'latitude': ?latitude,
+        'longitude': ?longitude,
       });
       final data = _body(response)['data'] as Map<String, dynamic>;
       return ShopModel.fromJson(data['shop'] as Map<String, dynamic>);
@@ -159,11 +158,11 @@ class ShopRepository {
   }) async {
     try {
       final response = await _apiClient.dio.put('/v1/shops/$shopId', data: {
-        if (name      != null) 'name':      name,
-        if (address   != null) 'address':   address,
-        if (phone     != null) 'phone':     phone,
-        if (latitude  != null) 'latitude':  latitude,
-        if (longitude != null) 'longitude': longitude,
+        'name': ?name,
+        'address': ?address,
+        'phone': ?phone,
+        'latitude': ?latitude,
+        'longitude': ?longitude,
       });
       final data = _body(response)['data'] as Map<String, dynamic>;
       return ShopModel.fromJson(data['shop'] as Map<String, dynamic>);

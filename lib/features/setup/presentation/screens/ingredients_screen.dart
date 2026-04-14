@@ -37,6 +37,7 @@ class IngredientsScreen extends ConsumerStatefulWidget {
 }
 
 class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
+
   @override
   void initState() {
     super.initState();
@@ -587,7 +588,8 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final fallbackCur = _currencySuffix(s);
-    return Scaffold(
+
+    Widget scaffold = Scaffold(
       appBar: AppBar(
         title: Text(s.settingsCardIngredientsTitle),
       ),
@@ -772,6 +774,8 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
               child: const Icon(Icons.add_rounded),
             ),
     );
+
+    return scaffold;
   }
 }
 

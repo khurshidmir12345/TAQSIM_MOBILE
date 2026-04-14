@@ -7,6 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/taqsim_logo_asset.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import 'package:flutter/services.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -25,18 +26,22 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ));
     _animCtl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1400),
     );
     _fadeAnim = CurvedAnimation(parent: _animCtl, curve: Curves.easeOut);
-    _scaleAnim = Tween<double>(begin: 0.75, end: 1.0).animate(
+    _scaleAnim = Tween<double>(begin: 0.70, end: 1.0).animate(
       CurvedAnimation(parent: _animCtl, curve: Curves.easeOutBack),
     );
-    _slideAnim = Tween<double>(begin: 20, end: 0).animate(
+    _slideAnim = Tween<double>(begin: 30, end: 0).animate(
       CurvedAnimation(
         parent: _animCtl,
-        curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+        curve: const Interval(0.35, 1.0, curve: Curves.easeOut),
       ),
     );
     _animCtl.forward();
@@ -85,96 +90,129 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             colors: AppColors.splashGradient,
           ),
         ),
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnim,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ScaleTransition(
-                  scale: _scaleAnim,
-                  child: _buildLogoBox(),
-                ),
-                const SizedBox(height: 28),
-                AnimatedBuilder(
-                  animation: _slideAnim,
-                  builder: (context, child) => Transform.translate(
-                    offset: Offset(0, _slideAnim.value),
-                    child: child,
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        AppConstants.appName,
-                        style:
-                            Theme.of(context).textTheme.displayLarge?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
-                                ),
+        child: Stack(
+          children: [
+            // Dekorativ halqa — orqa fon
+            Positioned(
+              top: -100,
+              right: -100,
+              child: _DecorativeCircle(
+                size: 320,
+                color: Colors.white.withValues(alpha: 0.03),
+              ),
+            ),
+            Positioned(
+              bottom: -80,
+              left: -80,
+              child: _DecorativeCircle(
+                size: 260,
+                color: Colors.white.withValues(alpha: 0.03),
+              ),
+            ),
+            // Asosiy kontent
+            Center(
+              child: FadeTransition(
+                opacity: _fadeAnim,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TaqsimSplashLogo(
+                      size: 140,
+                      scaleAnim: _scaleAnim,
+                    ),
+                    const SizedBox(height: 32),
+                    AnimatedBuilder(
+                      animation: _slideAnim,
+                      builder: (context, child) => Transform.translate(
+                        offset: Offset(0, _slideAnim.value),
+                        child: child,
                       ),
-                      const SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.storefront_rounded,
-                              size: 16,
-                              color: AppColors.goldLight.withValues(alpha: 0.9),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Kichik biznes uchun aqlli tizim',
+                      child: Column(
+                        children: [
+                          ShaderMask(
+                            shaderCallback: (bounds) =>
+                                const LinearGradient(
+                              colors: [Colors.white, Color(0xFFE8CC6A)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Text(
+                              AppConstants.appName,
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyMedium
+                                  .displayLarge
                                   ?.copyWith(
-                                    color:
-                                        Colors.white.withValues(alpha: 0.85),
-                                    letterSpacing: 0.3,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 2.5,
+                                    fontSize: 42,
                                   ),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.15),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.storefront_rounded,
+                                  size: 15,
+                                  color: AppColors.goldLight
+                                      .withValues(alpha: 0.9),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Kichik biznes uchun aqlli tizim',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Colors.white
+                                            .withValues(alpha: 0.80),
+                                        letterSpacing: 0.3,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildLogoBox() {
+class _DecorativeCircle extends StatelessWidget {
+  const _DecorativeCircle({required this.size, required this.color});
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      width: 118,
-      height: 118,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 30,
-            offset: const Offset(0, 12),
-          ),
-          BoxShadow(
-            color: AppColors.goldLight.withValues(alpha: 0.25),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        shape: BoxShape.circle,
+        border: Border.all(color: color, width: 1.5),
       ),
-      child: const TaqsimLogoAsset(clipRadius: 30),
     );
   }
 }

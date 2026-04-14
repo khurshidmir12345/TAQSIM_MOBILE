@@ -17,11 +17,10 @@ class ReturnsHistoryTab extends ConsumerStatefulWidget {
   const ReturnsHistoryTab({super.key});
 
   @override
-  ConsumerState<ReturnsHistoryTab> createState() =>
-      _ReturnsHistoryTabState();
+  ReturnsHistoryTabState createState() => ReturnsHistoryTabState();
 }
 
-class _ReturnsHistoryTabState extends ConsumerState<ReturnsHistoryTab> {
+class ReturnsHistoryTabState extends ConsumerState<ReturnsHistoryTab> {
   final List<BreadReturnModel> _items = [];
   final ScrollController _scroll = ScrollController();
   int _page = 0;
@@ -50,6 +49,8 @@ class _ReturnsHistoryTabState extends ConsumerState<ReturnsHistoryTab> {
       _loadMore();
     }
   }
+
+  void refresh() => _loadFirst();
 
   Future<void> _loadFirst() async {
     final shop = ref.read(shopProvider).selected;

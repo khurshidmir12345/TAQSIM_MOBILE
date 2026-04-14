@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../auth/domain/models/measurement_unit_model.dart';
 import '../../../auth/domain/providers/shop_provider.dart';
@@ -24,17 +23,17 @@ class RecipeCreateScreen extends ConsumerStatefulWidget {
 class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   /// To‘liq kenglik — `viewportFraction` < 1 bo‘lsa qo‘shni sahifa/karta yon tomonda ko‘rinadi.
   final _pageController = PageController();
-  final _batchCarouselController = PageController();
   int _currentStep = 0;
   static const _totalSteps = 3;
 
   String? _selectedCategoryId;
   String? _measurementUnitId;
-  int _batchPageIndex = 0;
 
   final _outputCtl = TextEditingController();
   final _outputFocusNode = FocusNode();
-  final List<_IngredientEntry> _ingredientEntries = [];
+  final List<_IngredientEntry> _ingredientEntries = [
+    _IngredientEntry(quantityController: TextEditingController()),
+  ];
 
   bool _isSaving = false;
 
@@ -50,7 +49,6 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   @override
   void dispose() {
     _pageController.dispose();
-    _batchCarouselController.dispose();
     _outputCtl.dispose();
     _outputFocusNode.dispose();
     super.dispose();
@@ -147,13 +145,6 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     return NumberFormat.decimalPattern(tag).format(n);
   }
 
-  String _localeCode() {
-    final l = Localizations.localeOf(context);
-    return l.countryCode != null && l.countryCode!.isNotEmpty
-        ? '${l.languageCode}_${l.countryCode}'
-        : l.languageCode;
-  }
-
   Future<void> _save() async {
     final s = S.of(context);
     final validEntries = _ingredientEntries
@@ -236,12 +227,8 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
       recipeBatchUnitsProvider,
       (prev, next) {
         next.whenData((units) {
-          if (units.isEmpty) return;
-          final i = _batchPageIndex.clamp(0, units.length - 1);
-          final id = units[i].id;
-          if (_measurementUnitId != id) {
-            setState(() => _measurementUnitId = id);
-          }
+          if (units.isEmpty || _measurementUnitId != null) return;
+          setState(() => _measurementUnitId = units.first.id);
         });
       },
     );
@@ -329,8 +316,11 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
 
   Widget _buildStep1Product(BuildContext context, S s, ColorScheme cs) {
     final categories = ref.watch(breadCategoryProvider).items;
-    final bottomPad =
-        20 + MediaQuery.viewInsetsOf(context).bottom;
+    final recipes = ref.watch(recipeProvider).items;
+    final usedCategoryIds = {
+      for (final r in recipes) r.breadCategory?.id,
+    }..remove(null);
+    final bottomPad = 20 + MediaQuery.viewInsetsOf(context).bottom;
 
     return ListView(
       padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
@@ -378,27 +368,34 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
           )
         else
           ...categories.map((cat) {
+            final hasRecipe = usedCategoryIds.contains(cat.id);
             final isSelected = _selectedCategoryId == cat.id;
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: () => setState(() => _selectedCategoryId = cat.id),
+                  onTap: hasRecipe
+                      ? null
+                      : () => setState(() => _selectedCategoryId = cat.id),
                   borderRadius: BorderRadius.circular(16),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppColors.primary.withValues(alpha: 0.08)
-                          : cs.surface,
+                      color: hasRecipe
+                          ? cs.surfaceContainerHighest.withValues(alpha: 0.5)
+                          : isSelected
+                              ? AppColors.primary.withValues(alpha: 0.08)
+                              : cs.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : cs.outline.withValues(alpha: 0.12),
-                        width: isSelected ? 2 : 1,
+                        color: hasRecipe
+                            ? cs.outline.withValues(alpha: 0.08)
+                            : isSelected
+                                ? AppColors.primary
+                                : cs.outline.withValues(alpha: 0.12),
+                        width: isSelected && !hasRecipe ? 2 : 1,
                       ),
                     ),
                     child: Row(
@@ -407,16 +404,22 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primary.withValues(alpha: 0.15)
-                                : cs.surfaceContainerHighest,
+                            color: hasRecipe
+                                ? cs.surfaceContainerHighest
+                                : isSelected
+                                    ? AppColors.primary.withValues(alpha: 0.15)
+                                    : cs.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
-                            Icons.inventory_2_outlined,
-                            color: isSelected
-                                ? AppColors.primary
-                                : cs.onSurface.withValues(alpha: 0.4),
+                            hasRecipe
+                                ? Icons.check_circle_outline_rounded
+                                : Icons.inventory_2_outlined,
+                            color: hasRecipe
+                                ? AppColors.success.withValues(alpha: 0.6)
+                                : isSelected
+                                    ? AppColors.primary
+                                    : cs.onSurface.withValues(alpha: 0.4),
                             size: 22,
                           ),
                         ),
@@ -428,42 +431,58 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                               Text(
                                 cat.name,
                                 style: TextStyle(
-                                  color: cs.onSurface,
+                                  color: hasRecipe
+                                      ? cs.onSurface.withValues(alpha: 0.4)
+                                      : cs.onSurface,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               Text(
-                                '${_fmtNum(context, cat.sellingPrice)} ${cat.priceSuffix(s.currency)}',
+                                hasRecipe
+                                    ? s.recipeAlreadyExists
+                                    : '${_fmtNum(context, cat.sellingPrice)} ${cat.priceSuffix(s.currency)}',
                                 style: TextStyle(
-                                  color: cs.onSurface.withValues(alpha: 0.5),
+                                  color: hasRecipe
+                                      ? AppColors.success.withValues(alpha: 0.7)
+                                      : cs.onSurface.withValues(alpha: 0.5),
                                   fontSize: 13,
+                                  fontWeight: hasRecipe
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primary
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
+                        if (hasRecipe)
+                          Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.success.withValues(alpha: 0.5),
+                            size: 22,
+                          )
+                        else
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
                               color: isSelected
                                   ? AppColors.primary
-                                  : cs.outline.withValues(alpha: 0.3),
-                              width: 2,
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : cs.outline.withValues(alpha: 0.3),
+                                width: 2,
+                              ),
                             ),
+                            child: isSelected
+                                ? const Icon(Icons.check,
+                                    color: Colors.white, size: 18)
+                                : null,
                           ),
-                          child: isSelected
-                              ? const Icon(Icons.check,
-                                  color: Colors.white, size: 18)
-                              : null,
-                        ),
                       ],
                     ),
                   ),
@@ -481,129 +500,90 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     ColorScheme cs,
     AsyncValue<List<MeasurementUnitModel>> batchAsync,
   ) {
-    final borderAccent = AppColors.primary.withValues(alpha: 0.45);
-    final bottomPad =
-        20 + MediaQuery.viewInsetsOf(context).bottom;
+    final bottomPad = 20 + MediaQuery.viewInsetsOf(context).bottom;
 
     return ListView(
       padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
       children: [
-        Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.07),
-              borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-              border: Border.all(color: borderAccent, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.touch_app_rounded, color: AppColors.primary, size: 28),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        s.recipeOutputSectionTitle,
-                        style: TextStyle(
-                          color: cs.onSurface,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          height: 1.25,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  s.recipeOutputSectionHelper,
-                  style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.55),
-                    fontSize: 14,
-                    height: 1.45,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _outputCtl,
-                  focusNode: _outputFocusNode,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: cs.surface,
-                    labelText: s.recipeOutputLabel,
-                    hintText: s.recipeOutputHint,
-                    suffixText: s.pcs,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 18,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppSpacing.borderRadiusLg),
-                      borderSide: BorderSide(
-                        color: cs.outline.withValues(alpha: 0.35),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppSpacing.borderRadiusLg),
-                      borderSide: BorderSide(
-                        color: cs.outline.withValues(alpha: 0.35),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppSpacing.borderRadiusLg),
-                      borderSide: const BorderSide(
-                        color: AppColors.primary,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: cs.onSurface,
-                    letterSpacing: 0.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 28),
         Text(
-          '2. ${s.recipeBatchCarouselTitle}',
+          s.recipeOutputSectionTitle,
           style: TextStyle(
             color: cs.onSurface,
-            fontSize: 22,
+            fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(
-          s.recipeBatchCarouselSubtitle,
+          s.recipeOutputSectionHelper,
           style: TextStyle(
             color: cs.onSurface.withValues(alpha: 0.5),
-            fontSize: 14,
+            fontSize: 13,
             height: 1.4,
           ),
         ),
         const SizedBox(height: 16),
+        TextFormField(
+          controller: _outputCtl,
+          focusNode: _outputFocusNode,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+            labelText: s.recipeOutputLabel,
+            hintText: s.recipeOutputHint,
+            suffixText: s.pcs,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: cs.outline.withValues(alpha: 0.2),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: cs.outline.withValues(alpha: 0.2),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+                width: 2,
+              ),
+            ),
+          ),
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: cs.onSurface,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 28),
+        Text(
+          s.recipeBatchCarouselTitle,
+          style: TextStyle(
+            color: cs.onSurface,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          s.recipeBatchCarouselSubtitle,
+          style: TextStyle(
+            color: cs.onSurface.withValues(alpha: 0.5),
+            fontSize: 13,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 14),
         batchAsync.when(
           data: (units) {
             if (units.isEmpty) {
@@ -612,125 +592,69 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                 child: Text(
                   s.recipeValidationBatch,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: cs.onSurface.withValues(alpha: 0.5)),
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.5),
+                  ),
                 ),
               );
             }
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: 200,
-                  child: PageView.builder(
-                    controller: _batchCarouselController,
-                    itemCount: units.length,
-                    onPageChanged: (i) {
-                      setState(() {
-                        _batchPageIndex = i;
-                        _measurementUnitId = units[i].id;
-                      });
-                    },
-                    itemBuilder: (context, i) {
-                      final u = units[i];
-                      final loc = _localeCode();
-                      final lang = Localizations.localeOf(context).languageCode;
-                      final fullName = u.localizedName(lang);
-                      final ex = u.localizedExample(loc);
-                      final isActive = i == _batchPageIndex;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
+            return Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: List.generate(units.length, (i) {
+                final u = units[i];
+                final lang = Localizations.localeOf(context).languageCode;
+                final name = u.localizedName(lang);
+                final isActive = _measurementUnitId == u.id;
+                final cardWidth =
+                    (MediaQuery.sizeOf(context).width - 40 - 20) / 3;
+
+                return GestureDetector(
+                  onTap: () => setState(() => _measurementUnitId = u.id),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: cardWidth,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? AppColors.primary.withValues(alpha: 0.1)
+                          : cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: isActive
+                            ? AppColors.primary
+                            : cs.outline.withValues(alpha: 0.1),
+                        width: isActive ? 2 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(u.icon, style: const TextStyle(fontSize: 22)),
+                        const SizedBox(height: 6),
+                        Text(
+                          name.isNotEmpty ? name : u.batchDisplayLabel,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
                             color: isActive
-                                ? AppColors.primary.withValues(alpha: 0.1)
-                                : cs.surfaceContainerHighest.withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: isActive
-                                  ? AppColors.primary
-                                  : cs.outline.withValues(alpha: 0.1),
-                              width: isActive ? 2 : 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.04),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                u.icon,
-                                style: const TextStyle(fontSize: 28),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                u.batchDisplayLabel,
-                                style: TextStyle(
-                                  color: cs.onSurface,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                              if (fullName.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  fullName,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: cs.onSurface.withValues(alpha: 0.72),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.25,
-                                  ),
-                                ),
-                              ],
-                              if (ex != null && ex.isNotEmpty) ...[
-                                const SizedBox(height: 6),
-                                Text(
-                                  ex,
-                                  maxLines: 4,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color:
-                                        cs.onSurface.withValues(alpha: 0.45),
-                                    fontSize: 12,
-                                    height: 1.35,
-                                  ),
-                                ),
-                              ],
-                            ],
+                                ? AppColors.primary
+                                : cs.onSurface,
+                            fontSize: 12,
+                            fontWeight:
+                                isActive ? FontWeight.w700 : FontWeight.w600,
+                            height: 1.25,
                           ),
                         ),
-                      );
-                    },
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(units.length, (i) {
-                    final on = i == _batchPageIndex;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: on ? 18 : 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: on ? AppColors.primary : cs.outline.withValues(alpha: 0.25),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    );
-                  }),
-                ),
-              ],
+                );
+              }),
             );
           },
           loading: () => const Center(
@@ -849,7 +773,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                   Expanded(
                     flex: 3,
                     child: DropdownButtonFormField<String>(
-                      value: entry.ingredientId,
+                      initialValue: entry.ingredientId,
                       decoration: InputDecoration(
                         hintText: s.recipeIngredientSelectHint,
                         contentPadding:

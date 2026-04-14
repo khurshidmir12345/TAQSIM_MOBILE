@@ -63,6 +63,16 @@ class S {
   String get noBusiness => _t('noBusiness');
   String get createFirstBusiness => _t('createFirstBusiness');
   String get addBusiness => _t('addBusiness');
+  String get shopSettingsTitle => _t('shopSettingsTitle');
+  String get shopNameLabel => _t('shopNameLabel');
+  String get shopNameHint => _t('shopNameHint');
+  String get shopAddressLabel => _t('shopAddressLabel');
+  String get shopAddressHint => _t('shopAddressHint');
+  String get shopUpdateSuccess => _t('shopUpdateSuccess');
+  String get shopDeleteButton => _t('shopDeleteButton');
+  String get shopDeleteTitle => _t('shopDeleteTitle');
+  String shopDeleteMessage(String name) => _t('shopDeleteMessage').replaceAll('{name}', name);
+  String get shopDeleteSuccess => _t('shopDeleteSuccess');
   String get manage => _t('manage');
   String get todayProfit => _t('todayProfit');
   String get todayLoss => _t('todayLoss');
@@ -217,6 +227,7 @@ class S {
   String get recipeStepIngredients => _t('recipeStepIngredients');
   String get recipeSelectProductTitle => _t('recipeSelectProductTitle');
   String get recipeSelectProductSubtitle => _t('recipeSelectProductSubtitle');
+  String get recipeAlreadyExists => _t('recipeAlreadyExists');
   String get recipeBatchCarouselTitle => _t('recipeBatchCarouselTitle');
   String get recipeBatchCarouselSubtitle => _t('recipeBatchCarouselSubtitle');
   String get recipeOutputLabel => _t('recipeOutputLabel');
@@ -439,6 +450,10 @@ class S {
   String get disabled => _t('disabled');
   String get language => _t('language');
   String get aboutApp => _t('aboutApp');
+  String get aboutAppDescription => _t('aboutAppDescription');
+  String get developer => _t('developer');
+  String get website => _t('website');
+  String get support => _t('support');
   String get version => _t('version');
   String get logout => _t('logout');
   String get unknown => _t('unknown');
@@ -460,6 +475,17 @@ class S {
   String get deleteAccountConfirm => _t('deleteAccountConfirm');
   String get cancel => _t('cancel');
   String get delete => _t('delete');
+  String get privacyPolicy => _t('privacyPolicy');
+  String get privacyPolicyDesc => _t('privacyPolicyDesc');
+  String get termsOfService => _t('termsOfService');
+  String get termsOfServiceDesc => _t('termsOfServiceDesc');
+  String get account => _t('account');
+  String get logoutDesc => _t('logoutDesc');
+  String get logoutConfirm => _t('logoutConfirm');
+  String get madeInUzbekistan => _t('madeInUzbekistan');
+  String get topUpComingSoonTitle => _t('topUpComingSoonTitle');
+  String get topUpComingSoonDesc => _t('topUpComingSoonDesc');
+  String get goBack => _t('goBack');
 
   // ─── Onboarding ───
   String get onboardingTitle1 => _t('onboardingTitle1');
@@ -483,6 +509,80 @@ class S {
   String get registerLink => _t('registerLink');
   String get tryAgain    => _t('tryAgain');
   String get noInternet  => _t('noInternet');
+  String get appTagline           => _t('appTagline');
+  String get firstTimeHint        => _t('firstTimeHint');
+  String get createNewAccount     => _t('createNewAccount');
+  String get registerTitle        => _t('registerTitle');
+  String get registerSubtitle     => _t('registerSubtitle');
+  String get fullNameHint         => _t('fullNameHint');
+  String get enterName            => _t('enterName');
+  String get confirmPasswordHint  => _t('confirmPasswordHint');
+  String get passwordsNotMatch    => _t('passwordsNotMatch');
+  String get otpTitle             => _t('otpTitle');
+  String otpSentTo(String phone)  => _t('otpSentTo').replaceAll('{phone}', phone);
+  String get resendCode           => _t('resendCode');
+  String resendIn(String time)    => _t('resendIn').replaceAll('{time}', time);
+  String get codeNotReceived      => _t('codeNotReceived');
+  String get smsHelpTitle         => _t('smsHelpTitle');
+  String get smsHelpCauses        => _t('smsHelpCauses');
+  String get smsSpamTitle         => _t('smsSpamTitle');
+  String get smsSpamBody          => _t('smsSpamBody');
+  String get smsBalanceTitle      => _t('smsBalanceTitle');
+  String get smsBalanceBody       => _t('smsBalanceBody');
+  String get understood           => _t('understood');
+  String get policyLoginPrefix    => _t('policyLoginPrefix');
+  String get policyRegisterPrefix => _t('policyRegisterPrefix');
+  String get policyAnd            => _t('policyAnd');
+  String get policySuffix         => _t('policySuffix');
+  String get policyTerms          => _t('policyTerms');
+  String get policyPrivacy        => _t('policyPrivacy');
+  String get stepForm             => _t('stepForm');
+  String get stepVerify           => _t('stepVerify');
+  String get stepEnterApp         => _t('stepEnterApp');
+  String get phoneExistsTitle     => _t('phoneExistsTitle');
+  String phoneExistsBody(String phone) =>
+      _t('phoneExistsBody').replaceAll('{phone}', phone);
+  String get cancelShort          => _t('cancelShort');
+  String socialComingSoon(String name) =>
+      _t('socialComingSoon').replaceAll('{name}', name);
+
+  // ─── Telegram Auth ───
+  String get telegramConnecting      => _t('telegramConnecting');
+  String get telegramConnectingHint  => _t('telegramConnectingHint');
+  String get telegramWaitingTitle    => _t('telegramWaitingTitle');
+  String get telegramWaitingHint     => _t('telegramWaitingHint');
+  String get telegramOpenAgain       => _t('telegramOpenAgain');
+  String get telegramRetry           => _t('telegramRetry');
+  String get telegramBackToLogin     => _t('telegramBackToLogin');
+  String get telegramSessionExpired  => _t('telegramSessionExpired');
+  String get loginInfoPrefix  => _t('loginInfoPrefix');
+  String get loginInfoAction  => _t('loginInfoAction');
+  String get loginInfoSuffix   => _t('loginInfoSuffix');
+  String get tapMapToSelect    => _t('tapMapToSelect');
+  String get locationPermDenied => _t('locationPermDenied');
+  String get locationError     => _t('locationError');
+
+  // Tutorial
+  String get tutorialStep1Title => _t('tutorialStep1Title');
+  String get tutorialStep1Desc  => _t('tutorialStep1Desc');
+  String get tutorialStep2Title => _t('tutorialStep2Title');
+  String get tutorialStep2Desc  => _t('tutorialStep2Desc');
+  String get tutorialStep3Title => _t('tutorialStep3Title');
+  String get tutorialStep3Desc  => _t('tutorialStep3Desc');
+  String get tutorialGoAction   => _t('tutorialGoAction');
+  String get tutorialSkip       => _t('tutorialSkip');
+  String get tutorialStep4Title => _t('tutorialStep4Title');
+  String get tutorialStep4Desc  => _t('tutorialStep4Desc');
+  String get tutorialGoSetup    => _t('tutorialGoSetup');
+  String get tutorialGoSetupSub => _t('tutorialGoSetupSub');
+  String get tutorialTapAdd     => _t('tutorialTapAdd');
+  // New tutorial keys
+  String get tutorialProductIncomeTitle => _t('tutorialProductIncomeTitle');
+  String get tutorialProductIncomeDesc  => _t('tutorialProductIncomeDesc');
+  String get tutorialOpenCardTitle      => _t('tutorialOpenCardTitle');
+  String get tutorialOpenCardDesc       => _t('tutorialOpenCardDesc');
+  String get tutorialSettingsHintTitle   => _t('tutorialSettingsHintTitle');
+  String get tutorialSettingsHintMessage => _t('tutorialSettingsHintMessage');
 
   // ─── Business Type / Shop Create ───
   String get createBusiness         => _t('createBusiness');
@@ -555,6 +655,16 @@ class S {
     'noBusiness': 'Hali biznes yo\'q',
     'createFirstBusiness': 'Birinchi biznesingizni yarating\nva boshqaruvni boshlang',
     'addBusiness': 'Yangi biznes qo\'shish',
+    'shopSettingsTitle': 'Biznes sozlamalari',
+    'shopNameLabel': 'Biznes nomi',
+    'shopNameHint': 'Masalan: Non do\'konim',
+    'shopAddressLabel': 'Manzil',
+    'shopAddressHint': 'Masalan: Toshkent, Chilonzor',
+    'shopUpdateSuccess': 'Biznes yangilandi',
+    'shopDeleteButton': 'Biznesni o\'chirish',
+    'shopDeleteTitle': 'Biznesni o\'chirish',
+    'shopDeleteMessage': '«{name}» biznesini o\'chirmoqchimisiz? Bu amalni qaytarib bo\'lmaydi.',
+    'shopDeleteSuccess': 'Biznes o\'chirildi',
     'manage': 'Boshqarish',
     'todayProfit': 'Bugungi foyda',
     'todayLoss': 'Bugungi zarar',
@@ -709,14 +819,15 @@ class S {
     'recipeSelectProductTitle': 'Qaysi mahsulot uchun?',
     'recipeSelectProductSubtitle':
         'Bitta tur tanlang — har bir tur uchun bitta retsept bo‘ladi.',
+    'recipeAlreadyExists': 'Retsept mavjud',
     'recipeBatchCarouselTitle': 'Partiya birligi',
     'recipeBatchCarouselSubtitle':
         'Ishlab chiqarishda qanday hisoblaysiz: qop, blok, to‘plam...',
     'recipeOutputLabel': 'Mahsulot soni',
     'recipeOutputHint': 'Masalan: 100',
-    'recipeOutputSectionTitle': '1. Partiyadan chiqadigan mahsulot',
+    'recipeOutputSectionTitle': 'Mahsulot soni',
     'recipeOutputSectionHelper':
-        'Quyidagi yashil chegarali maydonga raqam kiriting — bitta partiyadan nechta dona (yoki boshqa birlikda) mahsulot chiqishini.',
+        '1 partiyadan nechta mahsulot chiqadi?',
     'recipeIngredientsSectionTitle': 'Bitta partiya uchun xom ashyo',
     'recipeIngredientsSectionSubtitle':
         'Tanlangan birlikdagi bitta partiyaga ketadigan miqdorlarni kiriting.',
@@ -889,6 +1000,10 @@ class S {
     'disabled': 'O\'chirilgan',
     'language': 'Til',
     'aboutApp': 'Ilova haqida',
+    'aboutAppDescription': "TAQSEEM — kichik va o'rta ishlab chiqaruvchi bizneslar uchun tannarx, foyda va xarajatlarni aniq hisoblash ilovasi.",
+    'developer': 'Ishlab chiqaruvchi',
+    'website': 'Veb-sayt',
+    'support': 'Qo\'llab-quvvatlash',
     'assetImagesPreview': 'Rasmlar (ko‘rinish)',
     'version': 'Versiya',
     'logout': 'Tizimdan chiqish',
@@ -911,6 +1026,17 @@ class S {
     'deleteAccountConfirm': 'Haqiqatan ham hisobingizni o\'chirmoqchimisiz?',
     'cancel': 'Bekor qilish',
     'delete': 'O\'chirish',
+    'privacyPolicy': 'Maxfiylik siyosati',
+    'privacyPolicyDesc': "Shaxsiy ma'lumotlar himoyasi",
+    'termsOfService': 'Foydalanish shartlari',
+    'termsOfServiceDesc': "Xizmat ko'rsatish qoidalari",
+    'account': 'Hisob',
+    'logoutDesc': 'Hisobingizdan chiqish',
+    'logoutConfirm': 'Tizimdan chiqmoqchimisiz?',
+    'madeInUzbekistan': "O'zbekistonda ishlab chiqilgan",
+    'topUpComingSoonTitle': 'Tez orada ishga tushadi',
+    'topUpComingSoonDesc': "Balans to'ldirish bo'limi ustida ish olib borilmoqda. Tez orada siz ilovadan to'liq foydalana olasiz.",
+    'goBack': 'Ortga qaytish',
     'onboardingTitle1': 'Har qanday biznes uchun',
     'onboardingDesc1': 'Nonvoyxona, shashlikxona, somsahona, shirinliklar, fastfood — barchasini bir joydan boshqaring',
     'onboardingTitle2': 'Tan narx va foyda hisobi',
@@ -930,6 +1056,76 @@ class S {
     'registerLink': 'Ro\'yxatdan o\'ting',
     'tryAgain': 'Qayta urinish',
     'noInternet': 'Internet ulanishda xatolik',
+    'appTagline': 'Kichik biznes uchun aqlli tizim',
+    'firstTimeHint': "Birinchi marta kirayapsizmi? Avval ",
+    'createNewAccount': 'yangi hisob yarating',
+    'registerTitle': "Ro'yxatdan o'tish",
+    'registerSubtitle': "Barcha ma'lumotlarni kiriting",
+    'fullNameHint': 'Ism va familiya',
+    'enterName': 'Ism kiriting',
+    'confirmPasswordHint': 'Parolni tasdiqlang',
+    'passwordsNotMatch': 'Parollar mos emas',
+    'otpTitle': 'Kodni kiriting',
+    'otpSentTo': "4 xonali tasdiqlash kodi\n{phone}\nraqamiga yuborildi.",
+    'resendCode': 'Kodni qayta yuborish',
+    'resendIn': 'Qayta yuborish: {time}',
+    'codeNotReceived': 'Kod kelmayaptimi?',
+    'smsHelpTitle': 'SMS kod kelmayaptimi?',
+    'smsHelpCauses': "Quyidagi sabablar ko'pchilikda uchraydi:",
+    'smsSpamTitle': 'Spam papkasi',
+    'smsSpamBody':
+        "SMS bo'limida \"Spam\" yoki \"Keraksiz\" papkasini tekshiring. Bizdan yuborilgan SMS 4546 raqamdan keladi.",
+    'smsBalanceTitle': 'Uzmobile balansi',
+    'smsBalanceBody':
+        "Uzmobile operatorida balans bo'lmasa SIM karta SMS qabul qilmasligi mumkin.",
+    'understood': 'Tushundim',
+    'policyLoginPrefix': 'Kirish orqali ',
+    'policyRegisterPrefix': "Ro'yxatdan o'tish orqali ",
+    'policyAnd': ' va ',
+    'policySuffix': ' siyosatini qabul qilasiz',
+    'policyTerms': 'Shartlar',
+    'policyPrivacy': 'Maxfiylik',
+    'stepForm': "Ma'lumotlar",
+    'stepVerify': 'Tasdiqlash',
+    'stepEnterApp': 'Dasturga\nkiring',
+    'phoneExistsTitle': "Raqam ro'yxatdan o'tgan",
+    'phoneExistsBody':
+        "{phone} raqami allaqachon ro'yxatdan o'tgan.\n\nUshbu raqam bilan tizimga kiring.",
+    'cancelShort': 'Bekor',
+    'socialComingSoon': '{name} orqali kirish tez orada ulashiladi',
+    'telegramConnecting': 'Ulanmoqda...',
+    'telegramConnectingHint': 'Telegram ochilmoqda',
+    'telegramWaitingTitle': 'Telegram kutilmoqda',
+    'telegramWaitingHint': 'Telegramda telefon raqamingizni yuboring va ilovaga qaytish tugmasini bosing',
+    'telegramOpenAgain': 'Telegramni qayta ochish',
+    'telegramRetry': 'Qaytadan urinish',
+    'telegramBackToLogin': 'Kirishga qaytish',
+    'telegramSessionExpired': "Vaqt tugadi. Qaytadan urinib ko'ring.",
+    'loginInfoPrefix': "Oldin hisob yaratmagan bo'lsangiz ",
+    'loginInfoAction': 'Hisob Yaratish',
+    'loginInfoSuffix': ' ni bosing',
+    'tapMapToSelect': 'Joylashuvni tanlash uchun xaritaga bosing',
+    'locationPermDenied': "Joylashuvga ruxsat berilmagan. Sozlamalarga o'ting.",
+    'locationError': 'Joylashuvni aniqlashda xatolik yuz berdi',
+    'tutorialStep1Title': "Mahsulot qo'shing",
+    'tutorialStep1Desc': 'Tayyorlaydigan mahsulot turini kiriting',
+    'tutorialStep2Title': "Xom ashyo qo'shing",
+    'tutorialStep2Desc': 'Retsept uchun kerakli ingredientlarni kiriting',
+    'tutorialStep3Title': 'Hisoblash yarating',
+    'tutorialStep3Desc': '1 ta mahsulot uchun xom ashyo miqdorini kiriting',
+    'tutorialGoAction': "O'tish",
+    'tutorialSkip': "O'tkazib yuborish",
+    'tutorialStep4Title': 'Chiqimni qayd eting',
+    'tutorialStep4Desc': 'Bugun qancha mahsulot chiqqanini kiriting',
+    'tutorialGoSetup':    "Sozlamalar tugmasini bosing",
+    'tutorialGoSetupSub': "Mahsulot, xom ashyo va hisoblashni sozlang",
+    'tutorialTapAdd':     "Qo'shish tugmasini bosing",
+    'tutorialProductIncomeTitle': "Mahsulot kirimi",
+    'tutorialProductIncomeDesc':  "Bugungi mahsulot chiqimini shu tugma orqali qayd eting",
+    'tutorialOpenCardTitle':      "Bo'limga o'ting",
+    'tutorialOpenCardDesc':       "Bu kartani bosib, tegishli sozlamaga kiring",
+    'tutorialSettingsHintTitle':   "Dastlab sozlang",
+    'tutorialSettingsHintMessage': "Shu yerdan mahsulotlaringiz va xom ashyolaringiz ro'yxatini kiritib, hisoblash (kalkulyatsiya) qilib qo'yishingiz kerak bo'ladi",
     'createBusiness': 'Biznes yaratish',
     'businessTypeStep': 'Kategoriya',
     'businessDetailsStep': "Ma'lumotlar",
@@ -980,6 +1176,16 @@ class S {
     'noBusiness': 'Ҳали бизнес йўқ',
     'createFirstBusiness': 'Биринчи бизнесингизни яратинг\nва бошқарувни бошланг',
     'addBusiness': 'Янги бизнес қўшиш',
+    'shopSettingsTitle': 'Бизнес созламалари',
+    'shopNameLabel': 'Бизнес номи',
+    'shopNameHint': 'Масалан: Нон дўконим',
+    'shopAddressLabel': 'Манзил',
+    'shopAddressHint': 'Масалан: Тошкент, Чилонзор',
+    'shopUpdateSuccess': 'Бизнес янгиланди',
+    'shopDeleteButton': 'Бизнесни ўчириш',
+    'shopDeleteTitle': 'Бизнесни ўчириш',
+    'shopDeleteMessage': '«{name}» бизнесини ўчирмоқчимисиз? Бу амални қайтариб бўлмайди.',
+    'shopDeleteSuccess': 'Бизнес ўчирилди',
     'manage': 'Бошқариш',
     'todayProfit': 'Бугунги фойда',
     'todayLoss': 'Бугунги зарар',
@@ -1134,14 +1340,15 @@ class S {
     'recipeSelectProductTitle': 'Қайси маҳсулот учун?',
     'recipeSelectProductSubtitle':
         'Битта тур танланг — ҳар бир тур учун бита рецепт бўлади.',
+    'recipeAlreadyExists': 'Рецепт мавжуд',
     'recipeBatchCarouselTitle': 'Партия бирлиги',
     'recipeBatchCarouselSubtitle':
         'Ишлаб чиқаришда қандай ҳисоблайсиз: қоп, блок, тўплам...',
     'recipeOutputLabel': 'Маҳсулот сони',
     'recipeOutputHint': 'Масалан: 100',
-    'recipeOutputSectionTitle': '1. Партиядан чиқадиган маҳсулот',
+    'recipeOutputSectionTitle': 'Маҳсулот сони',
     'recipeOutputSectionHelper':
-        'Пастдаги ёшил чегарали майдонга рақам киритинг — битта партиядан нечта дона (ёки бошқа бирликда) маҳсулот чиқишини.',
+        '1 партиядан нечта маҳсулот чиқади?',
     'recipeIngredientsSectionTitle': 'Битта партия учун хом ашё',
     'recipeIngredientsSectionSubtitle':
         'Танланган бирликдаги битта партияга кетадиган миқдорларни киритинг.',
@@ -1314,6 +1521,10 @@ class S {
     'disabled': 'Ўчирилган',
     'language': 'Тил',
     'aboutApp': 'Илова ҳақида',
+    'aboutAppDescription': 'ТАҚСЕЕМ — кичик ва ўрта ишлаб чиқарувчи бизнеслар учун таннарх, фойда ва харажатларни аниқ ҳисоблаш иловаси.',
+    'developer': 'Ишлаб чиқарувчи',
+    'website': 'Веб-сайт',
+    'support': 'Қўллаб-қувватлаш',
     'assetImagesPreview': 'Расмлар (кўриниш)',
     'version': 'Версия',
     'logout': 'Тизимдан чиқиш',
@@ -1336,6 +1547,17 @@ class S {
     'deleteAccountConfirm': 'Ҳақиқатан ҳам ҳисобингизни ўчирмоқчимисиз?',
     'cancel': 'Бекор қилиш',
     'delete': 'Ўчириш',
+    'privacyPolicy': 'Махфийлик сиёсати',
+    'privacyPolicyDesc': "Шахсий маълумотлар ҳимояси",
+    'termsOfService': 'Фойдаланиш шартлари',
+    'termsOfServiceDesc': "Хизмат кўрсатиш қоидалари",
+    'account': 'Ҳисоб',
+    'logoutDesc': 'Ҳисобингиздан чиқиш',
+    'logoutConfirm': 'Тизимдан чиқмоқчимисиз?',
+    'madeInUzbekistan': "Ўзбекистонда ишлаб чиқилган",
+    'topUpComingSoonTitle': 'Тез орада ишга тушади',
+    'topUpComingSoonDesc': "Баланс тўлдириш бўлими устида иш олиб борилмоқда. Тез орада сиз иловадан тўлиқ фойдалана оласиз.",
+    'goBack': 'Ортга қайтиш',
     'onboardingTitle1': 'Ҳар қандай бизнес учун',
     'onboardingDesc1': 'Нонвойхона, шашликхона, сомсахона, ширинликлар, фастфуд — барчасини бир жойдан бошқаринг',
     'onboardingTitle2': 'Тан нарх ва фойда ҳисоби',
@@ -1355,6 +1577,76 @@ class S {
     'registerLink': 'Рўйхатдан ўтинг',
     'tryAgain': 'Қайта уриниш',
     'noInternet': 'Интернет уланишда хатолик',
+    'appTagline': 'Кичик бизнес учун ақлли тизим',
+    'firstTimeHint': 'Биринчи марта киряпсизми? Аввал ',
+    'createNewAccount': 'янги ҳисоб яратинг',
+    'registerTitle': 'Рўйхатдан ўтиш',
+    'registerSubtitle': 'Барча маълумотларни киритинг',
+    'fullNameHint': 'Исм ва фамилия',
+    'enterName': 'Исм киритинг',
+    'confirmPasswordHint': 'Паролни тасдиқланг',
+    'passwordsNotMatch': 'Паролlar мос эмас',
+    'otpTitle': 'Кодни киритинг',
+    'otpSentTo': '4 хонали тасдиқлаш коди\n{phone}\nрақамига юборилди.',
+    'resendCode': 'Кодни қайта юбориш',
+    'resendIn': 'Қайта юбориш: {time}',
+    'codeNotReceived': 'Код келмаяптими?',
+    'smsHelpTitle': 'SMS код келмаяптими?',
+    'smsHelpCauses': 'Қуйидаги сабаблар кўпчиликда учрайди:',
+    'smsSpamTitle': 'Spam папкаси',
+    'smsSpamBody':
+        'SMS бўлимида "Spam" ёки "Кераксиз" папкасини текширинг. Биздан юборилган SMS 4546 рақамдан келади.',
+    'smsBalanceTitle': 'Uzmobile баланси',
+    'smsBalanceBody':
+        'Uzmobile операторида баланс бўлмаса SIM карта SMS қабул қилмаслиги мумкин.',
+    'understood': 'Тушундим',
+    'policyLoginPrefix': 'Кириш орқали ',
+    'policyRegisterPrefix': 'Рўйхатдан ўтиш орқали ',
+    'policyAnd': ' ва ',
+    'policySuffix': ' сиёсатини қабул қиласиз',
+    'policyTerms': 'Шартлар',
+    'policyPrivacy': 'Махфийлик',
+    'stepForm': 'Маълумотлар',
+    'stepVerify': 'Тасдиқлаш',
+    'stepEnterApp': 'Дастурга\nкиринг',
+    'phoneExistsTitle': 'Рақам рўйхатдан ўтган',
+    'phoneExistsBody':
+        '{phone} рақами аллақачон рўйхатдан ўтган.\n\nУшбу рақам билан тизимга киринг.',
+    'cancelShort': 'Бекор',
+    'socialComingSoon': '{name} орқали кириш тез орада улашилади',
+    'telegramConnecting': 'Уланмоқда...',
+    'telegramConnectingHint': 'Телеграм очилмоқда',
+    'telegramWaitingTitle': 'Телеграм кутилмоқда',
+    'telegramWaitingHint': 'Телеграмда телефон рақамингизни юборинг ва иловага қайтиш тугмасини босинг',
+    'telegramOpenAgain': 'Телеграмни қайта очиш',
+    'telegramRetry': 'Қайтадан уриниш',
+    'telegramBackToLogin': 'Киришга қайтиш',
+    'telegramSessionExpired': 'Вақт тугади. Қайтадан уриниб кўринг.',
+    'loginInfoPrefix': 'Аввал ҳисоб яратмаган бўлсангиз ',
+    'loginInfoAction': 'Ҳисоб Яратиш',
+    'loginInfoSuffix': ' ни босинг',
+    'tapMapToSelect': 'Жойлашувни танлаш учун харитага босинг',
+    'locationPermDenied': 'Жойлашувга рухсат берилмаган. Созламаларга ўтинг.',
+    'locationError': 'Жойлашувни аниқлашда хатолик юз берди',
+    'tutorialStep1Title': "Mahsulot qo'shing",
+    'tutorialStep1Desc': 'Tayyorlanadigan mahsulot turini kiriting',
+    'tutorialStep2Title': "Xom ashyo qo'shing",
+    'tutorialStep2Desc': 'Retsept uchun ingredientlarni kiriting',
+    'tutorialStep3Title': 'Hisoblash yarating',
+    'tutorialStep3Desc': "1 ta mahsulot uchun miqdorini kiriting",
+    'tutorialGoAction': "O'tish",
+    'tutorialSkip': "O'tkazib yuborish",
+    'tutorialStep4Title': 'Chiqimni qayd eting',
+    'tutorialStep4Desc': 'Bugun qancha mahsulot chiqqanini kiriting',
+    'tutorialGoSetup':    "Sozlamalar tugmasini bosing",
+    'tutorialGoSetupSub': "Mahsulot, xom ashyo va hisoblashni sozlang",
+    'tutorialTapAdd':     "Qo'shish tugmasini bosing",
+    'tutorialProductIncomeTitle': "Mahsulot kirimi",
+    'tutorialProductIncomeDesc':  "Bugungi mahsulot chiqimini shu tugma orqali qayd eting",
+    'tutorialOpenCardTitle':      "Bo'limga o'ting",
+    'tutorialOpenCardDesc':       "Bu kartani bosib, tegishli sozlamaga kiring",
+    'tutorialSettingsHintTitle':   "Dastlab sozlang",
+    'tutorialSettingsHintMessage': "Shu yerdan mahsulotlaringiz va xom ashyolaringiz ro'yxatini kiritib, hisoblash (kalkulyatsiya) qilib qo'yishingiz kerak bo'ladi",
     'createBusiness': 'Бизнес яратиш',
     'businessTypeStep': 'Категория',
     'businessDetailsStep': 'Маълумотлар',
@@ -1406,6 +1698,16 @@ class S {
     'noBusiness': 'Бизнесов пока нет',
     'createFirstBusiness': 'Создайте свой первый бизнес\nи начните управление',
     'addBusiness': 'Добавить бизнес',
+    'shopSettingsTitle': 'Настройки бизнеса',
+    'shopNameLabel': 'Название',
+    'shopNameHint': 'Например: Моя пекарня',
+    'shopAddressLabel': 'Адрес',
+    'shopAddressHint': 'Например: Ташкент, Чиланзар',
+    'shopUpdateSuccess': 'Бизнес обновлён',
+    'shopDeleteButton': 'Удалить бизнес',
+    'shopDeleteTitle': 'Удалить бизнес',
+    'shopDeleteMessage': 'Удалить бизнес «{name}»? Это действие нельзя отменить.',
+    'shopDeleteSuccess': 'Бизнес удалён',
     'manage': 'Управление',
     'todayProfit': 'Прибыль за сегодня',
     'todayLoss': 'Убыток за сегодня',
@@ -1560,14 +1862,15 @@ class S {
     'recipeSelectProductTitle': 'Для какого продукта?',
     'recipeSelectProductSubtitle':
         'Выберите один тип — для каждого типа один рецепт.',
+    'recipeAlreadyExists': 'Рецепт уже создан',
     'recipeBatchCarouselTitle': 'Единица партии',
     'recipeBatchCarouselSubtitle':
         'Как считаете на производстве: мешок, блок, комплект...',
     'recipeOutputLabel': 'Количество продукции',
     'recipeOutputHint': 'Например: 100',
-    'recipeOutputSectionTitle': '1. Продукция за одну партию',
+    'recipeOutputSectionTitle': 'Количество продукции',
     'recipeOutputSectionHelper':
-        'Введите целое число в поле ниже — сколько штук (или в других единицах) получается из одной партии.',
+        'Сколько единиц продукции получается из 1 партии?',
     'recipeIngredientsSectionTitle': 'Сырьё на одну партию',
     'recipeIngredientsSectionSubtitle':
         'Введите количества на одну партию в выбранной единице.',
@@ -1740,6 +2043,10 @@ class S {
     'disabled': 'Выключено',
     'language': 'Язык',
     'aboutApp': 'О приложении',
+    'aboutAppDescription': 'TAQSEEM — приложение для точного расчёта себестоимости, прибыли и расходов малого и среднего производственного бизнеса.',
+    'developer': 'Разработчик',
+    'website': 'Сайт',
+    'support': 'Поддержка',
     'assetImagesPreview': 'Изображения (просмотр)',
     'version': 'Версия',
     'logout': 'Выйти из системы',
@@ -1762,6 +2069,17 @@ class S {
     'deleteAccountConfirm': 'Вы действительно хотите удалить аккаунт?',
     'cancel': 'Отмена',
     'delete': 'Удалить',
+    'privacyPolicy': 'Политика конфиденциальности',
+    'privacyPolicyDesc': 'Защита персональных данных',
+    'termsOfService': 'Условия использования',
+    'termsOfServiceDesc': 'Правила оказания услуг',
+    'account': 'Аккаунт',
+    'logoutDesc': 'Выйти из аккаунта',
+    'logoutConfirm': 'Вы хотите выйти из системы?',
+    'madeInUzbekistan': 'Сделано в Узбекистане',
+    'topUpComingSoonTitle': 'Скоро будет доступно',
+    'topUpComingSoonDesc': 'Раздел пополнения баланса находится в разработке. Скоро вы сможете полноценно пользоваться приложением.',
+    'goBack': 'Вернуться назад',
     'onboardingTitle1': 'Для любого бизнеса',
     'onboardingDesc1': 'Пекарня, шашлычная, самсахана, кондитерская, фастфуд — управляйте из одного места',
     'onboardingTitle2': 'Себестоимость и прибыль',
@@ -1781,6 +2099,76 @@ class S {
     'registerLink': 'Зарегистрируйтесь',
     'tryAgain': 'Повторить',
     'noInternet': 'Ошибка подключения к интернету',
+    'appTagline': 'Умная система для малого бизнеса',
+    'firstTimeHint': 'Входите впервые? Сначала ',
+    'createNewAccount': 'создайте новый аккаунт',
+    'registerTitle': 'Регистрация',
+    'registerSubtitle': 'Введите все данные',
+    'fullNameHint': 'Имя и фамилия',
+    'enterName': 'Введите имя',
+    'confirmPasswordHint': 'Подтвердите пароль',
+    'passwordsNotMatch': 'Пароли не совпадают',
+    'otpTitle': 'Введите код',
+    'otpSentTo': '4-значный код подтверждения\nотправлен на {phone}.',
+    'resendCode': 'Отправить код повторно',
+    'resendIn': 'Повторная отправка: {time}',
+    'codeNotReceived': 'Код не пришёл?',
+    'smsHelpTitle': 'SMS код не пришёл?',
+    'smsHelpCauses': 'Частые причины:',
+    'smsSpamTitle': 'Папка Спам',
+    'smsSpamBody':
+        'Проверьте папку «Спам» в SMS. Наш SMS отправлен с номера 4546.',
+    'smsBalanceTitle': 'Баланс Uzmobile',
+    'smsBalanceBody':
+        'Если у вас нет баланса на Uzmobile, SIM-карта может не принимать SMS.',
+    'understood': 'Понятно',
+    'policyLoginPrefix': 'Входя, вы принимаете ',
+    'policyRegisterPrefix': 'Регистрируясь, вы принимаете ',
+    'policyAnd': ' и ',
+    'policySuffix': '',
+    'policyTerms': 'Условия',
+    'policyPrivacy': 'Конфиденциальность',
+    'stepForm': 'Данные',
+    'stepVerify': 'Подтверждение',
+    'stepEnterApp': 'Войти\nв приложение',
+    'phoneExistsTitle': 'Номер уже зарегистрирован',
+    'phoneExistsBody':
+        'Номер {phone} уже зарегистрирован.\n\nВойдите с этим номером.',
+    'cancelShort': 'Отмена',
+    'socialComingSoon': 'Вход через {name} скоро появится',
+    'telegramConnecting': 'Подключение...',
+    'telegramConnectingHint': 'Открываем Telegram',
+    'telegramWaitingTitle': 'Ожидание Telegram',
+    'telegramWaitingHint': 'Отправьте номер телефона в Telegram и нажмите кнопку возврата в приложение',
+    'telegramOpenAgain': 'Открыть Telegram снова',
+    'telegramRetry': 'Попробовать снова',
+    'telegramBackToLogin': 'Вернуться к входу',
+    'telegramSessionExpired': 'Время истекло. Попробуйте снова.',
+    'loginInfoPrefix': 'Если у вас нет аккаунта, ',
+    'loginInfoAction': 'Создайте аккаунт',
+    'loginInfoSuffix': '',
+    'tapMapToSelect': 'Нажмите на карту, чтобы выбрать местоположение',
+    'locationPermDenied': 'Доступ к местоположению запрещён. Откройте настройки.',
+    'locationError': 'Не удалось определить местоположение',
+    'tutorialStep1Title': 'Добавьте продукт',
+    'tutorialStep1Desc': 'Введите тип производимого продукта',
+    'tutorialStep2Title': 'Добавьте сырьё',
+    'tutorialStep2Desc': 'Введите ингредиенты для рецепта',
+    'tutorialStep3Title': 'Создайте расчёт',
+    'tutorialStep3Desc': 'Укажите количество сырья на 1 продукт',
+    'tutorialGoAction': 'Перейти',
+    'tutorialSkip': 'Пропустить',
+    'tutorialStep4Title': 'Запишите расход',
+    'tutorialStep4Desc': 'Введите сколько продуктов выпущено сегодня',
+    'tutorialGoSetup':    'Нажмите кнопку настройки',
+    'tutorialGoSetupSub': 'Настройте продукты, сырьё и расчёты',
+    'tutorialTapAdd':     'Нажмите кнопку добавить',
+    'tutorialProductIncomeTitle': 'Приход продукта',
+    'tutorialProductIncomeDesc':  'Запишите сегодняшний выпуск продукции через эту кнопку',
+    'tutorialOpenCardTitle':      'Откройте раздел',
+    'tutorialOpenCardDesc':       'Нажмите на эту карточку, чтобы войти в настройки',
+    'tutorialSettingsHintTitle':   'Сначала настройте',
+    'tutorialSettingsHintMessage': 'Здесь нужно добавить список продуктов и сырья, а затем создать расчёт (калькуляцию)',
     'createBusiness': 'Создать бизнес',
     'businessTypeStep': 'Категория',
     'businessDetailsStep': 'Информация',
@@ -1832,6 +2220,16 @@ class S {
     'noBusiness': 'Бизнес жоқ',
     'createFirstBusiness': 'Алғашқы бизнесіңізді жасаңыз\nжәне басқаруды бастаңыз',
     'addBusiness': 'Жаңа бизнес қосу',
+    'shopSettingsTitle': 'Бизнес баптаулары',
+    'shopNameLabel': 'Бизнес атауы',
+    'shopNameHint': 'Мысалы: Нан дүкенім',
+    'shopAddressLabel': 'Мекенжай',
+    'shopAddressHint': 'Мысалы: Ташкент, Чиланзар',
+    'shopUpdateSuccess': 'Бизнес жаңартылды',
+    'shopDeleteButton': 'Бизнесті жою',
+    'shopDeleteTitle': 'Бизнесті жою',
+    'shopDeleteMessage': '«{name}» бизнесін жоюды қалайсыз ба? Бұл әрекетті қайтару мүмкін емес.',
+    'shopDeleteSuccess': 'Бизнес жойылды',
     'manage': 'Басқару',
     'todayProfit': 'Бүгінгі пайда',
     'todayLoss': 'Бүгінгі шығын',
@@ -1986,14 +2384,15 @@ class S {
     'recipeSelectProductTitle': 'Қай өнім үшін?',
     'recipeSelectProductSubtitle':
         'Бір түрді таңдаңыз — әр түр үшін бір рецепт.',
+    'recipeAlreadyExists': 'Рецепт бар',
     'recipeBatchCarouselTitle': 'Партия бірлігі',
     'recipeBatchCarouselSubtitle':
         'Өндірісте қалай есептейсіз: қап, блок, жиынтық...',
     'recipeOutputLabel': 'Өнім саны',
     'recipeOutputHint': 'Мысалы: 100',
-    'recipeOutputSectionTitle': '1. Партиядан шығатын өнім',
+    'recipeOutputSectionTitle': 'Өнім саны',
     'recipeOutputSectionHelper':
-        'Төмендегі жасыл шекаралы өріске бүтін сан енгізіңіз — бір партиядан неше дана (немесе басқа бірлік) өнім шығады.',
+        '1 партиядан неше өнім шығады?',
     'recipeIngredientsSectionTitle': 'Бір партияға шикізат',
     'recipeIngredientsSectionSubtitle':
         'Таңдалған бірліктегі бір партияға кететін мөлшерлерді енгізіңіз.',
@@ -2166,6 +2565,10 @@ class S {
     'disabled': 'Өшірілген',
     'language': 'Тіл',
     'aboutApp': 'Қолданба туралы',
+    'aboutAppDescription': 'TAQSEEM — шағын және орта өндірістік бизнестердің өзіндік құнын, пайдасын және шығындарын дәл есептеу қолданбасы.',
+    'developer': 'Әзірлеуші',
+    'website': 'Веб-сайт',
+    'support': 'Қолдау',
     'assetImagesPreview': 'Суреттер (көрініс)',
     'version': 'Нұсқа',
     'logout': 'Жүйеден шығу',
@@ -2188,6 +2591,17 @@ class S {
     'deleteAccountConfirm': 'Шынымен аккаунтыңызды жоюды қалайсыз ба?',
     'cancel': 'Бас тарту',
     'delete': 'Жою',
+    'privacyPolicy': 'Құпиялылық саясаты',
+    'privacyPolicyDesc': 'Жеке деректерді қорғау',
+    'termsOfService': 'Қолдану шарттары',
+    'termsOfServiceDesc': 'Қызмет көрсету ережелері',
+    'account': 'Аккаунт',
+    'logoutDesc': 'Аккаунттан шығу',
+    'logoutConfirm': 'Жүйеден шығғыңыз келе ме?',
+    'madeInUzbekistan': 'Өзбекстанда жасалған',
+    'topUpComingSoonTitle': 'Жақын арада іске қосылады',
+    'topUpComingSoonDesc': 'Балансты толтыру бөлімі әзірлену үстінде. Жақын арада қолданбаны толық пайдалана аласыз.',
+    'goBack': 'Артқа қайту',
     'onboardingTitle1': 'Кез келген бизнес үшін',
     'onboardingDesc1': 'Наубайхана, шашлықхана, самсахана, кондитерлік, фастфуд — барлығын бір жерден басқарыңыз',
     'onboardingTitle2': 'Өзіндік құн және пайда есебі',
@@ -2207,6 +2621,76 @@ class S {
     'registerLink': 'Тіркеліңіз',
     'tryAgain': 'Қайта көру',
     'noInternet': 'Интернет қосылымында қате',
+    'appTagline': 'Шағын бизнес үшін ақылды жүйе',
+    'firstTimeHint': 'Алғаш рет кіріп жатырсыз ба? Алдымен ',
+    'createNewAccount': 'жаңа аккаунт жасаңыз',
+    'registerTitle': 'Тіркелу',
+    'registerSubtitle': 'Барлық деректерді енгізіңіз',
+    'fullNameHint': 'Аты-жөні',
+    'enterName': 'Атыңызды енгізіңіз',
+    'confirmPasswordHint': 'Құпия сөзді растаңыз',
+    'passwordsNotMatch': 'Құпия сөздер сәйкес емес',
+    'otpTitle': 'Кодты енгізіңіз',
+    'otpSentTo': '4 санды растау коды\n{phone}\nнөміріне жіберілді.',
+    'resendCode': 'Кодты қайта жіберу',
+    'resendIn': 'Қайта жіберу: {time}',
+    'codeNotReceived': 'Код келмеді ме?',
+    'smsHelpTitle': 'SMS код келмеді ме?',
+    'smsHelpCauses': 'Жиі кездесетін себептер:',
+    'smsSpamTitle': 'Spam қалтасы',
+    'smsSpamBody':
+        'SMS бөлімінде «Spam» немесе «Қажетсіз» қалтасын тексеріңіз. Біздің SMS 4546 нөмірінен келеді.',
+    'smsBalanceTitle': 'Uzmobile балансы',
+    'smsBalanceBody':
+        'Uzmobile операторында баланс болмаса SIM карта SMS қабылдамауы мүмкін.',
+    'understood': 'Түсіндім',
+    'policyLoginPrefix': 'Кіру арқылы ',
+    'policyRegisterPrefix': 'Тіркелу арқылы ',
+    'policyAnd': ' және ',
+    'policySuffix': ' саясатын қабылдайсыз',
+    'policyTerms': 'Шарттар',
+    'policyPrivacy': 'Құпиялылық',
+    'stepForm': 'Деректер',
+    'stepVerify': 'Растау',
+    'stepEnterApp': 'Қолданбаға\nкіру',
+    'phoneExistsTitle': 'Нөмір тіркелген',
+    'phoneExistsBody':
+        '{phone} нөмірі бұрыннан тіркелген.\n\nОсы нөмірмен жүйеге кіріңіз.',
+    'cancelShort': 'Болдырмау',
+    'socialComingSoon': '{name} арқылы кіру жақында қосылады',
+    'telegramConnecting': 'Қосылуда...',
+    'telegramConnectingHint': 'Telegram ашылуда',
+    'telegramWaitingTitle': 'Telegram күтілуде',
+    'telegramWaitingHint': 'Telegram-да телефон нөміріңізді жіберіп, қолданбаға қайту батырмасын басыңыз',
+    'telegramOpenAgain': 'Telegram-ды қайта ашу',
+    'telegramRetry': 'Қайталап көру',
+    'telegramBackToLogin': 'Кіруге қайту',
+    'telegramSessionExpired': 'Уақыт бітті. Қайталап көріңіз.',
+    'loginInfoPrefix': 'Бұрын аккаунт жасамаған болсаңыз ',
+    'loginInfoAction': 'Аккаунт Жасаңыз',
+    'loginInfoSuffix': ' деп басыңыз',
+    'tapMapToSelect': 'Орынды таңдау үшін картаға басыңыз',
+    'locationPermDenied': 'Орынға рұқсат жоқ. Параметрлерге өтіңіз.',
+    'locationError': 'Орынды анықтауда қате орын алды',
+    'tutorialStep1Title': 'Өнім қосыңыз',
+    'tutorialStep1Desc': 'Өндірілетін өнім түрін енгізіңіз',
+    'tutorialStep2Title': 'Шикізат қосыңыз',
+    'tutorialStep2Desc': 'Рецепт үшін ингредиенттерді енгізіңіз',
+    'tutorialStep3Title': 'Есеп жасаңыз',
+    'tutorialStep3Desc': '1 өнімге шикізат мөлшерін енгізіңіз',
+    'tutorialGoAction': 'Өту',
+    'tutorialSkip': 'Өткізіп жіберу',
+    'tutorialStep4Title': 'Шығымды жазыңыз',
+    'tutorialStep4Desc': 'Бүгін қанша өнім шыққанын енгізіңіз',
+    'tutorialGoSetup':    'Баптау түймесін басыңыз',
+    'tutorialGoSetupSub': 'Өнімдер, шикізат және есептеуді баптаңыз',
+    'tutorialTapAdd':     'Қосу түймесін басыңыз',
+    'tutorialProductIncomeTitle': 'Өнім кірісі',
+    'tutorialProductIncomeDesc':  'Бүгінгі өнім шығарылымын осы түйме арқылы тіркеңіз',
+    'tutorialOpenCardTitle':      'Бөлімге өтіңіз',
+    'tutorialOpenCardDesc':       'Осы картаны басып, тиісті параметрге кіріңіз',
+    'tutorialSettingsHintTitle':   'Алдымен баптаңыз',
+    'tutorialSettingsHintMessage': 'Мұнда өнімдер мен шикізат тізімін қосып, есептеу (калькуляция) жасау керек',
     'createBusiness': 'Бизнес жасау',
     'businessTypeStep': 'Санат',
     'businessDetailsStep': 'Деректер',
@@ -2258,6 +2742,16 @@ class S {
     'noBusiness': 'Азырынча бизнес жок',
     'createFirstBusiness': 'Биринчи бизнесиңизди жасаңыз\nжана башкарууну баштаңыз',
     'addBusiness': 'Жаңы бизнес кошуу',
+    'shopSettingsTitle': 'Бизнес жөндөөлөрү',
+    'shopNameLabel': 'Бизнес аталышы',
+    'shopNameHint': 'Мисалы: Нан дүкөнүм',
+    'shopAddressLabel': 'Дарек',
+    'shopAddressHint': 'Мисалы: Ташкент, Чиланзар',
+    'shopUpdateSuccess': 'Бизнес жаңыланды',
+    'shopDeleteButton': 'Бизнести жок кылуу',
+    'shopDeleteTitle': 'Бизнести жок кылуу',
+    'shopDeleteMessage': '«{name}» бизнесин жок кылгыңыз келеби? Бул аракетти кайтаруу мүмкүн эмес.',
+    'shopDeleteSuccess': 'Бизнес жок кылынды',
     'manage': 'Башкаруу',
     'todayProfit': 'Бүгүнкү пайда',
     'todayLoss': 'Бүгүнкү зыян',
@@ -2412,14 +2906,15 @@ class S {
     'recipeSelectProductTitle': 'Кайсы өнүм үчүн?',
     'recipeSelectProductSubtitle':
         'Бир түрдү тандаңыз — ар бир түр үчүн бир рецепт.',
+    'recipeAlreadyExists': 'Рецепт бар',
     'recipeBatchCarouselTitle': 'Партия бирдиги',
     'recipeBatchCarouselSubtitle':
         'Өндүрүштө кантип эсептейсиз: кап, блок, топтом...',
     'recipeOutputLabel': 'Өнүм саны',
     'recipeOutputHint': 'Мисалы: 100',
-    'recipeOutputSectionTitle': '1. Партиядан чыккан өнүм',
+    'recipeOutputSectionTitle': 'Өнүм саны',
     'recipeOutputSectionHelper':
-        'Төмөнкү жашыл чек аралуу талаага бүтүн сан киргизиңиз — бир партиядан канча даана (же башка бирдикте) өнүм чыгат.',
+        '1 партиядан канча өнүм чыгат?',
     'recipeIngredientsSectionTitle': 'Бир партия үчүн чийки зат',
     'recipeIngredientsSectionSubtitle':
         'Тандалган бирдикте бир партияга кеткен көлөмдөрдү киргизиңиз.',
@@ -2592,6 +3087,10 @@ class S {
     'disabled': 'Өчүрүлгөн',
     'language': 'Тил',
     'aboutApp': 'Тиркеме жөнүндө',
+    'aboutAppDescription': 'TAQSEEM — чакан жана орто өндүрүш бизнестеринин өздүк наркын, пайдасын жана чыгымдарын так эсептөө тиркемеси.',
+    'developer': 'Иштеп чыгуучу',
+    'website': 'Веб-сайт',
+    'support': 'Колдоо',
     'assetImagesPreview': 'Сүрөттөр (көрүнүш)',
     'version': 'Версия',
     'logout': 'Тутумдан чыгуу',
@@ -2614,6 +3113,17 @@ class S {
     'deleteAccountConfirm': 'Чынында эле аккаунтуңузду жок кылгыңыз келеби?',
     'cancel': 'Жокко чыгаруу',
     'delete': 'Жок кылуу',
+    'privacyPolicy': 'Купуялуулук саясаты',
+    'privacyPolicyDesc': 'Жеке маалыматтарды коргоо',
+    'termsOfService': 'Колдонуу шарттары',
+    'termsOfServiceDesc': 'Кызмат көрсөтүү эрежелери',
+    'account': 'Аккаунт',
+    'logoutDesc': 'Аккаунттан чыгуу',
+    'logoutConfirm': 'Системадан чыккыңыз келеби?',
+    'madeInUzbekistan': 'Өзбекстанда жасалган',
+    'topUpComingSoonTitle': 'Жакында иштей баштайт',
+    'topUpComingSoonDesc': 'Балансты толтуруу бөлүмү иштеп чыгууда. Жакында тиркемеден толук пайдалана аласыз.',
+    'goBack': 'Артка кайтуу',
     'onboardingTitle1': 'Каалаган бизнес үчүн',
     'onboardingDesc1': 'Нан цехи, шашлыкхана, самсахана, кондитердик, фастфуд — баарын бир жерден башкарыңыз',
     'onboardingTitle2': 'Баа жана пайда эсеби',
@@ -2633,6 +3143,76 @@ class S {
     'registerLink': 'Катталыңыз',
     'tryAgain': 'Кайра аракет',
     'noInternet': 'Интернет туташуусунда ката',
+    'appTagline': 'Кичи бизнес үчүн акылдуу тутум',
+    'firstTimeHint': 'Биринчи жолу кирип жатасызбы? Алгач ',
+    'createNewAccount': 'жаңы аккаунт түзүңүз',
+    'registerTitle': 'Катталуу',
+    'registerSubtitle': 'Бардык маалыматтарды киргизиңиз',
+    'fullNameHint': 'Аты-жөнү',
+    'enterName': 'Атыңызды киргизиңиз',
+    'confirmPasswordHint': 'Сыр сөздү ырастаңыз',
+    'passwordsNotMatch': 'Сыр сөздөр дал келбейт',
+    'otpTitle': 'Кодду киргизиңиз',
+    'otpSentTo': '4 орундуу ырастоо коду\n{phone}\nномерине жөнөтүлдү.',
+    'resendCode': 'Кодду кайра жөнөтүү',
+    'resendIn': 'Кайра жөнөтүү: {time}',
+    'codeNotReceived': 'Код келбедиби?',
+    'smsHelpTitle': 'SMS код келбедиби?',
+    'smsHelpCauses': 'Жалпы себептер:',
+    'smsSpamTitle': 'Spam папкасы',
+    'smsSpamBody':
+        'SMS бөлүмүндөгү «Spam» же «Керексиз» папкасын текшериңиз. Биздин SMS 4546 номерден келет.',
+    'smsBalanceTitle': 'Uzmobile балансы',
+    'smsBalanceBody':
+        'Uzmobile операторунда баланс болбосо SIM карта SMS кабыл албашы мүмкүн.',
+    'understood': 'Түшүндүм',
+    'policyLoginPrefix': 'Кирүү менен ',
+    'policyRegisterPrefix': 'Катталуу менен ',
+    'policyAnd': ' жана ',
+    'policySuffix': ' саясатын кабыл аласыз',
+    'policyTerms': 'Шарттар',
+    'policyPrivacy': 'Купуялык',
+    'stepForm': 'Маалыматтар',
+    'stepVerify': 'Ырастоо',
+    'stepEnterApp': 'Колдонмого\nкирүү',
+    'phoneExistsTitle': 'Номер катталган',
+    'phoneExistsBody':
+        '{phone} номери мурунтан катталган.\n\nОшол номер менен тутумга кириңиз.',
+    'cancelShort': 'Жокко чыгаруу',
+    'socialComingSoon': '{name} аркылуу кирүү жакында кошулат',
+    'telegramConnecting': 'Туташууда...',
+    'telegramConnectingHint': 'Telegram ачылууда',
+    'telegramWaitingTitle': 'Telegram күтүлүүдө',
+    'telegramWaitingHint': 'Telegram-да телефон номериңизди жөнөтүп, колдонмого кайтуу баскычын басыңыз',
+    'telegramOpenAgain': 'Telegram-ды кайра ачуу',
+    'telegramRetry': 'Кайра аракет кылуу',
+    'telegramBackToLogin': 'Кирүүгө кайтуу',
+    'telegramSessionExpired': 'Убакыт бүттү. Кайра аракет кылыңыз.',
+    'loginInfoPrefix': 'Мурда аккаунт жасабаган болсоңуз ',
+    'loginInfoAction': 'Аккаунт Жасаңыз',
+    'loginInfoSuffix': ' деп басыңыз',
+    'tapMapToSelect': 'Жайгашуу тандоо үчүн картага басыңыз',
+    'locationPermDenied': 'Жайгашууга уруксат берилген эмес. Жөндөөлөргө өтүңүз.',
+    'locationError': 'Жайгашууну аныктоодо ката чыкты',
+    'tutorialStep1Title': 'Продукт кошуңуз',
+    'tutorialStep1Desc': 'Өндүрүлүүчү продукт түрүн киргизиңиз',
+    'tutorialStep2Title': 'Чийки зат кошуңуз',
+    'tutorialStep2Desc': 'Рецепт үчүн ингредиенттерди киргизиңиз',
+    'tutorialStep3Title': 'Эсеп жасаңыз',
+    'tutorialStep3Desc': '1 продуктка чийки зат өлчөмүн киргизиңиз',
+    'tutorialGoAction': 'Өтүү',
+    'tutorialSkip': 'Өткөрүп жибер',
+    'tutorialStep4Title': 'Чыгымды жазыңыз',
+    'tutorialStep4Desc': 'Бүгүн канча продукт чыкканын киргизиңиз',
+    'tutorialGoSetup':    'Жөндөөлөр баскычын басыңыз',
+    'tutorialGoSetupSub': 'Продукт, чийки зат жана эсепти жөндөңүз',
+    'tutorialTapAdd':     'Кошуу баскычын басыңыз',
+    'tutorialProductIncomeTitle': 'Продукт кирими',
+    'tutorialProductIncomeDesc':  'Бүгүнкү продукт чыгарылышын ушул баскыч аркылуу каттаңыз',
+    'tutorialOpenCardTitle':      'Бөлүмгө өтүңүз',
+    'tutorialOpenCardDesc':       'Бул картаны басып, тиешелүү жөндөөгө кириңиз',
+    'tutorialSettingsHintTitle':   'Адегенде жөндөңүз',
+    'tutorialSettingsHintMessage': 'Бул жерден продукт жана чийки зат тизмесин киргизип, эсептөө (калькуляция) жасашыңыз керек',
     'createBusiness': 'Бизнес түзүү',
     'businessTypeStep': 'Категория',
     'businessDetailsStep': 'Маалыматтар',
@@ -2684,6 +3264,16 @@ class S {
     'noBusiness': 'Henüz işletme yok',
     'createFirstBusiness': 'İlk işletmenizi oluşturun\nve yönetmeye başlayın',
     'addBusiness': 'Yeni işletme ekle',
+    'shopSettingsTitle': 'İşletme ayarları',
+    'shopNameLabel': 'İşletme adı',
+    'shopNameHint': 'Örn: Fırınım',
+    'shopAddressLabel': 'Adres',
+    'shopAddressHint': 'Örn: Taşkent, Çilanzar',
+    'shopUpdateSuccess': 'İşletme güncellendi',
+    'shopDeleteButton': 'İşletmeyi sil',
+    'shopDeleteTitle': 'İşletmeyi sil',
+    'shopDeleteMessage': '«{name}» işletmesini silmek istiyor musunuz? Bu işlem geri alınamaz.',
+    'shopDeleteSuccess': 'İşletme silindi',
     'manage': 'Yönet',
     'todayProfit': 'Bugünkü kâr',
     'todayLoss': 'Bugünkü zarar',
@@ -2838,14 +3428,15 @@ class S {
     'recipeSelectProductTitle': 'Hangi ürün için?',
     'recipeSelectProductSubtitle':
         'Tek tür seçin — her tür için bir tarif olur.',
+    'recipeAlreadyExists': 'Tarif mevcut',
     'recipeBatchCarouselTitle': 'Parti birimi',
     'recipeBatchCarouselSubtitle':
         'Üretimde nasıl sayıyorsunuz: çuval, blok, set...',
     'recipeOutputLabel': 'Ürün adedi',
     'recipeOutputHint': 'Örn: 100',
-    'recipeOutputSectionTitle': '1. Partiden çıkan ürün',
+    'recipeOutputSectionTitle': 'Ürün adedi',
     'recipeOutputSectionHelper':
-        'Aşağıdaki yeşil çerçeveli alana tam sayı girin — tek partide kaç adet (veya başka birim) ürün çıktığını.',
+        '1 partiden kaç ürün çıkar?',
     'recipeIngredientsSectionTitle': 'Tek parti için hammadde',
     'recipeIngredientsSectionSubtitle':
         'Seçilen birimde tek partiye giren miktarları girin.',
@@ -3018,6 +3609,10 @@ class S {
     'disabled': 'Kapalı',
     'language': 'Dil',
     'aboutApp': 'Uygulama hakkında',
+    'aboutAppDescription': 'TAQSEEM — küçük ve orta ölçekli üretim işletmeleri için maliyet, kâr ve giderleri doğru hesaplama uygulaması.',
+    'developer': 'Geliştirici',
+    'website': 'Web sitesi',
+    'support': 'Destek',
     'assetImagesPreview': 'Görseller (önizleme)',
     'version': 'Sürüm',
     'logout': 'Çıkış yap',
@@ -3040,6 +3635,17 @@ class S {
     'deleteAccountConfirm': 'Hesabınızı gerçekten silmek istiyor musunuz?',
     'cancel': 'İptal',
     'delete': 'Sil',
+    'privacyPolicy': 'Gizlilik Politikası',
+    'privacyPolicyDesc': 'Kişisel verilerin korunması',
+    'termsOfService': 'Kullanım Koşulları',
+    'termsOfServiceDesc': 'Hizmet şartları',
+    'account': 'Hesap',
+    'logoutDesc': 'Hesabınızdan çıkın',
+    'logoutConfirm': 'Sistemden çıkmak istiyor musunuz?',
+    'madeInUzbekistan': "Özbekistan'da üretildi",
+    'topUpComingSoonTitle': 'Yakında kullanıma açılacak',
+    'topUpComingSoonDesc': 'Bakiye yükleme bölümü üzerinde çalışılmaktadır. Yakında uygulamayı tam olarak kullanabileceksiniz.',
+    'goBack': 'Geri dön',
     'onboardingTitle1': 'Her işletme için',
     'onboardingDesc1': 'Fırın, mangal evi, börekçi, pastane, fast food — hepsini tek yerden yönetin',
     'onboardingTitle2': 'Maliyet ve kâr hesabı',
@@ -3059,6 +3665,76 @@ class S {
     'registerLink': 'Kayıt olun',
     'tryAgain': 'Tekrar dene',
     'noInternet': 'İnternet bağlantısında hata',
+    'appTagline': 'Küçük işletmeler için akıllı sistem',
+    'firstTimeHint': 'İlk kez mi giriyorsunuz? Önce ',
+    'createNewAccount': 'yeni hesap oluşturun',
+    'registerTitle': 'Kayıt ol',
+    'registerSubtitle': 'Tüm bilgileri girin',
+    'fullNameHint': 'Ad ve soyad',
+    'enterName': 'Adınızı girin',
+    'confirmPasswordHint': 'Şifreyi onaylayın',
+    'passwordsNotMatch': 'Şifreler eşleşmiyor',
+    'otpTitle': 'Kodu girin',
+    'otpSentTo': '4 haneli doğrulama kodu\n{phone}\nnumarasına gönderildi.',
+    'resendCode': 'Kodu yeniden gönder',
+    'resendIn': 'Yeniden gönder: {time}',
+    'codeNotReceived': 'Kod gelmedi mi?',
+    'smsHelpTitle': 'SMS kodu gelmedi mi?',
+    'smsHelpCauses': 'Sık karşılaşılan nedenler:',
+    'smsSpamTitle': 'Spam klasörü',
+    'smsSpamBody':
+        'SMS bölümündeki «Spam» veya «Gereksiz» klasörünü kontrol edin. SMS\'imiz 4546 numarasından gelir.',
+    'smsBalanceTitle': 'Uzmobile bakiyesi',
+    'smsBalanceBody':
+        'Uzmobile operatöründe bakiye yoksa SIM kart SMS alamayabilir.',
+    'understood': 'Anladım',
+    'policyLoginPrefix': 'Giriş yaparak ',
+    'policyRegisterPrefix': 'Kayıt olarak ',
+    'policyAnd': ' ve ',
+    'policySuffix': "'ni kabul etmiş olursunuz",
+    'policyTerms': 'Koşulları',
+    'policyPrivacy': 'Gizlilik Politikası',
+    'stepForm': 'Bilgiler',
+    'stepVerify': 'Doğrulama',
+    'stepEnterApp': 'Uygulamaya\ngiriş',
+    'phoneExistsTitle': 'Numara kayıtlı',
+    'phoneExistsBody':
+        '{phone} numarası zaten kayıtlı.\n\nBu numara ile giriş yapın.',
+    'cancelShort': 'İptal',
+    'socialComingSoon': '{name} ile giriş yakında eklenecek',
+    'telegramConnecting': 'Bağlanıyor...',
+    'telegramConnectingHint': 'Telegram açılıyor',
+    'telegramWaitingTitle': 'Telegram bekleniyor',
+    'telegramWaitingHint': "Telegram'da telefon numaranızı gönderin ve uygulamaya dönüş düğmesine basın",
+    'telegramOpenAgain': "Telegram'ı tekrar aç",
+    'telegramRetry': 'Tekrar dene',
+    'telegramBackToLogin': 'Girişe dön',
+    'telegramSessionExpired': 'Süre doldu. Tekrar deneyin.',
+    'loginInfoPrefix': 'Daha önce hesap oluşturmadıysanız ',
+    'loginInfoAction': 'Hesap Oluşturun',
+    'loginInfoSuffix': "'a tıklayın",
+    'tapMapToSelect': 'Konum seçmek için haritaya dokunun',
+    'locationPermDenied': 'Konum izni reddedildi. Ayarlardan açın.',
+    'locationError': 'Konum belirlenirken hata oluştu',
+    'tutorialStep1Title': 'Ürün ekleyin',
+    'tutorialStep1Desc': 'Ürettiğiniz ürün türünü girin',
+    'tutorialStep2Title': 'Hammadde ekleyin',
+    'tutorialStep2Desc': 'Tarif için gerekli malzemeleri girin',
+    'tutorialStep3Title': 'Hesaplama oluşturun',
+    'tutorialStep3Desc': '1 ürün için hammadde miktarını girin',
+    'tutorialGoAction': 'Git',
+    'tutorialSkip': 'Atla',
+    'tutorialStep4Title': 'Çıkışı kaydedin',
+    'tutorialStep4Desc': 'Bugün kaç ürün çıktığını girin',
+    'tutorialGoSetup':    'Ayarlar düğmesine basın',
+    'tutorialGoSetupSub': 'Ürünler, hammadde ve hesaplamayı ayarlayın',
+    'tutorialTapAdd':     'Ekle düğmesine basın',
+    'tutorialProductIncomeTitle': 'Ürün girişi',
+    'tutorialProductIncomeDesc':  'Bugünkü ürün çıkışını bu düğme ile kaydedin',
+    'tutorialOpenCardTitle':      'Bölüme gidin',
+    'tutorialOpenCardDesc':       'Bu kartaya basarak ilgili ayara girin',
+    'tutorialSettingsHintTitle':   'Önce ayarlayın',
+    'tutorialSettingsHintMessage': 'Buradan ürünlerinizi ve hammadde listenizi girin, ardından hesaplama (kalkulasyon) yapın',
     'createBusiness': 'İşletme oluştur',
     'businessTypeStep': 'Kategori',
     'businessDetailsStep': 'Bilgiler',

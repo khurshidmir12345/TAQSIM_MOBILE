@@ -20,6 +20,7 @@ class RecipesScreen extends ConsumerStatefulWidget {
 }
 
 class _RecipesScreenState extends ConsumerState<RecipesScreen> {
+
   @override
   void initState() {
     super.initState();
@@ -63,11 +64,10 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(recipeProvider);
-    final cs = Theme.of(context).colorScheme;
-    final s = S.of(context);
-
-    return Scaffold(
+    final state    = ref.watch(recipeProvider);
+    final cs       = Theme.of(context).colorScheme;
+    final s        = S.of(context);
+    Widget scaffold = Scaffold(
       appBar: AppBar(
         title: Text(s.recipeScreenTitle),
         scrolledUnderElevation: 0,
@@ -99,6 +99,8 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
               label: Text(s.recipeAddCta),
             ),
     );
+
+    return scaffold;
   }
 }
 
@@ -149,8 +151,9 @@ class _EmptyState extends StatelessWidget {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(220, 52),
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSpacing.borderRadiusLg + 2),
+                  borderRadius: BorderRadius.circular(
+                    AppSpacing.borderRadiusLg + 2,
+                  ),
                 ),
               ),
             ),

@@ -18,6 +18,8 @@ class ProfileInfoScreen extends ConsumerWidget {
     final pad = Responsive.horizontalPadding(context);
     final s = S.of(context);
 
+    final linkedCount = _countLinked(user);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(s.profileInfo),
@@ -30,200 +32,35 @@ class ProfileInfoScreen extends ConsumerWidget {
       body: ListView(
         padding: EdgeInsets.fromLTRB(pad, 16, pad, 40),
         children: [
-          _buildInfoCard(cs, s, user),
-          const SizedBox(height: 16),
-          _buildLinksSection(context, cs, s, user),
-          const SizedBox(height: 32),
-          _buildDangerZone(context, ref, cs, s),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoCard(ColorScheme cs, S s, UserModel? user) {
-    final linked = <String>[];
-    if (user?.phone != null) linked.add(s.phoneNumber);
-    if (user?.email != null) linked.add(s.email);
-    if (user?.telegramUsername != null) linked.add(s.telegram);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.info.withValues(alpha: 0.12)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.info.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.info_outline_rounded,
-                color: AppColors.info, size: 20),
+          _StatusBanner(linkedCount: linkedCount, s: s, cs: cs),
+          const SizedBox(height: 20),
+          _SectionLabel(text: s.profileInfo),
+          const SizedBox(height: 8),
+          _LinksCard(user: user, cs: cs, s: s),
+          const SizedBox(height: 28),
+          _SectionLabel(
+            text: s.deleteAccount,
+            color: AppColors.error.withValues(alpha: 0.6),
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  linked.isEmpty
-                      ? s.notLinked
-                      : '${linked.length}/3 ${s.linked.toLowerCase()}',
-                  style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  s.profileInfoDesc,
-                  style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.5),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
+          const SizedBox(height: 8),
+          _DeleteAccountCard(
+            onTap: () => _showDeleteConfirm(context, ref, cs, s),
+            cs: cs,
+            s: s,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildLinksSection(
-      BuildContext context, ColorScheme cs, S s, UserModel? user) {
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outline),
-      ),
-      child: Column(
-        children: [
-          _ProfileLinkTile(
-            icon: Icons.phone_outlined,
-            title: s.phoneNumber,
-            value: user?.phone,
-            iconColor: AppColors.primary,
-            onTap: () {},
-          ),
-          Divider(
-              height: 1,
-              indent: 72,
-              color: cs.onSurface.withValues(alpha: 0.06)),
-          _ProfileLinkTile(
-            icon: Icons.email_outlined,
-            title: s.email,
-            value: user?.email,
-            iconColor: AppColors.info,
-            onTap: () {},
-          ),
-          Divider(
-              height: 1,
-              indent: 72,
-              color: cs.onSurface.withValues(alpha: 0.06)),
-          _ProfileLinkTile(
-            icon: Icons.send_outlined,
-            title: s.telegram,
-            value: user?.telegramUsername != null
-                ? '@${user!.telegramUsername}'
-                : null,
-            iconColor: const Color(0xFF2AABEE),
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDangerZone(
-      BuildContext context, WidgetRef ref, ColorScheme cs, S s) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 10),
-          child: Text(
-            s.deleteAccount.toUpperCase(),
-            style: TextStyle(
-              color: AppColors.error.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w700,
-              fontSize: 11,
-              letterSpacing: 1,
-            ),
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.error.withValues(alpha: 0.04),
-            borderRadius: BorderRadius.circular(18),
-            border:
-                Border.all(color: AppColors.error.withValues(alpha: 0.12)),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => _showDeleteConfirm(context, ref, cs, s),
-              borderRadius: BorderRadius.circular(18),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: AppColors.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Icon(Icons.delete_forever_rounded,
-                          color: AppColors.error, size: 22),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            s.deleteAccount,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.error,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            s.deleteAccountDesc,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: cs.onSurface.withValues(alpha: 0.45),
-                              height: 1.4,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(Icons.chevron_right_rounded,
-                        size: 22,
-                        color: AppColors.error.withValues(alpha: 0.5)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
+  int _countLinked(UserModel? user) {
+    var count = 0;
+    if (user?.phone != null && user!.phone!.isNotEmpty) count++;
+    if (user?.email != null && user!.email!.isNotEmpty) count++;
+    if (user?.telegramUsername != null && user!.telegramUsername!.isNotEmpty) {
+      count++;
+    }
+    return count;
   }
 
   void _showDeleteConfirm(
@@ -297,14 +134,11 @@ class ProfileInfoScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                         alignment: Alignment.center,
-                        child: Text(
-                          s.cancel,
-                          style: TextStyle(
-                            color: cs.onSurface,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: Text(s.cancel,
+                            style: TextStyle(
+                                color: cs.onSurface,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600)),
                       ),
                     ),
                   ),
@@ -327,14 +161,11 @@ class ProfileInfoScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                         alignment: Alignment.center,
-                        child: Text(
-                          s.delete,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: Text(s.delete,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600)),
                       ),
                     ),
                   ),
@@ -348,114 +179,356 @@ class ProfileInfoScreen extends ConsumerWidget {
   }
 }
 
-class _ProfileLinkTile extends StatelessWidget {
+// ─── Status Banner ───────────────────────────────────────────────────────────
+
+class _StatusBanner extends StatelessWidget {
+  final int linkedCount;
+  final S s;
+  final ColorScheme cs;
+
+  const _StatusBanner({
+    required this.linkedCount,
+    required this.s,
+    required this.cs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isComplete = linkedCount == 3;
+    final color = isComplete ? AppColors.success : AppColors.info;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              isComplete
+                  ? Icons.check_circle_outline_rounded
+                  : Icons.info_outline_rounded,
+              color: color,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$linkedCount/3 ${s.linked.toLowerCase()}',
+                  style: TextStyle(
+                    color: cs.onSurface,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  s.profileInfoDesc,
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.5),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Center(
+              child: Text(
+                '$linkedCount',
+                style: TextStyle(
+                  color: color,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Section Label ───────────────────────────────────────────────────────────
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  final Color? color;
+  const _SectionLabel({required this.text, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        text.toUpperCase(),
+        style: TextStyle(
+          color: color ?? cs.onSurface.withValues(alpha: 0.4),
+          fontWeight: FontWeight.w700,
+          fontSize: 11,
+          letterSpacing: 1,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Links Card ──────────────────────────────────────────────────────────────
+
+class _LinksCard extends StatelessWidget {
+  final UserModel? user;
+  final ColorScheme cs;
+  final S s;
+
+  const _LinksCard({required this.user, required this.cs, required this.s});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        children: [
+          _LinkTile(
+            icon: Icons.phone_outlined,
+            title: s.phoneNumber,
+            value: user?.phone,
+            iconColor: AppColors.primary,
+            s: s,
+          ),
+          _divider,
+          _LinkTile(
+            icon: Icons.email_outlined,
+            title: s.email,
+            value: user?.email,
+            iconColor: AppColors.info,
+            s: s,
+          ),
+          _divider,
+          _LinkTile(
+            icon: Icons.send_outlined,
+            title: s.telegram,
+            value: user?.telegramUsername != null
+                ? '@${user!.telegramUsername}'
+                : null,
+            iconColor: const Color(0xFF2AABEE),
+            s: s,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget get _divider => Divider(
+        height: 1,
+        indent: 68,
+        color: cs.onSurface.withValues(alpha: 0.06),
+      );
+}
+
+// ─── Link Tile ───────────────────────────────────────────────────────────────
+
+class _LinkTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? value;
   final Color iconColor;
-  final VoidCallback onTap;
+  final S s;
 
-  const _ProfileLinkTile({
+  const _LinkTile({
     required this.icon,
     required this.title,
     required this.value,
     required this.iconColor,
-    required this.onTap,
+    required this.s,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final s = S.of(context);
     final isLinked = value != null && value!.isNotEmpty;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: isLinked ? null : onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: cs.onSurface)),
-                    const SizedBox(height: 1),
-                    Text(
-                      isLinked ? value! : s.notLinked,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isLinked
-                            ? cs.onSurface.withValues(alpha: 0.5)
-                            : AppColors.error.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (isLinked)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface)),
+                const SizedBox(height: 1),
+                Text(
+                  isLinked ? value! : s.notLinked,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isLinked
+                        ? cs.onSurface.withValues(alpha: 0.5)
+                        : AppColors.error.withValues(alpha: 0.7),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                ),
+              ],
+            ),
+          ),
+          if (isLinked)
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.check_circle_rounded,
+                      color: AppColors.success, size: 14),
+                  const SizedBox(width: 4),
+                  Text(
+                    s.linked,
+                    style: const TextStyle(
+                      color: AppColors.success,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: iconColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                s.link,
+                style: TextStyle(
+                  color: iconColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Delete Account Card ─────────────────────────────────────────────────────
+
+class _DeleteAccountCard extends StatelessWidget {
+  final VoidCallback onTap;
+  final ColorScheme cs;
+  final S s;
+
+  const _DeleteAccountCard({
+    required this.onTap,
+    required this.cs,
+    required this.s,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.12)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(Icons.delete_forever_rounded,
+                      color: AppColors.error, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.check_circle_rounded,
-                          color: AppColors.primary, size: 14),
-                      const SizedBox(width: 4),
                       Text(
-                        s.linked,
+                        s.deleteAccount,
                         style: const TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.error,
                         ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        s.deleteAccountDesc,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: cs.onSurface.withValues(alpha: 0.45),
+                          height: 1.4,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
-                )
-              else
-                GestureDetector(
-                  onTap: onTap,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: iconColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      s.link,
-                      style: TextStyle(
-                        color: iconColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
                 ),
-            ],
+                const SizedBox(width: 8),
+                Icon(Icons.chevron_right_rounded,
+                    size: 22,
+                    color: AppColors.error.withValues(alpha: 0.5)),
+              ],
+            ),
           ),
         ),
       ),

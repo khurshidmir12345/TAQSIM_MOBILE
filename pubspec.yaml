@@ -1,5 +1,5 @@
-name: nonvoyxona
-description: "A new Flutter project."
+name: taqseem
+description: "TAQSEEM — ishlab chiqarish bizneslar uchun tannarx va foyda kalkulyatori"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -48,6 +48,10 @@ dependencies:
   image_picker: ^1.1.2
   freezed_annotation: ^3.1.0
   json_annotation: ^4.11.0
+  url_launcher: ^6.3.2
+  geolocator: ^14.0.2
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:
@@ -90,8 +94,8 @@ flutter_launcher_icons:
   min_sdk_android: 21
   # Alpha olib tashlansa, shaffof joylar bu rang bilan to‘ldiriladi (oq emas).
   remove_alpha_ios: true
-  background_color_ios: "#0E3D32"
+  background_color_ios: "#F8FAF9"
   # Adaptive icon: foreground + background — inset 0 bo‘lsa ikonka butun joyni egallaydi (16% bo‘shliq bo‘lmaydi).
-  adaptive_icon_background: "#0E3D32"
+  adaptive_icon_background: "#F8FAF9"
   adaptive_icon_foreground: assets/svg/app_images/app_icon.png
-  adaptive_icon_foreground_inset: 0
+  adaptive_icon_foreground_inset: 16

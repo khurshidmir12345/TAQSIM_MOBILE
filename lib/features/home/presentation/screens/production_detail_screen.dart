@@ -8,7 +8,6 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
-import '../../data/daily_repository.dart';
 import '../../domain/providers/daily_provider.dart';
 import '../../../setup/domain/models/ingredient_model.dart';
 import '../../../setup/domain/models/recipe_model.dart'

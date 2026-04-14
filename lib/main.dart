@@ -21,11 +21,11 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
 
-  runApp(const ProviderScope(child: NonvoyxonaApp()));
+  runApp(const ProviderScope(child: TaqseemApp()));
 }
 
-class NonvoyxonaApp extends ConsumerWidget {
-  const NonvoyxonaApp({super.key});
+class TaqseemApp extends ConsumerWidget {
+  const TaqseemApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

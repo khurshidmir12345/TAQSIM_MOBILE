@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/domain/providers/auth_provider.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/auth/presentation/screens/telegram_auth_screen.dart';
 import '../../features/auth/presentation/screens/shop_create_screen.dart';
 import '../../features/auth/presentation/screens/shop_select_screen.dart';
 import '../../features/home/presentation/screens/production_create_screen.dart';
@@ -23,7 +24,7 @@ import '../../features/setup/presentation/screens/recipes_screen.dart';
 import '../../features/shell/presentation/screens/shell_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/profile/presentation/screens/profile_info_screen.dart';
-import '../../features/profile/presentation/screens/asset_images_preview_screen.dart';
+import '../../features/profile/presentation/screens/top_up_screen.dart';
 import '../../features/statistics/presentation/screens/report_screen.dart';
 import '../../features/statistics/presentation/screens/charts_screen.dart';
 
@@ -37,7 +38,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isOnSplash = location == '/';
       final isOnOnboarding =
           location == '/language-selection' || location == '/onboarding';
-      final isOnAuth = location == '/login' || location == '/register';
+      final isOnAuth = location == '/login' ||
+          location == '/register' ||
+          location == '/telegram-auth';
 
       if (isOnOnboarding) return null;
 
@@ -81,6 +84,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/telegram-auth',
+        builder: (context, state) => const TelegramAuthScreen(),
       ),
       GoRoute(
         path: '/shop-select',
@@ -152,16 +159,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileInfoScreen(),
       ),
       GoRoute(
+        path: '/top-up',
+        builder: (context, state) => const TopUpScreen(),
+      ),
+      GoRoute(
         path: '/report',
         builder: (context, state) => const ReportScreen(),
       ),
       GoRoute(
         path: '/charts',
         builder: (context, state) => const ChartsScreen(),
-      ),
-      GoRoute(
-        path: '/asset-preview',
-        builder: (context, state) => const AssetImagesPreviewScreen(),
       ),
     ],
   );

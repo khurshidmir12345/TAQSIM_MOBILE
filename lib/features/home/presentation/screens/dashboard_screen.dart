@@ -9,6 +9,8 @@ import '../../../../core/providers/terminology_provider.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import '../../../tutorial/domain/providers/shop_tutorial_provider.dart';
+import '../../../tutorial/presentation/widgets/tutorial_spotlight.dart';
 import '../../../auth/domain/models/shop_model.dart';
 import '../../domain/models/daily_report_model.dart';
 import '../../domain/models/production_model.dart';
@@ -19,15 +21,19 @@ class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+  DashboardScreenState createState() => DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+class DashboardScreenState extends ConsumerState<DashboardScreen> {
+  final _setupBtnKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(dailyReportProvider.notifier).loadToday());
   }
+
+  void refresh() => ref.read(dailyReportProvider.notifier).loadToday();
 
   String _fmt(dynamic value) {
     final n = double.tryParse(value?.toString() ?? '0') ?? 0;
@@ -115,20 +121,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final shop = ref.watch(shopProvider).selected;
+    final shop        = ref.watch(shopProvider).selected;
     final reportState = ref.watch(dailyReportProvider);
-    final report = reportState.report;
-    final cs   = Theme.of(context).colorScheme;
-    final pad  = Responsive.horizontalPadding(context);
-    final s    = S.of(context);
-    final term = ref.watch(terminologyProvider);
+    final report      = reportState.report;
+    final cs          = Theme.of(context).colorScheme;
+    final pad         = Responsive.horizontalPadding(context);
+    final s           = S.of(context);
+    final term        = ref.watch(terminologyProvider);
+    final showHint = ref.watch(shopTutorialProvider);
 
-    return Scaffold(
+    final scaffold = Scaffold(
       body: Column(
         children: [
           _DashboardHeader(
             shop: shop,
             pad: pad,
+            setupBtnKey: _setupBtnKey,
             onShopTap: _showShopPicker,
             onSetupTap: () => context.push('/setup'),
             onReportTap: () => context.push('/report'),
@@ -183,12 +191,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ],
       ),
     );
+
+    if (showHint) {
+      return SpotlightOverlay(
+        targetKey: _setupBtnKey,
+        title: s.tutorialSettingsHintTitle,
+        message: s.tutorialSettingsHintMessage,
+        accentColor: AppColors.primary,
+        onDismiss: () => ref.read(shopTutorialProvider.notifier).dismiss(),
+        child: scaffold,
+      );
+    }
+
+    return scaffold;
   }
 }
 
 class _DashboardHeader extends StatelessWidget {
   final ShopModel? shop;
   final double pad;
+  final GlobalKey setupBtnKey;
   final VoidCallback onShopTap;
   final VoidCallback onSetupTap;
   final VoidCallback onReportTap;
@@ -196,6 +218,7 @@ class _DashboardHeader extends StatelessWidget {
   const _DashboardHeader({
     required this.shop,
     required this.pad,
+    required this.setupBtnKey,
     required this.onShopTap,
     required this.onSetupTap,
     required this.onReportTap,
@@ -314,7 +337,7 @@ class _DashboardHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              _TealIconBtn(icon: Icons.tune_rounded, onTap: onSetupTap),
+              _TealIconBtn(key: setupBtnKey, icon: Icons.tune_rounded, onTap: onSetupTap),
               const SizedBox(width: 6),
               _TealIconBtn(icon: Icons.bar_chart_rounded, onTap: onReportTap),
             ],
@@ -327,7 +350,7 @@ class _DashboardHeader extends StatelessWidget {
 class _TealIconBtn extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
-  const _TealIconBtn({required this.icon, required this.onTap});
+  const _TealIconBtn({super.key, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

@@ -38,6 +38,7 @@ class BreadCategoriesScreen extends ConsumerStatefulWidget {
 
 class _BreadCategoriesScreenState
     extends ConsumerState<BreadCategoriesScreen> {
+
   @override
   void initState() {
     super.initState();
@@ -363,7 +364,8 @@ class _BreadCategoriesScreenState
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final currency = _currencySuffix(s);
-    return Scaffold(
+
+    Widget scaffold = Scaffold(
       appBar: AppBar(
         title: Text(s.productCategoriesTitle),
       ),
@@ -529,5 +531,7 @@ class _BreadCategoriesScreenState
               child: const Icon(Icons.add_rounded),
             ),
     );
+
+    return scaffold;
   }
 }

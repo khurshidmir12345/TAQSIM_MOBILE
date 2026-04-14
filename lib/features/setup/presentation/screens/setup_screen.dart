@@ -12,7 +12,7 @@ import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../domain/providers/setup_provider.dart';
 
-/// Sozlamalar UI o‘lchamlari (8px grid asosida).
+/// Sozlamalar UI o'lchamlari (8px grid asosida).
 abstract final class _SetupDim {
   static const double cardRadius = 20;
   static const double iconRadius = 16;
@@ -88,7 +88,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       s: s,
     );
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    final screen = AnnotatedRegion<SystemUiOverlayStyle>(
       value: _setupStatusBarOverlay(theme.brightness),
       child: Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
@@ -116,8 +116,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                     isLoading: anyLoading,
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  ...items.map(
-                    (e) => Padding(
+                  ...items.map((e) {
+                    return Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.md),
                       child: _SetupCard(
                         stepNumber: e.stepNumber,
@@ -127,8 +127,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                         title: e.title,
                         subtitle: e.subtitle,
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ],
               ),
             ),
@@ -136,10 +136,12 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         ),
       ),
     );
+
+    return screen;
   }
 }
 
-/// Retsept yaratishdagi `_ProgressBar` bilan mos: 3 qadam, to‘ldirilgan qismlar belgilanadi.
+/// Retsept yaratishdagi `_ProgressBar` bilan mos: 3 qadam.
 class _SetupJourneyPanel extends StatelessWidget {
   const _SetupJourneyPanel({
     required this.hasCategories,
@@ -344,7 +346,7 @@ class _SetupJourneyPanel extends StatelessWidget {
   }
 }
 
-/// Kartalar ma’lumoti — marshrut va matnlar bitta joyda.
+/// Kartalar ma'lumoti — marshrut va matnlar bitta joyda.
 @immutable
 class _SetupTile {
   const _SetupTile({

@@ -49,7 +49,7 @@ class AuthNotifier extends Notifier<AuthState> {
   @override
   AuthState build() {
     _repo.apiClient.setLogoutCallback(() async {
-      await _repo.logout();
+      await _repo.clearLocalSession();
       state = const AuthState(status: AuthStatus.unauthenticated);
     });
     return const AuthState();
@@ -143,6 +143,14 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(isLoading: false, error: e.toString());
       return false;
     }
+  }
+
+  void setAuthenticatedFromTelegram(UserModel user) {
+    state = state.copyWith(
+      status: AuthStatus.authenticated,
+      user: user,
+      isLoading: false,
+    );
   }
 
   Future<void> logout() async {

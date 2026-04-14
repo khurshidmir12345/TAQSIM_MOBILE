@@ -20,10 +20,10 @@ class KassaTabContent extends ConsumerStatefulWidget {
   const KassaTabContent({super.key});
 
   @override
-  ConsumerState<KassaTabContent> createState() => _KassaTabContentState();
+  KassaTabContentState createState() => KassaTabContentState();
 }
 
-class _KassaTabContentState extends ConsumerState<KassaTabContent> {
+class KassaTabContentState extends ConsumerState<KassaTabContent> {
   List<ExpenseModel> _expenses = [];
   bool _loading = true;
   String? _error;
@@ -33,6 +33,8 @@ class _KassaTabContentState extends ConsumerState<KassaTabContent> {
     super.initState();
     Future.microtask(_load);
   }
+
+  void refresh() => _load();
 
   Future<void> _load() async {
     final shop = ref.read(shopProvider).selected;

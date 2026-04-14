@@ -11,8 +11,13 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/models/country_phone.dart';
 import '../../../../core/widgets/country_phone_input.dart';
+import '../../../../core/widgets/policy_links_hint.dart';
+import '../../../../core/widgets/social_auth_section.dart';
 import '../../../../core/widgets/taqsim_logo_asset.dart';
 import '../../domain/providers/auth_provider.dart';
+
+const _uz = AppCountries.uz;
+const _minPasswordLength = 8;
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -23,13 +28,35 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  CountryPhone _country = AppCountries.uz;
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _obscurePassword = true;
+  int _passwordLength = 0;
+  bool _phoneHasContent = false;
+
+  bool get _canSubmit =>
+      _phoneHasContent && _passwordLength >= _minPasswordLength;
 
   String get _fullPhone =>
-      _country.dialCode + _phoneController.text.replaceAll(' ', '');
+      _uz.dialCode + _phoneController.text.replaceAll(' ', '');
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(() {
+      final len = _passwordController.text.length;
+      if (len != _passwordLength) {
+        setState(() => _passwordLength = len);
+      }
+    });
+    _phoneController.addListener(() {
+      final has = _phoneController.text.trim().isNotEmpty;
+      if (has != _phoneHasContent) {
+        setState(() => _phoneHasContent = has);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -39,6 +66,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _login() async {
+    if (!_canSubmit) return;
+    FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
 
     final success = await ref.read(authProvider.notifier).login(
@@ -54,25 +83,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
-  void _showComingSoon(String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.construction_rounded,
-                color: Colors.white, size: 18),
-            const SizedBox(width: 10),
-            Text('$feature tez orada ulashiladi'),
-          ],
-        ),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
@@ -85,144 +95,97 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _buildHeader(context),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      s.welcomeBack,
-                      style: theme.textTheme.headlineLarge
-                          ?.copyWith(fontWeight: FontWeight.w800),
+                    // ── Sarlavha ─────────────────────────────────────
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            s.welcomeBack,
+                            style: theme.textTheme.headlineLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        _RegisterChip(onTap: () => context.go('/register')),
+                      ],
                     ),
                     const SizedBox(height: 6),
                     Text(
                       s.loginSubtitle,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: AppColors.textSecondary),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: 28),
 
-                    // ── Phone input ──────────────────────────────────
+                    // ── Telefon ──────────────────────────────────────
                     CountryPhoneInput(
-                      selectedCountry: _country,
                       phoneController: _phoneController,
-                      onCountryChanged: (c) {
-                        setState(() {
-                          _country = c;
-                          _phoneController.clear();
-                        });
-                      },
-                      validator: (v) => (v == null || v.isEmpty)
-                          ? s.enterPhone
-                          : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? s.enterPhone : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
 
-                    // ── Password ──────────────────────────────────────
+                    // ── Parol ────────────────────────────────────────
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => _canSubmit ? _login() : null,
                       decoration: InputDecoration(
                         hintText: s.password,
-                        prefixIcon:
-                            const Icon(Icons.lock_outline_rounded),
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined),
-                          onPressed: () => setState(() =>
-                              _obscurePassword = !_obscurePassword),
+                        prefixIcon: const Icon(Icons.lock_outline_rounded),
+                        suffixIcon: _PasswordSuffix(
+                          length: _passwordLength,
+                          minLength: _minPasswordLength,
+                          obscure: _obscurePassword,
+                          onToggle: () => setState(
+                              () => _obscurePassword = !_obscurePassword),
                         ),
                       ),
-                      validator: (v) => (v == null || v.isEmpty)
-                          ? s.enterPassword
-                          : null,
+                      validator: (v) =>
+                          (v == null || v.isEmpty) ? s.enterPassword : null,
                     ),
 
-                    // ── Error ─────────────────────────────────────────
+                    // ── Xato banner ──────────────────────────────────
                     if (authState.error != null) ...[
                       const SizedBox(height: AppSpacing.md),
-                      _ErrorBox(message: authState.error!),
+                      _SmartErrorBanner(
+                        message: authState.error!,
+                        onRegisterTap: () => context.go('/register'),
+                      ),
                     ],
-                    const SizedBox(height: 28),
 
-                    // ── Login button ──────────────────────────────────
-                    SizedBox(
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed:
-                            authState.isLoading ? null : _login,
-                        child: authState.isLoading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    color: Colors.white),
-                              )
-                            : Text(s.loginButton),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ── Divider ───────────────────────────────────────
-                    Row(children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 14),
-                        child: Text(
-                          'yoki',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppColors.textHint,
-                          ),
-                        ),
-                      ),
-                      const Expanded(child: Divider()),
-                    ]),
                     const SizedBox(height: 16),
 
-                    // ── Telegram login ────────────────────────────────
-                    _SocialLoginButton(
-                      icon: Icons.telegram_rounded,
-                      iconColor: const Color(0xFF229ED9),
-                      label: 'Telegram orqali kirish',
-                      onTap: () => _showComingSoon('Telegram'),
-                    ),
+                    // ── Siyosat havolasi (button tepasida) ───────────
+                    const PolicyLinksHint(isLogin: true),
+
                     const SizedBox(height: 12),
 
-                    // ── Google login ──────────────────────────────────
-                    _SocialLoginButton(
-                      icon: Icons.g_mobiledata_rounded,
-                      iconColor: const Color(0xFFDB4437),
-                      label: 'Google orqali kirish',
-                      onTap: () => _showComingSoon('Google'),
+                    // ── Kirish tugmasi ───────────────────────────────
+                    _LoginButton(
+                      canSubmit: _canSubmit,
+                      isLoading: authState.isLoading,
+                      label: s.loginButton,
+                      onTap: _login,
                     ),
-                    const SizedBox(height: AppSpacing.xl),
 
-                    // ── Register link ─────────────────────────────────
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('${s.noAccount} ',
-                            style: theme.textTheme.bodyMedium),
-                        GestureDetector(
-                          onTap: () => context.go('/register'),
-                          child: Text(
-                            s.registerLink,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    const SizedBox(height: 8),
+
+                    // ── Ijtimoiy kirish ──────────────────────────────
+                    const SocialAuthSection(),
 
                     if (kDebugMode) ...[
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
                       const _DebugResetButton(),
                     ],
                   ],
@@ -237,18 +200,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Widget _buildHeader(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
+    final s = S.of(context);
     return ClipRRect(
       borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(36),
-        bottomRight: Radius.circular(36),
+        bottomLeft: Radius.circular(32),
+        bottomRight: Radius.circular(32),
       ),
       child: SizedBox(
         width: double.infinity,
-        height: top + 248,
+        height: top + 230,
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Banner to‘liq ko‘rinsin — butun ekranni primary gradient bosmasin.
             ColoredBox(
               color: AppColors.primary,
               child: Image.asset(
@@ -257,21 +220,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 alignment: Alignment.center,
                 gaplessPlayback: true,
                 filterQuality: FilterQuality.medium,
-                errorBuilder: (context, error, stackTrace) => Center(
-                  child: Icon(
-                    Icons.image_not_supported_outlined,
-                    color: Colors.white.withValues(alpha: 0.7),
-                    size: 48,
-                  ),
-                ),
+                errorBuilder: (context, error, stack) => const SizedBox.shrink(),
               ),
             ),
-            // Faqat pastda matn uchun yengil soyani — rasm yashirinmaydi.
+            // Gradient overlay — pastdan matn o'qilsin
             Positioned(
               left: 0,
               right: 0,
               bottom: 0,
-              height: 120,
+              height: 140,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -279,16 +236,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withValues(alpha: 0.35),
+                      Colors.black.withValues(alpha: 0.45),
                     ],
                   ),
                 ),
               ),
             ),
+            // Logo + Nom
             Padding(
               padding: EdgeInsets.only(
-                top: top + 24,
-                bottom: 24,
+                top: top + 20,
+                bottom: 20,
                 left: 24,
                 right: 24,
               ),
@@ -296,31 +254,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 84,
-                    height: 84,
+                    width: 80,
+                    height: 80,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
+                      borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: Colors.black.withValues(alpha: 0.22),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
                       ],
                     ),
-                    child: const TaqsimLogoAsset(clipRadius: 22),
+                    child: const TaqsimLogoAsset(clipRadius: 20),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 12),
                   Text(
                     AppConstants.appName,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: -0.3,
+                          letterSpacing: 1.0,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withValues(alpha: 0.45),
-                              blurRadius: 12,
+                              color: Colors.black.withValues(alpha: 0.40),
+                              blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
                           ],
@@ -328,16 +286,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Kichik biznes uchun aqlli tizim',
+                    s.appTagline,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.95),
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.35),
-                              blurRadius: 8,
-                              offset: const Offset(0, 1),
-                            ),
-                          ],
+                          color: Colors.white.withValues(alpha: 0.90),
                         ),
                   ),
                 ],
@@ -350,68 +301,241 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-// ─── Social Login Button ──────────────────────────────────────────────────
+// ─── Password Suffix ──────────────────────────────────────────────────────────
 
-class _SocialLoginButton extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String label;
-  final VoidCallback onTap;
-
-  const _SocialLoginButton({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.onTap,
+class _PasswordSuffix extends StatelessWidget {
+  const _PasswordSuffix({
+    required this.length,
+    required this.minLength,
+    required this.obscure,
+    required this.onToggle,
   });
+
+  final int length;
+  final int minLength;
+  final bool obscure;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final isReady = length >= minLength;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Belgisayar: 5/8 yoki check
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: isReady
+              ? Padding(
+                  key: const ValueKey('check'),
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    Icons.check_circle_rounded,
+                    size: 18,
+                    color: AppColors.success.withValues(alpha: 0.85),
+                  ),
+                )
+              : Padding(
+                  key: const ValueKey('counter'),
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Text(
+                    '$length/$minLength',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: length == 0
+                          ? AppColors.textHint
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ),
+        ),
+        IconButton(
+          icon: Icon(
+            obscure
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            size: 20,
+          ),
+          onPressed: onToggle,
+          splashRadius: 18,
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Smart Error Banner ───────────────────────────────────────────────────────
+/// Ikkita kichik kard:
+///  1) Qizil — xato xabari
+///  2) Ko'k  — birinchi marta kiruvchiga yo'naltiruvchi hint
+class _SmartErrorBanner extends StatelessWidget {
+  const _SmartErrorBanner({
+    required this.message,
+    required this.onRegisterTap,
+  });
+
+  final String message;
+  final VoidCallback onRegisterTap;
+
+  static const _infoBlue  = Color(0xFF1976D2);
+  static const _infoBg    = Color(0xFFE8F4FD);
+  static const _infoBgDark = Color(0xFF0D2D45);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Material(
-      color: theme.colorScheme.surface,
-      borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-        child: Container(
-          height: 52,
+    final s = S.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ── 1. Qizil xato ──────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
           decoration: BoxDecoration(
-            borderRadius:
-                BorderRadius.circular(AppSpacing.borderRadiusLg),
+            color: AppColors.error.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.5),
+              color: AppColors.error.withValues(alpha: 0.15),
             ),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: iconColor, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                label,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+              const Icon(Icons.error_outline_rounded,
+                  color: AppColors.error, size: 14),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  message,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.gold.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Tez orada',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppColors.gold,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 11,
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 6),
+
+        // ── 2. Ko'k info ────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+          decoration: BoxDecoration(
+            color: isDark ? _infoBgDark : _infoBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: _infoBlue.withValues(alpha: isDark ? 0.20 : 0.18),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline_rounded,
+                  color: _infoBlue.withValues(alpha: 0.85), size: 13),
+              const SizedBox(width: 7),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: _infoBlue.withValues(alpha: isDark ? 0.85 : 0.9),
+                      fontSize: 11,
+                      height: 1.4,
+                    ),
+                    children: [
+                      TextSpan(text: s.loginInfoPrefix),
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.baseline,
+                        baseline: TextBaseline.alphabetic,
+                        child: GestureDetector(
+                          onTap: onRegisterTap,
+                          child: Text(
+                            s.loginInfoAction,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: _infoBlue,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.underline,
+                              decorationColor: _infoBlue,
+                            ),
+                          ),
+                        ),
+                      ),
+                      TextSpan(text: s.loginInfoSuffix),
+                    ],
                   ),
                 ),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Login Button ─────────────────────────────────────────────────────────────
+
+class _LoginButton extends StatelessWidget {
+  const _LoginButton({
+    required this.canSubmit,
+    required this.isLoading,
+    required this.label,
+    required this.onTap,
+  });
+
+  final bool canSubmit;
+  final bool isLoading;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
+      opacity: canSubmit ? 1.0 : 0.45,
+      child: SizedBox(
+        height: 56,
+        child: ElevatedButton(
+          onPressed: (canSubmit && !isLoading) ? onTap : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: AppColors.primary,
+            disabledForegroundColor: Colors.white,
+            elevation: canSubmit ? 2 : 0,
+            shadowColor: AppColors.primary.withValues(alpha: 0.4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+            ),
+          ),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: isLoading
+                ? const SizedBox(
+                    key: ValueKey('loading'),
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(
+                    key: const ValueKey('label'),
+                    label,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
           ),
         ),
       ),
@@ -419,39 +543,7 @@ class _SocialLoginButton extends StatelessWidget {
   }
 }
 
-// ─── Shared ────────────────────────────────────────────────────────────────
-
-class _ErrorBox extends StatelessWidget {
-  final String message;
-  const _ErrorBox({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.error_outline_rounded,
-              color: AppColors.error, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// ─── Debug Reset ──────────────────────────────────────────────────────────────
 
 class _DebugResetButton extends StatelessWidget {
   const _DebugResetButton();
@@ -462,7 +554,7 @@ class _DebugResetButton extends StatelessWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('🔄 Reset qilindi — boshidan boshlang'),
+          content: Text('Reset qilindi — boshidan boshlang'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -475,19 +567,16 @@ class _DebugResetButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => _reset(context),
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.1),
+          color: Colors.orange.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: Colors.orange.withValues(alpha: 0.4)),
+          border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.bug_report_rounded,
-                size: 16, color: Colors.orange),
+            const Icon(Icons.bug_report_rounded, size: 16, color: Colors.orange),
             const SizedBox(width: 6),
             Text(
               'DEBUG: Boshidan boshlash',
@@ -497,6 +586,61 @@ class _DebugResetButton extends StatelessWidget {
                   ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+
+// ─── Register Chip ────────────────────────────────────────────────────────────
+
+class _RegisterChip extends StatelessWidget {
+  const _RegisterChip({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(50),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.55),
+              width: 1.5,
+            ),
+            color: isDark
+                ? AppColors.primary.withValues(alpha: 0.12)
+                : AppColors.primary.withValues(alpha: 0.06),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                S.of(context).registerLink,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.1,
+                    ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                size: 13,
+                color: AppColors.primary,
+              ),
+            ],
+          ),
         ),
       ),
     );

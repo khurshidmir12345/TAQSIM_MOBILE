@@ -185,7 +185,7 @@ class ShopNotifier extends Notifier<ShopState> {
 
   Future<void> createShop({
     required String businessTypeId,
-    required String currencyId,
+    String? currencyId,
     required String name,
     String? customBusinessTypeName,
     List<String> ingredientUnitIds = const [],
@@ -215,6 +215,55 @@ class ShopNotifier extends Notifier<ShopState> {
       selected: shop,
     );
     await _persistSelectedId(shop.id);
+  }
+
+  Future<bool> updateShop(
+    String shopId, {
+    String? name,
+    String? address,
+  }) async {
+    try {
+      final updated = await _repo.updateShop(
+        shopId,
+        name: name,
+        address: address,
+      );
+      final newList = [
+        for (final s in state.shops) s.id == shopId ? updated : s,
+      ];
+      state = state.copyWith(
+        shops: newList,
+        selected: state.selected?.id == shopId ? updated : state.selected,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteShop(String shopId) async {
+    try {
+      await _repo.deleteShop(shopId);
+      final newList = state.shops.where((s) => s.id != shopId).toList();
+      final prefs = await SharedPreferences.getInstance();
+
+      ShopModel? newSelected = state.selected;
+      if (state.selected?.id == shopId) {
+        newSelected = newList.isNotEmpty ? newList.first : null;
+        if (newSelected != null) {
+          await prefs.setString(_kSelectedShopId, newSelected.id);
+        } else {
+          await prefs.remove(_kSelectedShopId);
+        }
+      }
+
+      state = state.copyWith(shops: newList, selected: newSelected);
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
   }
 }
 

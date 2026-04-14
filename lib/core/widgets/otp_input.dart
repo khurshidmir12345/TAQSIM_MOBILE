@@ -10,16 +10,16 @@ class OtpInput extends StatefulWidget {
 
   const OtpInput({
     super.key,
-    this.length = 6,
+    this.length = 4,
     required this.onCompleted,
     this.onChanged,
   });
 
   @override
-  State<OtpInput> createState() => _OtpInputState();
+  State<OtpInput> createState() => OtpInputState();
 }
 
-class _OtpInputState extends State<OtpInput> {
+class OtpInputState extends State<OtpInput> {
   late final List<TextEditingController> _controllers;
   late final List<FocusNode> _focusNodes;
 
@@ -41,8 +41,7 @@ class _OtpInputState extends State<OtpInput> {
     super.dispose();
   }
 
-  String get _currentCode =>
-      _controllers.map((c) => c.text).join();
+  String get _currentCode => _controllers.map((c) => c.text).join();
 
   void _onDigitEntered(int index, String value) {
     if (value.isEmpty) {
@@ -53,7 +52,6 @@ class _OtpInputState extends State<OtpInput> {
       return;
     }
 
-    // Handle paste — fill all boxes
     if (value.length > 1) {
       final digits = value.replaceAll(RegExp(r'\D'), '');
       for (int i = 0; i < widget.length && i < digits.length; i++) {
@@ -87,7 +85,7 @@ class _OtpInputState extends State<OtpInput> {
     for (final c in _controllers) {
       c.clear();
     }
-    _focusNodes.first.requestFocus();
+    if (_focusNodes.isNotEmpty) _focusNodes.first.requestFocus();
     setState(() {});
   }
 
@@ -97,7 +95,7 @@ class _OtpInputState extends State<OtpInput> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(widget.length, (i) {
         return Padding(
-          padding: EdgeInsets.only(right: i < widget.length - 1 ? 10 : 0),
+          padding: EdgeInsets.only(right: i < widget.length - 1 ? 14 : 0),
           child: _OtpBox(
             controller: _controllers[i],
             focusNode: _focusNodes[i],
@@ -130,14 +128,15 @@ class _OtpBox extends StatelessWidget {
         final isFocused = focusNode.hasFocus;
         final hasValue = controller.text.isNotEmpty;
 
-        return Container(
-          width: 48,
-          height: 56,
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 58,
+          height: 64,
           decoration: BoxDecoration(
             color: isFocused
                 ? AppColors.primary.withValues(alpha: 0.06)
                 : theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: isFocused
                   ? AppColors.primary

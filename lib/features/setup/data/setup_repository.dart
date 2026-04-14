@@ -67,10 +67,10 @@ class SetupRepository {
       final res = await _apiClient.dio.put(
         '${_shopPath(shopId)}/bread-categories/$id',
         data: {
-          if (name != null) 'name': name,
-          if (sellingPrice != null) 'selling_price': sellingPrice,
-          if (currencyId != null) 'currency_id': currencyId,
-          if (isActive != null) 'is_active': isActive,
+          'name': ?name,
+          'selling_price': ?sellingPrice,
+          'currency_id': ?currencyId,
+          'is_active': ?isActive,
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
@@ -139,12 +139,12 @@ class SetupRepository {
       final res = await _apiClient.dio.put(
         '${_shopPath(shopId)}/ingredients/$id',
         data: {
-          if (name != null) 'name': name,
-          if (measurementUnitId != null) 'measurement_unit_id': measurementUnitId,
-          if (pricePerUnit != null) 'price_per_unit': pricePerUnit,
-          if (currencyId != null) 'currency_id': currencyId,
-          if (isFlour != null) 'is_flour': isFlour,
-          if (isActive != null) 'is_active': isActive,
+          'name': ?name,
+          'measurement_unit_id': ?measurementUnitId,
+          'price_per_unit': ?pricePerUnit,
+          'currency_id': ?currencyId,
+          'is_flour': ?isFlour,
+          'is_active': ?isActive,
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;

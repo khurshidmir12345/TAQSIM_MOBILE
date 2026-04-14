@@ -117,9 +117,9 @@ class AuthRepository {
   }) async {
     try {
       final response = await apiClient.dio.put('/v1/auth/profile', data: {
-        if (name != null) 'name': name,
-        if (email != null) 'email': email,
-        if (locale != null) 'locale': locale,
+        'name': ?name,
+        'email': ?email,
+        'locale': ?locale,
       });
       final data = _body(response)['data'] as Map<String, dynamic>;
       return UserModel.fromJson(data['user'] as Map<String, dynamic>);
@@ -180,6 +180,53 @@ class AuthRepository {
     } catch (_) {}
     await _clearToken();
     apiClient.clearToken();
+  }
+
+  Future<void> clearLocalSession() async {
+    await _clearToken();
+    apiClient.clearToken();
+  }
+
+  Future<({String sessionToken, String botUsername, int expiresIn})>
+      createTelegramSession() async {
+    try {
+      final response =
+          await apiClient.dio.post('/v1/auth/telegram/session');
+      final data = _body(response)['data'] as Map<String, dynamic>;
+      return (
+        sessionToken: data['session_token'] as String,
+        botUsername: data['bot_username'] as String,
+        expiresIn: data['expires_in'] as int? ?? 600,
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  Future<({String status, String? token, UserModel? user})>
+      checkTelegramSession(String sessionToken) async {
+    try {
+      final response = await apiClient.dio
+          .get('/v1/auth/telegram/check/$sessionToken');
+      final data = _body(response)['data'] as Map<String, dynamic>;
+
+      final status = data['status'] as String? ?? 'pending';
+      final token = data['token'] as String?;
+      UserModel? user;
+
+      if (data['user'] != null) {
+        user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      }
+
+      if (token != null) {
+        await _saveToken(token);
+        apiClient.setToken(token);
+      }
+
+      return (status: status, token: token, user: user);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
   }
 
   Future<String?> getSavedToken() async {

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -49,14 +48,7 @@ class ApiClient {
     dio.interceptors.add(_AuthInterceptor(this));
   }
 
-  static String _resolveBaseUrl() {
-    if (kIsWeb) return AppConstants.baseUrl;
-
-    if (Platform.isAndroid) {
-      return AppConstants.baseUrlAndroidEmulator;
-    }
-    return AppConstants.baseUrlIosSimulator;
-  }
+  static String _resolveBaseUrl() => AppConstants.baseUrl;
 
   void setAcceptLanguage(String code) {
     dio.options.headers['Accept-Language'] = code;
@@ -96,13 +88,21 @@ class _JsonParseInterceptor extends Interceptor {
 
 class _AuthInterceptor extends Interceptor {
   final ApiClient _client;
+  bool _isLoggingOut = false;
 
   _AuthInterceptor(this._client);
+
+  static const _authPaths = ['/auth/login', '/auth/register', '/auth/send-code', '/auth/logout', '/auth/telegram/'];
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 401) {
-      _client.forceLogout();
+      final path = err.requestOptions.path;
+      final isAuthEndpoint = _authPaths.any((p) => path.contains(p));
+      if (!isAuthEndpoint && !_isLoggingOut) {
+        _isLoggingOut = true;
+        _client.forceLogout().whenComplete(() => _isLoggingOut = false);
+      }
     }
     handler.next(err);
   }
