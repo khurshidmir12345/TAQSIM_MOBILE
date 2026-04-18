@@ -18,12 +18,13 @@ class TelegramAuthScreen extends ConsumerStatefulWidget {
 }
 
 class _TelegramAuthScreenState extends ConsumerState<TelegramAuthScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   String? _sessionToken;
   bool _isCreatingSession = true;
   String? _error;
   Timer? _pollTimer;
   int _pollCount = 0;
+  bool _isPolling = false;
 
   late final AnimationController _pulseCtl;
   late final Animation<double> _pulseAnim;
@@ -35,6 +36,7 @@ class _TelegramAuthScreenState extends ConsumerState<TelegramAuthScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pulseCtl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
@@ -47,9 +49,23 @@ class _TelegramAuthScreenState extends ConsumerState<TelegramAuthScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pollTimer?.cancel();
     _pulseCtl.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // Foydalanuvchi Telegram'dan qaytib ilovaga kirganda 3 soniya kutmasdan
+    // darhol session statusini tekshiramiz.
+    if (state == AppLifecycleState.resumed &&
+        _sessionToken != null &&
+        !_isCreatingSession &&
+        _error == null) {
+      _poll();
+    }
   }
 
   Future<void> _startFlow() async {
@@ -83,11 +99,13 @@ class _TelegramAuthScreenState extends ConsumerState<TelegramAuthScreen>
   }
 
   Future<void> _poll() async {
-    if (_sessionToken == null || !mounted) return;
+    if (_sessionToken == null || !mounted || _isPolling) return;
+    _isPolling = true;
     _pollCount++;
 
     if (_pollCount > _maxPolls) {
       _pollTimer?.cancel();
+      _isPolling = false;
       if (mounted) {
         setState(() => _error = S.of(context).telegramSessionExpired);
       }
@@ -110,8 +128,13 @@ class _TelegramAuthScreenState extends ConsumerState<TelegramAuthScreen>
 
         final shops = ref.read(shopProvider).shops;
         context.go(shops.isEmpty ? '/shop-select' : '/shell');
+        return;
       }
-    } catch (_) {}
+    } catch (_) {
+      // Tarmoq xatoligi — keyingi pollingda yana urinib ko'ramiz.
+    } finally {
+      _isPolling = false;
+    }
   }
 
   void _retry() {

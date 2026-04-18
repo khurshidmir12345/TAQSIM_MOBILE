@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -183,11 +181,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                     // ── Ijtimoiy kirish ──────────────────────────────
                     const SocialAuthSection(),
-
-                    if (kDebugMode) ...[
-                      const SizedBox(height: 20),
-                      const _DebugResetButton(),
-                    ],
                   ],
                 ),
               ),
@@ -542,56 +535,6 @@ class _LoginButton extends StatelessWidget {
     );
   }
 }
-
-// ─── Debug Reset ──────────────────────────────────────────────────────────────
-
-class _DebugResetButton extends StatelessWidget {
-  const _DebugResetButton();
-
-  Future<void> _reset(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Reset qilindi — boshidan boshlang'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      GoRouter.of(context).go('/');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _reset(context),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.orange.withValues(alpha: 0.35)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.bug_report_rounded, size: 16, color: Colors.orange),
-            const SizedBox(width: 6),
-            Text(
-              'DEBUG: Boshidan boshlash',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 
 // ─── Register Chip ────────────────────────────────────────────────────────────
 
