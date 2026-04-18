@@ -116,7 +116,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                     isLoading: anyLoading,
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  ...items.map((e) {
+                  ...List.generate(items.length, (i) {
+                    final e = items[i];
+                    final completed = switch (i) {
+                      0 => hasCat,
+                      1 => hasIng,
+                      _ => hasRec,
+                    };
                     return Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.md),
                       child: _SetupCard(
@@ -126,6 +132,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                         accent: e.accent,
                         title: e.title,
                         subtitle: e.subtitle,
+                        completed: completed,
+                        completedLabel: s.settingsCardCompleted,
                       ),
                     );
                   }),
@@ -465,6 +473,8 @@ class _SetupCard extends StatelessWidget {
     required this.accent,
     required this.title,
     required this.subtitle,
+    required this.completed,
+    required this.completedLabel,
   });
 
   final int stepNumber;
@@ -474,26 +484,52 @@ class _SetupCard extends StatelessWidget {
   final String title;
   final String subtitle;
 
+  /// Ushbu qadam allaqachon bajarilgan bo‘lsa `true`.
+  final bool completed;
+
+  /// `Bajarildi` chip matni (localization'dan).
+  final String completedLabel;
+
+  static const Duration _animDuration = Duration(milliseconds: 260);
+  static const Curve _animCurve = Curves.easeOutCubic;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final border = cs.outline.withValues(alpha: isDark ? 0.35 : 0.22);
+
+    final neutralBorder = cs.outline.withValues(alpha: isDark ? 0.35 : 0.22);
+    final successBorder =
+        AppColors.success.withValues(alpha: isDark ? 0.65 : 0.45);
+    final surfaceColor = cs.surface;
+    final successTint =
+        AppColors.success.withValues(alpha: isDark ? 0.08 : 0.045);
+
+    final borderColor = completed ? successBorder : neutralBorder;
+    final backgroundColor =
+        completed ? Color.alphaBlend(successTint, surfaceColor) : surfaceColor;
+
     final shadow = isDark
         ? Colors.black.withValues(alpha: 0.35)
-        : AppColors.primary.withValues(alpha: 0.06);
+        : (completed ? AppColors.success : AppColors.primary)
+            .withValues(alpha: 0.06);
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () => context.push(route),
         borderRadius: BorderRadius.circular(_SetupDim.cardRadius),
-        child: Ink(
+        child: AnimatedContainer(
+          duration: _animDuration,
+          curve: _animCurve,
           decoration: BoxDecoration(
-            color: cs.surface,
+            color: backgroundColor,
             borderRadius: BorderRadius.circular(_SetupDim.cardRadius),
-            border: Border.all(color: border),
+            border: Border.all(
+              color: borderColor,
+              width: completed ? 1.4 : 1.0,
+            ),
             boxShadow: [
               BoxShadow(
                 color: shadow,
@@ -510,8 +546,6 @@ class _SetupCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _StepBadge(number: stepNumber, accent: accent),
-                const SizedBox(width: AppSpacing.sm),
                 _IconBadge(color: accent, asset: iconAsset),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -540,14 +574,12 @@ class _SetupCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: AppSpacing.xs),
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Icon(
-                    Icons.chevron_right_rounded,
-                    size: _SetupDim.chevronSize,
-                    color: accent.withValues(alpha: 0.85),
-                  ),
+                const SizedBox(width: AppSpacing.sm),
+                _SetupCardStatus(
+                  stepNumber: stepNumber,
+                  accent: accent,
+                  completed: completed,
+                  completedLabel: completedLabel,
                 ),
               ],
             ),
@@ -558,8 +590,81 @@ class _SetupCard extends StatelessWidget {
   }
 }
 
+/// Karta ichida o'ng tarafda joylashgan statusli ustun:
+/// - Tepada: step raqami (yoki bajarilgan bo'lsa yashil check badge).
+/// - Pastda: bajarilgan bo'lsa `Bajarildi` chip; aks holda chevron.
+class _SetupCardStatus extends StatelessWidget {
+  const _SetupCardStatus({
+    required this.stepNumber,
+    required this.accent,
+    required this.completed,
+    required this.completedLabel,
+  });
+
+  final int stepNumber;
+  final Color accent;
+  final bool completed;
+  final String completedLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        SizedBox(
+          height: 28,
+          child: AnimatedSwitcher(
+            duration: _SetupCard._animDuration,
+            transitionBuilder: (child, anim) => ScaleTransition(
+              scale: anim,
+              child: FadeTransition(opacity: anim, child: child),
+            ),
+            child: completed
+                ? const _CompletedBadge(key: ValueKey('check'))
+                : _StepBadge(
+                    key: const ValueKey('number'),
+                    number: stepNumber,
+                    accent: accent,
+                  ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        AnimatedSize(
+          duration: _SetupCard._animDuration,
+          curve: _SetupCard._animCurve,
+          alignment: Alignment.topRight,
+          child: AnimatedSwitcher(
+            duration: _SetupCard._animDuration,
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, -0.2),
+                  end: Offset.zero,
+                ).animate(anim),
+                child: child,
+              ),
+            ),
+            child: completed
+                ? _CompletedChip(
+                    key: const ValueKey('chip'),
+                    label: completedLabel,
+                  )
+                : _CardChevron(key: const ValueKey('chevron'), accent: accent),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _StepBadge extends StatelessWidget {
-  const _StepBadge({required this.number, required this.accent});
+  const _StepBadge({
+    super.key,
+    required this.number,
+    required this.accent,
+  });
 
   final int number;
   final Color accent;
@@ -567,12 +672,12 @@ class _StepBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 26,
-      height: 26,
+      width: 28,
+      height: 28,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(9),
         border: Border.all(color: accent.withValues(alpha: 0.45)),
       ),
       child: Text(
@@ -582,6 +687,95 @@ class _StepBadge extends StatelessWidget {
           fontSize: 13,
           fontWeight: FontWeight.w800,
         ),
+      ),
+    );
+  }
+}
+
+class _CompletedBadge extends StatelessWidget {
+  const _CompletedBadge({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 28,
+      height: 28,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppColors.success,
+        borderRadius: BorderRadius.circular(9),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.success.withValues(alpha: 0.35),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Icon(
+        Icons.check_rounded,
+        color: Colors.white,
+        size: 17,
+      ),
+    );
+  }
+}
+
+class _CompletedChip extends StatelessWidget {
+  const _CompletedChip({super.key, required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.success.withValues(alpha: isDark ? 0.20 : 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: AppColors.success.withValues(alpha: isDark ? 0.55 : 0.40),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.check_circle_rounded,
+            size: 12,
+            color: AppColors.success,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.success,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              height: 1.0,
+              letterSpacing: 0.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CardChevron extends StatelessWidget {
+  const _CardChevron({super.key, required this.accent});
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 2, right: 2),
+      child: Icon(
+        Icons.chevron_right_rounded,
+        size: _SetupDim.chevronSize,
+        color: accent.withValues(alpha: 0.85),
       ),
     );
   }

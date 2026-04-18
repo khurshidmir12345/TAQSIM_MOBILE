@@ -213,6 +213,7 @@ class S {
   String get setupJourneyStepLabel2 => _t('setupJourneyStepLabel2');
   String get setupJourneyStepLabel3 => _t('setupJourneyStepLabel3');
   String get setupJourneyAllDone => _t('setupJourneyAllDone');
+  String get settingsCardCompleted => _t('settingsCardCompleted');
 
   // ─── Retseptlar (hisoblash) ───
   String get recipeScreenTitle => _t('recipeScreenTitle');
@@ -805,6 +806,7 @@ class S {
     'setupJourneyStepLabel2': 'Xom ashyo',
     'setupJourneyStepLabel3': 'Hisoblash',
     'setupJourneyAllDone': 'Barcha qadamlar bajarildi',
+    'settingsCardCompleted': 'Bajarildi',
     'recipeScreenTitle': 'Retseptlar',
     'recipeEmptyTitle': 'Hali retseptlar yo‘q',
     'recipeEmptySubtitle':
@@ -1326,6 +1328,7 @@ class S {
     'setupJourneyStepLabel2': 'Хом ашё',
     'setupJourneyStepLabel3': 'Ҳисоблаш',
     'setupJourneyAllDone': 'Барча қадамлар бажарилди',
+    'settingsCardCompleted': 'Бажарилди',
     'recipeScreenTitle': 'Рецептлар',
     'recipeEmptyTitle': 'Ҳали рецептлар йўқ',
     'recipeEmptySubtitle':
@@ -1848,6 +1851,7 @@ class S {
     'setupJourneyStepLabel2': 'Сырьё',
     'setupJourneyStepLabel3': 'Расчёт',
     'setupJourneyAllDone': 'Все шаги выполнены',
+    'settingsCardCompleted': 'Готово',
     'recipeScreenTitle': 'Рецепты',
     'recipeEmptyTitle': 'Рецептов пока нет',
     'recipeEmptySubtitle':
@@ -2370,6 +2374,7 @@ class S {
     'setupJourneyStepLabel2': 'Шикізат',
     'setupJourneyStepLabel3': 'Есептеу',
     'setupJourneyAllDone': 'Барлық қадам орындалды',
+    'settingsCardCompleted': 'Орындалды',
     'recipeScreenTitle': 'Рецепттер',
     'recipeEmptyTitle': 'Әлі рецепттер жоқ',
     'recipeEmptySubtitle':
@@ -2892,6 +2897,7 @@ class S {
     'setupJourneyStepLabel2': 'Чийки зат',
     'setupJourneyStepLabel3': 'Эсептөө',
     'setupJourneyAllDone': 'Бардык кадамдар аткарылды',
+    'settingsCardCompleted': 'Аткарылды',
     'recipeScreenTitle': 'Рецепттер',
     'recipeEmptyTitle': 'Азырынча рецепттер жок',
     'recipeEmptySubtitle':
@@ -3414,6 +3420,7 @@ class S {
     'setupJourneyStepLabel2': 'Hammadde',
     'setupJourneyStepLabel3': 'Hesaplama',
     'setupJourneyAllDone': 'Tüm adımlar tamam',
+    'settingsCardCompleted': 'Tamam',
     'recipeScreenTitle': 'Tarifler',
     'recipeEmptyTitle': 'Henüz tarif yok',
     'recipeEmptySubtitle':
