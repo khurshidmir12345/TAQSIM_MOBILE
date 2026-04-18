@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_icons.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../auth/domain/models/currency_model.dart';
@@ -73,11 +74,23 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
     return list;
   }
 
-  String _unitLabel(MeasurementUnitModel u, BuildContext context) {
-    if (u.code.isNotEmpty) return u.code;
-    final loc = Localizations.localeOf(context).languageCode;
-    return u.localizedName(loc);
+  /// Foydalanuvchi tanlagan til (uz, uz_CYRL, ru, kk, ky, tr).
+  ///
+  /// `Localizations.localeOf` `uz_CYRL` ni aniq ajratmagani uchun
+  /// to'g'ridan-to'g'ri [localeProvider] dan olamiz.
+  String _currentLocaleCode() {
+    final async = ref.read(localeProvider);
+    return (async.value ?? AppLocale.uz).code;
   }
+
+  /// Chip / label uchun birlik nomi: "Kilogram", "Dona", "Litr", "Metr", ...
+  String _unitDisplayName(MeasurementUnitModel u) =>
+      u.localizedName(_currentLocaleCode());
+
+  /// Jumla ichida ishlatiladigan kichik harfli birlik nomi:
+  /// "1 kilogram narxini kiriting" — "K" emas, "k".
+  String _unitInlineName(MeasurementUnitModel u) =>
+      _unitDisplayName(u).toLowerCase();
 
   void _showPriceInfoDialog(BuildContext context) {
     final s = S.of(context);
@@ -337,7 +350,7 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                                             selectedMeasurementUnitId,
                                         showCheckmark: false,
                                         label: Text(
-                                          '${u.icon} ${_unitLabel(u, ctx)}',
+                                          _unitDisplayName(u),
                                           style: theme.textTheme.labelLarge,
                                         ),
                                         onSelected: (_) {
@@ -368,70 +381,84 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                                 sheetHorizontal,
                                 0,
                               ),
-                              child: TextField(
-                                controller: priceCtl,
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                  decimal: true,
-                                ),
-                                decoration: fieldDeco(
-                                  s.ingredientPricePerUnitLabel,
-                                  s.sellingPriceHint,
-                                ).copyWith(
-                                  suffixIconConstraints: const BoxConstraints(
-                                    minWidth: 52,
-                                    minHeight: 24,
-                                    maxHeight: 40,
-                                  ),
-                                  suffixIcon: PopupMenuButton<String>(
-                                    tooltip: s.currencyPickerLabel,
-                                    padding: EdgeInsets.zero,
-                                    initialValue: selectedCurrencyId,
-                                    onSelected: (v) {
-                                      setModalState(
-                                        () => selectedCurrencyId = v,
-                                      );
-                                    },
-                                    itemBuilder: (context) => currencies
-                                        .map(
-                                          (c) => PopupMenuItem<String>(
-                                            value: c.id,
-                                            child: Text(c.displayLabel),
-                                          ),
-                                        )
-                                        .toList(),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        right: 12,
-                                        left: 4,
+                              child: Builder(
+                                builder: (_) {
+                                  final selectedUnit = units.firstWhere(
+                                    (u) => u.id == selectedMeasurementUnitId,
+                                    orElse: () => units.first,
+                                  );
+                                  final priceLabel =
+                                      s.ingredientPricePerUnitLabelDynamic(
+                                    _unitInlineName(selectedUnit),
+                                  );
+                                  return TextField(
+                                    controller: priceCtl,
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                    decoration: fieldDeco(
+                                      priceLabel,
+                                      s.sellingPriceHint,
+                                    ).copyWith(
+                                      suffixIconConstraints:
+                                          const BoxConstraints(
+                                        minWidth: 52,
+                                        minHeight: 24,
+                                        maxHeight: 40,
                                       ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            _currencyCodeForId(
-                                              currencies,
-                                              selectedCurrencyId,
-                                            ),
-                                            style: theme.textTheme.labelLarge
-                                                ?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                              letterSpacing: 0.2,
-                                              color: cs.onSurface
-                                                  .withValues(alpha: 0.75),
-                                            ),
+                                      suffixIcon: PopupMenuButton<String>(
+                                        tooltip: s.currencyPickerLabel,
+                                        padding: EdgeInsets.zero,
+                                        initialValue: selectedCurrencyId,
+                                        onSelected: (v) {
+                                          setModalState(
+                                            () => selectedCurrencyId = v,
+                                          );
+                                        },
+                                        itemBuilder: (context) => currencies
+                                            .map(
+                                              (c) => PopupMenuItem<String>(
+                                                value: c.id,
+                                                child: Text(c.displayLabel),
+                                              ),
+                                            )
+                                            .toList(),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 12,
+                                            left: 4,
                                           ),
-                                          Icon(
-                                            Icons.expand_more_rounded,
-                                            size: 18,
-                                            color: cs.onSurface
-                                                .withValues(alpha: 0.45),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                _currencyCodeForId(
+                                                  currencies,
+                                                  selectedCurrencyId,
+                                                ),
+                                                style: theme
+                                                    .textTheme.labelLarge
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                  letterSpacing: 0.2,
+                                                  color: cs.onSurface
+                                                      .withValues(alpha: 0.75),
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.expand_more_rounded,
+                                                size: 18,
+                                                color: cs.onSurface
+                                                    .withValues(alpha: 0.45),
+                                              ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
                             ),
                             Padding(

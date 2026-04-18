@@ -402,6 +402,12 @@ class S {
   String get ingredientNameHint => _t('ingredientNameHint');
   String get ingredientUnitFieldLabel => _t('ingredientUnitFieldLabel');
   String get ingredientPricePerUnitLabel => _t('ingredientPricePerUnitLabel');
+
+  /// Dinamik narx sarlavhasi: tanlangan birlik nomi `{unit}` o'rniga qo'yiladi.
+  ///
+  /// Misol: tanlangan birlik `kilogram` bo'lsa → `1 kilogram narxini kiriting`.
+  String ingredientPricePerUnitLabelDynamic(String unit) =>
+      _t('ingredientPricePerUnitLabelDynamic').replaceAll('{unit}', unit);
   String get ingredientsAddCta => _t('ingredientsAddCta');
   String get ingredientAddHeroTitle => _t('ingredientAddHeroTitle');
   String get ingredientPriceHintBanner => _t('ingredientPriceHintBanner');
@@ -977,6 +983,7 @@ class S {
     'ingredientNameHint': 'Masalan: un, suv, tuz',
     'ingredientUnitFieldLabel': 'O\'lchov birligi',
     'ingredientPricePerUnitLabel': '1 birlik narxi',
+    'ingredientPricePerUnitLabelDynamic': '1 {unit} narxini kiriting',
     'ingredientUnit_kg': 'Kilogramm (kg)',
     'ingredientUnit_gram': 'Gramm (g)',
     'ingredientUnit_litr': 'Litr (l)',
@@ -1499,6 +1506,7 @@ class S {
     'ingredientNameHint': 'Масалан: ун, сув, туз',
     'ingredientUnitFieldLabel': 'Ўлчов бирлиги',
     'ingredientPricePerUnitLabel': '1 бирлик нархи',
+    'ingredientPricePerUnitLabelDynamic': '1 {unit} нархини киритинг',
     'ingredientUnit_kg': 'Килограмм (kg)',
     'ingredientUnit_gram': 'Грамм (g)',
     'ingredientUnit_litr': 'Литр (l)',
@@ -2022,6 +2030,7 @@ class S {
     'ingredientNameHint': 'Например: мука, вода, соль',
     'ingredientUnitFieldLabel': 'Единица измерения',
     'ingredientPricePerUnitLabel': 'Цена за 1 единицу',
+    'ingredientPricePerUnitLabelDynamic': 'Цена за 1 {unit}',
     'ingredientUnit_kg': 'Килограмм (kg)',
     'ingredientUnit_gram': 'Грамм (g)',
     'ingredientUnit_litr': 'Литр (l)',
@@ -2545,6 +2554,7 @@ class S {
     'ingredientNameHint': 'Мысалы: ұн, су, тұз',
     'ingredientUnitFieldLabel': 'Өлшем бірлігі',
     'ingredientPricePerUnitLabel': '1 бірлік бағасы',
+    'ingredientPricePerUnitLabelDynamic': '1 {unit} бағасын енгізіңіз',
     'ingredientUnit_kg': 'Килограмм (kg)',
     'ingredientUnit_gram': 'Грамм (g)',
     'ingredientUnit_litr': 'Литр (l)',
@@ -3068,6 +3078,7 @@ class S {
     'ingredientNameHint': 'Мисалы: ун, суу, туз',
     'ingredientUnitFieldLabel': 'Өлчөм бирдиги',
     'ingredientPricePerUnitLabel': '1 бирдик баасы',
+    'ingredientPricePerUnitLabelDynamic': '1 {unit} баасын жазыңыз',
     'ingredientUnit_kg': 'Килограмм (kg)',
     'ingredientUnit_gram': 'Грамм (g)',
     'ingredientUnit_litr': 'Литр (l)',
@@ -3591,6 +3602,7 @@ class S {
     'ingredientNameHint': 'Örn: un, su, tuz',
     'ingredientUnitFieldLabel': 'Ölçü birimi',
     'ingredientPricePerUnitLabel': '1 birim fiyatı',
+    'ingredientPricePerUnitLabelDynamic': '1 {unit} fiyatını girin',
     'ingredientUnit_kg': 'Kilogram (kg)',
     'ingredientUnit_gram': 'Gram (g)',
     'ingredientUnit_litr': 'Litre (l)',
