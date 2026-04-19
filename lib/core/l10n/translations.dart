@@ -252,6 +252,17 @@ class S {
   String recipeIngredientsSectionSubtitleDynamic(String unit) =>
       _t('recipeIngredientsSectionSubtitleDynamic').replaceAll('{unit}', unit);
   String get recipeAddIngredient => _t('recipeAddIngredient');
+
+  /// Retsept 3-qadam: "Yangi xom ashyo" blokining bo‘luvchi sarlavhasi.
+  String get recipeCreateNewIngredientDivider =>
+      _t('recipeCreateNewIngredientDivider');
+
+  /// Retsept 3-qadam: "Yangi xom ashyo yaratish" tugmasi sarlavhasi.
+  String get recipeCreateNewIngredient => _t('recipeCreateNewIngredient');
+
+  /// Retsept 3-qadam: "Yangi xom ashyo yaratish" tugmasi tavsifi.
+  String get recipeCreateNewIngredientHint =>
+      _t('recipeCreateNewIngredientHint');
   String get recipeValidationSelectProduct => _t('recipeValidationSelectProduct');
   String get recipeValidationBatch => _t('recipeValidationBatch');
   String get recipeValidationOutput => _t('recipeValidationOutput');
@@ -859,6 +870,10 @@ class S {
     'recipeIngredientsSectionSubtitleDynamic':
         'Bir {unit}ga ketadigan har bir xom ashyo miqdorini kiriting.',
     'recipeAddIngredient': 'Mahsulot qo‘shish',
+    'recipeCreateNewIngredientDivider': 'YOKI',
+    'recipeCreateNewIngredient': 'Yangi xom ashyo yaratish',
+    'recipeCreateNewIngredientHint':
+        'Ro‘yxatda yo‘q bo‘lsa, shu yerning o‘zidan qo‘shing',
     'recipeValidationSelectProduct': 'Mahsulot turini tanlang',
     'recipeValidationBatch': 'Partiya birligini tanlang',
     'recipeValidationOutput': 'Chiqim sonini kiriting',
@@ -1387,6 +1402,10 @@ class S {
     'recipeIngredientsSectionSubtitle':
         'Танланган бирликдаги битта партияга кетадиган миқдорларни киритинг.',
     'recipeAddIngredient': 'Маҳсулот қўшиш',
+    'recipeCreateNewIngredientDivider': 'ЁКИ',
+    'recipeCreateNewIngredient': 'Янги хом ашё яратиш',
+    'recipeCreateNewIngredientHint':
+        'Рўйхатда йўқ бўлса, шу ернинг ўзидан қўшинг',
     'recipeValidationSelectProduct': 'Маҳсулот турини танланг',
     'recipeValidationBatch': 'Партия бирлигини танланг',
     'recipeValidationOutput': 'Чиқим сонини киритинг',
@@ -1916,6 +1935,10 @@ class S {
     'recipeIngredientsSectionSubtitle':
         'Введите количества на одну партию в выбранной единице.',
     'recipeAddIngredient': 'Добавить позицию',
+    'recipeCreateNewIngredientDivider': 'ИЛИ',
+    'recipeCreateNewIngredient': 'Создать новое сырьё',
+    'recipeCreateNewIngredientHint':
+        'Если его нет в списке — добавьте прямо отсюда',
     'recipeValidationSelectProduct': 'Выберите тип продукции',
     'recipeValidationBatch': 'Выберите единицу партии',
     'recipeValidationOutput': 'Введите количество выпуска',
@@ -2445,6 +2468,10 @@ class S {
     'recipeIngredientsSectionSubtitle':
         'Таңдалған бірліктегі бір партияға кететін мөлшерлерді енгізіңіз.',
     'recipeAddIngredient': 'Қосу',
+    'recipeCreateNewIngredientDivider': 'НЕМЕСЕ',
+    'recipeCreateNewIngredient': 'Жаңа шикізат қосу',
+    'recipeCreateNewIngredientHint':
+        'Тізімде болмаса — осы жерден қоса беріңіз',
     'recipeValidationSelectProduct': 'Өнім түрін таңдаңыз',
     'recipeValidationBatch': 'Партия бірлігін таңдаңыз',
     'recipeValidationOutput': 'Шығу санын енгізіңіз',
@@ -2974,6 +3001,10 @@ class S {
     'recipeIngredientsSectionSubtitle':
         'Тандалган бирдикте бир партияга кеткен көлөмдөрдү киргизиңиз.',
     'recipeAddIngredient': 'Кошуу',
+    'recipeCreateNewIngredientDivider': 'ЖЕ',
+    'recipeCreateNewIngredient': 'Жаңы чийки зат кошуу',
+    'recipeCreateNewIngredientHint':
+        'Тизимде болбосо — ушул жерден кошуп коюңуз',
     'recipeValidationSelectProduct': 'Өнүм түрүн тандаңыз',
     'recipeValidationBatch': 'Партия бирдигин тандаңыз',
     'recipeValidationOutput': 'Чыгым санын киргизиңиз',
@@ -3503,6 +3534,10 @@ class S {
     'recipeIngredientsSectionSubtitle':
         'Seçilen birimde tek partiye giren miktarları girin.',
     'recipeAddIngredient': 'Kalem ekle',
+    'recipeCreateNewIngredientDivider': 'VEYA',
+    'recipeCreateNewIngredient': 'Yeni hammadde oluştur',
+    'recipeCreateNewIngredientHint':
+        'Listede yoksa doğrudan buradan ekleyin',
     'recipeValidationSelectProduct': 'Ürün türünü seçin',
     'recipeValidationBatch': 'Parti birimini seçin',
     'recipeValidationOutput': 'Çıkış miktarını girin',

@@ -12,6 +12,7 @@ import '../../../auth/domain/providers/shop_provider.dart';
 import '../../domain/models/bread_category_model.dart';
 import '../../domain/models/ingredient_model.dart';
 import '../../domain/providers/setup_provider.dart';
+import '../widgets/ingredient_form_sheet.dart';
 
 class RecipeCreateScreen extends ConsumerStatefulWidget {
   const RecipeCreateScreen({super.key});
@@ -826,6 +827,130 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
               minimumSize: const Size(double.infinity, 50),
             ),
           ),
+        const SizedBox(height: 16),
+        _CreateNewIngredientInline(
+          onCreated: () {
+            // `ingredientProvider` sheet ichida yangilanadi — qo'shimcha refresh kerak emas.
+            // UI'ni darhol yangilash uchun setState chaqiramiz: yangi qo'shilgan
+            // xom ashyo pastdagi tanlash dropdown'ida ko'rinadi.
+            setState(() {});
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Step 3 — mavjud xom ashyolardan tashqari "yangi xom ashyo qo'shish" tugmasi.
+///
+/// Ajratilgan widget: SRP (foydalanuvchi asl qadam dispozitsiyasini to'xtatmaslik
+/// uchun bu yerdan chiqib ketmasdan forma ochiladi) va localization uchun.
+class _CreateNewIngredientInline extends StatelessWidget {
+  const _CreateNewIngredientInline({required this.onCreated});
+
+  final VoidCallback onCreated;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Divider(
+                color: cs.outline.withValues(alpha: 0.18),
+                thickness: 1,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                s.recipeCreateNewIngredientDivider,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                  letterSpacing: 0.3,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Divider(
+                color: cs.outline.withValues(alpha: 0.18),
+                thickness: 1,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Material(
+          color: cs.primaryContainer.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () async {
+              final saved = await showIngredientFormSheet(context);
+              if (saved) onCreated();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: cs.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.add_rounded,
+                      color: cs.primary,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.recipeCreateNewIngredient,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: cs.onSurface,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          s.recipeCreateNewIngredientHint,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                            height: 1.3,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 14,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
