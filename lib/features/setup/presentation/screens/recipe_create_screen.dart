@@ -763,16 +763,45 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     flex: 2,
-                    child: TextFormField(
-                      controller: entry.quantityController,
-                      decoration: InputDecoration(
-                        hintText: '0.0',
-                        suffixText: _quantitySuffix(entry, allIngredients),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true),
+                    child: Builder(
+                      builder: (fieldContext) {
+                        final suffix =
+                            _quantitySuffix(entry, allIngredients);
+                        return TextFormField(
+                          controller: entry.quantityController,
+                          decoration: InputDecoration(
+                            hintText: '0.0',
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 12,
+                            ),
+                            suffixIcon: suffix == null
+                                ? null
+                                : Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 12,
+                                      left: 4,
+                                    ),
+                                    child: Text(
+                                      suffix,
+                                      style: TextStyle(
+                                        color: cs.primary,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
+                                        letterSpacing: 0.2,
+                                      ),
+                                    ),
+                                  ),
+                            suffixIconConstraints: const BoxConstraints(
+                              minWidth: 0,
+                              minHeight: 0,
+                            ),
+                          ),
+                          keyboardType:
+                              const TextInputType.numberWithOptions(
+                                  decimal: true),
+                        );
+                      },
                     ),
                   ),
                   IconButton(
