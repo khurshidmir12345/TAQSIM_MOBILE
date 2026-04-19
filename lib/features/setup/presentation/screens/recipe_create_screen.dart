@@ -169,8 +169,12 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     return null;
   }
 
-  /// Xom ashyo miqdori input suffixi: tanlangan xom ashyoning
-  /// o'lchov birligi to'liq lokallashgan nomi ("Kilogram", "Dona", "Litr", ...).
+  /// Xom ashyo miqdori input suffixi: xom ashyo yaratilishida tanlangan
+  /// o'lchov birligining qisqa kodi, birinchi harfi katta qilib ko'rsatiladi
+  /// ("Kg", "G", "Ta", "L", "Ml", "M", ...).
+  ///
+  /// Input ichida joy tor bo'lgani uchun to'liq nom emas, qisqa kod afzal —
+  /// u universal va barcha tillarda tushunarli.
   String? _quantitySuffix(
     _IngredientEntry entry,
     List<IngredientModel> allIngredients,
@@ -179,14 +183,19 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     if (id == null) return null;
     for (final ing in allIngredients) {
       if (ing.id != id) continue;
-      final mu = ing.measurementUnit;
-      if (mu != null) {
-        final name = mu.localizedName(_currentLocaleCode());
-        if (name.isNotEmpty) return name;
-      }
-      return ing.displayUnitLine;
+      return _capitalizeUnitCode(ing.displayUnitLine);
     }
     return null;
+  }
+
+  /// Birlik kodini toza "Capitalized" formatga keltiradi:
+  /// `kg` → `Kg`, `ml` → `Ml`, `m` → `M`. Bo'sh/non-alpha kiritma
+  /// bo'lsa asl qiymatini qaytaradi.
+  String _capitalizeUnitCode(String code) {
+    if (code.isEmpty) return code;
+    final first = code.substring(0, 1).toUpperCase();
+    final rest = code.length > 1 ? code.substring(1).toLowerCase() : '';
+    return '$first$rest';
   }
 
   String _fmtNum(BuildContext context, dynamic v) {
