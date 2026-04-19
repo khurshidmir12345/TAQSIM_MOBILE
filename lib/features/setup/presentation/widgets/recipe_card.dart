@@ -294,21 +294,21 @@ class _StatsRow extends StatelessWidget {
         ),
         Expanded(
           child: Tooltip(
-            message: s.recipeCardTooltipBatchCost,
-            child: _StatCell(
-              title: s.recipeCardStatTitleBatchCost,
-              value: batch,
-              accent: AppColors.gold,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Tooltip(
             message: s.recipeCardTooltipUnitCost,
             child: _StatCell(
               title: s.recipeCardStatTitleUnitCost,
               value: unit,
               accent: AppColors.info,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Tooltip(
+            message: s.recipeCardTooltipBatchCost,
+            child: _StatCell(
+              title: s.recipeCardStatTitleBatchCost,
+              value: batch,
+              accent: AppColors.gold,
             ),
           ),
         ),
