@@ -146,11 +146,16 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     return (async.value ?? AppLocale.uz).code;
   }
 
-  /// Partiya birligi uchun to'liq lokallashgan nom
-  /// ("Blok", "Qop", "KG (partiya)", ...).
+  /// Partiya birligi uchun to'liq lokallashgan nom ("Blok", "Qop", "KG", ...).
+  ///
+  /// DB'da ba'zi nomlarda texnik qavs ("KG (partiya)") bor — UI'da u
+  /// chalg'ituvchi bo'lgani uchun bu yerda tozalaymiz. Foydalanuvchi faqat
+  /// asosiy nomni ko'radi.
   String _batchUnitDisplayName(MeasurementUnitModel u) {
-    final name = u.localizedName(_currentLocaleCode());
-    if (name.isNotEmpty) return name;
+    final raw = u.localizedName(_currentLocaleCode());
+    final cleaned =
+        raw.replaceAll(RegExp(r'\s*\([^)]*\)'), '').trim();
+    if (cleaned.isNotEmpty) return cleaned;
     return u.batchDisplayLabel;
   }
 
@@ -653,42 +658,23 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     return ListView(
       padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: cs.onSurface,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.5),
-                      fontSize: 14,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            _NewIngredientAction(
-              onPressed: () async {
-                final saved = await showIngredientFormSheet(context);
-                if (saved && mounted) setState(() {});
-              },
-            ),
-          ],
+        Text(
+          title,
+          style: TextStyle(
+            color: cs.onSurface,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          style: TextStyle(
+            color: cs.onSurface.withValues(alpha: 0.5),
+            fontSize: 14,
+            height: 1.4,
+          ),
         ),
         const SizedBox(height: 20),
         if (_ingredientEntries.isEmpty && allIngredients.isEmpty)
@@ -839,72 +825,48 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
         }),
         const SizedBox(height: 12),
         if (allIngredients.isNotEmpty)
-          OutlinedButton.icon(
-            onPressed: _addIngredient,
-            icon: const Icon(Icons.add, size: 18),
-            label: Text(s.recipeAddIngredient),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 50),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-/// Step 3 sarlavhasining o'ng yon tomonida turadigan kichik, nafis action.
-///
-/// Minimal, konteksti bilan birga: foydalanuvchi xom ashyolar bo'limi nomini
-/// o'qiganida ko'zga tushadi, lekin asosiy chiziqni buzmaydi. Tooltip va
-/// semantic label qo'shildi — a11y.
-class _NewIngredientAction extends StatelessWidget {
-  const _NewIngredientAction({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return Tooltip(
-      message: s.recipeCreateNewIngredient,
-      child: Material(
-        color: cs.primary.withValues(alpha: 0.08),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: onPressed,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 8,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.add_rounded,
-                  size: 16,
-                  color: cs.primary,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  s.recipeCreateNewIngredientShort,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: cs.primary,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.1,
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final saved = await showIngredientFormSheet(context);
+                    if (saved && mounted) setState(() {});
+                  },
+                  icon: Icon(Icons.auto_awesome_rounded, size: 18, color: cs.primary),
+                  label: Text(
+                    s.recipeCreateNewIngredientShort,
+                    style: TextStyle(color: cs.primary),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 50),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    side: BorderSide(
+                      color: cs.primary.withValues(alpha: 0.35),
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                flex: 3,
+                child: OutlinedButton.icon(
+                  onPressed: _addIngredient,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(
+                    s.recipeAddIngredient,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 50),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ),
+      ],
     );
   }
 }
