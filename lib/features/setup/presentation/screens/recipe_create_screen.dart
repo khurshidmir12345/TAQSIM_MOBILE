@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../auth/domain/models/measurement_unit_model.dart';
 import '../../../auth/domain/providers/shop_provider.dart';
@@ -124,6 +125,52 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     });
   }
 
+  /// Step 1 da kartaga bosilganda: tanlashni ko'rsatish uchun qisqa pauza,
+  /// so'ng avtomatik ravishda 2-qadamga o'tish.
+  void _onCategoryTap(String categoryId) {
+    setState(() => _selectedCategoryId = categoryId);
+    Future.delayed(const Duration(milliseconds: 180), () {
+      if (!mounted) return;
+      if (_currentStep != 0) return;
+      _nextStep();
+    });
+  }
+
+  /// Foydalanuvchi tanlagan til kodi (uz, uz_CYRL, ru, kk, ky, tr).
+  ///
+  /// `Localizations.localeOf` `uz_CYRL` ni aniq ajratmaydi,
+  /// shuning uchun ilovaning o'z [localeProvider] idan olinadi.
+  String _currentLocaleCode() {
+    final async = ref.read(localeProvider);
+    return (async.value ?? AppLocale.uz).code;
+  }
+
+  /// Partiya birligi uchun to'liq lokallashgan nom
+  /// ("Blok", "Qop", "KG (partiya)", ...).
+  String _batchUnitDisplayName(MeasurementUnitModel u) {
+    final name = u.localizedName(_currentLocaleCode());
+    if (name.isNotEmpty) return name;
+    return u.batchDisplayLabel;
+  }
+
+  /// Jumla ichida ishlatiladigan kichik harfli variant
+  /// ("1 blokdan ...", "1 qopdan ...").
+  String _batchUnitInlineName(MeasurementUnitModel u) =>
+      _batchUnitDisplayName(u).toLowerCase();
+
+  /// Tanlangan partiya birligini `units` ro'yxatidan topadi.
+  MeasurementUnitModel? _selectedBatchUnit(
+    List<MeasurementUnitModel> units,
+  ) {
+    if (_measurementUnitId == null || units.isEmpty) return null;
+    for (final u in units) {
+      if (u.id == _measurementUnitId) return u;
+    }
+    return null;
+  }
+
+  /// Xom ashyo miqdori input suffixi: tanlangan xom ashyoning
+  /// o'lchov birligi to'liq lokallashgan nomi ("Kilogram", "Dona", "Litr", ...).
   String? _quantitySuffix(
     _IngredientEntry entry,
     List<IngredientModel> allIngredients,
@@ -131,7 +178,13 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     final id = entry.ingredientId;
     if (id == null) return null;
     for (final ing in allIngredients) {
-      if (ing.id == id) return ing.displayUnitLine;
+      if (ing.id != id) continue;
+      final mu = ing.measurementUnit;
+      if (mu != null) {
+        final name = mu.localizedName(_currentLocaleCode());
+        if (name.isNotEmpty) return name;
+      }
+      return ing.displayUnitLine;
     }
     return null;
   }
@@ -262,53 +315,55 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-            decoration: BoxDecoration(
-              color: cs.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -4),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              top: false,
-              child: Row(
-                children: [
-                  if (_currentStep > 0)
+          // 1-qadamda avto-advance ishlaydi — pastki panel butunlay yashiriladi.
+          if (_currentStep > 0)
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+              decoration: BoxDecoration(
+                color: cs.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  children: [
                     Expanded(
                       child: OutlinedButton(
                         onPressed: _prevStep,
                         child: Text(s.recipeBack),
                       ),
                     ),
-                  if (_currentStep > 0) const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: _currentStep == _totalSteps - 1
-                        ? ElevatedButton(
-                            onPressed: _isSaving ? null : _save,
-                            child: _isSaving
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2, color: Colors.white),
-                                  )
-                                : Text(s.actionSave),
-                          )
-                        : ElevatedButton(
-                            onPressed: _nextStep,
-                            child: Text(s.next),
-                          ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: _currentStep == _totalSteps - 1
+                          ? ElevatedButton(
+                              onPressed: _isSaving ? null : _save,
+                              child: _isSaving
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white),
+                                    )
+                                  : Text(s.actionSave),
+                            )
+                          : ElevatedButton(
+                              onPressed: _nextStep,
+                              child: Text(s.next),
+                            ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -375,9 +430,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: hasRecipe
-                      ? null
-                      : () => setState(() => _selectedCategoryId = cat.id),
+                  onTap: hasRecipe ? null : () => _onCategoryTap(cat.id),
                   borderRadius: BorderRadius.circular(16),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -503,188 +556,95 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     final bottomPad = 20 + MediaQuery.viewInsetsOf(context).bottom;
 
     return ListView(
-      padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
+      padding: EdgeInsets.fromLTRB(0, 24, 0, bottomPad),
       children: [
-        Text(
-          s.recipeOutputSectionTitle,
-          style: TextStyle(
-            color: cs.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            s.recipeBatchCarouselTitle,
+            style: TextStyle(
+              color: cs.onSurface,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          s.recipeOutputSectionHelper,
-          style: TextStyle(
-            color: cs.onSurface.withValues(alpha: 0.5),
-            fontSize: 13,
-            height: 1.4,
+        const SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            s.recipeBatchCarouselSubtitle,
+            style: TextStyle(
+              color: cs.onSurface.withValues(alpha: 0.5),
+              fontSize: 14,
+              height: 1.4,
+            ),
           ),
         ),
         const SizedBox(height: 16),
-        TextFormField(
-          controller: _outputCtl,
-          focusNode: _outputFocusNode,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-            labelText: s.recipeOutputLabel,
-            hintText: s.recipeOutputHint,
-            suffixText: s.pcs,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(
-                color: cs.outline.withValues(alpha: 0.2),
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(
-                color: cs.outline.withValues(alpha: 0.2),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(
-                color: AppColors.primary,
-                width: 2,
-              ),
-            ),
-          ),
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            color: cs.onSurface,
-          ),
-          textAlign: TextAlign.center,
+        _BatchUnitCarousel(
+          async: batchAsync,
+          selectedId: _measurementUnitId,
+          onSelect: (id) => setState(() => _measurementUnitId = id),
+          localizedName: _batchUnitDisplayName,
+          emptyText: s.recipeValidationBatch,
+          errorText: s.snackbarErrorGeneric,
         ),
-        const SizedBox(height: 28),
-        Text(
-          s.recipeBatchCarouselTitle,
-          style: TextStyle(
-            color: cs.onSurface,
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          s.recipeBatchCarouselSubtitle,
-          style: TextStyle(
-            color: cs.onSurface.withValues(alpha: 0.5),
-            fontSize: 13,
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 14),
-        batchAsync.when(
-          data: (units) {
-            if (units.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  s.recipeValidationBatch,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-              );
-            }
-            return Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: List.generate(units.length, (i) {
-                final u = units[i];
-                final lang = Localizations.localeOf(context).languageCode;
-                final name = u.localizedName(lang);
-                final isActive = _measurementUnitId == u.id;
-                final cardWidth =
-                    (MediaQuery.sizeOf(context).width - 40 - 20) / 3;
-
-                return GestureDetector(
-                  onTap: () => setState(() => _measurementUnitId = u.id),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: cardWidth,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isActive
-                          ? AppColors.primary.withValues(alpha: 0.1)
-                          : cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: isActive
-                            ? AppColors.primary
-                            : cs.outline.withValues(alpha: 0.1),
-                        width: isActive ? 2 : 1,
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(u.icon, style: const TextStyle(fontSize: 22)),
-                        const SizedBox(height: 6),
-                        Text(
-                          name.isNotEmpty ? name : u.batchDisplayLabel,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: isActive
-                                ? AppColors.primary
-                                : cs.onSurface,
-                            fontSize: 12,
-                            fontWeight:
-                                isActive ? FontWeight.w700 : FontWeight.w600,
-                            height: 1.25,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            );
-          },
-          loading: () => const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: CircularProgressIndicator(),
-            ),
-          ),
-          error: (e, st) => Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              s.snackbarErrorGeneric,
-              style: TextStyle(color: AppColors.error),
-            ),
+        const SizedBox(height: 32),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: _OutputQuantityField(
+            controller: _outputCtl,
+            focusNode: _outputFocusNode,
+            suffix: s.pcs,
+            hint: s.recipeOutputHint,
+            label: _resolveOutputLabel(s, batchAsync),
           ),
         ),
       ],
     );
   }
 
+  /// Tanlangan partiya birligiga mos dinamik sarlavha.
+  /// Agar birlik hali tanlanmagan/yuklanmagan bo'lsa, statik `recipeOutputLabel`
+  /// fallback sifatida qaytariladi.
+  String _resolveOutputLabel(
+    S s,
+    AsyncValue<List<MeasurementUnitModel>> async,
+  ) {
+    final units = switch (async) {
+      AsyncData<List<MeasurementUnitModel>>(:final value) => value,
+      _ => const <MeasurementUnitModel>[],
+    };
+    final selected = _selectedBatchUnit(units);
+    if (selected == null) return s.recipeOutputLabel;
+    return s.recipeOutputLabelDynamic(_batchUnitInlineName(selected));
+  }
+
   Widget _buildStep3Ingredients(BuildContext context, S s, ColorScheme cs) {
     final allIngredients = ref.watch(ingredientProvider).items;
     final bottomPad =
         20 + MediaQuery.viewInsetsOf(context).bottom;
+    final batchAsync = ref.watch(recipeBatchUnitsProvider);
+    final units = switch (batchAsync) {
+      AsyncData<List<MeasurementUnitModel>>(:final value) => value,
+      _ => const <MeasurementUnitModel>[],
+    };
+    final selectedUnit = _selectedBatchUnit(units);
+    final inlineName =
+        selectedUnit != null ? _batchUnitInlineName(selectedUnit) : null;
+    final title = inlineName != null
+        ? s.recipeIngredientsSectionTitleDynamic(inlineName)
+        : s.recipeIngredientsSectionTitle;
+    final subtitle = inlineName != null
+        ? s.recipeIngredientsSectionSubtitleDynamic(inlineName)
+        : s.recipeIngredientsSectionSubtitle;
 
     return ListView(
       padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
       children: [
         Text(
-          s.recipeIngredientsSectionTitle,
+          title,
           style: TextStyle(
             color: cs.onSurface,
             fontSize: 22,
@@ -693,7 +653,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          s.recipeIngredientsSectionSubtitle,
+          subtitle,
           style: TextStyle(
             color: cs.onSurface.withValues(alpha: 0.5),
             fontSize: 14,
@@ -938,4 +898,226 @@ class _IngredientEntry {
   final TextEditingController quantityController;
 
   _IngredientEntry({required this.quantityController});
+}
+
+/// Partiya birliklari uchun gorizontal (yonga scroll qilinadigan) karusel.
+///
+/// Kartalar ko'tarilgan dizayn bilan: ikonka + nom, tanlanganida `primary`
+/// rang chegara va yoritilgan orqa fon bilan ajralib turadi.
+class _BatchUnitCarousel extends StatelessWidget {
+  const _BatchUnitCarousel({
+    required this.async,
+    required this.selectedId,
+    required this.onSelect,
+    required this.localizedName,
+    required this.emptyText,
+    required this.errorText,
+  });
+
+  final AsyncValue<List<MeasurementUnitModel>> async;
+  final String? selectedId;
+  final ValueChanged<String> onSelect;
+  final String Function(MeasurementUnitModel unit) localizedName;
+  final String emptyText;
+  final String errorText;
+
+  static const double _cardWidth = 112;
+  static const double _cardHeight = 108;
+  static const EdgeInsets _listPadding = EdgeInsets.symmetric(horizontal: 20);
+
+  @override
+  Widget build(BuildContext context) {
+    return async.when(
+      loading: () => const SizedBox(
+        height: _cardHeight,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, _) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          errorText,
+          style: const TextStyle(color: AppColors.error),
+        ),
+      ),
+      data: (units) {
+        if (units.isEmpty) {
+          final cs = Theme.of(context).colorScheme;
+          return Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              emptyText,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
+          );
+        }
+        return SizedBox(
+          height: _cardHeight,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: _listPadding,
+            itemCount: units.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (context, i) {
+              final u = units[i];
+              return _BatchUnitCard(
+                icon: u.icon,
+                label: localizedName(u),
+                isActive: u.id == selectedId,
+                onTap: () => onSelect(u.id),
+                width: _cardWidth,
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Bitta partiya birligi kartasi (karusel elementi).
+class _BatchUnitCard extends StatelessWidget {
+  const _BatchUnitCard({
+    required this.icon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+    required this.width,
+  });
+
+  final String icon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: isActive,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            width: width,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? AppColors.primary.withValues(alpha: 0.1)
+                  : cs.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isActive
+                    ? AppColors.primary
+                    : cs.outline.withValues(alpha: 0.1),
+                width: isActive ? 2 : 1,
+              ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(icon, style: const TextStyle(fontSize: 26)),
+                const SizedBox(height: 6),
+                Flexible(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: isActive ? AppColors.primary : cs.onSurface,
+                      fontSize: 12,
+                      fontWeight:
+                          isActive ? FontWeight.w700 : FontWeight.w600,
+                      height: 1.25,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Mahsulot chiqimini kiritadigan raqamli input.
+///
+/// `label` tashqaridan beriladi va tanlangan partiya birligiga qarab
+/// dinamik yangilanadi (masalan "1 blokdan qancha mahsulot chiqadi?").
+class _OutputQuantityField extends StatelessWidget {
+  const _OutputQuantityField({
+    required this.controller,
+    required this.focusNode,
+    required this.label,
+    required this.hint,
+    required this.suffix,
+  });
+
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String label;
+  final String hint;
+  final String suffix;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+        labelText: label,
+        hintText: hint,
+        suffixText: suffix,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: cs.outline.withValues(alpha: 0.2),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: cs.outline.withValues(alpha: 0.2),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(
+            color: AppColors.primary,
+            width: 2,
+          ),
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      style: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w800,
+        color: cs.onSurface,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
 }

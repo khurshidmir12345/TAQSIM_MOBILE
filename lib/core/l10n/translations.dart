@@ -237,6 +237,20 @@ class S {
   String get recipeOutputSectionHelper => _t('recipeOutputSectionHelper');
   String get recipeIngredientsSectionTitle => _t('recipeIngredientsSectionTitle');
   String get recipeIngredientsSectionSubtitle => _t('recipeIngredientsSectionSubtitle');
+
+  /// Retsept 2-qadami: tanlangan partiya birligi bo'yicha mahsulot sonini
+  /// so'rovchi dinamik sarlavha. `{unit}` joyiga kichik harfli birlik nomi
+  /// qo'yiladi (masalan: "1 blokdan qancha mahsulot chiqadi?").
+  String recipeOutputLabelDynamic(String unit) =>
+      _t('recipeOutputLabelDynamic').replaceAll('{unit}', unit);
+
+  /// Retsept 3-qadami: partiya birligiga mos xom ashyo bo'limi sarlavhasi.
+  String recipeIngredientsSectionTitleDynamic(String unit) =>
+      _t('recipeIngredientsSectionTitleDynamic').replaceAll('{unit}', unit);
+
+  /// Retsept 3-qadami: partiya birligiga mos xom ashyo bo'limi tavsifi.
+  String recipeIngredientsSectionSubtitleDynamic(String unit) =>
+      _t('recipeIngredientsSectionSubtitleDynamic').replaceAll('{unit}', unit);
   String get recipeAddIngredient => _t('recipeAddIngredient');
   String get recipeValidationSelectProduct => _t('recipeValidationSelectProduct');
   String get recipeValidationBatch => _t('recipeValidationBatch');
@@ -839,6 +853,11 @@ class S {
     'recipeIngredientsSectionTitle': 'Bitta partiya uchun xom ashyo',
     'recipeIngredientsSectionSubtitle':
         'Tanlangan birlikdagi bitta partiyaga ketadigan miqdorlarni kiriting.',
+    'recipeOutputLabelDynamic': '1 {unit}dan qancha mahsulot chiqadi?',
+    'recipeIngredientsSectionTitleDynamic':
+        'Bitta {unit} uchun qancha xom ashyo ketadi?',
+    'recipeIngredientsSectionSubtitleDynamic':
+        'Bir {unit}ga ketadigan har bir xom ashyo miqdorini kiriting.',
     'recipeAddIngredient': 'Mahsulot qo‘shish',
     'recipeValidationSelectProduct': 'Mahsulot turini tanlang',
     'recipeValidationBatch': 'Partiya birligini tanlang',
@@ -1360,6 +1379,11 @@ class S {
     'recipeOutputSectionHelper':
         '1 партиядан нечта маҳсулот чиқади?',
     'recipeIngredientsSectionTitle': 'Битта партия учун хом ашё',
+    'recipeOutputLabelDynamic': '1 {unit}дан қанча маҳсулот чиқади?',
+    'recipeIngredientsSectionTitleDynamic':
+        'Битта {unit} учун қанча хом ашё кетади?',
+    'recipeIngredientsSectionSubtitleDynamic':
+        'Бир {unit}га кетадиган ҳар бир хом ашё миқдорини киритинг.',
     'recipeIngredientsSectionSubtitle':
         'Танланган бирликдаги битта партияга кетадиган миқдорларни киритинг.',
     'recipeAddIngredient': 'Маҳсулот қўшиш',
@@ -1884,6 +1908,11 @@ class S {
     'recipeOutputSectionHelper':
         'Сколько единиц продукции получается из 1 партии?',
     'recipeIngredientsSectionTitle': 'Сырьё на одну партию',
+    'recipeOutputLabelDynamic': 'Сколько продукции с 1 {unit}?',
+    'recipeIngredientsSectionTitleDynamic':
+        'Сколько сырья нужно на 1 {unit}?',
+    'recipeIngredientsSectionSubtitleDynamic':
+        'Укажите, сколько каждого сырья идёт на 1 {unit}.',
     'recipeIngredientsSectionSubtitle':
         'Введите количества на одну партию в выбранной единице.',
     'recipeAddIngredient': 'Добавить позицию',
@@ -2408,6 +2437,11 @@ class S {
     'recipeOutputSectionHelper':
         '1 партиядан неше өнім шығады?',
     'recipeIngredientsSectionTitle': 'Бір партияға шикізат',
+    'recipeOutputLabelDynamic': '1 {unit}тан қанша өнім шығады?',
+    'recipeIngredientsSectionTitleDynamic':
+        '1 {unit} үшін қанша шикізат керек?',
+    'recipeIngredientsSectionSubtitleDynamic':
+        '1 {unit}ға қанша шикізат кететінін көрсетіңіз.',
     'recipeIngredientsSectionSubtitle':
         'Таңдалған бірліктегі бір партияға кететін мөлшерлерді енгізіңіз.',
     'recipeAddIngredient': 'Қосу',
@@ -2932,6 +2966,11 @@ class S {
     'recipeOutputSectionHelper':
         '1 партиядан канча өнүм чыгат?',
     'recipeIngredientsSectionTitle': 'Бир партия үчүн чийки зат',
+    'recipeOutputLabelDynamic': '1 {unit}тан канча өнүм чыгат?',
+    'recipeIngredientsSectionTitleDynamic':
+        '1 {unit} үчүн канча чийки зат керек?',
+    'recipeIngredientsSectionSubtitleDynamic':
+        '1 {unit}га канча чийки зат кетерин көрсөтүңүз.',
     'recipeIngredientsSectionSubtitle':
         'Тандалган бирдикте бир партияга кеткен көлөмдөрдү киргизиңиз.',
     'recipeAddIngredient': 'Кошуу',
@@ -3456,6 +3495,11 @@ class S {
     'recipeOutputSectionHelper':
         '1 partiden kaç ürün çıkar?',
     'recipeIngredientsSectionTitle': 'Tek parti için hammadde',
+    'recipeOutputLabelDynamic': '1 {unit}dan ne kadar ürün çıkar?',
+    'recipeIngredientsSectionTitleDynamic':
+        '1 {unit} için ne kadar hammadde gerekir?',
+    'recipeIngredientsSectionSubtitleDynamic':
+        '1 {unit} için gereken her hammadde miktarını girin.',
     'recipeIngredientsSectionSubtitle':
         'Seçilen birimde tek partiye giren miktarları girin.',
     'recipeAddIngredient': 'Kalem ekle',
