@@ -653,22 +653,42 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     return ListView(
       padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: cs.onSurface,
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          subtitle,
-          style: TextStyle(
-            color: cs.onSurface.withValues(alpha: 0.5),
-            fontSize: 14,
-            height: 1.4,
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: cs.onSurface,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: cs.onSurface.withValues(alpha: 0.5),
+                      fontSize: 14,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            _NewIngredientAction(
+              onPressed: () async {
+                final saved = await showIngredientFormSheet(context);
+                if (saved && mounted) setState(() {});
+              },
+            ),
+          ],
         ),
         const SizedBox(height: 20),
         if (_ingredientEntries.isEmpty && allIngredients.isEmpty)
@@ -827,28 +847,20 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
               minimumSize: const Size(double.infinity, 50),
             ),
           ),
-        const SizedBox(height: 16),
-        _CreateNewIngredientInline(
-          onCreated: () {
-            // `ingredientProvider` sheet ichida yangilanadi — qo'shimcha refresh kerak emas.
-            // UI'ni darhol yangilash uchun setState chaqiramiz: yangi qo'shilgan
-            // xom ashyo pastdagi tanlash dropdown'ida ko'rinadi.
-            setState(() {});
-          },
-        ),
       ],
     );
   }
 }
 
-/// Step 3 — mavjud xom ashyolardan tashqari "yangi xom ashyo qo'shish" tugmasi.
+/// Step 3 sarlavhasining o'ng yon tomonida turadigan kichik, nafis action.
 ///
-/// Ajratilgan widget: SRP (foydalanuvchi asl qadam dispozitsiyasini to'xtatmaslik
-/// uchun bu yerdan chiqib ketmasdan forma ochiladi) va localization uchun.
-class _CreateNewIngredientInline extends StatelessWidget {
-  const _CreateNewIngredientInline({required this.onCreated});
+/// Minimal, konteksti bilan birga: foydalanuvchi xom ashyolar bo'limi nomini
+/// o'qiganida ko'zga tushadi, lekin asosiy chiziqni buzmaydi. Tooltip va
+/// semantic label qo'shildi — a11y.
+class _NewIngredientAction extends StatelessWidget {
+  const _NewIngredientAction({required this.onPressed});
 
-  final VoidCallback onCreated;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -856,102 +868,43 @@ class _CreateNewIngredientInline extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Divider(
-                color: cs.outline.withValues(alpha: 0.18),
-                thickness: 1,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                s.recipeCreateNewIngredientDivider,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: cs.onSurfaceVariant.withValues(alpha: 0.7),
-                  letterSpacing: 0.3,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Divider(
-                color: cs.outline.withValues(alpha: 0.18),
-                thickness: 1,
-              ),
-            ),
-          ],
+    return Tooltip(
+      message: s.recipeCreateNewIngredient,
+      child: Material(
+        color: cs.primary.withValues(alpha: 0.08),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-        const SizedBox(height: 12),
-        Material(
-          color: cs.primaryContainer.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () async {
-              final saved = await showIngredientFormSheet(context);
-              if (saved) onCreated();
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 14,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.add_rounded,
-                      color: cs.primary,
-                      size: 22,
-                    ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(10),
+          onTap: onPressed,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 8,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.add_rounded,
+                  size: 16,
+                  color: cs.primary,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  s.recipeCreateNewIngredientShort,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: cs.primary,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.1,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          s.recipeCreateNewIngredient,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: cs.onSurface,
-                            height: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          s.recipeCreateNewIngredientHint,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                            height: 1.3,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 14,
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.6),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

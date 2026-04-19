@@ -260,6 +260,10 @@ class S {
   /// Retsept 3-qadam: "Yangi xom ashyo yaratish" tugmasi sarlavhasi.
   String get recipeCreateNewIngredient => _t('recipeCreateNewIngredient');
 
+  /// Retsept 3-qadam: sarlavha yonidagi kompakt action matni (qisqa forma).
+  String get recipeCreateNewIngredientShort =>
+      _t('recipeCreateNewIngredientShort');
+
   /// Retsept 3-qadam: "Yangi xom ashyo yaratish" tugmasi tavsifi.
   String get recipeCreateNewIngredientHint =>
       _t('recipeCreateNewIngredientHint');
@@ -861,17 +865,18 @@ class S {
     'recipeOutputSectionTitle': 'Mahsulot soni',
     'recipeOutputSectionHelper':
         '1 partiyadan nechta mahsulot chiqadi?',
-    'recipeIngredientsSectionTitle': 'Bitta partiya uchun xom ashyo',
+    'recipeIngredientsSectionTitle': 'Bir partiya uchun xom ashyo miqdori',
     'recipeIngredientsSectionSubtitle':
         'Tanlangan birlikdagi bitta partiyaga ketadigan miqdorlarni kiriting.',
     'recipeOutputLabelDynamic': '1 {unit}dan qancha mahsulot chiqadi?',
     'recipeIngredientsSectionTitleDynamic':
-        'Bitta {unit} uchun qancha xom ashyo ketadi?',
+        'Bir {unit} uchun xom ashyo miqdori',
     'recipeIngredientsSectionSubtitleDynamic':
         'Bir {unit}ga ketadigan har bir xom ashyo miqdorini kiriting.',
     'recipeAddIngredient': 'Mahsulot qo‘shish',
     'recipeCreateNewIngredientDivider': 'YOKI',
     'recipeCreateNewIngredient': 'Yangi xom ashyo yaratish',
+    'recipeCreateNewIngredientShort': 'Yangi',
     'recipeCreateNewIngredientHint':
         'Ro‘yxatda yo‘q bo‘lsa, shu yerning o‘zidan qo‘shing',
     'recipeValidationSelectProduct': 'Mahsulot turini tanlang',
@@ -1393,10 +1398,10 @@ class S {
     'recipeOutputSectionTitle': 'Маҳсулот сони',
     'recipeOutputSectionHelper':
         '1 партиядан нечта маҳсулот чиқади?',
-    'recipeIngredientsSectionTitle': 'Битта партия учун хом ашё',
+    'recipeIngredientsSectionTitle': 'Бир партия учун хом ашё миқдори',
     'recipeOutputLabelDynamic': '1 {unit}дан қанча маҳсулот чиқади?',
     'recipeIngredientsSectionTitleDynamic':
-        'Битта {unit} учун қанча хом ашё кетади?',
+        'Бир {unit} учун хом ашё миқдори',
     'recipeIngredientsSectionSubtitleDynamic':
         'Бир {unit}га кетадиган ҳар бир хом ашё миқдорини киритинг.',
     'recipeIngredientsSectionSubtitle':
@@ -1404,6 +1409,7 @@ class S {
     'recipeAddIngredient': 'Маҳсулот қўшиш',
     'recipeCreateNewIngredientDivider': 'ЁКИ',
     'recipeCreateNewIngredient': 'Янги хом ашё яратиш',
+    'recipeCreateNewIngredientShort': 'Янги',
     'recipeCreateNewIngredientHint':
         'Рўйхатда йўқ бўлса, шу ернинг ўзидан қўшинг',
     'recipeValidationSelectProduct': 'Маҳсулот турини танланг',
@@ -1926,10 +1932,10 @@ class S {
     'recipeOutputSectionTitle': 'Количество продукции',
     'recipeOutputSectionHelper':
         'Сколько единиц продукции получается из 1 партии?',
-    'recipeIngredientsSectionTitle': 'Сырьё на одну партию',
+    'recipeIngredientsSectionTitle': 'Количество сырья на одну партию',
     'recipeOutputLabelDynamic': 'Сколько продукции с 1 {unit}?',
     'recipeIngredientsSectionTitleDynamic':
-        'Сколько сырья нужно на 1 {unit}?',
+        'Количество сырья на 1 {unit}',
     'recipeIngredientsSectionSubtitleDynamic':
         'Укажите, сколько каждого сырья идёт на 1 {unit}.',
     'recipeIngredientsSectionSubtitle':
@@ -1937,6 +1943,7 @@ class S {
     'recipeAddIngredient': 'Добавить позицию',
     'recipeCreateNewIngredientDivider': 'ИЛИ',
     'recipeCreateNewIngredient': 'Создать новое сырьё',
+    'recipeCreateNewIngredientShort': 'Новое',
     'recipeCreateNewIngredientHint':
         'Если его нет в списке — добавьте прямо отсюда',
     'recipeValidationSelectProduct': 'Выберите тип продукции',
@@ -2459,10 +2466,10 @@ class S {
     'recipeOutputSectionTitle': 'Өнім саны',
     'recipeOutputSectionHelper':
         '1 партиядан неше өнім шығады?',
-    'recipeIngredientsSectionTitle': 'Бір партияға шикізат',
+    'recipeIngredientsSectionTitle': 'Бір партияға шикізат мөлшері',
     'recipeOutputLabelDynamic': '1 {unit}тан қанша өнім шығады?',
     'recipeIngredientsSectionTitleDynamic':
-        '1 {unit} үшін қанша шикізат керек?',
+        '1 {unit} үшін шикізат мөлшері',
     'recipeIngredientsSectionSubtitleDynamic':
         '1 {unit}ға қанша шикізат кететінін көрсетіңіз.',
     'recipeIngredientsSectionSubtitle':
@@ -2470,6 +2477,7 @@ class S {
     'recipeAddIngredient': 'Қосу',
     'recipeCreateNewIngredientDivider': 'НЕМЕСЕ',
     'recipeCreateNewIngredient': 'Жаңа шикізат қосу',
+    'recipeCreateNewIngredientShort': 'Жаңа',
     'recipeCreateNewIngredientHint':
         'Тізімде болмаса — осы жерден қоса беріңіз',
     'recipeValidationSelectProduct': 'Өнім түрін таңдаңыз',
@@ -2992,10 +3000,10 @@ class S {
     'recipeOutputSectionTitle': 'Өнүм саны',
     'recipeOutputSectionHelper':
         '1 партиядан канча өнүм чыгат?',
-    'recipeIngredientsSectionTitle': 'Бир партия үчүн чийки зат',
+    'recipeIngredientsSectionTitle': 'Бир партия үчүн чийки зат өлчөмү',
     'recipeOutputLabelDynamic': '1 {unit}тан канча өнүм чыгат?',
     'recipeIngredientsSectionTitleDynamic':
-        '1 {unit} үчүн канча чийки зат керек?',
+        '1 {unit} үчүн чийки зат өлчөмү',
     'recipeIngredientsSectionSubtitleDynamic':
         '1 {unit}га канча чийки зат кетерин көрсөтүңүз.',
     'recipeIngredientsSectionSubtitle':
@@ -3003,6 +3011,7 @@ class S {
     'recipeAddIngredient': 'Кошуу',
     'recipeCreateNewIngredientDivider': 'ЖЕ',
     'recipeCreateNewIngredient': 'Жаңы чийки зат кошуу',
+    'recipeCreateNewIngredientShort': 'Жаңы',
     'recipeCreateNewIngredientHint':
         'Тизимде болбосо — ушул жерден кошуп коюңуз',
     'recipeValidationSelectProduct': 'Өнүм түрүн тандаңыз',
@@ -3525,10 +3534,10 @@ class S {
     'recipeOutputSectionTitle': 'Ürün adedi',
     'recipeOutputSectionHelper':
         '1 partiden kaç ürün çıkar?',
-    'recipeIngredientsSectionTitle': 'Tek parti için hammadde',
+    'recipeIngredientsSectionTitle': '1 parti için hammadde miktarı',
     'recipeOutputLabelDynamic': '1 {unit}dan ne kadar ürün çıkar?',
     'recipeIngredientsSectionTitleDynamic':
-        '1 {unit} için ne kadar hammadde gerekir?',
+        '1 {unit} için hammadde miktarı',
     'recipeIngredientsSectionSubtitleDynamic':
         '1 {unit} için gereken her hammadde miktarını girin.',
     'recipeIngredientsSectionSubtitle':
@@ -3536,6 +3545,7 @@ class S {
     'recipeAddIngredient': 'Kalem ekle',
     'recipeCreateNewIngredientDivider': 'VEYA',
     'recipeCreateNewIngredient': 'Yeni hammadde oluştur',
+    'recipeCreateNewIngredientShort': 'Yeni',
     'recipeCreateNewIngredientHint':
         'Listede yoksa doğrudan buradan ekleyin',
     'recipeValidationSelectProduct': 'Ürün türünü seçin',
