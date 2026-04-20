@@ -45,7 +45,7 @@ class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
   SetupRepository get _repo => ref.read(setupRepositoryProvider);
 
   Future<void> load() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final items = await _repo.getBreadCategories(_shopId(ref));
       state = state.copyWith(items: items, isLoading: false);
@@ -143,7 +143,7 @@ class IngredientNotifier extends Notifier<IngredientListState> {
   SetupRepository get _repo => ref.read(setupRepositoryProvider);
 
   Future<void> load() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final items = await _repo.getIngredients(_shopId(ref));
       state = state.copyWith(items: items, isLoading: false);
@@ -247,7 +247,7 @@ class RecipeNotifier extends Notifier<RecipeListState> {
   SetupRepository get _repo => ref.read(setupRepositoryProvider);
 
   Future<void> load() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final items = await _repo.getRecipes(_shopId(ref));
       state = state.copyWith(items: items, isLoading: false);

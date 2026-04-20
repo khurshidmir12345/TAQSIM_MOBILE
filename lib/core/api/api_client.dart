@@ -39,7 +39,6 @@ class ApiClient {
         LogInterceptor(
           requestBody: true,
           responseBody: true,
-          error: true,
         ),
       );
     }
@@ -98,7 +97,7 @@ class _AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 401) {
       final path = err.requestOptions.path;
-      final isAuthEndpoint = _authPaths.any((p) => path.contains(p));
+      final isAuthEndpoint = _authPaths.any(path.contains);
       if (!isAuthEndpoint && !_isLoggingOut) {
         _isLoggingOut = true;
         _client.forceLogout().whenComplete(() => _isLoggingOut = false);

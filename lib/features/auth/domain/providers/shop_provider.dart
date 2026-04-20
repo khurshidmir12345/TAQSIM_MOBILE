@@ -134,7 +134,7 @@ class ShopNotifier extends Notifier<ShopState> {
   ShopRepository get _repo => ref.read(shopRepositoryProvider);
 
   Future<void> loadShops() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final shops = await _repo.getShops();
       final prefs = await SharedPreferences.getInstance();

@@ -23,7 +23,7 @@ class RecipeIngredientModel {
       id: json['id'] as String,
       ingredientId: json['ingredient_id'] as String,
       ingredient: json['ingredient'] != null
-          ? IngredientModel.fromJson(json['ingredient'])
+          ? IngredientModel.fromJson(json['ingredient'] as Map<String, dynamic>)
           : null,
       quantity: json['quantity'].toString(),
       lineCost: json['line_cost']?.toString(),
@@ -77,9 +77,10 @@ class RecipeModel {
       outputQuantity: jsonInt(json['output_quantity']),
       isActive: json['is_active'] as bool? ?? true,
       ingredients: (json['ingredients'] as List?)
-              ?.map((e) => RecipeIngredientModel.fromJson(e))
+              ?.map((e) =>
+                  RecipeIngredientModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
-          [],
+          const [],
       totalCost: json['total_cost']?.toString(),
       costPerBread: json['cost_per_bread']?.toString(),
       flourPerBatch: json['flour_per_batch']?.toString(),

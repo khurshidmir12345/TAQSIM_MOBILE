@@ -28,7 +28,7 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveHeight = height ?? 52.0;
 
-    Widget child = isLoading
+    final Widget child = isLoading
         ? const SizedBox(
             width: 20,
             height: 20,

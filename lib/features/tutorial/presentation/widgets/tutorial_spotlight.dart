@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-/// Bitta element ustida spotlight ko'rsatuvchi overlay.
+/// Spotlight overlay that highlights a single widget by its [GlobalKey].
 ///
-/// Foydalanish:
-///   SpotlightOverlay(
-///     targetKey: _myBtnKey,
-///     title: "Sozlamalar",
-///     message: "Bu yerdan sozlang",
-///     accentColor: AppColors.primary,
-///     onDismiss: () => ...,
-///     child: Scaffold(...),
-///   )
+/// The overlay is mounted on the **root** [Overlay] so that it covers the
+/// entire screen — including any bottom navigation bar owned by an enclosing
+/// shell. Visually it dims the whole viewport and cuts a transparent hole
+/// around the target. A tooltip card with a gentle, breathing border is
+/// displayed next to the hole; the user can dismiss it by tapping the scrim
+/// or pressing the primary call-to-action button.
+///
+/// Usage:
+/// ```dart
+/// SpotlightOverlay(
+///   targetKey: _filterBtnKey,
+///   title: 'Dastlab sozlang',
+///   message: 'Bu yerdan mahsulotlarni kiriting.',
+///   ctaLabel: 'Tushunarli',
+///   accentColor: AppColors.primary,
+///   onDismiss: () => ...,
+///   child: Scaffold(...),
+/// )
+/// ```
 class SpotlightOverlay extends StatefulWidget {
   const SpotlightOverlay({
     super.key,
@@ -20,6 +31,7 @@ class SpotlightOverlay extends StatefulWidget {
     required this.message,
     required this.accentColor,
     required this.onDismiss,
+    required this.ctaLabel,
     this.spotlightPadding = const EdgeInsets.all(10),
     this.spotlightRadius = 16.0,
   });
@@ -28,6 +40,7 @@ class SpotlightOverlay extends StatefulWidget {
   final GlobalKey targetKey;
   final String title;
   final String message;
+  final String ctaLabel;
   final Color accentColor;
   final VoidCallback onDismiss;
   final EdgeInsets spotlightPadding;
@@ -38,171 +51,227 @@ class SpotlightOverlay extends StatefulWidget {
 }
 
 class _SpotlightOverlayState extends State<SpotlightOverlay>
-    with TickerProviderStateMixin {
+    with WidgetsBindingObserver {
+  OverlayEntry? _entry;
   Rect? _targetRect;
-  final _stackKey = GlobalKey();
-
-  late final AnimationController _pulseCtl = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1200),
-  )..repeat(reverse: true);
-
-  late final AnimationController _fadeCtl = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 350),
-  );
-
-  late final Animation<double> _fadeAnim = CurvedAnimation(
-    parent: _fadeCtl,
-    curve: Curves.easeOut,
-  );
+  Size? _screenSize;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _updateRect());
-    });
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _mountOverlay());
   }
 
-  void _updateRect() {
-    if (!mounted) return;
+  @override
+  void didChangeMetrics() {
+    _scheduleRemeasure();
+  }
 
+  @override
+  void didUpdateWidget(covariant SpotlightOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.title != widget.title ||
+        oldWidget.message != widget.message ||
+        oldWidget.ctaLabel != widget.ctaLabel ||
+        oldWidget.accentColor != widget.accentColor) {
+      _entry?.markNeedsBuild();
+    }
+    if (oldWidget.targetKey != widget.targetKey) {
+      _scheduleRemeasure();
+    }
+  }
+
+  void _scheduleRemeasure() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+  }
+
+  void _mountOverlay() {
+    if (!mounted) return;
+    _measure();
+    _entry = OverlayEntry(builder: _buildOverlay);
+    final overlay = Overlay.of(context, rootOverlay: true);
+    overlay.insert(_entry!);
+  }
+
+  void _measure() {
+    if (!mounted) return;
     final targetCtx = widget.targetKey.currentContext;
     if (targetCtx == null) return;
-    final targetBox = targetCtx.findRenderObject() as RenderBox?;
-    if (targetBox == null || !targetBox.hasSize) return;
+    final box = targetCtx.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return;
 
-    final stackCtx = _stackKey.currentContext;
-    if (stackCtx == null) return;
-    final stackBox = stackCtx.findRenderObject() as RenderBox?;
-    if (stackBox == null) return;
-
-    final pos = targetBox.localToGlobal(Offset.zero, ancestor: stackBox);
-    final size = targetBox.size;
+    final topLeft = box.localToGlobal(Offset.zero);
     final p = widget.spotlightPadding;
-
     final rect = Rect.fromLTWH(
-      pos.dx - p.left,
-      pos.dy - p.top,
-      size.width + p.horizontal,
-      size.height + p.vertical,
+      topLeft.dx - p.left,
+      topLeft.dy - p.top,
+      box.size.width + p.horizontal,
+      box.size.height + p.vertical,
     );
-    if (rect == _targetRect) return;
-    setState(() => _targetRect = rect);
-    _fadeCtl.forward(from: 0);
+    final screen = MediaQuery.of(context).size;
+
+    if (rect == _targetRect && screen == _screenSize) return;
+    _targetRect = rect;
+    _screenSize = screen;
+    _entry?.markNeedsBuild();
+  }
+
+  Widget _buildOverlay(BuildContext ctx) {
+    final rect = _targetRect;
+    if (rect == null) return const SizedBox.shrink();
+    return _SpotlightLayer(
+      targetRect: rect,
+      radius: widget.spotlightRadius,
+      accentColor: widget.accentColor,
+      title: widget.title,
+      message: widget.message,
+      ctaLabel: widget.ctaLabel,
+      onDismiss: _handleDismiss,
+    );
+  }
+
+  void _handleDismiss() {
+    HapticFeedback.selectionClick();
+    widget.onDismiss();
   }
 
   @override
   void dispose() {
-    _pulseCtl.dispose();
-    _fadeCtl.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _entry?.remove();
+    _entry = null;
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Stack(
-      key: _stackKey,
-      children: [
-        widget.child,
-        if (_targetRect != null)
-          FadeTransition(
-            opacity: _fadeAnim,
-            child: _Overlay(
-              targetRect: _targetRect!,
-              radius: widget.spotlightRadius,
-              accentColor: widget.accentColor,
-              pulseAnimation: _pulseCtl,
-              title: widget.title,
-              message: widget.message,
-              onDismiss: widget.onDismiss,
-            ),
-          ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => widget.child;
 }
 
-class _Overlay extends StatelessWidget {
-  const _Overlay({
+// ─── Spotlight visual layer ───────────────────────────────────────────────────
+
+class _SpotlightLayer extends StatefulWidget {
+  const _SpotlightLayer({
     required this.targetRect,
     required this.radius,
     required this.accentColor,
-    required this.pulseAnimation,
     required this.title,
     required this.message,
+    required this.ctaLabel,
     required this.onDismiss,
   });
 
   final Rect targetRect;
   final double radius;
   final Color accentColor;
-  final Animation<double> pulseAnimation;
   final String title;
   final String message;
+  final String ctaLabel;
   final VoidCallback onDismiss;
+
+  @override
+  State<_SpotlightLayer> createState() => _SpotlightLayerState();
+}
+
+class _SpotlightLayerState extends State<_SpotlightLayer>
+    with TickerProviderStateMixin {
+  late final AnimationController _pulseCtl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1600),
+  )..repeat(reverse: true);
+
+  late final AnimationController _enterCtl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 380),
+  )..forward();
+
+  late final Animation<double> _fade =
+      CurvedAnimation(parent: _enterCtl, curve: Curves.easeOut);
+
+  late final Animation<double> _scale = Tween<double>(begin: 0.94, end: 1.0)
+      .animate(CurvedAnimation(parent: _enterCtl, curve: Curves.easeOutBack));
+
+  @override
+  void dispose() {
+    _pulseCtl.dispose();
+    _enterCtl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final stackH = constraints.maxHeight;
-        final stackW = constraints.maxWidth;
-        final showAbove = targetRect.center.dy > stackH * 0.50;
+        final screenW = constraints.maxWidth;
+        final screenH = constraints.maxHeight;
+        final showAbove = widget.targetRect.center.dy > screenH * 0.5;
 
         return Stack(
           children: [
             Positioned.fill(
               child: AnimatedBuilder(
-                animation: pulseAnimation,
+                animation: Listenable.merge([_pulseCtl, _fade]),
                 builder: (context, _) => CustomPaint(
                   painter: _SpotlightPainter(
-                    targetRect: targetRect,
-                    radius: radius,
-                    accentColor: accentColor,
-                    pulseValue: pulseAnimation.value,
+                    targetRect: widget.targetRect,
+                    radius: widget.radius,
+                    accentColor: widget.accentColor,
+                    pulseValue: _pulseCtl.value,
+                    fade: _fade.value,
                   ),
                 ),
               ),
             ),
-
             Positioned.fill(
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
-                onTap: onDismiss,
+                onTap: widget.onDismiss,
                 child: const SizedBox.expand(),
               ),
             ),
-
             Positioned(
-              left: (targetRect.center.dx - 14).clamp(8.0, stackW - 36.0),
-              top: showAbove ? targetRect.top - 44 : targetRect.bottom + 8,
+              left: (widget.targetRect.center.dx - 14)
+                  .clamp(8.0, screenW - 36.0),
+              top: showAbove
+                  ? widget.targetRect.top - 48
+                  : widget.targetRect.bottom + 8,
               child: IgnorePointer(
-                child: _AnimatedArrow(
-                  pointUp: !showAbove,
-                  color: accentColor,
-                  animation: pulseAnimation,
+                child: FadeTransition(
+                  opacity: _fade,
+                  child: _AnimatedArrow(
+                    pointUp: !showAbove,
+                    color: widget.accentColor,
+                    animation: _pulseCtl,
+                  ),
                 ),
               ),
             ),
-
             Positioned(
               left: 16,
               right: 16,
               top: showAbove
                   ? null
-                  : (targetRect.bottom + 52).clamp(0.0, stackH - 160),
+                  : (widget.targetRect.bottom + 56)
+                      .clamp(0.0, screenH - 200),
               bottom: showAbove
-                  ? (stackH - targetRect.top + 44).clamp(8.0, stackH - 160)
+                  ? (screenH - widget.targetRect.top + 48)
+                      .clamp(8.0, screenH - 200)
                   : null,
-              child: GestureDetector(
-                onTap: onDismiss,
-                child: _TooltipCard(
-                  title: title,
-                  message: message,
-                  accentColor: accentColor,
-                  onClose: onDismiss,
+              child: FadeTransition(
+                opacity: _fade,
+                child: ScaleTransition(
+                  scale: _scale,
+                  alignment: showAbove
+                      ? Alignment.bottomCenter
+                      : Alignment.topCenter,
+                  child: _TooltipCard(
+                    title: widget.title,
+                    message: widget.message,
+                    ctaLabel: widget.ctaLabel,
+                    accentColor: widget.accentColor,
+                    pulse: _pulseCtl,
+                    onDismiss: widget.onDismiss,
+                  ),
                 ),
               ),
             ),
@@ -219,12 +288,14 @@ class _SpotlightPainter extends CustomPainter {
     required this.radius,
     required this.accentColor,
     required this.pulseValue,
+    required this.fade,
   });
 
   final Rect targetRect;
   final double radius;
   final Color accentColor;
   final double pulseValue;
+  final double fade;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -233,7 +304,7 @@ class _SpotlightPainter extends CustomPainter {
 
     canvas.drawRect(
       fullRect,
-      Paint()..color = Colors.black.withValues(alpha: 0.72),
+      Paint()..color = Colors.black.withValues(alpha: 0.72 * fade),
     );
 
     final glowR = radius + 6 + 8 * pulseValue;
@@ -243,7 +314,8 @@ class _SpotlightPainter extends CustomPainter {
         Radius.circular(glowR),
       ),
       Paint()
-        ..color = accentColor.withValues(alpha: 0.18 + 0.14 * pulseValue)
+        ..color = accentColor
+            .withValues(alpha: (0.18 + 0.14 * pulseValue) * fade)
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, 14 + 6 * pulseValue),
     );
 
@@ -258,9 +330,12 @@ class _SpotlightPainter extends CustomPainter {
   @override
   bool shouldRepaint(_SpotlightPainter old) =>
       old.pulseValue != pulseValue ||
+      old.fade != fade ||
       old.targetRect != targetRect ||
       old.accentColor != accentColor;
 }
+
+// ─── Arrow ───────────────────────────────────────────────────────────────────
 
 class _AnimatedArrow extends StatelessWidget {
   const _AnimatedArrow({
@@ -278,13 +353,13 @@ class _AnimatedArrow extends StatelessWidget {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, _) => Transform.translate(
-        offset: Offset(0, (pointUp ? -5 : 5) * animation.value),
+        offset: Offset(0, (pointUp ? -6 : 6) * animation.value),
         child: Icon(
           pointUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
           color: color,
           size: 28,
           shadows: [
-            Shadow(color: color.withValues(alpha: 0.55), blurRadius: 12),
+            Shadow(color: color.withValues(alpha: 0.55), blurRadius: 14),
           ],
         ),
       ),
@@ -292,108 +367,232 @@ class _AnimatedArrow extends StatelessWidget {
   }
 }
 
+// ─── Tooltip card ────────────────────────────────────────────────────────────
+
 class _TooltipCard extends StatelessWidget {
   const _TooltipCard({
     required this.title,
     required this.message,
+    required this.ctaLabel,
     required this.accentColor,
-    required this.onClose,
+    required this.pulse,
+    required this.onDismiss,
   });
 
   final String title;
   final String message;
+  final String ctaLabel;
   final Color accentColor;
-  final VoidCallback onClose;
+  final Animation<double> pulse;
+  final VoidCallback onDismiss;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final surface = isDark ? const Color(0xFF1A2235) : Colors.white;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 12, 16),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A2235) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: accentColor.withValues(alpha: isDark ? 0.28 : 0.16),
-          width: 1.2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: accentColor.withValues(alpha: 0.20),
-            blurRadius: 28,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.10),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+    return AnimatedBuilder(
+      animation: pulse,
+      builder: (context, _) {
+        final borderAlpha = 0.22 + 0.22 * pulse.value;
+        final glowAlpha = 0.18 + 0.12 * pulse.value;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: surface,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: accentColor.withValues(alpha: borderAlpha),
+              width: 1.4,
             ),
-            child: Icon(
-              Icons.lightbulb_outline_rounded,
-              color: accentColor,
-              size: 22,
-            ),
+            boxShadow: [
+              BoxShadow(
+                color: accentColor.withValues(alpha: glowAlpha),
+                blurRadius: 28,
+                spreadRadius: 2,
+                offset: const Offset(0, 10),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.45 : 0.10),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: theme.colorScheme.onSurface,
-                    height: 1.3,
-                    fontSize: 14,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _GlowIcon(color: accentColor, pulse: pulse),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            title,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: theme.colorScheme.onSurface,
+                              fontSize: 15.5,
+                              height: 1.25,
+                              letterSpacing: -0.1,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            message,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.7),
+                              fontSize: 13.5,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    _CloseButton(onTap: onDismiss),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  message,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
-                    height: 1.5,
-                    fontSize: 13,
-                  ),
+                const SizedBox(height: 14),
+                _CtaButton(
+                  label: ctaLabel,
+                  color: accentColor,
+                  onTap: onDismiss,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: onClose,
-            child: Container(
-              width: 30,
-              height: 30,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                shape: BoxShape.circle,
+        );
+      },
+    );
+  }
+}
+
+class _GlowIcon extends StatelessWidget {
+  const _GlowIcon({required this.color, required this.pulse});
+  final Color color;
+  final Animation<double> pulse;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: pulse,
+      builder: (context, _) {
+        return Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                color.withValues(alpha: 0.22),
+                color.withValues(alpha: 0.08),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.12 + 0.14 * pulse.value),
+                blurRadius: 14,
+                spreadRadius: 1,
               ),
-              child: Icon(
-                Icons.close_rounded,
-                size: 15,
-                color: theme.colorScheme.onSurfaceVariant,
+            ],
+          ),
+          child: Icon(
+            Icons.tips_and_updates_rounded,
+            color: color,
+            size: 22,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _CloseButton extends StatelessWidget {
+  const _CloseButton({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          width: 30,
+          height: 30,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: cs.onSurface.withValues(alpha: 0.06),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.close_rounded,
+            size: 15,
+            color: cs.onSurface.withValues(alpha: 0.55),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CtaButton extends StatelessWidget {
+  const _CtaButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.30),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
             ),
           ),
-        ],
+        ),
       ),
     );
   }

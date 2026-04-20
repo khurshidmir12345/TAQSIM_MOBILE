@@ -37,7 +37,6 @@ class RecipeCard extends StatelessWidget {
 
     return Material(
       color: cs.surface,
-      elevation: 0,
       shadowColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
@@ -207,7 +206,7 @@ class _HeaderRow extends StatelessWidget {
             color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(AppSpacing.borderRadiusSm),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.calculate_outlined,
             color: AppColors.primary,
             size: 20,
@@ -335,7 +334,6 @@ class _StatCell extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             title,

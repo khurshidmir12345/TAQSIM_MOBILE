@@ -434,7 +434,7 @@ class _ReturnCreateScreenState extends ConsumerState<ReturnCreateScreen> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.warning_amber_rounded,
                                 color: AppColors.warning,
                                 size: 22,
@@ -558,7 +558,6 @@ class _ReturnCreateScreenState extends ConsumerState<ReturnCreateScreen> {
                       ],
                     ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: TextField(
@@ -783,7 +782,7 @@ class _ReturnInfoStrip extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          const Icon(
             Icons.info_outline_rounded,
             color: AppColors.info,
             size: 18,
@@ -866,7 +865,7 @@ class _ReturnCategoryCarouselCard extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(9),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.inventory_2_rounded,
                       color: AppColors.primary,
                       size: 17,
@@ -874,7 +873,7 @@ class _ReturnCategoryCarouselCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   if (selected)
-                    Icon(
+                    const Icon(
                       Icons.check_circle_rounded,
                       color: AppColors.primary,
                       size: 18,

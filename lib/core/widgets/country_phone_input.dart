@@ -57,7 +57,7 @@ class CountryPhoneInput extends StatelessWidget {
           ),
         ),
         prefixIconConstraints:
-            const BoxConstraints(minWidth: 0, minHeight: 0),
+            const BoxConstraints(),
       ),
     );
   }

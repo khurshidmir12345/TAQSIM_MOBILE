@@ -388,7 +388,6 @@ class _FormStep extends StatelessWidget {
         children: [
           // ── Sarlavha + Login chip ──────────────────────────────
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Text(
@@ -570,7 +569,6 @@ class _OtpStep extends StatelessWidget {
     final canResend = countdown <= 0;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Ikon
         Container(
@@ -609,7 +607,6 @@ class _OtpStep extends StatelessWidget {
         const SizedBox(height: 36),
 
         OtpInput(
-          length: 4,
           onCompleted: onCompleted,
           onChanged: onChanged,
         ),

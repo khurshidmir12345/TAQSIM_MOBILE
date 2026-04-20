@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/translations.dart';
@@ -20,6 +21,10 @@ class ShellScreen extends ConsumerStatefulWidget {
 class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
   final _dashboardKey = GlobalKey<DashboardScreenState>();
   final _historyKey = GlobalKey<HistoryScreenState>();
+
+  /// Android hardware back uchun "ikki marta bosib chiqish" logikasi.
+  DateTime? _lastBackPressAt;
+  static const _backExitWindow = Duration(seconds: 2);
 
   @override
   void initState() {
@@ -66,13 +71,56 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
     }
   }
 
+  /// Handles the Android hardware back gesture for the shell.
+  ///
+  /// Order of resolution:
+  /// 1. If current tab is not Home → switch to Home tab silently.
+  /// 2. If already on Home → show a "press again to exit" snackbar; if the
+  ///    user presses back again within [_backExitWindow], exit the app.
+  Future<void> _handleSystemBack(S s) async {
+    final index = ref.read(shellTabIndexProvider);
+
+    if (index != 0) {
+      HapticFeedback.selectionClick();
+      _onTabTap(0);
+      return;
+    }
+
+    final now = DateTime.now();
+    final last = _lastBackPressAt;
+    if (last == null || now.difference(last) > _backExitWindow) {
+      _lastBackPressAt = now;
+      HapticFeedback.selectionClick();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            duration: _backExitWindow,
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            content: Text(s.pressBackAgainToExit),
+          ),
+        );
+      return;
+    }
+
+    await SystemNavigator.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final currentIndex = ref.watch(shellTabIndexProvider);
     final s = S.of(context);
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _handleSystemBack(s);
+      },
+      child: Scaffold(
       body: IndexedStack(
         index: currentIndex,
         children: [
@@ -128,6 +176,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
           ),
         ),
       ),
+    ),
     );
   }
 }

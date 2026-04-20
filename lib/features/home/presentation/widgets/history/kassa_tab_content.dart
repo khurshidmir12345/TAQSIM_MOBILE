@@ -14,6 +14,7 @@ import '../../../../../core/widgets/error_retry_widget.dart';
 import '../../../../auth/domain/providers/auth_provider.dart';
 import '../../../domain/models/expense_model.dart';
 import '../../../domain/providers/daily_provider.dart';
+import '../expense_actions.dart';
 
 /// Bugungi kassa xarajatlari — tarix ichidagi «Kassa» bo‘limi.
 class KassaTabContent extends ConsumerStatefulWidget {
@@ -121,7 +122,7 @@ class KassaTabContentState extends ConsumerState<KassaTabContent> {
                     fmt: (v) => _fmtMoney(context, v),
                     cs: cs,
                     isDark: isDark,
-                    subtitle: s.historyTabCash,
+                    subtitle: s.cashRegister,
                   ),
                 ),
               ),
@@ -153,6 +154,14 @@ class KassaTabContentState extends ConsumerState<KassaTabContent> {
                         description: e.description,
                         fmt: (v) => _fmtMoney(context, v),
                         currency: s.currency,
+                        onTap: () async {
+                          final changed = await showExpenseActions(
+                            context,
+                            ref: ref,
+                            expense: e,
+                          );
+                          if (changed && mounted) _load();
+                        },
                       );
                     },
                   ),
@@ -251,6 +260,7 @@ class _ExpenseTile extends StatelessWidget {
     this.description,
     required this.fmt,
     required this.currency,
+    this.onTap,
   });
 
   final String category;
@@ -258,6 +268,7 @@ class _ExpenseTile extends StatelessWidget {
   final String? description;
   final String Function(double) fmt;
   final String currency;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -269,7 +280,11 @@ class _ExpenseTile extends StatelessWidget {
         alpha: isDark ? 0.35 : 0.65,
       ),
       borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-      child: Padding(
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+        child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,6 +337,7 @@ class _ExpenseTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
     );
   }
 }

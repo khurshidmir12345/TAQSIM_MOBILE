@@ -136,7 +136,6 @@ class _ProductionDetailScreenState extends ConsumerState<ProductionDetailScreen>
       body: CustomScrollView(
         slivers: [
           SliverAppBar.large(
-            pinned: true,
             surfaceTintColor: Colors.transparent,
             actions: [
               IconButton(

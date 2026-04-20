@@ -39,15 +39,38 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final pad = Responsive.horizontalPadding(context);
     final s = S.of(context);
     final currentLocale = ref.watch(localeProvider).value ?? AppLocale.uz;
+    final canPop = Navigator.of(context).canPop();
 
     return Scaffold(
+      appBar: AppBar(
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        leading: canPop
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  context.pop();
+                },
+              )
+            : null,
+        title: Text(
+          s.profileTab,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        centerTitle: true,
+      ),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
-            child: _ProfileHeader(
-              user: user,
-              isUploading: _isUploadingAvatar,
-              onTapAvatar: _showAvatarSheet,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(pad, 4, pad, 0),
+              child: _ProfileHeader(
+                user: user,
+                isUploading: _isUploadingAvatar,
+                onTapAvatar: _showAvatarSheet,
+              ),
             ),
           ),
           SliverPadding(
@@ -105,7 +128,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     subtitle: '${s.version} 1.0.0',
                     iconBg: cs.primary.withValues(alpha: 0.1),
                     iconColor: cs.primary,
-                    onTap: () => _showAboutSheet(context, cs, s),
+                    onTap: () => context.push('/about-app'),
                   ),
                   _MenuItem(
                     icon: Icons.shield_outlined,
@@ -495,135 +518,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  void _showAboutSheet(BuildContext context, ColorScheme cs, S s) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) => Container(
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: cs.onSurface.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: AppColors.cardGradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.25),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: const Icon(Icons.calculate_rounded,
-                    color: Colors.white, size: 34),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'TAQSEEM',
-                style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${s.version} 1.0.0',
-                style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.45),
-                    fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  s.aboutAppDescription,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.6),
-                      fontSize: 13,
-                      height: 1.6),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  _AboutTile(
-                    icon: Icons.code_rounded,
-                    label: s.developer,
-                    value: 'TAQSEEM Team',
-                    cs: cs,
-                  ),
-                  const SizedBox(width: 10),
-                  _AboutTile(
-                    icon: Icons.language_rounded,
-                    label: s.website,
-                    value: 'taqseem.uz',
-                    cs: cs,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  _AboutTile(
-                    icon: Icons.send_rounded,
-                    label: s.telegram,
-                    value: '@taqseem_uz',
-                    cs: cs,
-                  ),
-                  const SizedBox(width: 10),
-                  _AboutTile(
-                    icon: Icons.phone_rounded,
-                    label: s.support,
-                    value: '+998 90 123 45 67',
-                    cs: cs,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                s.madeInUzbekistan,
-                style: TextStyle(
-                  color: cs.onSurface.withValues(alpha: 0.3),
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   void _showLanguagePicker(
       BuildContext context, WidgetRef ref, AppLocale current) {
     final cs = Theme.of(context).colorScheme;
@@ -718,76 +612,31 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
     final name = (user?.name?.isNotEmpty == true)
         ? user!.name!
         : S.of(context).defaultUser;
-    final canPop = Navigator.of(context).canPop();
 
     return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isDark
-              ? AppColors.cardGradientDark
-              : [AppColors.primary, AppColors.primaryLight],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.5)),
       ),
-      child: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (canPop)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 4, 0, 0),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        context.pop();
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            else
-              const SizedBox(height: 8),
-            Padding(
-              padding: EdgeInsets.fromLTRB(20, canPop ? 4 : 12, 20, 20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _AvatarBubble(
-                    user: user,
-                    name: name,
-                    isUploading: isUploading,
-                    onTap: onTapAvatar,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: _IdentityBlock(user: user, name: name),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      child: Row(
+        children: [
+          _AvatarBubble(
+            user: user,
+            name: name,
+            isUploading: isUploading,
+            onTap: onTapAvatar,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: _IdentityBlock(user: user, name: name),
+          ),
+        ],
       ),
     );
   }
@@ -808,6 +657,7 @@ class _AvatarBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
     final url = user?.avatarUrl;
     final hasUrl = url != null && url.isNotEmpty;
@@ -821,15 +671,15 @@ class _AvatarBubble extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 64,
+              height: 64,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
-                  width: 2,
+                gradient: const LinearGradient(
+                  colors: AppColors.cardGradient,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
+                borderRadius: BorderRadius.circular(18),
               ),
               clipBehavior: Clip.antiAlias,
               child: hasUrl
@@ -847,14 +697,14 @@ class _AvatarBubble extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.45),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   alignment: Alignment.center,
                   child: const SizedBox(
-                    width: 22,
-                    height: 22,
+                    width: 20,
+                    height: 20,
                     child: CircularProgressIndicator(
-                      strokeWidth: 2.4,
+                      strokeWidth: 2.2,
                       valueColor:
                           AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
@@ -865,21 +715,17 @@ class _AvatarBubble extends StatelessWidget {
               right: -2,
               bottom: -2,
               child: Container(
-                width: 24,
-                height: 24,
+                width: 22,
+                height: 22,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cs.surface,
                   borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.18),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  border: Border.all(
+                    color: cs.outline.withValues(alpha: 0.4),
+                  ),
                 ),
                 child: const Icon(Icons.camera_alt_rounded,
-                    color: AppColors.primary, size: 13),
+                    color: AppColors.primary, size: 12),
               ),
             ),
           ],
@@ -900,18 +746,21 @@ class _IdentityBlock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.2,
-            height: 1.2,
-          ),
-        ),
+        Builder(builder: (context) {
+          final cs = Theme.of(context).colorScheme;
+          return Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: cs.onSurface,
+              fontSize: 16.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.2,
+              height: 1.2,
+            ),
+          );
+        }),
         const SizedBox(height: 6),
         ..._buildRows(),
       ],
@@ -957,10 +806,12 @@ class _IdentityRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 13, color: Colors.white.withValues(alpha: 0.75)),
+        Icon(icon,
+            size: 13, color: cs.onSurface.withValues(alpha: 0.5)),
         const SizedBox(width: 6),
         Flexible(
           child: Text(
@@ -968,7 +819,7 @@ class _IdentityRow extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.88),
+              color: cs.onSurface.withValues(alpha: 0.65),
               fontSize: 12.5,
               fontWeight: FontWeight.w500,
               height: 1.25,
@@ -1406,51 +1257,3 @@ class _LanguageItem extends StatelessWidget {
   }
 }
 
-// ─── About Tile ──────────────────────────────────────────────────────────────
-
-class _AboutTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final ColorScheme cs;
-
-  const _AboutTile({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.cs,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon,
-                size: 16, color: cs.onSurface.withValues(alpha: 0.4)),
-            const SizedBox(height: 6),
-            Text(label,
-                style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.45),
-                    fontSize: 11)),
-            const SizedBox(height: 2),
-            Text(value,
-                style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-          ],
-        ),
-      ),
-    );
-  }
-}

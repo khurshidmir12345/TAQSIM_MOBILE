@@ -66,10 +66,34 @@ class DailyReportNotifier extends Notifier<DailyReportState> {
     await loadDate(date);
   }
 
+  /// Removes an expense from local state immediately so the UI can show
+  /// optimistic updates while a network call is in flight.
+  void removeExpenseLocally(String expenseId) {
+    final updated = state.expenses.where((e) => e.id != expenseId).toList();
+    state = state.copyWith(expenses: updated);
+  }
+
+  /// Re-inserts an expense into local state (used when an optimistic delete
+  /// is undone or when the server rejects the operation).
+  void restoreExpenseLocally(ExpenseModel expense) {
+    if (state.expenses.any((e) => e.id == expense.id)) return;
+    final next = [...state.expenses, expense]
+      ..sort((a, b) => (b.createdAt ?? '').compareTo(a.createdAt ?? ''));
+    state = state.copyWith(expenses: next);
+  }
+
+  /// Replaces an expense in local state after a successful update.
+  void replaceExpenseLocally(ExpenseModel expense) {
+    final next = state.expenses
+        .map((e) => e.id == expense.id ? expense : e)
+        .toList();
+    state = state.copyWith(expenses: next);
+  }
+
   Future<void> loadDate(String date) async {
     final shopId = _shopId(ref);
     final locale = ref.read(localeProvider).value?.code ?? AppLocale.uz.code;
-    state = state.copyWith(isLoading: true, error: null, selectedDate: date);
+    state = state.copyWith(isLoading: true, selectedDate: date);
     try {
       final results = await Future.wait([
         _repo.getDailyReport(shopId, date),

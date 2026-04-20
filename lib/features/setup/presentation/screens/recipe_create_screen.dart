@@ -753,7 +753,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                       decoration: InputDecoration(
                         hintText: s.recipeIngredientSelectHint,
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       ),
                       isExpanded: true,
                       items: availableIngredients
@@ -800,8 +800,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
                                     ),
                                   ),
                             suffixIconConstraints: const BoxConstraints(
-                              minWidth: 0,
-                              minHeight: 0,
+                              
                             ),
                           ),
                           keyboardType:

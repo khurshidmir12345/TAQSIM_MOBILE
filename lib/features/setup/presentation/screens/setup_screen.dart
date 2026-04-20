@@ -215,7 +215,7 @@ class _SetupJourneyPanel extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.route_rounded,
                   color: AppColors.primary,
                   size: 22,
@@ -231,7 +231,7 @@ class _SetupJourneyPanel extends StatelessWidget {
                   ),
                 ),
                 if (isLoading)
-                  SizedBox(
+                  const SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
@@ -331,7 +331,7 @@ class _SetupJourneyPanel extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.verified_rounded,
                     size: 16,
                     color: AppColors.income,
@@ -440,7 +440,7 @@ class _GradientHeader extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: IconButton(
                 onPressed: onBack,
-                icon: Icon(
+                icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: _SetupDim.backIconSize,
                 ),

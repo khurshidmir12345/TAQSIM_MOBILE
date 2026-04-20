@@ -247,6 +247,40 @@ class DailyRepository {
     }
   }
 
+  Future<ExpenseModel> updateExpense(
+    String shopId,
+    String expenseId, {
+    String? category,
+    String? description,
+    double? amount,
+    String? date,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'category': ?category,
+        'description': ?description,
+        'amount': ?amount,
+        'date': ?date,
+      };
+      final res = await _apiClient.dio.put(
+        '${_shopPath(shopId)}/expenses/$expenseId',
+        data: payload,
+      );
+      final data = _body(res)['data'] as Map<String, dynamic>;
+      return ExpenseModel.fromJson(data['expense'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  Future<void> deleteExpense(String shopId, String expenseId) async {
+    try {
+      await _apiClient.dio.delete('${_shopPath(shopId)}/expenses/$expenseId');
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   Future<List<ExpenseCategoryOption>> fetchExpenseCategories(
     String shopId, {
     String? search,

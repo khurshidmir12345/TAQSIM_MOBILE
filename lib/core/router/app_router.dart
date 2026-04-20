@@ -23,6 +23,7 @@ import '../../features/setup/presentation/screens/recipe_create_screen.dart';
 import '../../features/setup/presentation/screens/recipes_screen.dart';
 import '../../features/shell/presentation/screens/shell_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
+import '../../features/profile/presentation/screens/about_app_screen.dart';
 import '../../features/profile/presentation/screens/profile_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/top_up_screen.dart';
@@ -168,6 +169,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/profile-info',
         builder: (context, state) => const ProfileInfoScreen(),
+      ),
+      GoRoute(
+        path: '/about-app',
+        builder: (context, state) => const AboutAppScreen(),
       ),
       GoRoute(
         path: '/top-up',

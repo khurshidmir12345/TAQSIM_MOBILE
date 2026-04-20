@@ -296,7 +296,7 @@ class _Header extends StatelessWidget {
                   value: val,
                   minHeight: 5,
                   backgroundColor: cs.surfaceContainerHighest,
-                  valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                  valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                 ),
               ),
             ),
@@ -686,7 +686,6 @@ class _MapPicker extends StatelessWidget {
               mapController: mapCtl,
               options: MapOptions(
                 initialCenter: selectedLatLng ?? _default,
-                initialZoom: 13,
                 onTap: (_, latlng) => onTap(latlng),
                 interactionOptions: const InteractionOptions(
                   flags: InteractiveFlag.all & ~InteractiveFlag.rotate,

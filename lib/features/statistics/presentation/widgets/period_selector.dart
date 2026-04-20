@@ -69,7 +69,7 @@ class _PeriodSelectorState extends State<PeriodSelector> {
     }
 
     _months = List.generate(12, (i) {
-      final f = DateTime(_today.year, _today.month - 11 + i, 1);
+      final f = DateTime(_today.year, _today.month - 11 + i);
       return DateTimeRange(start: f, end: DateTime(f.year, f.month + 1, 0));
     });
   }
@@ -145,7 +145,7 @@ class _PeriodSelectorState extends State<PeriodSelector> {
 
   void _scrollTo(int i, {bool animate = true}) {
     if (!_scrollCtl.hasClients) return;
-    final gap = AppSpacing.sm;
+    const gap = AppSpacing.sm;
     final pos = i * (_chipW + gap);
     final vp = _scrollCtl.position.viewportDimension;
     final max = _scrollCtl.position.maxScrollExtent;

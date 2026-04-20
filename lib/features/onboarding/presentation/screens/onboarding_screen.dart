@@ -144,7 +144,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const Spacer(flex: 1),
+                        const Spacer(),
                       ],
                     ),
                   );

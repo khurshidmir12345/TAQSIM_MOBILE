@@ -346,7 +346,7 @@ class _ProductionEditSheetState extends ConsumerState<ProductionEditSheet> {
                                     height: 20,
                                     child: CircularProgressIndicator(strokeWidth: 2),
                                   )
-                                : Icon(
+                                : const Icon(
                                     Icons.delete_outline_rounded,
                                     color: AppColors.error,
                                   ),

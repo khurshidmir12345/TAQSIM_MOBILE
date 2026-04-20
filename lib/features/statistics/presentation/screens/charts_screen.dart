@@ -430,11 +430,10 @@ class _ProductBarChart extends StatelessWidget {
               ),
             ),
             titlesData: FlTitlesData(
-              show: true,
               topTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  const AxisTitles(),
               rightTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  const AxisTitles(),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
@@ -482,7 +481,6 @@ class _ProductBarChart extends StatelessWidget {
               ),
             ),
             gridData: FlGridData(
-              show: true,
               drawVerticalLine: false,
               horizontalInterval: maxVal > 0 ? maxVal / 4 : 1,
               getDrawingHorizontalLine: (v) => FlLine(

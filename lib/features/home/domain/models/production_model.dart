@@ -88,7 +88,7 @@ class ProductionModel {
       createdBy: json['created_by'] as String,
       breadCategory: breadCategory,
       recipe: json['recipe'] != null
-          ? RecipeModel.fromJson(json['recipe'])
+          ? RecipeModel.fromJson(json['recipe'] as Map<String, dynamic>)
           : null,
       createdAt: json['created_at'] as String?,
       returnsAmount: ra,

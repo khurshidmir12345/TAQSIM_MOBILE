@@ -169,7 +169,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                               s: s,
                               cs: cs,
                             ),
-                            SizedBox(height: AppSpacing.md),
+                            const SizedBox(height: AppSpacing.md),
                             _ReportExpandables(
                               report: _report!,
                               fmt: (v) => _fmtMoney(context, v, ref),
@@ -382,7 +382,7 @@ class _ReportExpandables extends StatelessWidget {
       children: [
         _RoundExpansion(
           cs: cs,
-          leading: Icon(Icons.undo_rounded, color: AppColors.error, size: 22),
+          leading: const Icon(Icons.undo_rounded, color: AppColors.error, size: 22),
           title: s.reportSectionReturnsByType,
           subtitle:
               returns.isEmpty ? s.reportEmptyReturns : fmt(retSum),
@@ -554,7 +554,7 @@ class _ReturnsList extends StatelessWidget {
                       color: AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.undo_rounded,
                       color: AppColors.error,
                       size: 20,

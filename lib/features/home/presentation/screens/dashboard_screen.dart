@@ -18,6 +18,7 @@ import '../../domain/models/daily_report_model.dart';
 import '../../domain/models/expense_model.dart';
 import '../../domain/models/production_model.dart';
 import '../../domain/providers/daily_provider.dart';
+import '../widgets/expense_actions.dart';
 import '../widgets/production_summary_card.dart';
 
 enum _DashboardSection { output, expense }
@@ -106,7 +107,7 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
     final picked = await showDatePicker(
       context: context,
       initialDate: initial,
-      firstDate: DateTime(now.year - 3, 1, 1),
+      firstDate: DateTime(now.year - 3),
       lastDate: now,
       locale: materialLocaleFor(appLocale),
     );
@@ -311,6 +312,7 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
         targetKey: _setupBtnKey,
         title: s.tutorialSettingsHintTitle,
         message: s.tutorialSettingsHintMessage,
+        ctaLabel: s.gotIt,
         accentColor: AppColors.primary,
         onDismiss: () => ref.read(shopTutorialProvider.notifier).dismiss(),
         child: scaffold,
@@ -354,7 +356,6 @@ class _DashboardHeader extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.fromLTRB(pad, 12, pad, 16),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Material(
                 color: Colors.transparent,
@@ -401,7 +402,6 @@ class _DashboardHeader extends StatelessWidget {
                                   : 0.0;
                               return Row(
                                 mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   ConstrainedBox(
                                     constraints: BoxConstraints(
@@ -663,7 +663,6 @@ class _BalanceCard extends StatelessWidget {
                         border: isFiltered
                             ? Border.all(
                                 color: Colors.white.withValues(alpha: 0.35),
-                                width: 1,
                               )
                             : null,
                       ),
@@ -901,7 +900,7 @@ class _StatTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outline, width: 1),
+        border: Border.all(color: cs.outline),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.04),
@@ -1052,7 +1051,7 @@ class _DashboardEmptyState extends StatelessWidget {
   }
 }
 
-class _ExpenseList extends StatelessWidget {
+class _ExpenseList extends ConsumerWidget {
   final List<ExpenseModel> expenses;
   final String Function(dynamic) fmt;
   final String currency;
@@ -1064,7 +1063,7 @@ class _ExpenseList extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (expenses.isEmpty) {
       return const _DashboardEmptyState(
         icon: Icons.payments_outlined,
@@ -1081,6 +1080,11 @@ class _ExpenseList extends StatelessWidget {
               expense: e,
               fmt: fmt,
               currency: currency,
+              onTap: () => showExpenseActions(
+                context,
+                ref: ref,
+                expense: e,
+              ),
             ),
           ),
       ],
@@ -1092,26 +1096,34 @@ class _DashboardExpenseCard extends StatelessWidget {
   final ExpenseModel expense;
   final String Function(dynamic) fmt;
   final String currency;
+  final VoidCallback? onTap;
 
   const _DashboardExpenseCard({
     required this.expense,
     required this.fmt,
     required this.currency,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final radius = BorderRadius.circular(16);
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outline),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return Material(
+      color: cs.surface,
+      borderRadius: radius,
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onTap,
+        borderRadius: radius,
+        child: Ink(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            border: Border.all(color: cs.outline),
+          ),
+          child: Row(
         children: [
           Container(
             width: 38,
@@ -1120,7 +1132,7 @@ class _DashboardExpenseCard extends StatelessWidget {
               color: AppColors.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(11),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.payments_rounded,
               color: AppColors.error,
               size: 19,
@@ -1163,13 +1175,15 @@ class _DashboardExpenseCard extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             '${fmt(expense.amount)} $currency',
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.error,
               fontSize: 14,
               fontWeight: FontWeight.w800,
             ),
           ),
         ],
+          ),
+        ),
       ),
     );
   }

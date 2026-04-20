@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:nonvoyxona/core/constants/app_constants.dart';
+import 'package:taqseem/core/constants/app_constants.dart';
 
 void main() {
-  testWidgets('Ilova nomi TAQSIM', (tester) async {
+  testWidgets('App name renders TAQSEEM', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: Center(child: Text(AppConstants.appName)),
         ),
       ),
     );
-    expect(find.text('TAQSIM'), findsOneWidget);
+    expect(find.text(AppConstants.appName), findsOneWidget);
   });
 }

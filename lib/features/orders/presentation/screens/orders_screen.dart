@@ -119,7 +119,7 @@ class _OrdersScreenState extends State<OrdersScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.construction_rounded,
                       size: 18,
                       color: AppColors.gold,

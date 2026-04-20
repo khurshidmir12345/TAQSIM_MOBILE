@@ -508,7 +508,6 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
             ],
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: TextField(
@@ -581,8 +580,8 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
       return const SizedBox.shrink();
     }
 
-    final gradLight = AppColors.cardGradient;
-    final gradDark = AppColors.cardGradientDark;
+    const gradLight = AppColors.cardGradient;
+    const gradDark = AppColors.cardGradientDark;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -752,7 +751,6 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
 
     return Material(
       color: cs.surface,
-      elevation: 0,
       child: Container(
         decoration: BoxDecoration(
           color: cs.surface,
@@ -879,7 +877,7 @@ class _CategoryCarouselCard extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(9),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.inventory_2_rounded,
                       color: AppColors.primary,
                       size: 17,
@@ -887,7 +885,7 @@ class _CategoryCarouselCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   if (selected)
-                    Icon(
+                    const Icon(
                       Icons.check_circle_rounded,
                       color: AppColors.primary,
                       size: 18,

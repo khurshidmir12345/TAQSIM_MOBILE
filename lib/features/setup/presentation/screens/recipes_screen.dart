@@ -67,7 +67,7 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     final state    = ref.watch(recipeProvider);
     final cs       = Theme.of(context).colorScheme;
     final s        = S.of(context);
-    Widget scaffold = Scaffold(
+    final Widget scaffold = Scaffold(
       appBar: AppBar(
         title: Text(s.recipeScreenTitle),
         scrolledUnderElevation: 0,

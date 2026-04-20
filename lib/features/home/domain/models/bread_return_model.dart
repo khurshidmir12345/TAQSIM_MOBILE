@@ -70,7 +70,8 @@ class BreadReturnModel {
       // API ba'zi javoblarda created_by yubormasligi mumkin
       createdBy: json['created_by'] as String? ?? '',
       breadCategory: json['bread_category'] != null
-          ? BreadCategoryModel.fromJson(json['bread_category'])
+          ? BreadCategoryModel.fromJson(
+              json['bread_category'] as Map<String, dynamic>)
           : null,
       createdAt: json['created_at'] as String?,
       productionSummary: json['production'] != null

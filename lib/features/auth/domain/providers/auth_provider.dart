@@ -76,7 +76,7 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<bool> sendCode(String phone) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       await _repo.sendCode(phone);
       state = state.copyWith(isLoading: false);
@@ -89,7 +89,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
   Future<({bool phoneExists, String? debugCode})> sendCodeWithResult(
       String phone) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final result = await _repo.sendCode(phone);
       state = state.copyWith(isLoading: false);
@@ -106,7 +106,7 @@ class AuthNotifier extends Notifier<AuthState> {
     required String code,
     required String password,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final result = await _repo.register(
         name: name,
@@ -130,7 +130,7 @@ class AuthNotifier extends Notifier<AuthState> {
     required String phone,
     required String password,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final result = await _repo.login(phone: phone, password: password);
       state = state.copyWith(
@@ -196,7 +196,7 @@ class AuthNotifier extends Notifier<AuthState> {
     required String currentPassword,
     required String newPassword,
   }) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       await _repo.changePassword(
         currentPassword: currentPassword,
@@ -211,7 +211,7 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   Future<bool> deleteAccount() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       await _repo.deleteAccount();
       state = const AuthState(status: AuthStatus.unauthenticated);

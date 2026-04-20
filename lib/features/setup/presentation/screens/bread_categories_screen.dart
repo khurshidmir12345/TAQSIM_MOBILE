@@ -152,7 +152,7 @@ class _BreadCategoriesScreenState
                                     ),
                                   ),
                                   if (editing == null) ...[
-                                    SizedBox(height: AppSpacing.sm),
+                                    const SizedBox(height: AppSpacing.sm),
                                     Text(
                                       s.addProductCategoryModalSubtitle,
                                       style: theme.textTheme.bodyMedium
@@ -365,7 +365,7 @@ class _BreadCategoriesScreenState
     final cs = theme.colorScheme;
     final currency = _currencySuffix(s);
 
-    Widget scaffold = Scaffold(
+    final Widget scaffold = Scaffold(
       appBar: AppBar(
         title: Text(s.productCategoriesTitle),
       ),

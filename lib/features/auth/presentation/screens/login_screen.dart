@@ -101,7 +101,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     // ── Sarlavha ─────────────────────────────────────
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: Text(
@@ -165,7 +164,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 16),
 
                     // ── Siyosat havolasi (button tepasida) ───────────
-                    const PolicyLinksHint(isLogin: true),
+                    const PolicyLinksHint(),
 
                     const SizedBox(height: 12),
 
@@ -210,9 +209,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Image.asset(
                 AppRasterAssets.appBanner,
                 fit: BoxFit.cover,
-                alignment: Alignment.center,
                 gaplessPlayback: true,
-                filterQuality: FilterQuality.medium,
                 errorBuilder: (context, error, stack) => const SizedBox.shrink(),
               ),
             ),
@@ -259,7 +256,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ],
                     ),
-                    child: const TaqsimLogoAsset(clipRadius: 20),
+                    child: const TaqsimLogoAsset(),
                   ),
                   const SizedBox(height: 12),
                   Text(

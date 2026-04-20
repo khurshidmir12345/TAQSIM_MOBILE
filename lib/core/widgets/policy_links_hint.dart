@@ -100,7 +100,6 @@ class PolicyLinksHint extends ConsumerWidget {
     try {
       final launched = await launchUrl(
         uri,
-        mode: LaunchMode.platformDefault,
       );
       if (launched) return;
     } catch (_) {}

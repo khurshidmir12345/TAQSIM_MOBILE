@@ -113,7 +113,6 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
                     final unitLine = item.displayUnitLine;
                     return Material(
                       color: cs.surfaceContainerHighest,
-                      elevation: 0,
                       shadowColor: Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                       child: Row(
