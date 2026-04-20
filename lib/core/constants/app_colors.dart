@@ -73,9 +73,11 @@ abstract final class AppColors {
 
   static List<Color> balanceGradient(Brightness brightness, bool isLoss) {
     if (isLoss) {
+      // Professional "brick red" — to‘q, aniq ajraladi, matn uchun to‘liq kontrast,
+      // lekin oldingi "pop red"dan yumshoq va ko‘z qiynamaydi.
       return brightness == Brightness.dark
-          ? [const Color(0xFF5C1010), const Color(0xFF7B1A1A)]
-          : [const Color(0xFFB71C1C), const Color(0xFFC62828)];
+          ? [const Color(0xFF4A1D1D), const Color(0xFF6B2A2A)]
+          : [const Color(0xFF9E2C2C), const Color(0xFFB83838)];
     }
     return headerGradient(brightness);
   }

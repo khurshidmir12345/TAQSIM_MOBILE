@@ -120,6 +120,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
       appBar: AppBar(
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
         title: Text(s.reportScreenTitle),
         actions: [
           IconButton(
@@ -388,7 +389,7 @@ class _ReportExpandables extends StatelessWidget {
           initiallyExpanded: returns.isNotEmpty && returns.length <= 4,
           child: returns.isEmpty
               ? const SizedBox.shrink()
-              : _ReturnsHorizontal(
+              : _ReturnsList(
                   items: returns,
                   fmt: fmt,
                   s: s,
@@ -505,8 +506,8 @@ class _RoundExpansion extends StatelessWidget {
   }
 }
 
-class _ReturnsHorizontal extends StatelessWidget {
-  const _ReturnsHorizontal({
+class _ReturnsList extends StatelessWidget {
+  const _ReturnsList({
     required this.items,
     required this.fmt,
     required this.s,
@@ -521,7 +522,7 @@ class _ReturnsHorizontal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
@@ -533,62 +534,77 @@ class _ReturnsHorizontal extends StatelessWidget {
                 ),
           ),
         ),
-        SizedBox(
-          height: 100,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 10),
-            itemBuilder: (context, i) {
-              final e = items[i];
-              final name = e.name.isEmpty ? s.unknown : e.name;
-              return Container(
-                width: 148,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: cs.surface.withValues(alpha: 0.65),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color: AppColors.error.withValues(alpha: 0.2)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          Theme.of(context).textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                height: 1.15,
-                              ),
+        ...items.map((e) {
+          final name = e.name.isEmpty ? s.unknown : e.name;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: cs.surface.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    Text(
-                      fmt(e.totalAmount),
-                      style:
-                          Theme.of(context).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.error,
-                              ),
+                    child: Icon(
+                      Icons.undo_rounded,
+                      color: AppColors.error,
+                      size: 20,
                     ),
-                    Text(
-                      '${e.quantity} ${s.pcs}',
-                      style:
-                          Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color:
-                                    cs.onSurface.withValues(alpha: 0.5),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${e.quantity} ${s.pcs}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                color: cs.onSurface
+                                    .withValues(alpha: 0.55),
                                 fontWeight: FontWeight.w600,
                               ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    fmt(e.totalAmount),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.error,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ],
     );
   }

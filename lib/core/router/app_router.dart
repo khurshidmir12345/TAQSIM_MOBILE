@@ -24,13 +24,20 @@ import '../../features/setup/presentation/screens/recipes_screen.dart';
 import '../../features/shell/presentation/screens/shell_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/profile/presentation/screens/profile_info_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/top_up_screen.dart';
 import '../../features/statistics/presentation/screens/report_screen.dart';
 import '../../features/statistics/presentation/screens/charts_screen.dart';
 
+/// Global route observer — ekranlar RouteAware mixinini qo‘llab kuzatishi uchun.
+/// Masalan, dashboard qayta ochilganda sana filterini tozalash uchun.
+final RouteObserver<ModalRoute<void>> appRouteObserver =
+    RouteObserver<ModalRoute<void>>();
+
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
+    observers: [appRouteObserver],
     refreshListenable: _AuthRefreshNotifier(ref),
     redirect: (context, state) {
       final authState = ref.read(authProvider);
@@ -153,6 +160,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/expense-create',
         builder: (context, state) => const ExpenseCreateScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
       GoRoute(
         path: '/profile-info',

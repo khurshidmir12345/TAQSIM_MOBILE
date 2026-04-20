@@ -144,6 +144,16 @@ class AuthRepository {
     }
   }
 
+  Future<UserModel> deleteAvatar() async {
+    try {
+      final response = await apiClient.dio.delete('/v1/auth/avatar');
+      final data = _body(response)['data'] as Map<String, dynamic>;
+      return UserModel.fromJson(data['user'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   Future<String> changePassword({
     required String currentPassword,
     required String newPassword,

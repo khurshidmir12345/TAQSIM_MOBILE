@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/translations.dart';
+import '../../../../core/router/app_router.dart';
 import '../../domain/shell_tab_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../../home/presentation/screens/history_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
-import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../setup/domain/providers/setup_provider.dart';
+import '../../../statistics/presentation/screens/report_screen.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
   const ShellScreen({super.key});
@@ -16,7 +17,7 @@ class ShellScreen extends ConsumerStatefulWidget {
   ConsumerState<ShellScreen> createState() => _ShellScreenState();
 }
 
-class _ShellScreenState extends ConsumerState<ShellScreen> {
+class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
   final _dashboardKey = GlobalKey<DashboardScreenState>();
   final _historyKey = GlobalKey<HistoryScreenState>();
 
@@ -30,14 +31,37 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is ModalRoute<void>) {
+      appRouteObserver.subscribe(this, route);
+    }
+  }
+
+  @override
+  void dispose() {
+    appRouteObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  /// Boshqa ekrandan shell'ga qaytilganda chaqiriladi.
+  /// Bosh tab faol bo'lsa — dashboard sanasini bugunga tiklaymiz.
+  @override
+  void didPopNext() {
+    final currentIndex = ref.read(shellTabIndexProvider);
+    if (currentIndex == 0) {
+      _dashboardKey.currentState?.resetToToday();
+    }
+  }
+
   void _onTabTap(int index) {
-    final prev = ref.read(shellTabIndexProvider);
     ref.read(shellTabIndexProvider.notifier).setIndex(index);
 
-    if (index == prev || index == 0) {
-      _dashboardKey.currentState?.refresh();
-    }
-    if (index == prev || index == 1) {
+    if (index == 0) {
+      _dashboardKey.currentState?.resetToToday();
+    } else if (index == 1) {
       _historyKey.currentState?.refresh();
     }
   }
@@ -54,8 +78,8 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
         children: [
           DashboardScreen(key: _dashboardKey),
           HistoryScreen(key: _historyKey),
+          const ReportScreen(),
           const OrdersScreen(),
-          const ProfileScreen(),
         ],
       ),
       bottomNavigationBar: Container(
@@ -86,16 +110,16 @@ class _ShellScreenState extends ConsumerState<ShellScreen> {
                   onTap: () => _onTabTap(1),
                 ),
                 _NavItem(
-                  icon: Icons.shopping_bag_outlined,
-                  activeIcon: Icons.shopping_bag_rounded,
-                  label: s.orders,
+                  icon: Icons.bar_chart_outlined,
+                  activeIcon: Icons.bar_chart_rounded,
+                  label: s.statistics,
                   isActive: currentIndex == 2,
                   onTap: () => _onTabTap(2),
                 ),
                 _NavItem(
-                  icon: Icons.person_outline_rounded,
-                  activeIcon: Icons.person_rounded,
-                  label: s.profileTab,
+                  icon: Icons.shopping_bag_outlined,
+                  activeIcon: Icons.shopping_bag_rounded,
+                  label: s.orders,
                   isActive: currentIndex == 3,
                   onTap: () => _onTabTap(3),
                 ),

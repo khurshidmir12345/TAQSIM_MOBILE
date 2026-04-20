@@ -181,6 +181,17 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  Future<bool> deleteAvatar() async {
+    try {
+      final user = await _repo.deleteAvatar();
+      state = state.copyWith(user: user);
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
   Future<bool> changePassword({
     required String currentPassword,
     required String newPassword,

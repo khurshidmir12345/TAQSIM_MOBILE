@@ -33,8 +33,9 @@ class ProductionSummaryCard extends StatelessWidget {
     final isProfit = profit >= 0;
     final incomeStatColor =
         netIncome < 0 ? AppColors.error : AppColors.income;
-    final rq = production.returnsQuantityAllocated;
-    final ra = production.returnsAmount;
+    final rq = production.returnsQuantityAllocated.toDouble();
+    final ra = production.returnsAmount.toDouble();
+    final hasReturns = rq > 0 || ra > 0;
 
     return Material(
       color: Colors.transparent,
@@ -60,6 +61,7 @@ class ProductionSummaryCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
                       width: 42,
@@ -78,15 +80,19 @@ class ProductionSummaryCard extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: cs.onSurface,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
+                          const SizedBox(height: 2),
                           Text(
                             '${fmt(breadCount)} $productUnit  ·  ${fmt(batch)} $batchCountSuffix',
                             style: TextStyle(
@@ -95,65 +101,25 @@ class ProductionSummaryCard extends StatelessWidget {
                               height: 1.25,
                             ),
                           ),
-                          if (rq > 0 || ra > 0) ...[
-                            const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.undo_rounded,
-                                  size: 14,
-                                  color: AppColors.error.withValues(alpha: 0.85),
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    rq > 0 && ra > 0
-                                        ? '${s.returned}: ${fmt(rq)} $productUnit · ${fmt(ra)} ${s.currency}'
-                                        : rq > 0
-                                            ? '${s.returned}: ${fmt(rq)} $productUnit'
-                                            : '${s.returned}: ${fmt(ra)} ${s.currency}',
-                                    style: TextStyle(
-                                      color:
-                                          AppColors.error.withValues(alpha: 0.88),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.2,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
+                    if (hasReturns) ...[
+                      const SizedBox(width: 12),
+                      _ReturnsInfo(
+                        qty: rq,
+                        amount: ra,
+                        fmt: fmt,
+                        productUnit: productUnit,
+                        currencyLabel: s.currency,
+                        returnedLabel: s.returned,
                       ),
-                      decoration: BoxDecoration(
-                        color: isProfit
-                            ? AppColors.income.withValues(alpha: 0.12)
-                            : AppColors.error.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${isProfit ? '+' : ''}${fmt(profit)}',
-                        style: TextStyle(
-                          color: isProfit ? AppColors.income : AppColors.error,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
                 decoration: BoxDecoration(
                   color: cs.onSurface.withValues(alpha: 0.03),
                   borderRadius:
@@ -161,25 +127,29 @@ class ProductionSummaryCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    _miniStat(
-                      s.income,
-                      '${fmt(netIncome)} ${s.currency}',
-                      incomeStatColor,
-                      cs,
+                    Expanded(
+                      child: _MiniStat(
+                        label: s.income,
+                        value: '${fmt(netIncome)} ${s.currency}',
+                        color: incomeStatColor,
+                      ),
                     ),
-                    _sep(cs),
-                    _miniStat(
-                      s.expense,
-                      '${fmt(cost)} ${s.currency}',
-                      AppColors.error,
-                      cs,
+                    _Sep(cs: cs),
+                    Expanded(
+                      child: _MiniStat(
+                        label: s.expense,
+                        value: '${fmt(cost)} ${s.currency}',
+                        color: AppColors.error,
+                      ),
                     ),
-                    _sep(cs),
-                    _miniStat(
-                      s.profit,
-                      '${fmt(profit)} ${s.currency}',
-                      isProfit ? AppColors.income : AppColors.error,
-                      cs,
+                    _Sep(cs: cs),
+                    Expanded(
+                      child: _MiniStat(
+                        label: s.profit,
+                        value: '${fmt(profit)} ${s.currency}',
+                        color: isProfit ? AppColors.income : AppColors.error,
+                        emphasized: true,
+                      ),
                     ),
                   ],
                 ),
@@ -190,39 +160,166 @@ class ProductionSummaryCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _sep(ColorScheme cs) => Container(
-        width: 1,
-        height: 28,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        color: cs.onSurface.withValues(alpha: 0.06),
-      );
+/// Ixcham vozvrat chipi — bir qator, karta balandligiga ta'sir qilmaydi.
+///
+/// Asosiy qiymat (qty) chip ichida; to'liq ma'lumot tooltipda va detail
+/// ekranida ko'rinadi. Amber accent diqqatni tortadi, lekin xalaqit bermaydi.
+class _ReturnsInfo extends StatelessWidget {
+  const _ReturnsInfo({
+    required this.qty,
+    required this.amount,
+    required this.fmt,
+    required this.productUnit,
+    required this.currencyLabel,
+    required this.returnedLabel,
+  });
 
-  Widget _miniStat(String label, String val, Color c, ColorScheme cs) =>
-      Expanded(
+  final double qty;
+  final double amount;
+  final String Function(dynamic) fmt;
+  final String productUnit;
+  final String currencyLabel;
+  final String returnedLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final hasQty = qty > 0;
+    final hasAmount = amount > 0;
+
+    final chipBg = AppColors.warning.withValues(alpha: isDark ? 0.16 : 0.10);
+    final chipBorder =
+        AppColors.warning.withValues(alpha: isDark ? 0.28 : 0.20);
+    final chipFg = isDark
+        ? const Color(0xFFFFB74D)
+        : const Color(0xFFE65100);
+
+    final String chipValue = hasQty
+        ? '${fmt(qty)} $productUnit'
+        : '${fmt(amount)} $currencyLabel';
+
+    final String? amountStr = (hasQty && hasAmount)
+        ? '${fmt(amount)} $currencyLabel'
+        : null;
+
+    final String tooltip = amountStr != null
+        ? '$returnedLabel: $chipValue · $amountStr'
+        : '$returnedLabel: $chipValue';
+
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        label: tooltip,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: c.withValues(alpha: 0.7),
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
+            Container(
+              padding: const EdgeInsets.fromLTRB(7, 3, 9, 3),
+              decoration: BoxDecoration(
+                color: chipBg,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: chipBorder, width: 0.8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.undo_rounded,
+                    size: 12,
+                    color: chipFg,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    chipValue,
+                    style: TextStyle(
+                      color: chipFg,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.1,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              val,
-              style: TextStyle(
-                color: c,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
+            if (amountStr != null) ...[
+              const SizedBox(height: 3),
+              Text(
+                amountStr,
+                style: TextStyle(
+                  color: cs.onSurface.withValues(alpha: 0.42),
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  height: 1.1,
+                  letterSpacing: -0.1,
+                ),
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Sep extends StatelessWidget {
+  const _Sep({required this.cs});
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 1,
+        height: 32,
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        color: cs.onSurface.withValues(alpha: 0.08),
       );
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({
+    required this.label,
+    required this.value,
+    required this.color,
+    this.emphasized = false,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: color.withValues(alpha: emphasized ? 0.85 : 0.65),
+            fontSize: emphasized ? 11 : 10.5,
+            fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
+            letterSpacing: emphasized ? 0.2 : 0,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: emphasized ? 14 : 12,
+            fontWeight: emphasized ? FontWeight.w900 : FontWeight.w700,
+            height: 1.1,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
 }

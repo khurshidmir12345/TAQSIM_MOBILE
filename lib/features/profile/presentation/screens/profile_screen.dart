@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,8 +15,15 @@ import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _isUploadingAvatar = false;
 
   String _fmtBalance(String? raw) {
     final v = double.tryParse(raw ?? '0') ?? 0;
@@ -23,7 +31,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -38,7 +46,8 @@ class ProfileScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: _ProfileHeader(
               user: user,
-              onPickAvatar: () => _pickAvatar(context, ref),
+              isUploading: _isUploadingAvatar,
+              onTapAvatar: _showAvatarSheet,
             ),
           ),
           SliverPadding(
@@ -142,27 +151,243 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _pickAvatar(BuildContext context, WidgetRef ref) async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 512,
-      maxHeight: 512,
-      imageQuality: 80,
+  Future<void> _showAvatarSheet() async {
+    final s = S.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final hasAvatar =
+        ref.read(authProvider).user?.avatarUrl?.isNotEmpty == true;
+
+    HapticFeedback.selectionClick();
+    final action = await showModalBottomSheet<_AvatarAction>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: cs.onSurface.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _SheetTile(
+                  icon: Icons.photo_camera_rounded,
+                  label: s.takePhoto,
+                  color: AppColors.info,
+                  onTap: () =>
+                      Navigator.pop(ctx, _AvatarAction.camera),
+                ),
+                _SheetTile(
+                  icon: Icons.photo_library_rounded,
+                  label: s.chooseFromGallery,
+                  color: AppColors.primary,
+                  onTap: () =>
+                      Navigator.pop(ctx, _AvatarAction.gallery),
+                ),
+                if (hasAvatar)
+                  _SheetTile(
+                    icon: Icons.delete_outline_rounded,
+                    label: s.removePhoto,
+                    color: AppColors.error,
+                    onTap: () =>
+                        Navigator.pop(ctx, _AvatarAction.remove),
+                  ),
+                const SizedBox(height: 4),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
-    if (image == null) return;
-    if (context.mounted) {
+
+    if (action == null || !mounted) return;
+
+    switch (action) {
+      case _AvatarAction.camera:
+        await _pickAndUpload(ImageSource.camera);
+      case _AvatarAction.gallery:
+        await _pickAndUpload(ImageSource.gallery);
+      case _AvatarAction.remove:
+        await _confirmAndRemove();
+    }
+  }
+
+  Future<void> _pickAndUpload(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final image = await picker.pickImage(
+        source: source,
+        maxWidth: 768,
+        maxHeight: 768,
+        imageQuality: 82,
+      );
+      if (image == null || !mounted) return;
+
+      setState(() => _isUploadingAvatar = true);
       final success =
           await ref.read(authProvider.notifier).uploadAvatar(image.path);
-      if (!success && context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(ref.read(authProvider).error ?? S.of(context).noData),
-          ),
+      if (!mounted) return;
+
+      if (success) {
+        HapticFeedback.lightImpact();
+        _showSnack(S.of(context).photoUpdated);
+      } else {
+        _showSnack(
+          ref.read(authProvider).error ??
+              S.of(context).photoUploadFailed,
+          isError: true,
         );
       }
+    } catch (_) {
+      if (!mounted) return;
+      _showSnack(S.of(context).photoUploadFailed, isError: true);
+    } finally {
+      if (mounted) setState(() => _isUploadingAvatar = false);
     }
+  }
+
+  Future<void> _confirmAndRemove() async {
+    final s = S.of(context);
+    final cs = Theme.of(context).colorScheme;
+
+    final confirm = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.onSurface.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.delete_outline_rounded,
+                    color: AppColors.error, size: 26),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                s.removePhotoConfirm,
+                style: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx, false),
+                      child: Container(
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color:
+                              cs.onSurface.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(s.cancel,
+                            style: TextStyle(
+                                color: cs.onSurface,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx, true),
+                      child: Container(
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.error,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(s.remove,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (confirm != true || !mounted) return;
+
+    try {
+      setState(() => _isUploadingAvatar = true);
+      final success = await ref.read(authProvider.notifier).deleteAvatar();
+      if (!mounted) return;
+      if (success) {
+        HapticFeedback.lightImpact();
+        _showSnack(S.of(context).photoRemoved);
+      } else {
+        _showSnack(
+          ref.read(authProvider).error ??
+              S.of(context).photoUploadFailed,
+          isError: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingAvatar = false);
+    }
+  }
+
+  void _showSnack(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: isError ? AppColors.error : null,
+          content: Text(message),
+        ),
+      );
   }
 
   Future<void> _launchUrl(String url) async {
@@ -478,19 +703,26 @@ class ProfileScreen extends ConsumerWidget {
 
 // ─── Profile Header ──────────────────────────────────────────────────────────
 
+enum _AvatarAction { camera, gallery, remove }
+
 class _ProfileHeader extends StatelessWidget {
   final UserModel? user;
-  final VoidCallback onPickAvatar;
+  final bool isUploading;
+  final VoidCallback onTapAvatar;
 
-  const _ProfileHeader({required this.user, required this.onPickAvatar});
+  const _ProfileHeader({
+    required this.user,
+    required this.isUploading,
+    required this.onTapAvatar,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final name =
-        (user?.name?.isNotEmpty == true) ? user!.name! : S.of(context).defaultUser;
-    final initial = name[0].toUpperCase();
+    final name = (user?.name?.isNotEmpty == true)
+        ? user!.name!
+        : S.of(context).defaultUser;
+    final canPop = Navigator.of(context).canPop();
 
     return Container(
       decoration: BoxDecoration(
@@ -504,102 +736,248 @@ class _ProfileHeader extends StatelessWidget {
       ),
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-          child: Column(
-            children: [
-              GestureDetector(
-                onTap: onPickAvatar,
-                child: Stack(
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          width: 2,
-                        ),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: user?.avatarUrl != null &&
-                              user!.avatarUrl!.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: user!.avatarUrl!,
-                              fit: BoxFit.cover,
-                              placeholder: (_, _) => _Initial(initial),
-                              errorWidget: (_, _, _) => _Initial(initial),
-                            )
-                          : _Initial(initial),
-                    ),
-                    Positioned(
-                      right: -2,
-                      bottom: -2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (canPop)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 4, 0, 0),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        context.pop();
+                      },
+                      borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
+                        width: 40,
+                        height: 40,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.15),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                          size: 18,
                         ),
-                        child: Icon(Icons.camera_alt_rounded,
-                            color: AppColors.primary, size: 14),
                       ),
                     ),
-                  ],
+                  ),
                 ),
+              )
+            else
+              const SizedBox(height: 8),
+            Padding(
+              padding: EdgeInsets.fromLTRB(20, canPop ? 4 : 12, 20, 20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _AvatarBubble(
+                    user: user,
+                    name: name,
+                    isUploading: isUploading,
+                    onTap: onTapAvatar,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: _IdentityBlock(user: user, name: name),
+                  ),
+                ],
               ),
-              const SizedBox(height: 14),
-              Text(
-                name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              if (_hasContact) ...[
-                const SizedBox(height: 8),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: _buildChips(cs),
-                ),
-              ],
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  bool get _hasContact =>
-      (user?.phone?.isNotEmpty == true) ||
-      (user?.email?.isNotEmpty == true) ||
-      (user?.telegramUsername?.isNotEmpty == true);
+class _AvatarBubble extends StatelessWidget {
+  final UserModel? user;
+  final String name;
+  final bool isUploading;
+  final VoidCallback onTap;
 
-  List<Widget> _buildChips(ColorScheme cs) {
-    final chips = <Widget>[];
+  const _AvatarBubble({
+    required this.user,
+    required this.name,
+    required this.isUploading,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
+    final url = user?.avatarUrl;
+    final hasUrl = url != null && url.isNotEmpty;
+
+    return Semantics(
+      button: true,
+      label: S.of(context).changePhoto,
+      child: GestureDetector(
+        onTap: isUploading ? null : onTap,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: hasUrl
+                  ? CachedNetworkImage(
+                      imageUrl: url,
+                      fit: BoxFit.cover,
+                      fadeInDuration: const Duration(milliseconds: 180),
+                      placeholder: (_, _) => _Initial(initial),
+                      errorWidget: (_, _, _) => _Initial(initial),
+                    )
+                  : _Initial(initial),
+            ),
+            if (isUploading)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.45),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  alignment: Alignment.center,
+                  child: const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.4,
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            Positioned(
+              right: -2,
+              bottom: -2,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.18),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.camera_alt_rounded,
+                    color: AppColors.primary, size: 13),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IdentityBlock extends StatelessWidget {
+  final UserModel? user;
+  final String name;
+  const _IdentityBlock({required this.user, required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.2,
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 6),
+        ..._buildRows(),
+      ],
+    );
+  }
+
+  List<Widget> _buildRows() {
+    final rows = <Widget>[];
     if (user?.phone?.isNotEmpty == true) {
-      chips.add(_HeaderChip(Icons.phone_outlined, user!.phone!));
-    }
-    if (user?.email?.isNotEmpty == true) {
-      chips.add(_HeaderChip(Icons.email_outlined, user!.email!));
+      rows.add(_IdentityRow(
+        icon: Icons.phone_rounded,
+        text: user!.phone!,
+      ));
     }
     if (user?.telegramUsername?.isNotEmpty == true) {
-      chips.add(_HeaderChip(Icons.send_outlined, '@${user!.telegramUsername}'));
+      rows.add(_IdentityRow(
+        icon: Icons.alternate_email_rounded,
+        text: user!.telegramUsername!,
+      ));
+    } else if (user?.telegramChatId != null) {
+      rows.add(_IdentityRow(
+        icon: Icons.send_rounded,
+        text: user!.telegramChatId!.toString(),
+      ));
     }
-    return chips;
+    if (user?.email?.isNotEmpty == true) {
+      rows.add(_IdentityRow(
+        icon: Icons.email_rounded,
+        text: user!.email!,
+      ));
+    }
+    return rows
+        .expand<Widget>((w) => [w, const SizedBox(height: 4)])
+        .toList()
+      ..removeLast();
+  }
+}
+
+class _IdentityRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _IdentityRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: Colors.white.withValues(alpha: 0.75)),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.88),
+              fontSize: 12.5,
+              fontWeight: FontWeight.w500,
+              height: 1.25,
+              letterSpacing: -0.1,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -613,38 +991,61 @@ class _Initial extends StatelessWidget {
       child: Text(letter,
           style: const TextStyle(
               color: Colors.white,
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w800)),
     );
   }
 }
 
-class _HeaderChip extends StatelessWidget {
+class _SheetTile extends StatelessWidget {
   final IconData icon;
-  final String text;
-  const _HeaderChip(this.icon, this.text);
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SheetTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: Colors.white.withValues(alpha: 0.7)),
-          const SizedBox(width: 5),
-          Text(
-            text,
-            style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.85),
-                fontSize: 11,
-                fontWeight: FontWeight.w500),
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
