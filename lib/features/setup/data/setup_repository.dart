@@ -38,6 +38,7 @@ class SetupRepository {
     required String name,
     required double sellingPrice,
     required String currencyId,
+    required String measurementUnitId,
   }) async {
     try {
       final res = await _apiClient.dio.post(
@@ -46,6 +47,7 @@ class SetupRepository {
           'name': name,
           'selling_price': sellingPrice,
           'currency_id': currencyId,
+          'measurement_unit_id': measurementUnitId,
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
@@ -61,6 +63,7 @@ class SetupRepository {
     String? name,
     double? sellingPrice,
     String? currencyId,
+    String? measurementUnitId,
     bool? isActive,
   }) async {
     try {
@@ -70,6 +73,7 @@ class SetupRepository {
           'name': ?name,
           'selling_price': ?sellingPrice,
           'currency_id': ?currencyId,
+          'measurement_unit_id': ?measurementUnitId,
           'is_active': ?isActive,
         },
       );

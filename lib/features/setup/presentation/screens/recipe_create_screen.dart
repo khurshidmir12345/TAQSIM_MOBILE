@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
+import '../../../../core/utils/decimal_input.dart';
 import '../../../auth/domain/models/measurement_unit_model.dart';
 import '../../../auth/domain/providers/shop_provider.dart';
 import '../../domain/models/bread_category_model.dart';
@@ -33,9 +34,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
 
   final _outputCtl = TextEditingController();
   final _outputFocusNode = FocusNode();
-  final List<_IngredientEntry> _ingredientEntries = [
-    _IngredientEntry(quantityController: TextEditingController()),
-  ];
+  final List<_IngredientEntry> _ingredientEntries = [];
 
   bool _isSaving = false;
 
@@ -53,6 +52,10 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     _pageController.dispose();
     _outputCtl.dispose();
     _outputFocusNode.dispose();
+    for (final e in _ingredientEntries) {
+      e.quantityController.dispose();
+      e.focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -118,12 +121,35 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     );
   }
 
-  void _addIngredient() {
+  /// Karuseldan ingredient tanlash → darrov listga editable qator qo'shadi
+  /// va miqdor inputiga avtomatik fokus beradi.
+  void _onIngredientChipTap(IngredientModel ing) {
+    final s = S.of(context);
+    if (_ingredientEntries.any((e) => e.ingredientId == ing.id)) {
+      _showError(s.recipeValidationDuplicateIngredient);
+      return;
+    }
+    final entry = _IngredientEntry(
+      ingredientId: ing.id,
+      quantityController: TextEditingController(),
+      focusNode: FocusNode(),
+    );
     setState(() {
-      _ingredientEntries.add(_IngredientEntry(
-        quantityController: TextEditingController(),
-      ));
+      _ingredientEntries.add(entry);
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      entry.focusNode.requestFocus();
+    });
+  }
+
+  void _removeEntry(int index) {
+    final entry = _ingredientEntries[index];
+    setState(() {
+      _ingredientEntries.removeAt(index);
+    });
+    entry.quantityController.dispose();
+    entry.focusNode.dispose();
   }
 
   /// Step 1 da kartaga bosilganda: tanlashni ko'rsatish uchun qisqa pauza,
@@ -175,25 +201,6 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     return null;
   }
 
-  /// Xom ashyo miqdori input suffixi: xom ashyo yaratilishida tanlangan
-  /// o'lchov birligining qisqa kodi, birinchi harfi katta qilib ko'rsatiladi
-  /// ("Kg", "G", "Ta", "L", "Ml", "M", ...).
-  ///
-  /// Input ichida joy tor bo'lgani uchun to'liq nom emas, qisqa kod afzal —
-  /// u universal va barcha tillarda tushunarli.
-  String? _quantitySuffix(
-    _IngredientEntry entry,
-    List<IngredientModel> allIngredients,
-  ) {
-    final id = entry.ingredientId;
-    if (id == null) return null;
-    for (final ing in allIngredients) {
-      if (ing.id != id) continue;
-      return _capitalizeUnitCode(ing.displayUnitLine);
-    }
-    return null;
-  }
-
   /// Birlik kodini toza "Capitalized" formatga keltiradi:
   /// `kg` → `Kg`, `ml` → `Ml`, `m` → `M`. Bo'sh/non-alpha kiritma
   /// bo'lsa asl qiymatini qaytaradi.
@@ -216,7 +223,9 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   Future<void> _save() async {
     final s = S.of(context);
     final validEntries = _ingredientEntries
-        .where((e) => e.ingredientId != null)
+        .where((e) =>
+            e.ingredientId != null &&
+            (parseDecimalInput(e.quantityController.text) ?? 0) > 0)
         .toList();
 
     if (validEntries.isEmpty) {
@@ -255,7 +264,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     final ingredients = validEntries
         .map((e) => {
               'ingredient_id': e.ingredientId!,
-              'quantity': double.tryParse(e.quantityController.text) ?? 0,
+              'quantity': parseDecimalInput(e.quantityController.text) ?? 0,
             })
         .toList();
 
@@ -655,215 +664,139 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
         ? s.recipeIngredientsSectionSubtitleDynamic(inlineName)
         : s.recipeIngredientsSectionSubtitle;
 
+    final addedIds = _ingredientEntries
+        .map((e) => e.ingredientId)
+        .whereType<String>()
+        .toSet();
+    final availableIngredients = allIngredients
+        .where((ing) => !addedIds.contains(ing.id))
+        .toList();
+
     return ListView(
-      padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
+      padding: EdgeInsets.fromLTRB(0, 24, 0, bottomPad),
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            color: cs.onSurface,
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            height: 1.2,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: cs.onSurface,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              height: 1.2,
+            ),
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          subtitle,
-          style: TextStyle(
-            color: cs.onSurface.withValues(alpha: 0.5),
-            fontSize: 14,
-            height: 1.4,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            subtitle,
+            style: TextStyle(
+              color: cs.onSurface.withValues(alpha: 0.5),
+              fontSize: 14,
+              height: 1.4,
+            ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
+        _IngredientChipCarousel(
+          available: availableIngredients,
+          onTap: _onIngredientChipTap,
+          onCreateNew: () async {
+            final saved = await showIngredientFormSheet(context);
+            if (saved && mounted) setState(() {});
+          },
+          newLabel: s.recipeCreateNewIngredientShort,
+        ),
+        const SizedBox(height: 18),
         if (_ingredientEntries.isEmpty && allIngredients.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Icon(Icons.info_outline,
-                    size: 32, color: cs.onSurface.withValues(alpha: 0.3)),
-                const SizedBox(height: 8),
-                Text(
-                  s.ingredientsEmptySubtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.5),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        if (_ingredientEntries.isEmpty && allIngredients.isNotEmpty)
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Icon(Icons.inventory_2_outlined,
-                    size: 32, color: cs.onSurface.withValues(alpha: 0.3)),
-                const SizedBox(height: 8),
-                Text(
-                  s.recipeValidationIngredients,
-                  style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.4),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ...List.generate(_ingredientEntries.length, (i) {
-          final entry = _ingredientEntries[i];
-          final usedIds = _ingredientEntries
-              .where((e) => e != entry && e.ingredientId != null)
-              .map((e) => e.ingredientId!)
-              .toSet();
-          final availableIngredients = allIngredients
-              .where((ing) =>
-                  !usedIds.contains(ing.id) || ing.id == entry.ingredientId)
-              .toList();
-
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
-              padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: cs.surface,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: cs.outline.withValues(alpha: 0.12),
-                ),
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    flex: 3,
-                    child: DropdownButtonFormField<String>(
-                      initialValue: entry.ingredientId,
-                      decoration: InputDecoration(
-                        hintText: s.recipeIngredientSelectHint,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      ),
-                      isExpanded: true,
-                      items: availableIngredients
-                          .map((ing) => DropdownMenuItem(
-                                value: ing.id,
-                                child: Text(ing.name,
-                                    overflow: TextOverflow.ellipsis),
-                              ))
-                          .toList(),
-                      onChanged: (v) =>
-                          setState(() => entry.ingredientId = v),
+                  Icon(Icons.info_outline,
+                      size: 32,
+                      color: cs.onSurface.withValues(alpha: 0.3)),
+                  const SizedBox(height: 8),
+                  Text(
+                    s.ingredientsEmptySubtitle,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: cs.onSurface.withValues(alpha: 0.5),
+                      fontSize: 14,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 2,
-                    child: Builder(
-                      builder: (fieldContext) {
-                        final suffix =
-                            _quantitySuffix(entry, allIngredients);
-                        return TextFormField(
-                          controller: entry.quantityController,
-                          decoration: InputDecoration(
-                            hintText: '0.0',
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 12,
-                            ),
-                            suffixIcon: suffix == null
-                                ? null
-                                : Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 12,
-                                      left: 4,
-                                    ),
-                                    child: Text(
-                                      suffix,
-                                      style: TextStyle(
-                                        color: cs.primary,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                        letterSpacing: 0.2,
-                                      ),
-                                    ),
-                                  ),
-                            suffixIconConstraints: const BoxConstraints(
-                              
-                            ),
-                          ),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(
-                                  decimal: true),
-                        );
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close,
-                        size: 18, color: AppColors.error),
-                    onPressed: () =>
-                        setState(() => _ingredientEntries.removeAt(i)),
-                    visualDensity: VisualDensity.compact,
                   ),
                 ],
               ),
             ),
-          );
-        }),
-        const SizedBox(height: 12),
-        if (allIngredients.isNotEmpty)
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    final saved = await showIngredientFormSheet(context);
-                    if (saved && mounted) setState(() {});
-                  },
-                  icon: Icon(Icons.auto_awesome_rounded, size: 18, color: cs.primary),
-                  label: Text(
-                    s.recipeCreateNewIngredientShort,
-                    style: TextStyle(color: cs.primary),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 50),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    side: BorderSide(
-                      color: cs.primary.withValues(alpha: 0.35),
+          )
+        else if (_ingredientEntries.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: cs.outline.withValues(alpha: 0.08),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.touch_app_outlined,
+                      size: 22,
+                      color: cs.onSurface.withValues(alpha: 0.4)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      s.recipeValidationIngredients,
+                      style: TextStyle(
+                        color: cs.onSurface.withValues(alpha: 0.55),
+                        fontSize: 13,
+                        height: 1.35,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                flex: 3,
-                child: OutlinedButton.icon(
-                  onPressed: _addIngredient,
-                  icon: const Icon(Icons.add, size: 18),
-                  label: Text(
-                    s.recipeAddIngredient,
-                    overflow: TextOverflow.ellipsis,
+            ),
+          )
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: List.generate(_ingredientEntries.length, (i) {
+                final entry = _ingredientEntries[i];
+                final ing = allIngredients.firstWhere(
+                  (x) => x.id == entry.ingredientId,
+                  orElse: () => allIngredients.first,
+                );
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _IngredientEntryTile(
+                    name: ing.name,
+                    controller: entry.quantityController,
+                    focusNode: entry.focusNode,
+                    unitCode: _capitalizeUnitCode(ing.displayUnitLine),
+                    onRemove: () => _removeEntry(i),
+                    onSubmitted: () {
+                      // Keyingi qo'shilmagan ingredientga avtomatik o'tish
+                      // shart emas — foydalanuvchi karuseldan o'zi tanlaydi.
+                      FocusScope.of(context).unfocus();
+                    },
                   ),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 50),
-                  ),
-                ),
-              ),
-            ],
+                );
+              }),
+            ),
           ),
       ],
     );
@@ -973,8 +906,13 @@ class _ProgressBar extends StatelessWidget {
 class _IngredientEntry {
   String? ingredientId;
   final TextEditingController quantityController;
+  final FocusNode focusNode;
 
-  _IngredientEntry({required this.quantityController});
+  _IngredientEntry({
+    this.ingredientId,
+    required this.quantityController,
+    required this.focusNode,
+  });
 }
 
 /// Partiya birliklari uchun gorizontal (yonga scroll qilinadigan) karusel.
@@ -1074,57 +1012,52 @@ class _BatchUnitCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Semantics(
-      button: true,
-      selected: isActive,
-      label: label,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            width: width,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 12,
-            ),
-            decoration: BoxDecoration(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          width: width,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 12,
+          ),
+          decoration: BoxDecoration(
+            color: isActive
+                ? AppColors.primary.withValues(alpha: 0.1)
+                : cs.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
               color: isActive
-                  ? AppColors.primary.withValues(alpha: 0.1)
-                  : cs.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isActive
-                    ? AppColors.primary
-                    : cs.outline.withValues(alpha: 0.1),
-                width: isActive ? 2 : 1,
-              ),
+                  ? AppColors.primary
+                  : cs.outline.withValues(alpha: 0.1),
+              width: isActive ? 2 : 1,
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(icon, style: const TextStyle(fontSize: 26)),
-                const SizedBox(height: 6),
-                Flexible(
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: isActive ? AppColors.primary : cs.onSurface,
-                      fontSize: 12,
-                      fontWeight:
-                          isActive ? FontWeight.w700 : FontWeight.w600,
-                      height: 1.25,
-                    ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(icon, style: const TextStyle(fontSize: 26)),
+              const SizedBox(height: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isActive ? AppColors.primary : cs.onSurface,
+                    fontSize: 12,
+                    fontWeight:
+                        isActive ? FontWeight.w700 : FontWeight.w600,
+                    height: 1.25,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1195,6 +1128,271 @@ class _OutputQuantityField extends StatelessWidget {
         color: cs.onSurface,
       ),
       textAlign: TextAlign.center,
+    );
+  }
+}
+
+/// Step 3 — xom ashyo karuseli.
+///
+/// Birinchi element — chegarali "+ Yangi" chip (yangi xom ashyo yaratish),
+/// keyin mavjud xom ashyolar (allaqachon retseptga qo'shilganlari
+/// avtomatik filterlanadi).
+class _IngredientChipCarousel extends StatelessWidget {
+  const _IngredientChipCarousel({
+    required this.available,
+    required this.onTap,
+    required this.onCreateNew,
+    required this.newLabel,
+  });
+
+  final List<IngredientModel> available;
+  final ValueChanged<IngredientModel> onTap;
+  final VoidCallback onCreateNew;
+  final String newLabel;
+
+  static const double _height = 44;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: _height,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: available.length + 1,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          if (i == 0) {
+            return _NewIngredientChip(
+              label: newLabel,
+              onTap: onCreateNew,
+            );
+          }
+          final ing = available[i - 1];
+          return _IngredientChip(
+            label: ing.name,
+            onTap: () => onTap(ing),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _NewIngredientChip extends StatelessWidget {
+  const _NewIngredientChip({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.45),
+              width: 1.4,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.add_rounded,
+                size: 18,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IngredientChip extends StatelessWidget {
+  const _IngredientChip({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: cs.outline.withValues(alpha: 0.12),
+            ),
+          ),
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: cs.onSurface,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              height: 1.2,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Retseptga qo'shilgan xom ashyo qatori — inline editable miqdor input.
+///
+/// Chap tomonda nom, o'rtada miqdor inputi (vergul/nuqta), o'ng tomonda
+/// birlik kodi va o'chirish tugmasi.
+class _IngredientEntryTile extends StatelessWidget {
+  const _IngredientEntryTile({
+    required this.name,
+    required this.controller,
+    required this.focusNode,
+    required this.unitCode,
+    required this.onRemove,
+    required this.onSubmitted,
+  });
+
+  final String name;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final String unitCode;
+  final VoidCallback onRemove;
+  final VoidCallback onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 8, 4, 8),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: cs.onSurface,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 5,
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: const [DecimalTextInputFormatter()],
+              textAlign: TextAlign.right,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (_) => onSubmitted(),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: cs.onSurface,
+              ),
+              decoration: InputDecoration(
+                hintText: '0.0',
+                isDense: true,
+                filled: true,
+                fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: cs.outline.withValues(alpha: 0.18),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(
+                    color: cs.outline.withValues(alpha: 0.18),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(
+                    color: AppColors.primary,
+                    width: 1.6,
+                  ),
+                ),
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 10, left: 4),
+                  child: Text(
+                    unitCode,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+                suffixIconConstraints: const BoxConstraints(),
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: onRemove,
+            icon: Icon(
+              Icons.close_rounded,
+              size: 18,
+              color: cs.onSurface.withValues(alpha: 0.45),
+            ),
+            splashRadius: 18,
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints.tightFor(
+              width: 36,
+              height: 36,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

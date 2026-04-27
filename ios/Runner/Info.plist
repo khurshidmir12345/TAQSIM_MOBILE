@@ -4,8 +4,24 @@
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Biznes manzilingizni aniqlash uchun joylashuvingizga ruxsat kerak</string>
-	<key>NSLocationAlwaysUsageDescription</key>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Biznes manzilingizni aniqlash uchun joylashuvingizga ruxsat kerak</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Mahsulot va do'kon rasmlarini olish uchun kamera kerak</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Mahsulot va do'kon rasmlarini tanlash uchun foto galereya kerak</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Hisobotlarni galereyaga saqlash uchun ruxsat kerak</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+		<string>tel</string>
+		<string>mailto</string>
+		<string>sms</string>
+	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

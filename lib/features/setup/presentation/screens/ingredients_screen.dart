@@ -26,7 +26,8 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
   }
 
   String _currencySuffix(S s) {
-    final cur = ref.watch(shopProvider).selected?.currency;
+    final cur =
+        ref.watch(shopProvider.select((s) => s.selected?.currency));
     final sym = cur?.symbol;
     if (sym != null && sym.isNotEmpty) return sym;
     final code = cur?.code;

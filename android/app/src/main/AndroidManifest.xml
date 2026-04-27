@@ -1,5 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- geolocator: biznes manzilini avtomatik aniqlash uchun -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <!-- image_picker: kamera va foto galereya (Android 13+ READ_MEDIA_IMAGES)
+         Eski Android'lar uchun WRITE_EXTERNAL_STORAGE shart emas — Flutter
+         image_picker kvinizatsiya orqali ishlaydi. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
+
     <application
         android:label="TAQSEEM"
         android:name="${applicationName}"

@@ -61,6 +61,20 @@ class _IngredientMeasurementUnitsNotifier
   }
 }
 
+/// Mahsulotlar uchun faqat ta, kg, l, m (backend filtri).
+final productMeasurementUnitsProvider = AsyncNotifierProvider<
+    _ProductMeasurementUnitsNotifier, List<MeasurementUnitModel>>(
+  _ProductMeasurementUnitsNotifier.new,
+);
+
+class _ProductMeasurementUnitsNotifier
+    extends AsyncNotifier<List<MeasurementUnitModel>> {
+  @override
+  Future<List<MeasurementUnitModel>> build() {
+    return ref.read(shopRepositoryProvider).getProductMeasurementUnits();
+  }
+}
+
 /// Retsept partiya birliklari (carousel) — `/v1/measurement-units/batch`.
 final recipeBatchUnitsProvider = AsyncNotifierProvider<
     _RecipeBatchUnitsNotifier, List<MeasurementUnitModel>>(

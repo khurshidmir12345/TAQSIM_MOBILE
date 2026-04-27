@@ -38,7 +38,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final themeMode = ref.watch(themeModeProvider).value ?? ThemeMode.system;
     final pad = Responsive.horizontalPadding(context);
     final s = S.of(context);
-    final currentLocale = ref.watch(localeProvider).value ?? AppLocale.uz;
+    final currentLocale =
+        ref.watch(localeProvider.select((a) => a.value ?? AppLocale.uz));
     final canPop = Navigator.of(context).canPop();
 
     return Scaffold(

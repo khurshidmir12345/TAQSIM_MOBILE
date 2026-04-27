@@ -1,4 +1,5 @@
 import '../../../auth/domain/models/currency_model.dart';
+import '../../../auth/domain/models/measurement_unit_model.dart';
 
 class BreadCategoryModel {
   final String id;
@@ -7,6 +8,8 @@ class BreadCategoryModel {
   final String sellingPrice;
   final String? currencyId;
   final CurrencyModel? currency;
+  final String? measurementUnitId;
+  final MeasurementUnitModel? measurementUnit;
   final String? imageUrl;
   final int sortOrder;
   final bool isActive;
@@ -19,6 +22,8 @@ class BreadCategoryModel {
     required this.sellingPrice,
     this.currencyId,
     this.currency,
+    this.measurementUnitId,
+    this.measurementUnit,
     this.imageUrl,
     this.sortOrder = 0,
     this.isActive = true,
@@ -34,8 +39,12 @@ class BreadCategoryModel {
     return fallback;
   }
 
+  /// Kartochka uchun qisqa o'lchov birligi (`ta`, `kg`, `l`, `m`).
+  String get unitShortLabel => measurementUnit?.code ?? 'ta';
+
   factory BreadCategoryModel.fromJson(Map<String, dynamic> json) {
     final curJson = json['currency'] as Map<String, dynamic>?;
+    final muJson = json['measurement_unit'] as Map<String, dynamic>?;
     return BreadCategoryModel(
       id: json['id'] as String,
       shopId: json['shop_id'] as String,
@@ -44,6 +53,9 @@ class BreadCategoryModel {
       currencyId: json['currency_id'] as String?,
       currency:
           curJson != null ? CurrencyModel.fromJson(curJson) : null,
+      measurementUnitId: json['measurement_unit_id'] as String?,
+      measurementUnit:
+          muJson != null ? MeasurementUnitModel.fromJson(muJson) : null,
       imageUrl: json['image_url'] as String?,
       sortOrder: json['sort_order'] as int? ?? 0,
       isActive: json['is_active'] as bool? ?? true,

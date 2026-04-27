@@ -6,7 +6,7 @@ import '../../../../core/l10n/translations.dart';
 import '../../../../core/router/app_router.dart';
 import '../../domain/shell_tab_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
-import '../../../home/presentation/screens/history_screen.dart';
+import '../../../home/presentation/screens/expenses_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../setup/domain/providers/setup_provider.dart';
 import '../../../statistics/presentation/screens/report_screen.dart';
@@ -20,7 +20,7 @@ class ShellScreen extends ConsumerStatefulWidget {
 
 class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
   final _dashboardKey = GlobalKey<DashboardScreenState>();
-  final _historyKey = GlobalKey<HistoryScreenState>();
+  final _expensesKey = GlobalKey<ExpensesScreenState>();
 
   /// Android hardware back uchun "ikki marta bosib chiqish" logikasi.
   DateTime? _lastBackPressAt;
@@ -67,7 +67,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
     if (index == 0) {
       _dashboardKey.currentState?.resetToToday();
     } else if (index == 1) {
-      _historyKey.currentState?.refresh();
+      _expensesKey.currentState?.refresh();
     }
   }
 
@@ -125,7 +125,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
         index: currentIndex,
         children: [
           DashboardScreen(key: _dashboardKey),
-          HistoryScreen(key: _historyKey),
+          ExpensesScreen(key: _expensesKey),
           const ReportScreen(),
           const OrdersScreen(),
         ],
@@ -151,9 +151,9 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
                   onTap: () => _onTabTap(0),
                 ),
                 _NavItem(
-                  icon: Icons.history_outlined,
-                  activeIcon: Icons.history_rounded,
-                  label: s.navHistory,
+                  icon: Icons.calculate_outlined,
+                  activeIcon: Icons.calculate_rounded,
+                  label: s.expenses,
                   isActive: currentIndex == 1,
                   onTap: () => _onTabTap(1),
                 ),

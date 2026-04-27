@@ -9,12 +9,16 @@ import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../data/daily_repository.dart';
 import '../../domain/providers/daily_provider.dart';
-import '../widgets/history/kassa_tab_content.dart';
 import '../widgets/history/production_history_tab.dart';
 import '../widgets/history/returns_history_tab.dart';
 
-enum _HistoryTab { created, returns, kassa }
+enum _HistoryTab { created, returns }
 
+/// Yaratilgan va qaytarilgan mahsulotlar tarixi.
+///
+/// Xarajatlar ([ExpensesScreen]) alohida bo'limga ajratilgan — bu yerda faqat
+/// productions/returns ko'rsatiladi. Sahifa dashboard'dagi tugmadan push
+/// qilinadi.
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
@@ -28,7 +32,6 @@ class HistoryScreenState extends ConsumerState<HistoryScreen>
   _HistoryTab _selectedTab = _HistoryTab.created;
   final _productionTabKey = GlobalKey<ProductionHistoryTabState>();
   final _returnsTabKey = GlobalKey<ReturnsHistoryTabState>();
-  final _kassaTabKey = GlobalKey<KassaTabContentState>();
 
   ShopSummaryModel? _summary;
   bool _summaryLoading = true;
@@ -36,7 +39,7 @@ class HistoryScreenState extends ConsumerState<HistoryScreen>
   @override
   void initState() {
     super.initState();
-    _tabCtl = TabController(length: 3, vsync: this);
+    _tabCtl = TabController(length: 2, vsync: this);
     _tabCtl.addListener(_syncTab);
     Future.microtask(_loadSummary);
   }
@@ -67,7 +70,6 @@ class HistoryScreenState extends ConsumerState<HistoryScreen>
     _loadSummary();
     _productionTabKey.currentState?.refresh();
     _returnsTabKey.currentState?.refresh();
-    _kassaTabKey.currentState?.refresh();
   }
 
   Future<void> _loadSummary() async {
@@ -98,57 +100,48 @@ class HistoryScreenState extends ConsumerState<HistoryScreen>
     final pad = Responsive.horizontalPadding(context);
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          s.historyTitle,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+        ),
+        centerTitle: false,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(pad, 12, pad, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    s.historyTitle,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(pad, 4, pad, AppSpacing.md),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<_HistoryTab>(
+                segments: [
+                  ButtonSegment(
+                    value: _HistoryTab.created,
+                    label: Text(s.historyTabCreated),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  SizedBox(
-                    width: double.infinity,
-                    child: SegmentedButton<_HistoryTab>(
-                      segments: [
-                        ButtonSegment(
-                          value: _HistoryTab.created,
-                          label: Text(s.historyTabCreated),
-                        ),
-                        ButtonSegment(
-                          value: _HistoryTab.returns,
-                          label: Text(s.historyTabReturns),
-                        ),
-                        ButtonSegment(
-                          value: _HistoryTab.kassa,
-                          label: Text(s.historyTabCash),
-                        ),
-                      ],
-                      selected: {_selectedTab},
-                      onSelectionChanged: _onSegmentChanged,
-                      showSelectedIcon: false,
-                      style: ButtonStyle(
-                        visualDensity: VisualDensity.compact,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        textStyle: WidgetStatePropertyAll(
-                          Theme.of(context)
-                              .textTheme
-                              .labelLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    ),
+                  ButtonSegment(
+                    value: _HistoryTab.returns,
+                    label: Text(s.historyTabReturns),
                   ),
-                  const SizedBox(height: AppSpacing.md),
                 ],
+                selected: {_selectedTab},
+                onSelectionChanged: _onSegmentChanged,
+                showSelectedIcon: false,
+                style: ButtonStyle(
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  textStyle: WidgetStatePropertyAll(
+                    Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
               ),
             ),
           ),
@@ -165,7 +158,6 @@ class HistoryScreenState extends ConsumerState<HistoryScreen>
               children: [
                 ProductionHistoryTab(key: _productionTabKey),
                 ReturnsHistoryTab(key: _returnsTabKey),
-                KassaTabContent(key: _kassaTabKey),
               ],
             ),
           ),
@@ -211,7 +203,6 @@ class _HistorySummaryStrip extends StatelessWidget {
       child: switch (tab) {
         _HistoryTab.created => _buildProduction(context, s, cs, isDark, r),
         _HistoryTab.returns => _buildReturns(context, s, cs, isDark, r),
-        _HistoryTab.kassa   => _buildKassa(context, s, cs, isDark, r),
       },
     );
   }
@@ -248,26 +239,6 @@ class _HistorySummaryStrip extends StatelessWidget {
         )),
         const Spacer(),
         Text('${fmtMoney(r.returnsTotal)} ${s.currency}', style: const TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.error,
-        )),
-      ],
-    ));
-  }
-
-  Widget _buildKassa(
-    BuildContext context, S s, ColorScheme cs, bool isDark, ShopSummaryModel r,
-  ) {
-    return _stripContainer(cs, isDark, Row(
-      children: [
-        Icon(Icons.account_balance_wallet_outlined, size: 16,
-            color: AppColors.error.withValues(alpha: 0.7)),
-        const SizedBox(width: 8),
-        Text(s.expense, style: TextStyle(
-          fontSize: 12, fontWeight: FontWeight.w600,
-          color: cs.onSurface.withValues(alpha: 0.55),
-        )),
-        const Spacer(),
-        Text('${fmtMoney(r.expensesTotal)} ${s.currency}', style: const TextStyle(
           fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.error,
         )),
       ],

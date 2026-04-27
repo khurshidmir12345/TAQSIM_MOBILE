@@ -96,6 +96,21 @@ class S {
   String get dashboardKpiBatch => _t('dashboardKpiBatch');
   String get dashboardKpiSold => _t('dashboardKpiSold');
   String get dashboardKpiReturned => _t('dashboardKpiReturned');
+  String get dashboardCarouselEmptyTitle =>
+      _t('dashboardCarouselEmptyTitle');
+  String get dashboardCarouselEmptySubtitle =>
+      _t('dashboardCarouselEmptySubtitle');
+  String get productDetailProduced => _t('productDetailProduced');
+  String get productDetailReturnedQty => _t('productDetailReturnedQty');
+  String get productDetailNetQty => _t('productDetailNetQty');
+  String get productDetailGross => _t('productDetailGross');
+  String get productDetailReturnsAmount =>
+      _t('productDetailReturnsAmount');
+  String get productDetailNetAmount => _t('productDetailNetAmount');
+  String get productDetailBatchesTitle =>
+      _t('productDetailBatchesTitle');
+  String get productDetailReturnedSuffix =>
+      _t('productDetailReturnedSuffix');
   String get dashboardEmptyOutput => _t('dashboardEmptyOutput');
   String get dashboardSectionOutput => _t('dashboardSectionOutput');
   String get dashboardTabOutput => _t('dashboardTabOutput');
@@ -223,6 +238,7 @@ class S {
   String get recipeEmptyTitle => _t('recipeEmptyTitle');
   String get recipeEmptySubtitle => _t('recipeEmptySubtitle');
   String get recipeAddCta => _t('recipeAddCta');
+  String get backToDashboard => _t('backToDashboard');
   String get recipeDeletedSnackbar => _t('recipeDeletedSnackbar');
   String get recipeErrorSnackbar => _t('recipeErrorSnackbar');
   String get recipeCreateTitle => _t('recipeCreateTitle');
@@ -440,6 +456,12 @@ class S {
   /// Misol: tanlangan birlik `kilogram` bo'lsa → `1 kilogram narxini kiriting`.
   String ingredientPricePerUnitLabelDynamic(String unit) =>
       _t('ingredientPricePerUnitLabelDynamic').replaceAll('{unit}', unit);
+
+  /// Mahsulot uchun dinamik sotuv narxi sarlavhasi.
+  ///
+  /// Misol: tanlangan birlik `dona` bo'lsa → `1 dona sotuv narxi`.
+  String productSellingPriceLabelDynamic(String unit) =>
+      _t('productSellingPriceLabelDynamic').replaceAll('{unit}', unit);
   String get ingredientsAddCta => _t('ingredientsAddCta');
   String get ingredientAddHeroTitle => _t('ingredientAddHeroTitle');
   String get ingredientPriceHintBanner => _t('ingredientPriceHintBanner');
@@ -776,6 +798,17 @@ class S {
     'dashboardKpiBatch': 'To\'plam',
     'dashboardKpiSold': 'Sotilgan',
     'dashboardKpiReturned': 'Qaytarilgan',
+    'dashboardCarouselEmptyTitle': 'Bugun mahsulot yopilmagan',
+    'dashboardCarouselEmptySubtitle':
+        'Yangi partiya yaratganingizdan so\'ng bu yerda jami chiqim ko\'rinadi',
+    'productDetailProduced': 'Jami chiqarildi',
+    'productDetailReturnedQty': 'Qaytarilgan miqdor',
+    'productDetailNetQty': 'Sof miqdor',
+    'productDetailGross': 'Yalpi summa',
+    'productDetailReturnsAmount': 'Qaytarilgan summa',
+    'productDetailNetAmount': 'Sof tushum',
+    'productDetailBatchesTitle': 'PARTIYALAR',
+    'productDetailReturnedSuffix': 'Qaytarildi:',
     'dashboardEmptyOutput': 'Chiqim qayd etilmagan',
     'dashboardSectionOutput': 'Bugungi chiqimlar',
     'dashboardTabOutput': 'Mahsulot chiqim',
@@ -905,6 +938,7 @@ class S {
     'recipeEmptySubtitle':
         'Mahsulot turlari uchun retsept qo‘shing — ishlab chiqarish hisobi aniq bo‘ladi.',
     'recipeAddCta': 'Retsept qo‘shish',
+    'backToDashboard': 'Asosiy sahifaga qaytish',
     'recipeDeletedSnackbar': 'Retsept o‘chirildi',
     'recipeErrorSnackbar': 'Xatolik yuz berdi',
     'recipeCreateTitle': 'Yangi retsept',
@@ -1081,6 +1115,7 @@ class S {
     'ingredientUnitFieldLabel': 'O\'lchov birligi',
     'ingredientPricePerUnitLabel': '1 birlik narxi',
     'ingredientPricePerUnitLabelDynamic': '1 {unit} narxini kiriting',
+    'productSellingPriceLabelDynamic': '1 {unit} sotuv narxi',
     'ingredientUnit_kg': 'Kilogramm (kg)',
     'ingredientUnit_gram': 'Gramm (g)',
     'ingredientUnit_litr': 'Litr (l)',
@@ -1364,6 +1399,17 @@ class S {
     'dashboardKpiBatch': 'Тўплам',
     'dashboardKpiSold': 'Сотилган',
     'dashboardKpiReturned': 'Қайтарилган',
+    'dashboardCarouselEmptyTitle': 'Бугун маҳсулот ёпилмаган',
+    'dashboardCarouselEmptySubtitle':
+        'Янги партия яратганингиздан сўнг бу ерда жами чиқим кўринади',
+    'productDetailProduced': 'Жами чиқарилди',
+    'productDetailReturnedQty': 'Қайтарилган миқдор',
+    'productDetailNetQty': 'Соф миқдор',
+    'productDetailGross': 'Ялпи сумма',
+    'productDetailReturnsAmount': 'Қайтарилган сумма',
+    'productDetailNetAmount': 'Соф тушум',
+    'productDetailBatchesTitle': 'ПАРТИЯЛАР',
+    'productDetailReturnedSuffix': 'Қайтарилди:',
     'dashboardEmptyOutput': 'Чиқим қайд этилмаган',
     'dashboardSectionOutput': 'Бугунги чиқимлар',
     'dashboardTabOutput': 'Маҳсулот чиқим',
@@ -1493,6 +1539,7 @@ class S {
     'recipeEmptySubtitle':
         'Маҳсулот турлари учун рецепт қўшинг — ишлаб чиқариш ҳисоби аниқ бўлади.',
     'recipeAddCta': 'Рецепт қўшиш',
+    'backToDashboard': 'Асосий саҳифага қайтиш',
     'recipeDeletedSnackbar': 'Рецепт ўчирилди',
     'recipeErrorSnackbar': 'Хатолик юз берди',
     'recipeCreateTitle': 'Янги рецепт',
@@ -1669,6 +1716,7 @@ class S {
     'ingredientUnitFieldLabel': 'Ўлчов бирлиги',
     'ingredientPricePerUnitLabel': '1 бирлик нархи',
     'ingredientPricePerUnitLabelDynamic': '1 {unit} нархини киритинг',
+    'productSellingPriceLabelDynamic': '1 {unit} сотув нархи',
     'ingredientUnit_kg': 'Килограмм (kg)',
     'ingredientUnit_gram': 'Грамм (g)',
     'ingredientUnit_litr': 'Литр (l)',
@@ -1953,6 +2001,17 @@ class S {
     'dashboardKpiBatch': 'Партии',
     'dashboardKpiSold': 'Продано',
     'dashboardKpiReturned': 'Возврат',
+    'dashboardCarouselEmptyTitle': 'Сегодня продукция не выпекалась',
+    'dashboardCarouselEmptySubtitle':
+        'После создания партии здесь появится сводка по продукции',
+    'productDetailProduced': 'Всего выпущено',
+    'productDetailReturnedQty': 'Возвращённое количество',
+    'productDetailNetQty': 'Чистое количество',
+    'productDetailGross': 'Валовая сумма',
+    'productDetailReturnsAmount': 'Сумма возврата',
+    'productDetailNetAmount': 'Чистая выручка',
+    'productDetailBatchesTitle': 'ПАРТИИ',
+    'productDetailReturnedSuffix': 'Возврат:',
     'dashboardEmptyOutput': 'Выпуск не записан',
     'dashboardSectionOutput': 'Выпуск за сегодня',
     'dashboardTabOutput': 'Выпуск продукции',
@@ -2082,6 +2141,7 @@ class S {
     'recipeEmptySubtitle':
         'Добавьте рецепты для типов продукции — учёт производства будет точным.',
     'recipeAddCta': 'Добавить рецепт',
+    'backToDashboard': 'Вернуться на главную',
     'recipeDeletedSnackbar': 'Рецепт удалён',
     'recipeErrorSnackbar': 'Произошла ошибка',
     'recipeCreateTitle': 'Новый рецепт',
@@ -2258,6 +2318,7 @@ class S {
     'ingredientUnitFieldLabel': 'Единица измерения',
     'ingredientPricePerUnitLabel': 'Цена за 1 единицу',
     'ingredientPricePerUnitLabelDynamic': 'Цена за 1 {unit}',
+    'productSellingPriceLabelDynamic': 'Цена продажи за 1 {unit}',
     'ingredientUnit_kg': 'Килограмм (kg)',
     'ingredientUnit_gram': 'Грамм (g)',
     'ingredientUnit_litr': 'Литр (l)',
@@ -2542,6 +2603,17 @@ class S {
     'dashboardKpiBatch': 'Топтам',
     'dashboardKpiSold': 'Сатылған',
     'dashboardKpiReturned': 'Қайтарылған',
+    'dashboardCarouselEmptyTitle': 'Бүгін өнім жасалмаған',
+    'dashboardCarouselEmptySubtitle':
+        'Жаңа партия жасағаннан кейін мұнда жалпы өндіріс көрінеді',
+    'productDetailProduced': 'Жалпы жасалды',
+    'productDetailReturnedQty': 'Қайтарылған мөлшер',
+    'productDetailNetQty': 'Таза мөлшер',
+    'productDetailGross': 'Жалпы сома',
+    'productDetailReturnsAmount': 'Қайтарылған сома',
+    'productDetailNetAmount': 'Таза табыс',
+    'productDetailBatchesTitle': 'ПАРТИЯЛАР',
+    'productDetailReturnedSuffix': 'Қайтарылды:',
     'dashboardEmptyOutput': 'Шығыс тіркелмеген',
     'dashboardSectionOutput': 'Бүгінгі шығыстар',
     'dashboardTabOutput': 'Өнім шығысы',
@@ -2671,6 +2743,7 @@ class S {
     'recipeEmptySubtitle':
         'Өнім түрлері үшін рецепт қосыңыз — өндіріс есебі дәл болады.',
     'recipeAddCta': 'Рецепт қосу',
+    'backToDashboard': 'Басты бетке оралу',
     'recipeDeletedSnackbar': 'Рецепт жойылды',
     'recipeErrorSnackbar': 'Қате пайда болды',
     'recipeCreateTitle': 'Жаңа рецепт',
@@ -2847,6 +2920,7 @@ class S {
     'ingredientUnitFieldLabel': 'Өлшем бірлігі',
     'ingredientPricePerUnitLabel': '1 бірлік бағасы',
     'ingredientPricePerUnitLabelDynamic': '1 {unit} бағасын енгізіңіз',
+    'productSellingPriceLabelDynamic': '1 {unit} сату бағасы',
     'ingredientUnit_kg': 'Килограмм (kg)',
     'ingredientUnit_gram': 'Грамм (g)',
     'ingredientUnit_litr': 'Литр (l)',
@@ -3131,6 +3205,17 @@ class S {
     'dashboardKpiBatch': 'Топтом',
     'dashboardKpiSold': 'Сатылган',
     'dashboardKpiReturned': 'Кайтарылган',
+    'dashboardCarouselEmptyTitle': 'Бүгүн азык-түлүк жасалган жок',
+    'dashboardCarouselEmptySubtitle':
+        'Жаңы партия түзгөнүңүздөн кийин бул жерде жалпы өндүрүш көрсөтүлөт',
+    'productDetailProduced': 'Жалпы чыгарылды',
+    'productDetailReturnedQty': 'Кайтарылган санак',
+    'productDetailNetQty': 'Таза санак',
+    'productDetailGross': 'Жалпы сумма',
+    'productDetailReturnsAmount': 'Кайтарылган сумма',
+    'productDetailNetAmount': 'Таза киреше',
+    'productDetailBatchesTitle': 'ПАРТИЯЛАР',
+    'productDetailReturnedSuffix': 'Кайтарылды:',
     'dashboardEmptyOutput': 'Чыгым жазылган эмес',
     'dashboardSectionOutput': 'Бүгүнкү чыгымдар',
     'dashboardTabOutput': 'Продукт чыгымы',
@@ -3260,6 +3345,7 @@ class S {
     'recipeEmptySubtitle':
         'Өнүм түрлөрү үчүн рецепт кошуңуз — өндүрүш эсеби так болот.',
     'recipeAddCta': 'Рецепт кошуу',
+    'backToDashboard': 'Негизги бетке кайтуу',
     'recipeDeletedSnackbar': 'Рецепт өчүрүлдү',
     'recipeErrorSnackbar': 'Ката кетти',
     'recipeCreateTitle': 'Жаңы рецепт',
@@ -3436,6 +3522,7 @@ class S {
     'ingredientUnitFieldLabel': 'Өлчөм бирдиги',
     'ingredientPricePerUnitLabel': '1 бирдик баасы',
     'ingredientPricePerUnitLabelDynamic': '1 {unit} баасын жазыңыз',
+    'productSellingPriceLabelDynamic': '1 {unit} сатуу баасы',
     'ingredientUnit_kg': 'Килограмм (kg)',
     'ingredientUnit_gram': 'Грамм (g)',
     'ingredientUnit_litr': 'Литр (l)',
@@ -3720,6 +3807,17 @@ class S {
     'dashboardKpiBatch': 'Toplam',
     'dashboardKpiSold': 'Satılan',
     'dashboardKpiReturned': 'İade',
+    'dashboardCarouselEmptyTitle': 'Bugün ürün üretilmedi',
+    'dashboardCarouselEmptySubtitle':
+        'Yeni bir parti oluşturduğunuzda burada toplam üretim görünecek',
+    'productDetailProduced': 'Toplam üretildi',
+    'productDetailReturnedQty': 'İade edilen miktar',
+    'productDetailNetQty': 'Net miktar',
+    'productDetailGross': 'Brüt tutar',
+    'productDetailReturnsAmount': 'İade tutarı',
+    'productDetailNetAmount': 'Net gelir',
+    'productDetailBatchesTitle': 'PARTİLER',
+    'productDetailReturnedSuffix': 'İade:',
     'dashboardEmptyOutput': 'Çıkış kaydı yok',
     'dashboardSectionOutput': 'Bugünkü çıkışlar',
     'dashboardTabOutput': 'Ürün çıkışı',
@@ -3849,6 +3947,7 @@ class S {
     'recipeEmptySubtitle':
         'Ürün türleri için tarif ekleyin — üretim hesabı net olsun.',
     'recipeAddCta': 'Tarif ekle',
+    'backToDashboard': 'Ana sayfaya dön',
     'recipeDeletedSnackbar': 'Tarif silindi',
     'recipeErrorSnackbar': 'Bir hata oluştu',
     'recipeCreateTitle': 'Yeni tarif',
@@ -4025,6 +4124,7 @@ class S {
     'ingredientUnitFieldLabel': 'Ölçü birimi',
     'ingredientPricePerUnitLabel': '1 birim fiyatı',
     'ingredientPricePerUnitLabelDynamic': '1 {unit} fiyatını girin',
+    'productSellingPriceLabelDynamic': '1 {unit} satış fiyatı',
     'ingredientUnit_kg': 'Kilogram (kg)',
     'ingredientUnit_gram': 'Gram (g)',
     'ingredientUnit_litr': 'Litre (l)',

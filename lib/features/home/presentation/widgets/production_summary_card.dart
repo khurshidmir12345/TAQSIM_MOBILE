@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/l10n/translations.dart';
+import '../../../../core/utils/time_format.dart';
+import '../../../../core/widgets/time_badge.dart';
 import '../../domain/models/production_model.dart';
 
 /// Asosiy sahifa va tarix — bir xil mahsulot chiqimi kartasi.
@@ -36,6 +38,7 @@ class ProductionSummaryCard extends StatelessWidget {
     final rq = production.returnsQuantityAllocated.toDouble();
     final ra = production.returnsAmount.toDouble();
     final hasReturns = rq > 0 || ra > 0;
+    final timeStr = formatTimeHm(production.createdAt);
 
     return Material(
       color: Colors.transparent,
@@ -81,15 +84,25 @@ class ProductionSummaryCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: cs.onSurface,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: cs.onSurface,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              if (timeStr != null) ...[
+                                const SizedBox(width: 8),
+                                TimeBadge(time: timeStr),
+                              ],
+                            ],
                           ),
                           const SizedBox(height: 2),
                           Text(

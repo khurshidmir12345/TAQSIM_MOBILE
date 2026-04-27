@@ -81,6 +81,21 @@ class ShopRepository {
     }
   }
 
+  /// Mahsulotlar uchun 4 ta o'lchov birligi: Dona, Kilogram, Litr, Metr.
+  Future<List<MeasurementUnitModel>> getProductMeasurementUnits() async {
+    try {
+      final response =
+          await _apiClient.dio.get('/v1/measurement-units/product');
+      final body = _body(response);
+      final list = body['data'] as List;
+      return list
+          .map((e) => MeasurementUnitModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   Future<List<MeasurementUnitModel>> getMeasurementUnits({
     String? type,
   }) async {

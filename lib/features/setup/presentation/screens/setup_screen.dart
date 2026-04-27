@@ -69,7 +69,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final pad = Responsive.horizontalPadding(context);
     final s = S.of(context);
     final theme = Theme.of(context);
-    final shop = ref.watch(shopProvider).selected;
+    final shop = ref.watch(shopProvider.select((s) => s.selected));
     final bizKey = shop?.businessType?.key;
     final bizColor = shop?.businessType?.color;
 

@@ -9,7 +9,9 @@ import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/providers/terminology_provider.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../../core/utils/time_format.dart';
 import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/time_badge.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../tutorial/domain/providers/shop_tutorial_provider.dart';
 import '../../../tutorial/presentation/widgets/tutorial_spotlight.dart';
@@ -141,92 +143,27 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
     }
   }
 
-  void _showShopPicker() {
-    final shopState = ref.read(shopProvider);
-    final cs = Theme.of(context).colorScheme;
-    final s = S.of(context);
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(ctx).size.height * 0.5,
-        ),
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: cs.onSurface.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    s.bakeries,
-                    style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      context.push('/shop-select');
-                    },
-                    icon: const Icon(Icons.settings_outlined, size: 18),
-                    label: Text(s.manage),
-                  ),
-                ],
-              ),
-            ),
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                itemCount: shopState.shops.length,
-                itemBuilder: (ctx, i) {
-                  final shop = shopState.shops[i];
-                  final isSelected = shop.id == shopState.selected?.id;
-                  return _ShopPickerItem(
-                    shop: shop,
-                    isSelected: isSelected,
-                    onTap: () {
-                      ref.read(shopProvider.notifier).selectShop(shop);
-                      _onShopSelected();
-                      Navigator.pop(ctx);
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  /// Biznes tanlash/boshqarish ekraniga o'tadi. Oldin bottom-sheet edi, ammo
+  /// Android'da past qirralar tizim tugmalari bilan to'qnashib, bir biznesli
+  /// holatda kartani yarmi tagiga yopiltirar edi — endi doim to'liq sahifa.
+  /// Qaytganda joriy do'konning ma'lumotlarini qayta yuklaymiz.
+  Future<void> _openShopManager() async {
+    HapticFeedback.selectionClick();
+    await context.push('/shop-select');
+    if (!mounted) return;
+    await _onShopSelected();
   }
 
   @override
   Widget build(BuildContext context) {
-    final shop        = ref.watch(shopProvider).selected;
+    final shop        = ref.watch(shopProvider.select((s) => s.selected));
     final reportState = ref.watch(dailyReportProvider);
     final report      = reportState.report;
     final cs          = Theme.of(context).colorScheme;
     final pad         = Responsive.horizontalPadding(context);
     final s           = S.of(context);
     final term        = ref.watch(terminologyProvider);
-    final showHint = ref.watch(shopTutorialProvider);
+    final showHint    = ref.watch(shopTutorialProvider);
 
     final scaffold = Scaffold(
       body: Column(
@@ -235,7 +172,7 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
             shop: shop,
             pad: pad,
             setupBtnKey: _setupBtnKey,
-            onShopTap: _showShopPicker,
+            onShopTap: _openShopManager,
             onSetupTap: () => context.push('/setup'),
             onProfileTap: () {
               HapticFeedback.selectionClick();
@@ -257,21 +194,29 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
                   else ...[
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: pad),
-                      child: _BalanceCard(
-                        report: report,
-                        fmt: _fmt,
-                        selectedDate: _selectedDate,
-                        isFiltered: !_isToday(_selectedDate),
-                        onDateTap: _pickDate,
+                      child: RepaintBoundary(
+                        child: _BalanceCard(
+                          report: report,
+                          fmt: _fmt,
+                          selectedDate: _selectedDate,
+                          isFiltered: !_isToday(_selectedDate),
+                          onDateTap: _pickDate,
+                          onHistoryTap: () {
+                            HapticFeedback.selectionClick();
+                            context.push('/history');
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _ActivityRow(
-                      report: report,
-                      productions: reportState.productions,
-                      fmt: _fmt,
-                      batchCountSuffix: s.dashboardBatchUnitGeneric,
-                      productUnit: term.productUnit,
+                    RepaintBoundary(
+                      child: _ProductCarousel(
+                        productions: reportState.productions,
+                        fmt: _fmt,
+                        batchCountSuffix: s.dashboardBatchUnitGeneric,
+                        fallbackUnit: term.productUnit,
+                        fallbackCurrency: s.currency,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Padding(
@@ -340,124 +285,153 @@ class _DashboardHeader extends StatelessWidget {
     required this.onProfileTap,
   });
 
-  /// Matn + strelka qator bo‘yicha: strelka doim matn oxiriga yopishadi (uzoq cho‘zilmaydi).
-  static const double _chevronSlot = 26;
-
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final cs = Theme.of(context).colorScheme;
     final title = (shop?.name.isNotEmpty == true) ? shop!.name : s.bakery;
     final addr = shop?.address?.trim();
-    final initial = title.isNotEmpty ? title[0].toUpperCase() : '?';
+    final bizColor = shop?.businessType?.color ?? cs.primary;
 
     return SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(pad, 12, pad, 16),
-          child: Row(
-            children: [
-              Material(
+      bottom: false,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(pad, 12, pad, 16),
+        child: Row(
+          children: [
+            _ShopMenuButton(onTap: onShopTap),
+            const SizedBox(width: 8),
+            _ShopBadge(bizColor: bizColor, onTap: onShopTap),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Material(
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: onShopTap,
-                  borderRadius: BorderRadius.circular(13),
-                  child: Ink(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: cs.primaryContainer,
-                      borderRadius: BorderRadius.circular(13),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 2,
                     ),
-                    child: Center(
-                      child: Text(
-                        initial,
-                        style: TextStyle(
-                          color: cs.onPrimaryContainer,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onShopTap,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final maxText = constraints.maxWidth > _chevronSlot
-                                  ? constraints.maxWidth - _chevronSlot
-                                  : 0.0;
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ConstrainedBox(
-                                    constraints: BoxConstraints(
-                                      maxWidth: maxText,
-                                    ),
-                                    child: Text(
-                                      title,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: cs.onSurface,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: -0.25,
-                                        height: 1.15,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Icon(
-                                    Icons.expand_more_rounded,
-                                    color: cs.onSurface.withValues(alpha: 0.5),
-                                    size: 22,
-                                  ),
-                                ],
-                              );
-                            },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: cs.onSurface,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.25,
+                            height: 1.15,
                           ),
-                          if (addr != null && addr.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              addr,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: cs.onSurface.withValues(alpha: 0.55),
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w500,
-                                height: 1.2,
-                              ),
+                        ),
+                        if (addr != null && addr.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            addr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: cs.onSurface.withValues(alpha: 0.55),
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w500,
+                              height: 1.2,
                             ),
-                          ],
+                          ),
                         ],
-                      ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
-              _TealIconBtn(key: setupBtnKey, icon: Icons.tune_rounded, onTap: onSetupTap),
-              const SizedBox(width: 6),
-              _TealIconBtn(icon: Icons.person_outline_rounded, onTap: onProfileTap),
-            ],
+            ),
+            const SizedBox(width: 6),
+            _TealIconBtn(
+              key: setupBtnKey,
+              icon: Icons.tune_rounded,
+              onTap: onSetupTap,
+            ),
+            const SizedBox(width: 6),
+            _TealIconBtn(
+              icon: Icons.person_outline_rounded,
+              onTap: onProfileTap,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Chap chetda joylashgan zamonaviy "hamburger" tugma. Tapped → do'kon
+/// tanlash/qo'shish ekraniga olib o'tadi (boshqa do'konlar ham bo'lishi mumkin).
+class _ShopMenuButton extends StatelessWidget {
+  const _ShopMenuButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: cs.surfaceContainerHighest.withValues(
+        alpha: isDark ? 0.6 : 0.85,
+      ),
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(
+            Icons.menu_rounded,
+            color: cs.onSurface,
+            size: 24,
           ),
         ),
-      );
+      ),
+    );
+  }
+}
+
+/// Do'konni bildiruvchi storefront ikoni — biznes turining rangi bilan
+/// nozik tortilgan. Tapped → do'kon menyusi.
+class _ShopBadge extends StatelessWidget {
+  const _ShopBadge({required this.bizColor, required this.onTap});
+
+  final Color bizColor;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = bizColor.withValues(alpha: isDark ? 0.22 : 0.13);
+    final fg = isDark ? Color.lerp(bizColor, Colors.white, 0.25)! : bizColor;
+
+    return Material(
+      color: bg,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(
+            Icons.storefront_rounded,
+            color: fg,
+            size: 22,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -590,6 +564,7 @@ class _BalanceCard extends StatelessWidget {
   final DateTime selectedDate;
   final bool isFiltered;
   final VoidCallback onDateTap;
+  final VoidCallback onHistoryTap;
 
   const _BalanceCard({
     required this.report,
@@ -597,6 +572,7 @@ class _BalanceCard extends StatelessWidget {
     required this.selectedDate,
     required this.isFiltered,
     required this.onDateTap,
+    required this.onHistoryTap,
   });
 
   @override
@@ -735,6 +711,12 @@ class _BalanceCard extends StatelessWidget {
                     size: 18,
                   ),
                 ),
+                const SizedBox(width: 8),
+                _DashboardIconBtn(
+                  icon: Icons.history_rounded,
+                  tooltip: S.of(context).historyTitle,
+                  onTap: onHistoryTap,
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -820,147 +802,762 @@ class _MiniKPI extends StatelessWidget {
   }
 }
 
-class _ActivityRow extends StatelessWidget {
-  final DailyReportModel? report;
-  final List<ProductionModel> productions;
-  final String Function(dynamic) fmt;
-  /// Partiya soni yonidagi umumiy qo‘shimcha (mahsulot birligidan mustaqil).
-  final String batchCountSuffix;
-  final String productUnit;
-
-  const _ActivityRow({
-    required this.report,
-    required this.productions,
-    required this.fmt,
-    required this.batchCountSuffix,
-    required this.productUnit,
+/// Balans cardidagi mini-tugma (history kabi sub-amallar uchun).
+class _DashboardIconBtn extends StatelessWidget {
+  const _DashboardIconBtn({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
   });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final s = S.of(context);
-
-    double totalBatches = 0;
-    for (final p in productions) {
-      totalBatches += p.batchCount;
-    }
-
-    final items = [
-      _StatTileData(Icons.output_rounded, s.dashboardKpiOutput,
-          fmt(report?.production.totalBread ?? 0), productUnit),
-      _StatTileData(Icons.layers_outlined, s.dashboardKpiBatch,
-          fmt(totalBatches), batchCountSuffix),
-      _StatTileData(Icons.storefront_outlined, s.dashboardKpiSold,
-          fmt(report?.sales.totalQuantity ?? 0), productUnit),
-      _StatTileData(Icons.undo_rounded, s.dashboardKpiReturned,
-          fmt(report?.returns.totalQuantity ?? 0), productUnit),
-    ];
-
-    return SizedBox(
-      height: 108,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(
-            horizontal: Responsive.horizontalPadding(context)),
-        itemCount: items.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (_, i) {
-          final d = items[i];
-          return _StatTile(d.icon, d.title, d.value, d.unit);
-        },
+    return Material(
+      color: Colors.transparent,
+      child: Tooltip(
+        message: tooltip,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Ink(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.history_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
-class _StatTileData {
-  final IconData icon;
-  final String title;
-  final String value;
-  final String unit;
-  const _StatTileData(this.icon, this.title, this.value, this.unit);
+/// Mahsulot bo'yicha karusel — har bitta tur uchun alohida card.
+///
+/// Bir kun ichida bir mahsulot bir necha marta yopilishi mumkin (3 partiya
+/// = 3 ta `ProductionModel`). Bu yerda biz ularni `breadCategoryId` bo'yicha
+/// guruhlaymiz va har bir tur uchun yagona xulosa cardini ko'rsatamiz:
+/// - Sof miqdor (chiqarilgan − qaytarilgan)
+/// - Sof tushum (yalpi summa − qaytarilgan summa)
+/// - Birlik va valyuta — mahsulotning o'ziga xos ma'lumotidan.
+class _ProductCarousel extends ConsumerWidget {
+  const _ProductCarousel({
+    required this.productions,
+    required this.fmt,
+    required this.batchCountSuffix,
+    required this.fallbackUnit,
+    required this.fallbackCurrency,
+  });
+
+  final List<ProductionModel> productions;
+  final String Function(dynamic) fmt;
+  final String batchCountSuffix;
+  final String fallbackUnit;
+  final String fallbackCurrency;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pad = Responsive.horizontalPadding(context);
+    final localeCode =
+        ref.watch(localeProvider.select((a) => (a.value ?? AppLocale.uz).code));
+
+    if (productions.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: pad),
+        child: const _ProductCarouselEmpty(),
+      );
+    }
+
+    final groups = _groupProductions(
+      productions,
+      fallbackUnit: fallbackUnit,
+      fallbackCurrency: fallbackCurrency,
+      localeCode: localeCode,
+    );
+
+    return SizedBox(
+      height: 108,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: pad),
+        itemCount: groups.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
+        itemBuilder: (_, i) => RepaintBoundary(
+          child: _ProductSummaryCard(
+            group: groups[i],
+            fmt: fmt,
+            onTap: () => _showProductDetail(
+              context,
+              group: groups[i],
+              fmt: fmt,
+              batchCountSuffix: batchCountSuffix,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static List<_ProductGroup> _groupProductions(
+    List<ProductionModel> list, {
+    required String fallbackUnit,
+    required String fallbackCurrency,
+    required String localeCode,
+  }) {
+    final map = <String, _ProductGroup>{};
+    for (final p in list) {
+      final cat = p.breadCategory;
+      final unit = cat?.measurementUnit?.localizedName(localeCode) ??
+          cat?.measurementUnit?.code ??
+          fallbackUnit;
+      final currency = cat?.priceSuffix(fallbackCurrency) ?? fallbackCurrency;
+      final name = cat?.name ?? '';
+
+      final existing = map[p.breadCategoryId];
+      if (existing == null) {
+        map[p.breadCategoryId] = _ProductGroup(
+          categoryId: p.breadCategoryId,
+          name: name,
+          unit: unit,
+          currency: currency,
+          producedQty: p.breadProduced.toDouble(),
+          returnedQty: p.returnsQuantityAllocated.toDouble(),
+          grossAmount: p.grossRevenue,
+          returnsAmount: p.returnsAmount,
+          batches: [p],
+        );
+      } else {
+        existing
+          ..producedQty += p.breadProduced
+          ..returnedQty += p.returnsQuantityAllocated
+          ..grossAmount += p.grossRevenue
+          ..returnsAmount += p.returnsAmount
+          ..batches.add(p);
+      }
+    }
+    final groups = map.values.toList()
+      ..sort((a, b) => b.netAmount.compareTo(a.netAmount));
+    return groups;
+  }
+
+  static void _showProductDetail(
+    BuildContext context, {
+    required _ProductGroup group,
+    required String Function(dynamic) fmt,
+    required String batchCountSuffix,
+  }) {
+    HapticFeedback.selectionClick();
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ProductDetailSheet(
+        group: group,
+        fmt: fmt,
+        batchCountSuffix: batchCountSuffix,
+      ),
+    );
+  }
 }
 
-class _StatTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-  final String unit;
+/// Bitta mahsulot turi uchun bugungi xulosa.
+class _ProductGroup {
+  _ProductGroup({
+    required this.categoryId,
+    required this.name,
+    required this.unit,
+    required this.currency,
+    required this.producedQty,
+    required this.returnedQty,
+    required this.grossAmount,
+    required this.returnsAmount,
+    required this.batches,
+  });
 
-  const _StatTile(this.icon, this.title, this.value, this.unit);
+  final String categoryId;
+  final String name;
+  final String unit;
+  final String currency;
+  double producedQty;
+  double returnedQty;
+  double grossAmount;
+  double returnsAmount;
+  final List<ProductionModel> batches;
+
+  double get netQty => producedQty - returnedQty;
+  double get netAmount => grossAmount - returnsAmount;
+  bool get hasReturns => returnedQty > 0 || returnsAmount > 0;
+}
+
+/// Karuseldagi yagona ko'rinadigan ikonka — har xil mahsulot uchun ham mos.
+const IconData _kProductIcon = Icons.inventory_2_rounded;
+
+class _ProductSummaryCard extends StatelessWidget {
+  const _ProductSummaryCard({
+    required this.group,
+    required this.fmt,
+    required this.onTap,
+  });
+
+  final _ProductGroup group;
+  final String Function(dynamic) fmt;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isTablet = Responsive.isTablet(context);
 
-    return Container(
+    return SizedBox(
       width: isTablet ? 158 : 132,
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-      decoration: BoxDecoration(
+      child: Material(
         color: cs.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: cs.outline),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: Ink(
+            decoration: BoxDecoration(
+              color: cs.surface,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: cs.outline),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: cs.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                        child: Icon(_kProductIcon,
+                            color: cs.primary, size: 14),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          group.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: cs.onSurface,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.1,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          fmt(group.netQty),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: cs.onSurface,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            height: 1,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        group.unit,
+                        style: TextStyle(
+                          color: cs.primary.withValues(alpha: 0.6),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    '${fmt(group.netAmount)} ${group.currency}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColors.success,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProductCarouselEmpty extends StatelessWidget {
+  const _ProductCarouselEmpty();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final s = S.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      height: 108,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(
+          alpha: isDark ? 0.32 : 0.55,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: cs.outline.withValues(alpha: isDark ? 0.4 : 0.6),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(_kProductIcon,
+                color: cs.primary.withValues(alpha: 0.7), size: 18),
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.dashboardCarouselEmptyTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: cs.onSurface,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  s.dashboardCarouselEmptySubtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.55),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ProductDetailSheet extends StatelessWidget {
+  const _ProductDetailSheet({
+    required this.group,
+    required this.fmt,
+    required this.batchCountSuffix,
+  });
+
+  final _ProductGroup group;
+  final String Function(dynamic) fmt;
+  final String batchCountSuffix;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final s = S.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.7,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      expand: false,
+      builder: (_, scrollCtl) => Container(
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 44,
+              height: 4,
+              decoration: BoxDecoration(
+                color: cs.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: cs.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Icon(_kProductIcon,
+                        color: cs.primary, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          group.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${fmt(group.batches.length)} $batchCountSuffix',
+                          style: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.5),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView(
+                controller: scrollCtl,
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                children: [
+                  _DetailStatBlock(
+                    rows: [
+                      _DetailStatRow(
+                        label: s.productDetailProduced,
+                        value: '${fmt(group.producedQty)} ${group.unit}',
+                        color: cs.onSurface,
+                      ),
+                      _DetailStatRow(
+                        label: s.productDetailReturnedQty,
+                        value: group.returnedQty > 0
+                            ? '${fmt(group.returnedQty)} ${group.unit}'
+                            : '—',
+                        color: group.returnedQty > 0
+                            ? AppColors.error
+                            : cs.onSurface.withValues(alpha: 0.5),
+                      ),
+                      _DetailStatRow(
+                        label: s.productDetailNetQty,
+                        value: '${fmt(group.netQty)} ${group.unit}',
+                        color: cs.onSurface,
+                        bold: true,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _DetailStatBlock(
+                    rows: [
+                      _DetailStatRow(
+                        label: s.productDetailGross,
+                        value:
+                            '${fmt(group.grossAmount)} ${group.currency}',
+                        color: cs.onSurface,
+                      ),
+                      _DetailStatRow(
+                        label: s.productDetailReturnsAmount,
+                        value: group.returnsAmount > 0
+                            ? '${fmt(group.returnsAmount)} ${group.currency}'
+                            : '—',
+                        color: group.returnsAmount > 0
+                            ? AppColors.error
+                            : cs.onSurface.withValues(alpha: 0.5),
+                      ),
+                      _DetailStatRow(
+                        label: s.productDetailNetAmount,
+                        value:
+                            '${fmt(group.netAmount)} ${group.currency}',
+                        color: AppColors.success,
+                        bold: true,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    s.productDetailBatchesTitle,
+                    style: TextStyle(
+                      color: cs.onSurface.withValues(alpha: 0.55),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  for (var i = 0; i < group.batches.length; i++) ...[
+                    _BatchRow(
+                      index: i + 1,
+                      batch: group.batches[i],
+                      unit: group.unit,
+                      currency: group.currency,
+                      fmt: fmt,
+                      isDark: isDark,
+                      cs: cs,
+                      returnedSuffix: s.productDetailReturnedSuffix,
+                    ),
+                    if (i < group.batches.length - 1)
+                      const SizedBox(height: 8),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailStatBlock extends StatelessWidget {
+  const _DetailStatBlock({required this.rows});
+  final List<_DetailStatRow> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(
+          alpha: isDark ? 0.35 : 0.55,
+        ),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            rows[i],
+            if (i < rows.length - 1)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Container(
+                  height: 1,
+                  color: cs.onSurface.withValues(alpha: 0.05),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailStatRow extends StatelessWidget {
+  const _DetailStatRow({
+    required this.label,
+    required this.value,
+    required this.color,
+    this.bold = false,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+  final bool bold;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: cs.onSurface.withValues(alpha: 0.6),
+              fontSize: 13,
+              fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: 14,
+            fontWeight: bold ? FontWeight.w800 : FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BatchRow extends StatelessWidget {
+  const _BatchRow({
+    required this.index,
+    required this.batch,
+    required this.unit,
+    required this.currency,
+    required this.fmt,
+    required this.isDark,
+    required this.cs,
+    required this.returnedSuffix,
+  });
+
+  final int index;
+  final ProductionModel batch;
+  final String unit;
+  final String currency;
+  final String Function(dynamic) fmt;
+  final bool isDark;
+  final ColorScheme cs;
+  final String returnedSuffix;
+
+  @override
+  Widget build(BuildContext context) {
+    final time = formatTimeHm(batch.createdAt);
+    final hasRet = batch.returnsQuantityAllocated > 0 || batch.returnsAmount > 0;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(
+          alpha: isDark ? 0.25 : 0.4,
+        ),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: cs.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Icon(icon, color: cs.primary, size: 16),
-          ),
-          const Spacer(),
-          Text(
-            title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: cs.onSurface.withValues(alpha: 0.48),
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: 4),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
             children: [
-              Flexible(
+              Container(
+                width: 22,
+                height: 22,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(7),
+                ),
                 child: Text(
-                  value,
+                  '$index',
                   style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 17,
+                    color: cs.primary,
+                    fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    height: 1,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 3),
+              const SizedBox(width: 10),
+              if (time != null)
+                TimeBadge(time: time, compact: true)
+              else
+                Text(
+                  '—',
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.45),
+                    fontSize: 11,
+                  ),
+                ),
+              const Spacer(),
               Text(
-                unit,
+                '${fmt(batch.breadProduced)} $unit',
                 style: TextStyle(
-                  color: cs.primary.withValues(alpha: 0.58),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '${fmt(batch.grossRevenue)} $currency',
+                style: const TextStyle(
+                  color: AppColors.success,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
+          if (hasRet) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.only(left: 32),
+              child: Row(
+                children: [
+                  const Icon(Icons.undo_rounded,
+                      size: 12, color: AppColors.error),
+                  const SizedBox(width: 5),
+                  Text(
+                    '$returnedSuffix ${fmt(batch.returnsQuantityAllocated)} $unit · ${fmt(batch.returnsAmount)} $currency',
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1109,6 +1706,7 @@ class _DashboardExpenseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final radius = BorderRadius.circular(16);
+    final timeStr = formatTimeHm(expense.createdAt);
 
     return Material(
       color: cs.surface,
@@ -1124,64 +1722,74 @@ class _DashboardExpenseCard extends StatelessWidget {
             border: Border.all(color: cs.outline),
           ),
           child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: AppColors.error.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: const Icon(
-              Icons.payments_rounded,
-              color: AppColors.error,
-              size: 19,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  expense.displayCategoryLabel,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
-                  ),
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-                if (expense.description != null &&
-                    expense.description!.trim().isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    expense.description!.trim(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.5),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                child: const Icon(
+                  Icons.payments_rounded,
+                  color: AppColors.error,
+                  size: 19,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            expense.displayCategoryLabel,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: cs.onSurface,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              height: 1.2,
+                            ),
+                          ),
+                        ),
+                        if (timeStr != null) ...[
+                          const SizedBox(width: 8),
+                          TimeBadge(time: timeStr, compact: true),
+                        ],
+                      ],
                     ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            '${fmt(expense.amount)} $currency',
-            style: const TextStyle(
-              color: AppColors.error,
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
+                    if (expense.description != null &&
+                        expense.description!.trim().isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        expense.description!.trim(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: cs.onSurface.withValues(alpha: 0.5),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '${fmt(expense.amount)} $currency',
+                style: const TextStyle(
+                  color: AppColors.error,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -1276,88 +1884,3 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-class _ShopPickerItem extends StatelessWidget {
-  final ShopModel shop;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _ShopPickerItem({
-    required this.shop,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? cs.secondary.withValues(alpha: 0.1)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected
-                    ? cs.secondary.withValues(alpha: 0.3)
-                    : cs.onSurface.withValues(alpha: 0.08),
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? cs.secondary.withValues(alpha: 0.12)
-                        : cs.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(Icons.storefront_outlined,
-                      size: 20,
-                      color: isSelected
-                          ? cs.secondary
-                          : cs.onSurface.withValues(alpha: 0.5)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(shop.name,
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: isSelected
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: cs.onSurface)),
-                      if (shop.address != null)
-                        Text(shop.address!,
-                            style: TextStyle(
-                                fontSize: 12,
-                                color:
-                                    cs.onSurface.withValues(alpha: 0.5))),
-                    ],
-                  ),
-                ),
-                if (isSelected)
-                  Icon(Icons.check_circle_rounded,
-                      color: cs.secondary, size: 22),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}

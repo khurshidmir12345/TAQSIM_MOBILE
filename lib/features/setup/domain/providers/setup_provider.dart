@@ -58,6 +58,7 @@ class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
     required String name,
     required double sellingPrice,
     required String currencyId,
+    required String measurementUnitId,
   }) async {
     try {
       await _repo.createBreadCategory(
@@ -65,6 +66,7 @@ class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
         name: name,
         sellingPrice: sellingPrice,
         currencyId: currencyId,
+        measurementUnitId: measurementUnitId,
       );
       await load();
       return true;
@@ -79,6 +81,7 @@ class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
     required String name,
     required double sellingPrice,
     required String currencyId,
+    required String measurementUnitId,
   }) async {
     try {
       await _repo.updateBreadCategory(
@@ -87,6 +90,7 @@ class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
         name: name,
         sellingPrice: sellingPrice,
         currencyId: currencyId,
+        measurementUnitId: measurementUnitId,
       );
       await load();
       return true;
@@ -100,6 +104,10 @@ class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
     try {
       await _repo.deleteBreadCategory(_shopId(ref), id);
       await load();
+      // Mahsulot o'chirilganda, backendda unga bog'liq retseptlar ham
+      // soft-delete bo'ladi (BreadCategory::booted). Lokal retsept state'i
+      // eskirib qolmasligi uchun shu yerda ham yangilab qo'yamiz.
+      await ref.read(recipeProvider.notifier).load();
       return true;
     } catch (e) {
       state = state.copyWith(error: e.toString());

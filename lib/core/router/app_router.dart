@@ -14,6 +14,7 @@ import '../../features/home/presentation/screens/production_detail_screen.dart';
 import '../l10n/translations.dart';
 import '../../features/home/presentation/screens/return_create_screen.dart';
 import '../../features/home/presentation/screens/expense_create_screen.dart';
+import '../../features/home/presentation/screens/history_screen.dart';
 import '../../features/onboarding/presentation/screens/language_selection_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/setup/presentation/screens/setup_screen.dart';
@@ -161,6 +162,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/expense-create',
         builder: (context, state) => const ExpenseCreateScreen(),
+      ),
+      GoRoute(
+        path: '/history',
+        builder: (context, state) => const HistoryScreen(),
       ),
       GoRoute(
         path: '/profile',
