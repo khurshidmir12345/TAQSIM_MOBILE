@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "uz.taqseem.app"
+    namespace = "uz.taqseem.mobile"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "uz.taqseem.app"
+        applicationId = "uz.taqseem.mobile"
         minSdk = 24
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

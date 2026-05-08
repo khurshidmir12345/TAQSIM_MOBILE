@@ -1,12 +1,12 @@
-# Minimal iOS — flutter_map va boshqa zamonaviy plaginlar uchun yetarli.
-platform :ios, '13.0'
+# Minimal iOS — Flutter 3.41+ va zamonaviy plaginlar uchun barqaror minimum.
+# 14.0 — App Store qabul qiladigan eng past versiya bilan uyg'un.
+platform :ios, '14.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 project 'Runner', {
   'Debug' => :debug,
-  'Profile' => :release,
   'Release' => :release,
 }
 
@@ -40,8 +40,8 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
-      # Bir xil minimal versiyani ta'minlash
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      # Bir xil minimal versiyani ta'minlash (Runner bilan moslik)
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
 
       # Plaginlar uchun ruxsatlar (geolocator, image_picker)
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
@@ -52,8 +52,20 @@ post_install do |installer|
         'PERMISSION_PHOTOS=1',
       ]
 
-      # Release build performance — bitcode'siz, lekin warninglar tinch
+      # Bitcode App Store Connect tomonidan qabul qilinmaydi (Xcode 14+).
       config.build_settings['ENABLE_BITCODE'] = 'NO'
+
+      # Release uchun dSYM majburiy — TestFlight "Upload Symbols Failed"
+      # (objective_c.framework va Flutter.framework dSYM topilmadi) muammosini hal qiladi.
+      if config.name == 'Release'
+        config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
+        config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+      else
+        config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf'
+      end
+
+      # Apple Silicon simulyatorida muammolarsiz ishlash uchun.
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
     end
   end
 end
