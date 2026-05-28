@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../../core/api/api_provider.dart';
 import '../../data/auth_repository.dart';
@@ -151,6 +154,65 @@ class AuthNotifier extends Notifier<AuthState> {
       user: user,
       isLoading: false,
     );
+  }
+
+  /// Sign in with Apple flow:
+  ///  1. Native sheet ochiladi (iOS/macOS only).
+  ///  2. Identity token va ixtiyoriy ism/email backendga yuboriladi.
+  ///  3. Backend tasdiqlab Sanctum token qaytaradi.
+  ///
+  /// Foydalanuvchi bekor qilsa `false` qaytaradi va xato chiqarmaydi.
+  Future<bool> signInWithApple() async {
+    if (!(Platform.isIOS || Platform.isMacOS)) {
+      state = state.copyWith(error: 'apple_unsupported_platform');
+      return false;
+    }
+
+    state = state.copyWith(isLoading: true);
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final identityToken = credential.identityToken;
+      if (identityToken == null || identityToken.isEmpty) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'apple_no_token',
+        );
+        return false;
+      }
+
+      final fullName = [
+        credential.givenName,
+        credential.familyName,
+      ].where((p) => p != null && p.isNotEmpty).join(' ').trim();
+
+      final result = await _repo.signInWithApple(
+        identityToken: identityToken,
+        name: fullName.isEmpty ? null : fullName,
+        email: credential.email,
+      );
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        user: result.user,
+        isLoading: false,
+      );
+      return true;
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        state = state.copyWith(isLoading: false);
+        return false;
+      }
+      state = state.copyWith(isLoading: false, error: e.message);
+      return false;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
   }
 
   Future<void> logout() async {

@@ -179,7 +179,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 8),
 
                     // ── Ijtimoiy kirish ──────────────────────────────
-                    const SocialAuthSection(),
+                    SocialAuthSection(
+                      onAuthenticated: () async {
+                        await ref.read(shopProvider.notifier).loadShops();
+                        if (!mounted) return;
+                        final shops = ref.read(shopProvider).shops;
+                        if (!context.mounted) return;
+                        context.go(shops.isEmpty ? '/shop-select' : '/shell');
+                      },
+                    ),
                   ],
                 ),
               ),

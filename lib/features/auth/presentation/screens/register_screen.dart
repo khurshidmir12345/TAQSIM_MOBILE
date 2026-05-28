@@ -274,6 +274,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               setState(() => _obscureConfirm = !_obscureConfirm),
                           onSubmit: _sendCode,
                           onLoginTap: () => context.go('/login'),
+                          onAppleAuthenticated: () async {
+                            await ref.read(shopProvider.notifier).loadShops();
+                            if (!mounted) return;
+                            final shops = ref.read(shopProvider).shops;
+                            if (!context.mounted) return;
+                            context.go(shops.isEmpty
+                                ? '/shop-select'
+                                : '/shell');
+                          },
                         )
                       : _OtpStep(
                           phone: _fullPhone,
@@ -358,6 +367,7 @@ class _FormStep extends StatelessWidget {
     required this.onToggleConfirm,
     required this.onSubmit,
     required this.onLoginTap,
+    required this.onAppleAuthenticated,
   });
 
   final GlobalKey<FormState> formKey;
@@ -375,6 +385,7 @@ class _FormStep extends StatelessWidget {
   final VoidCallback onToggleConfirm;
   final VoidCallback onSubmit;
   final VoidCallback onLoginTap;
+  final VoidCallback onAppleAuthenticated;
 
   @override
   Widget build(BuildContext context) {
@@ -536,7 +547,7 @@ class _FormStep extends StatelessWidget {
           const SizedBox(height: 8),
 
           // ── Ijtimoiy kirish ───────────────────────────────────
-          const SocialAuthSection(),
+          SocialAuthSection(onAuthenticated: onAppleAuthenticated),
         ],
       ),
     );

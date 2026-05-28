@@ -165,6 +165,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     showChevron: false,
                     onTap: () => _showLogoutConfirm(context, ref, cs, s),
                   ),
+                  _MenuItem(
+                    icon: Icons.delete_forever_rounded,
+                    title: s.deleteAccount,
+                    subtitle: s.deleteAccountDesc,
+                    iconBg: AppColors.error.withValues(alpha: 0.08),
+                    iconColor: AppColors.error,
+                    titleColor: AppColors.error,
+                    showChevron: false,
+                    onTap: () => _startDeleteAccountFlow(context, ref, cs, s),
+                  ),
                 ]),
                 const SizedBox(height: 16),
               ]),
@@ -511,6 +521,95 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Ikki bosqichli hisobni o'chirish flowi:
+  ///  1) Birinchi modal — ogohlantirish va "Davom etish" / "Bekor qilish"
+  ///  2) Ikkinchi modal — yakuniy tasdiqlash ("Albatta o'chirish")
+  /// Ikkalasi ham tasdiqlangandan keyin API chaqirib login ekraniga qaytariladi.
+  Future<void> _startDeleteAccountFlow(
+      BuildContext context, WidgetRef ref, ColorScheme cs, S s) async {
+    HapticFeedback.selectionClick();
+
+    final firstStepOk = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _DeleteAccountSheet(
+        title: s.deleteAccountTitle,
+        message: s.deleteAccountWarning,
+        primaryLabel: s.deleteAccountContinue,
+        cancelLabel: s.cancel,
+      ),
+    );
+
+    if (firstStepOk != true || !context.mounted) return;
+
+    final finalConfirm = await showModalBottomSheet<bool>(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _DeleteAccountSheet(
+        title: s.deleteAccountFinalTitle,
+        message: s.deleteAccountFinalWarning,
+        primaryLabel: s.deleteAccountConfirm,
+        cancelLabel: s.cancel,
+        emphasized: true,
+      ),
+    );
+
+    if (finalConfirm != true || !context.mounted) return;
+
+    _showProcessingDialog(context, s);
+    final success = await ref.read(authProvider.notifier).deleteAccount();
+
+    if (!context.mounted) return;
+    Navigator.of(context, rootNavigator: true).pop();
+
+    if (success) {
+      HapticFeedback.lightImpact();
+      _showSnack(s.deleteAccountSuccess);
+      if (context.mounted) context.go('/login');
+    } else {
+      _showSnack(
+        ref.read(authProvider).error ?? s.deleteAccountFailed,
+        isError: true,
+      );
+    }
+  }
+
+  void _showProcessingDialog(BuildContext context, S s) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Center(
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(ctx).colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                width: 36,
+                height: 36,
+                child: CircularProgressIndicator(strokeWidth: 3),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                s.deleteAccountProcessing,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -1258,3 +1357,143 @@ class _LanguageItem extends StatelessWidget {
   }
 }
 
+// ─── Delete Account Sheet ────────────────────────────────────────────────────
+
+/// Universal qizil ogohlantirish bottomsheet. Ikki bosqichli delete flow
+/// uchun bir necha marta ishlatiladi (sarlavha va matn parametrlari farq qiladi).
+class _DeleteAccountSheet extends StatelessWidget {
+  const _DeleteAccountSheet({
+    required this.title,
+    required this.message,
+    required this.primaryLabel,
+    required this.cancelLabel,
+    this.emphasized = false,
+  });
+
+  final String title;
+  final String message;
+  final String primaryLabel;
+  final String cancelLabel;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: cs.onSurface.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Icon(
+                    emphasized
+                        ? Icons.delete_forever_rounded
+                        : Icons.warning_amber_rounded,
+                    color: AppColors.error,
+                    size: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                message,
+                style: TextStyle(
+                  color: cs.onSurface.withValues(alpha: 0.7),
+                  fontSize: 13.5,
+                  height: 1.45,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context, false),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: cs.onSurface.withValues(alpha: 0.06),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          cancelLabel,
+                          style: TextStyle(
+                            color: cs.onSurface,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context, true),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.error,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          primaryLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
