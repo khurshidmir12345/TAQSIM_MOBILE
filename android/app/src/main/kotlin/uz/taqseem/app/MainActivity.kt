@@ -1,4 +1,4 @@
-package uz.taqseem.app01
+package uz.taqseem.app
 
 import io.flutter.embedding.android.FlutterActivity
 

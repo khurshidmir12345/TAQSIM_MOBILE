@@ -57,20 +57,40 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Future<void> _init() async {
     await Future.delayed(const Duration(milliseconds: 1800));
 
-    final prefs = await SharedPreferences.getInstance();
-    final onboardingDone = prefs.getBool('onboarding_completed') ?? false;
+    // SharedPreferences ham fail bo'lishi mumkin — try/catch bilan o'rab olamiz.
+    bool onboardingDone = false;
+    try {
+      final prefs = await SharedPreferences.getInstance()
+          .timeout(const Duration(seconds: 3));
+      onboardingDone = prefs.getBool('onboarding_completed') ?? false;
+    } catch (_) {
+      onboardingDone = false;
+    }
 
     if (!onboardingDone) {
       if (mounted) context.go('/language-selection');
       return;
     }
 
-    await ref.read(authProvider.notifier).checkAuth();
+    // checkAuth ichida o'z timeouti bor, lekin tashqi qatlamda ham himoya qo'yamiz.
+    try {
+      await ref
+          .read(authProvider.notifier)
+          .checkAuth()
+          .timeout(const Duration(seconds: 15));
+    } catch (_) {
+      // Xato bo'lsa unauthenticated deb hisoblab login'ga yo'naltiramiz.
+    }
     if (!mounted) return;
 
     final status = ref.read(authProvider).status;
     if (status == AuthStatus.authenticated) {
-      await ref.read(shopProvider.notifier).loadShops();
+      try {
+        await ref
+            .read(shopProvider.notifier)
+            .loadShops()
+            .timeout(const Duration(seconds: 10));
+      } catch (_) {}
       if (!mounted) return;
       final shops = ref.read(shopProvider).shops;
       context.go(shops.isEmpty ? '/shop-select' : '/shell');

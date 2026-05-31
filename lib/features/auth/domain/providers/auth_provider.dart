@@ -61,7 +61,18 @@ class AuthNotifier extends Notifier<AuthState> {
   AuthRepository get _repo => ref.read(authRepositoryProvider);
 
   Future<void> checkAuth() async {
-    final token = await _repo.getSavedToken();
+    // Android'da flutter_secure_storage ba'zan Keystore initsializatsiyasi sababli
+    // birinchi o'qishda osilib qoladi — 3 sekundlik timeout xavfsizlik tarmog'i.
+    String? token;
+    try {
+      token = await _repo
+          .getSavedToken()
+          .timeout(const Duration(seconds: 3));
+    } catch (_) {
+      state = state.copyWith(status: AuthStatus.unauthenticated);
+      return;
+    }
+
     if (token == null) {
       state = state.copyWith(status: AuthStatus.unauthenticated);
       return;
@@ -70,10 +81,12 @@ class AuthNotifier extends Notifier<AuthState> {
     _repo.apiClient.setToken(token);
 
     try {
-      final user = await _repo.me();
+      final user = await _repo.me().timeout(const Duration(seconds: 10));
       state = state.copyWith(status: AuthStatus.authenticated, user: user);
     } catch (_) {
-      await _repo.logout();
+      try {
+        await _repo.logout();
+      } catch (_) {}
       state = state.copyWith(status: AuthStatus.unauthenticated);
     }
   }
