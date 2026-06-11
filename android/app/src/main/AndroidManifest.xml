@@ -5,13 +5,9 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
-    <!-- image_picker: kamera va foto galereya (Android 13+ READ_MEDIA_IMAGES)
-         Eski Android'lar uchun WRITE_EXTERNAL_STORAGE shart emas — Flutter
-         image_picker kvinizatsiya orqali ishlaydi. -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- image_picker: galereyadan rasm tanlash Android Photo Picker orqali
+         ishlaydi (Android 13+), hech qanday media ruxsati talab qilinmaydi. -->
 
-    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
 
     <application
