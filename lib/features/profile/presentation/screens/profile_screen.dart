@@ -218,13 +218,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
                 _SheetTile(
-                  icon: Icons.photo_camera_rounded,
-                  label: s.takePhoto,
-                  color: AppColors.info,
-                  onTap: () =>
-                      Navigator.pop(ctx, _AvatarAction.camera),
-                ),
-                _SheetTile(
                   icon: Icons.photo_library_rounded,
                   label: s.chooseFromGallery,
                   color: AppColors.primary,
@@ -250,8 +243,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (action == null || !mounted) return;
 
     switch (action) {
-      case _AvatarAction.camera:
-        await _pickAndUpload(ImageSource.camera);
       case _AvatarAction.gallery:
         await _pickAndUpload(ImageSource.gallery);
       case _AvatarAction.remove:
@@ -697,7 +688,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
 // ─── Profile Header ──────────────────────────────────────────────────────────
 
-enum _AvatarAction { camera, gallery, remove }
+enum _AvatarAction { gallery, remove }
 
 class _ProfileHeader extends StatelessWidget {
   final UserModel? user;
