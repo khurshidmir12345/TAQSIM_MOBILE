@@ -14,6 +14,7 @@ import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import '../../../subscription/domain/providers/subscription_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -24,6 +25,19 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _isUploadingAvatar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (!mounted) return;
+      ref.read(authProvider.notifier).refreshUser();
+      // Obuna holati faqat egaga kerak.
+      if (ref.read(isOwnerProvider)) {
+        ref.read(subscriptionStatusProvider.notifier).refresh();
+      }
+    });
+  }
 
   String _fmtBalance(String? raw) {
     final v = double.tryParse(raw ?? '0') ?? 0;
@@ -41,6 +55,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final currentLocale =
         ref.watch(localeProvider.select((a) => a.value ?? AppLocale.uz));
     final canPop = Navigator.of(context).canPop();
+    final isOwner = ref.watch(isOwnerProvider);
+
+    // Obuna holati faqat egaga kerak — xodim uchun so'rov yuborilmaydi.
+    final subSubtitle = isOwner
+        ? ref.watch(subscriptionStatusProvider).maybeWhen(
+            data: (st) {
+              final sub = st.subscription;
+              if (sub == null) return s.viewPlans;
+              final name = sub.plan?.name ?? (sub.isTrial ? s.trialBadge : '');
+              final days = s.daysLeftShort.replaceAll('{n}', '${sub.daysLeft}');
+              return name.isEmpty ? days : '$name · $days';
+            },
+            orElse: () => s.viewPlans,
+          )
+        : '';
 
     return Scaffold(
       appBar: AppBar(
@@ -78,12 +107,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             padding: EdgeInsets.fromLTRB(pad, 16, pad, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _BalanceCard(
-                  balance: _fmtBalance(user?.balance),
-                  isDark: isDark,
-                  onTopUp: () => context.push('/top-up'),
-                ),
-                const SizedBox(height: 20),
+                // Balans va to'ldirish faqat egaga (owner) ko'rinadi.
+                if (isOwner) ...[
+                  _BalanceCard(
+                    balance: _fmtBalance(user?.balance),
+                    isDark: isDark,
+                    onTopUp: () => context.push('/wallet'),
+                  ),
+                  const SizedBox(height: 20),
+                ],
                 _SectionTitle(title: s.general),
                 const SizedBox(height: 8),
                 _MenuCard(children: [
@@ -95,14 +127,45 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     iconColor: AppColors.info,
                     onTap: () => context.push('/profile-info'),
                   ),
-                  _MenuItem(
-                    icon: Icons.storefront_outlined,
-                    title: s.bakeries,
-                    subtitle: s.manageAndSwitch,
-                    iconBg: cs.primary.withValues(alpha: 0.1),
-                    iconColor: cs.primary,
-                    onTap: () => context.go('/shop-select'),
-                  ),
+                  // Bizneslar ro'yxati/almashtirish faqat egaga (xodimda 1 ta biznes).
+                  if (isOwner)
+                    _MenuItem(
+                      icon: Icons.storefront_outlined,
+                      title: s.bakeries,
+                      subtitle: s.manageAndSwitch,
+                      iconBg: cs.primary.withValues(alpha: 0.1),
+                      iconColor: cs.primary,
+                      onTap: () => context.go('/shop-select'),
+                    ),
+                  if (isOwner)
+                    _MenuItem(
+                      icon: Icons.groups_2_outlined,
+                      title: s.employeesTitle,
+                      subtitle: s.employeesMenuDesc,
+                      iconBg: AppColors.info.withValues(alpha: 0.1),
+                      iconColor: AppColors.info,
+                      onTap: () => context.push('/employees'),
+                    ),
+                  // Balans tarixi faqat egaga.
+                  if (isOwner)
+                    _MenuItem(
+                      icon: Icons.receipt_long_outlined,
+                      title: s.balanceHistory,
+                      subtitle: s.balanceHistoryDesc,
+                      iconBg: AppColors.success.withValues(alpha: 0.12),
+                      iconColor: AppColors.success,
+                      onTap: () => context.push('/balance-history'),
+                    ),
+                  // Obuna/tariflar faqat egaga.
+                  if (isOwner)
+                    _MenuItem(
+                      icon: Icons.workspace_premium_outlined,
+                      title: s.subscription,
+                      subtitle: subSubtitle,
+                      iconBg: AppColors.gold.withValues(alpha: 0.12),
+                      iconColor: AppColors.gold,
+                      onTap: () => context.push('/subscription'),
+                    ),
                 ]),
                 const SizedBox(height: 20),
                 _SectionTitle(title: s.settings),
@@ -164,16 +227,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     titleColor: AppColors.error,
                     showChevron: false,
                     onTap: () => _showLogoutConfirm(context, ref, cs, s),
-                  ),
-                  _MenuItem(
-                    icon: Icons.delete_forever_rounded,
-                    title: s.deleteAccount,
-                    subtitle: s.deleteAccountDesc,
-                    iconBg: AppColors.error.withValues(alpha: 0.08),
-                    iconColor: AppColors.error,
-                    titleColor: AppColors.error,
-                    showChevron: false,
-                    onTap: () => _startDeleteAccountFlow(context, ref, cs, s),
                   ),
                 ]),
                 const SizedBox(height: 16),
@@ -533,91 +586,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   ///  1) Birinchi modal — ogohlantirish va "Davom etish" / "Bekor qilish"
   ///  2) Ikkinchi modal — yakuniy tasdiqlash ("Albatta o'chirish")
   /// Ikkalasi ham tasdiqlangandan keyin API chaqirib login ekraniga qaytariladi.
-  Future<void> _startDeleteAccountFlow(
-      BuildContext context, WidgetRef ref, ColorScheme cs, S s) async {
-    HapticFeedback.selectionClick();
-
-    final firstStepOk = await showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _DeleteAccountSheet(
-        title: s.deleteAccountTitle,
-        message: s.deleteAccountWarning,
-        primaryLabel: s.deleteAccountContinue,
-        cancelLabel: s.cancel,
-      ),
-    );
-
-    if (firstStepOk != true || !context.mounted) return;
-
-    final finalConfirm = await showModalBottomSheet<bool>(
-      context: context,
-      isDismissible: false,
-      enableDrag: false,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _DeleteAccountSheet(
-        title: s.deleteAccountFinalTitle,
-        message: s.deleteAccountFinalWarning,
-        primaryLabel: s.deleteAccountConfirm,
-        cancelLabel: s.cancel,
-        emphasized: true,
-      ),
-    );
-
-    if (finalConfirm != true || !context.mounted) return;
-
-    _showProcessingDialog(context, s);
-    final success = await ref.read(authProvider.notifier).deleteAccount();
-
-    if (!context.mounted) return;
-    Navigator.of(context, rootNavigator: true).pop();
-
-    if (success) {
-      HapticFeedback.lightImpact();
-      _showSnack(s.deleteAccountSuccess);
-      if (context.mounted) context.go('/login');
-    } else {
-      _showSnack(
-        ref.read(authProvider).error ?? s.deleteAccountFailed,
-        isError: true,
-      );
-    }
-  }
-
-  void _showProcessingDialog(BuildContext context, S s) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Center(
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Theme.of(ctx).colorScheme.surface,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(
-                width: 36,
-                height: 36,
-                child: CircularProgressIndicator(strokeWidth: 3),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                s.deleteAccountProcessing,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   void _showLanguagePicker(
       BuildContext context, WidgetRef ref, AppLocale current) {
     final cs = Theme.of(context).colorScheme;
@@ -1357,143 +1325,3 @@ class _LanguageItem extends StatelessWidget {
   }
 }
 
-// ─── Delete Account Sheet ────────────────────────────────────────────────────
-
-/// Universal qizil ogohlantirish bottomsheet. Ikki bosqichli delete flow
-/// uchun bir necha marta ishlatiladi (sarlavha va matn parametrlari farq qiladi).
-class _DeleteAccountSheet extends StatelessWidget {
-  const _DeleteAccountSheet({
-    required this.title,
-    required this.message,
-    required this.primaryLabel,
-    required this.cancelLabel,
-    this.emphasized = false,
-  });
-
-  final String title;
-  final String message;
-  final String primaryLabel;
-  final String cancelLabel;
-  final bool emphasized;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: cs.onSurface.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Icon(
-                    emphasized
-                        ? Icons.delete_forever_rounded
-                        : Icons.warning_amber_rounded,
-                    color: AppColors.error,
-                    size: 32,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.2,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                message,
-                style: TextStyle(
-                  color: cs.onSurface.withValues(alpha: 0.7),
-                  fontSize: 13.5,
-                  height: 1.45,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context, false),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: cs.onSurface.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          cancelLabel,
-                          style: TextStyle(
-                            color: cs.onSurface,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context, true),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: AppColors.error,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          primaryLabel,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../features/auth/domain/providers/auth_provider.dart';
 import '../constants/app_spacing.dart';
@@ -12,8 +11,7 @@ import '../l10n/translations.dart';
 ///
 /// "— yoki —" divider + ijtimoiy kirish:
 ///  - iOS/macOS: Apple Sign In (Guideline 4.8 majburiyati)
-///  - Telegram
-///  - Google (hozircha "tez orada")
+///  - Google (hozircha "tez orada", full-width)
 class SocialAuthSection extends ConsumerWidget {
   const SocialAuthSection({super.key, this.onAuthenticated});
 
@@ -102,28 +100,15 @@ class SocialAuthSection extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
         ],
-        Row(
-          children: [
-            Expanded(
-              child: _SocialBtn(
-                icon: Icons.telegram_rounded,
-                iconColor: const Color(0xFF229ED9),
-                label: 'Telegram',
-                borderColor: borderColor,
-                onTap: () => context.go('/telegram-auth'),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _SocialBtn(
-                icon: null,
-                iconColor: const Color(0xFFDB4437),
-                label: 'Google',
-                borderColor: borderColor,
-                onTap: () => _showComingSoon(context, 'Google'),
-              ),
-            ),
-          ],
+        SizedBox(
+          width: double.infinity,
+          child: _SocialBtn(
+            icon: null,
+            iconColor: const Color(0xFFDB4437),
+            label: 'Google',
+            borderColor: borderColor,
+            onTap: () => _showComingSoon(context, 'Google'),
+          ),
         ),
       ],
     );

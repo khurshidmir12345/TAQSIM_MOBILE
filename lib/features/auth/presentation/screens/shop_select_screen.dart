@@ -512,15 +512,17 @@ class _ShopList extends StatelessWidget {
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: () => onEdit(shop),
-                      icon: Icon(
-                        Icons.more_vert_rounded,
-                        color: cs.onSurface.withValues(alpha: 0.4),
-                        size: 20,
+                    // Tahrirlash/o'chirish faqat do'kon egasiga (owner) ko'rinadi.
+                    if (shop.userType == 'owner')
+                      IconButton(
+                        onPressed: () => onEdit(shop),
+                        icon: Icon(
+                          Icons.more_vert_rounded,
+                          color: cs.onSurface.withValues(alpha: 0.4),
+                          size: 20,
+                        ),
+                        visualDensity: VisualDensity.compact,
                       ),
-                      visualDensity: VisualDensity.compact,
-                    ),
                   ],
                 ),
               ),

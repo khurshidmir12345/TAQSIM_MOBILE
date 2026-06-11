@@ -8,6 +8,9 @@ class UserModel {
   final String? googleId;
   final String? balance;
   final String? role;
+
+  /// Global rol: 'owner' yoki 'seller' (har bir API javobida keladi).
+  final String? userType;
   final bool isAcceptedPolicy;
   final String? avatarUrl;
   final String? locale;
@@ -23,6 +26,7 @@ class UserModel {
     this.googleId,
     this.balance,
     this.role,
+    this.userType,
     this.isAcceptedPolicy = false,
     this.avatarUrl,
     this.locale,
@@ -40,6 +44,7 @@ class UserModel {
       googleId: json['google_id'] as String?,
       balance: json['balance']?.toString(),
       role: json['role'] as String?,
+      userType: json['user_type'] as String?,
       isAcceptedPolicy: json['is_accepted_policy'] as bool? ?? false,
       avatarUrl: json['avatar_url'] as String?,
       locale: json['locale'] as String?,
@@ -58,6 +63,7 @@ class UserModel {
       'google_id': googleId,
       'balance': balance,
       'role': role,
+      'user_type': userType,
       'is_accepted_policy': isAcceptedPolicy,
       'avatar_url': avatarUrl,
       'locale': locale,
@@ -65,10 +71,18 @@ class UserModel {
     };
   }
 
+  /// Joriy foydalanuvchi xodim (seller) ekanligini bildiradi.
+  bool get isSeller => userType == 'seller';
+
+  /// Joriy foydalanuvchi biznes egasi (owner) ekanligini bildiradi.
+  /// user_type noma'lum bo'lsa — egasi deb hisoblanadi (backend default).
+  bool get isOwner => !isSeller;
+
   UserModel copyWith({
     String? name,
     String? avatarUrl,
     String? role,
+    String? userType,
   }) {
     return UserModel(
       id: id,
@@ -80,6 +94,7 @@ class UserModel {
       googleId: googleId,
       balance: balance,
       role: role ?? this.role,
+      userType: userType ?? this.userType,
       isAcceptedPolicy: isAcceptedPolicy,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       locale: locale,

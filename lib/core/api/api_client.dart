@@ -8,11 +8,13 @@ import '../constants/app_constants.dart';
 import '../l10n/api_locale_holder.dart';
 
 typedef LogoutCallback = FutureOr<void> Function();
+typedef SubscriptionBlockedCallback = void Function();
 
 class ApiClient {
   static ApiClient? _instance;
   late final Dio dio;
   LogoutCallback? _onForceLogout;
+  SubscriptionBlockedCallback? _onSubscriptionBlocked;
 
   factory ApiClient() {
     _instance ??= ApiClient._internal();
@@ -65,6 +67,14 @@ class ApiClient {
     _onForceLogout = callback;
   }
 
+  void setSubscriptionBlockedCallback(SubscriptionBlockedCallback callback) {
+    _onSubscriptionBlocked = callback;
+  }
+
+  void notifySubscriptionBlocked() {
+    _onSubscriptionBlocked?.call();
+  }
+
   Future<void> forceLogout() async {
     clearToken();
     if (_onForceLogout != null) {
@@ -103,6 +113,15 @@ class _AuthInterceptor extends Interceptor {
         _client.forceLogout().whenComplete(() => _isLoggingOut = false);
       }
     }
+
+    if (err.response?.statusCode == 402) {
+      final data = err.response?.data;
+      final code = data is Map ? data['code']?.toString() : null;
+      if (code == 'subscription_required') {
+        _client.notifySubscriptionBlocked();
+      }
+    }
+
     handler.next(err);
   }
 }

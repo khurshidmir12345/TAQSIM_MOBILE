@@ -27,9 +27,15 @@ import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/profile/presentation/screens/about_app_screen.dart';
 import '../../features/profile/presentation/screens/profile_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/telegram_connect_screen.dart';
 import '../../features/profile/presentation/screens/top_up_screen.dart';
+import '../../features/employees/presentation/screens/employees_screen.dart';
 import '../../features/statistics/presentation/screens/report_screen.dart';
 import '../../features/statistics/presentation/screens/charts_screen.dart';
+import '../../features/subscription/presentation/screens/balance_history_screen.dart';
+import '../../features/subscription/presentation/screens/paywall_screen.dart';
+import '../../features/subscription/presentation/screens/wallet_screen.dart';
+import '../api/api_provider.dart';
 
 /// Global route observer — ekranlar RouteAware mixinini qo‘llab kuzatishi uchun.
 /// Masalan, dashboard qayta ochilganda sana filterini tozalash uchun.
@@ -37,7 +43,7 @@ final RouteObserver<ModalRoute<void>> appRouteObserver =
     RouteObserver<ModalRoute<void>>();
 
 final routerProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: '/',
     observers: [appRouteObserver],
     refreshListenable: _AuthRefreshNotifier(ref),
@@ -176,12 +182,32 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileInfoScreen(),
       ),
       GoRoute(
+        path: '/telegram-connect',
+        builder: (context, state) => const TelegramConnectScreen(),
+      ),
+      GoRoute(
+        path: '/employees',
+        builder: (context, state) => const EmployeesScreen(),
+      ),
+      GoRoute(
         path: '/about-app',
         builder: (context, state) => const AboutAppScreen(),
       ),
       GoRoute(
         path: '/top-up',
         builder: (context, state) => const TopUpScreen(),
+      ),
+      GoRoute(
+        path: '/wallet',
+        builder: (context, state) => const WalletScreen(),
+      ),
+      GoRoute(
+        path: '/balance-history',
+        builder: (context, state) => const BalanceHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/subscription',
+        builder: (context, state) => const PaywallScreen(),
       ),
       GoRoute(
         path: '/report',
@@ -193,6 +219,17 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+
+  // Feature so'rovi 402 (subscription_required) qaytarsa — paywall'ga yo'naltirish.
+  var navigatingToPaywall = false;
+  ref.read(apiClientProvider).setSubscriptionBlockedCallback(() {
+    if (navigatingToPaywall) return;
+    navigatingToPaywall = true;
+    router.go('/subscription');
+    Future.delayed(const Duration(seconds: 1), () => navigatingToPaywall = false);
+  });
+
+  return router;
 });
 
 class _AuthRefreshNotifier extends ChangeNotifier {

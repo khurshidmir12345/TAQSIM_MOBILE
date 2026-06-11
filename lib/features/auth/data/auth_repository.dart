@@ -266,6 +266,45 @@ class AuthRepository {
     }
   }
 
+  /// Mavjud foydalanuvchiga Telegramni bog'lash uchun sessiya yaratadi.
+  /// Auth token avtomatik yuboriladi (foydalanuvchi tizimga kirgan bo'ladi).
+  Future<({String sessionToken, String botUsername, int expiresIn})>
+      createTelegramConnectSession() async {
+    try {
+      final response =
+          await apiClient.dio.post('/v1/auth/telegram/connect-session');
+      final data = _body(response)['data'] as Map<String, dynamic>;
+      return (
+        sessionToken: data['session_token'] as String,
+        botUsername: data['bot_username'] as String,
+        expiresIn: data['expires_in'] as int? ?? 600,
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  /// Connect sessiyasi holatini tekshiradi.
+  /// status: pending | completed | failed. Tugagach yangilangan user qaytadi.
+  Future<({String status, UserModel? user})> checkTelegramConnectStatus(
+      String sessionToken) async {
+    try {
+      final response = await apiClient.dio
+          .get('/v1/auth/telegram/connect-status/$sessionToken');
+      final data = _body(response)['data'] as Map<String, dynamic>;
+
+      final status = data['status'] as String? ?? 'pending';
+      UserModel? user;
+      if (data['user'] != null) {
+        user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      }
+
+      return (status: status, user: user);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   Future<String?> getSavedToken() async {
     return _storage.read(key: _tokenKey);
   }

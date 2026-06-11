@@ -10,6 +10,7 @@ import '../../../home/presentation/screens/expenses_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../setup/domain/providers/setup_provider.dart';
 import '../../../statistics/presentation/screens/report_screen.dart';
+import '../../../subscription/domain/providers/subscription_provider.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
   const ShellScreen({super.key});
@@ -66,8 +67,11 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
 
     if (index == 0) {
       _dashboardKey.currentState?.resetToToday();
+      ref.read(subscriptionStatusProvider.notifier).refresh();
     } else if (index == 1) {
       _expensesKey.currentState?.refresh();
+    } else if (index == 3) {
+      ref.invalidate(ordersListProvider);
     }
   }
 

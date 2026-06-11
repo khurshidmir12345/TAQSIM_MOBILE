@@ -169,6 +169,23 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
+  /// Serverdan kelgan yangilangan foydalanuvchi profilini holatga yozadi
+  /// (masalan, Telegram bog'langandan keyin).
+  void setUser(UserModel user) {
+    state = state.copyWith(user: user);
+  }
+
+  /// Profil ma'lumotlarini serverdan jim yangilaydi (auth statusiga tegmaydi).
+  /// Ekran ochilganda eng so'nggi ma'lumotni ko'rsatish uchun ishlatiladi.
+  Future<void> refreshUser() async {
+    try {
+      final user = await _repo.me();
+      state = state.copyWith(user: user);
+    } catch (_) {
+      // Jim — tarmoq xatosi profil ekranini buzmasligi kerak.
+    }
+  }
+
   /// Sign in with Apple flow:
   ///  1. Native sheet ochiladi (iOS/macOS only).
   ///  2. Identity token va ixtiyoriy ism/email backendga yuboriladi.
@@ -300,3 +317,16 @@ class AuthNotifier extends Notifier<AuthState> {
 }
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
+
+/// Joriy foydalanuvchi xodim (seller) ekanligi — har bir API javobidagi
+/// `user_type` asosida. Auth user'da bo'lmasa tanlangan do'kon rolidan olinadi.
+final isSellerProvider = Provider<bool>((ref) {
+  final userType = ref.watch(authProvider.select((s) => s.user?.userType));
+  if (userType != null) return userType == 'seller';
+
+  final shopType = ref.watch(shopProvider.select((s) => s.selected?.userType));
+  return shopType == 'seller';
+});
+
+/// Joriy foydalanuvchi biznes egasi (owner) ekanligi.
+final isOwnerProvider = Provider<bool>((ref) => !ref.watch(isSellerProvider));

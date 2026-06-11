@@ -7,7 +7,19 @@ class ApiException implements Exception {
   final String message;
   final int? statusCode;
 
-  const ApiException({required this.message, this.statusCode});
+  /// Backend biznes-kodi (masalan: subscription_required,
+  /// plan_limit_reached, insufficient_balance).
+  final String? code;
+
+  /// Xato javobidagi qo'shimcha `data` (limit/usage, shortfall va h.k.).
+  final Map<String, dynamic>? data;
+
+  const ApiException({
+    required this.message,
+    this.statusCode,
+    this.code,
+    this.data,
+  });
 
   factory ApiException.invalidResponse() => ApiException(
         message: S.apiClientString(
@@ -15,6 +27,14 @@ class ApiException implements Exception {
           'apiInvalidResponseFormat',
         ),
       );
+
+  bool get isSubscriptionRequired => code == 'subscription_required';
+  bool get isGraceReadOnly => code == 'subscription_grace_readonly';
+  bool get isPlanLimitReached => code == 'plan_limit_reached';
+  bool get isInsufficientBalance => code == 'insufficient_balance';
+  bool get isPhoneTaken => code == 'phone_taken';
+  bool get isInviteExpired => code == 'invite_expired';
+  bool get isInvalidCode => code == 'invalid_code';
 
   factory ApiException.fromDioException(DioException e) {
     final loc = ApiLocaleHolder.code;
@@ -35,6 +55,10 @@ class ApiException implements Exception {
         return ApiException(
           message: message,
           statusCode: e.response?.statusCode,
+          code: data is Map ? data['code']?.toString() : null,
+          data: data is Map && data['data'] is Map
+              ? Map<String, dynamic>.from(data['data'] as Map)
+              : null,
         );
       case DioExceptionType.connectionError:
         return ApiException(
