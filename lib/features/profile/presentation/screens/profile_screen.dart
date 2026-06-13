@@ -1431,12 +1431,16 @@ class _ContactSection extends ConsumerWidget {
         const SizedBox(height: 20),
         _SectionTitle(title: s.contactSection),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
+        // Har bir ikona ekran enining 1/N qismida markazlashgan —
+        // oralar avtomatik teng, lekin biror joyga to'planib qolmaydi.
+        Row(
           children: [
             for (final c in cards)
-              _ContactCard(data: c, onOpen: onOpenUrl),
+              Expanded(
+                child: Center(
+                  child: _ContactCard(data: c, onOpen: onOpenUrl),
+                ),
+              ),
           ],
         ),
       ],
