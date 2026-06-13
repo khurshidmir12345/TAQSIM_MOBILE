@@ -712,6 +712,14 @@ class S {
   String get privacyPolicyDesc => _t('privacyPolicyDesc');
   String get termsOfService => _t('termsOfService');
   String get termsOfServiceDesc => _t('termsOfServiceDesc');
+
+  // ─── Aloqa / Tizim havolalari (Profil pastki bo'lim) ───
+  String get contactSection => _t('contactSection');
+  String get socialChannels => _t('socialChannels');
+  String get socialChannelsDesc => _t('socialChannelsDesc');
+  String get supportContact => _t('supportContact');
+  String get supportContactDesc => _t('supportContactDesc');
+
   String get account => _t('account');
   String get logoutDesc => _t('logoutDesc');
   String get logoutConfirm => _t('logoutConfirm');
@@ -1491,6 +1499,11 @@ class S {
     'privacyPolicyDesc': "Shaxsiy ma'lumotlar himoyasi",
     'termsOfService': 'Foydalanish shartlari',
     'termsOfServiceDesc': "Xizmat ko'rsatish qoidalari",
+    'contactSection': 'Aloqa',
+    'socialChannels': 'Bizning ijtimoiy tarmoqlar',
+    'socialChannelsDesc': 'Yangiliklar va e\'lonlar',
+    'supportContact': 'Texnik yordam',
+    'supportContactDesc': 'Telegram orqali biz bilan bog\'laning',
     'account': 'Hisob',
     'logoutDesc': 'Hisobingizdan chiqish',
     'logoutConfirm': 'Tizimdan chiqmoqchimisiz?',
@@ -2248,6 +2261,11 @@ class S {
     'privacyPolicyDesc': "Шахсий маълумотлар ҳимояси",
     'termsOfService': 'Фойдаланиш шартлари',
     'termsOfServiceDesc': "Хизмат кўрсатиш қоидалари",
+    'contactSection': 'Алоқа',
+    'socialChannels': 'Бизнинг ижтимоий тармоқлар',
+    'socialChannelsDesc': 'Янгиликлар ва эълонлар',
+    'supportContact': 'Техник ёрдам',
+    'supportContactDesc': 'Телеграм орқали биз билан боғланинг',
     'account': 'Ҳисоб',
     'logoutDesc': 'Ҳисобингиздан чиқиш',
     'logoutConfirm': 'Тизимдан чиқмоқчимисиз?',
@@ -3006,6 +3024,11 @@ class S {
     'privacyPolicyDesc': 'Защита персональных данных',
     'termsOfService': 'Условия использования',
     'termsOfServiceDesc': 'Правила оказания услуг',
+    'contactSection': 'Связь',
+    'socialChannels': 'Наши соцсети',
+    'socialChannelsDesc': 'Новости и анонсы',
+    'supportContact': 'Техническая поддержка',
+    'supportContactDesc': 'Свяжитесь с нами через Telegram',
     'account': 'Аккаунт',
     'logoutDesc': 'Выйти из аккаунта',
     'logoutConfirm': 'Вы хотите выйти из системы?',
@@ -3764,6 +3787,11 @@ class S {
     'privacyPolicyDesc': 'Жеке деректерді қорғау',
     'termsOfService': 'Қолдану шарттары',
     'termsOfServiceDesc': 'Қызмет көрсету ережелері',
+    'contactSection': 'Байланыс',
+    'socialChannels': 'Әлеуметтік желілеріміз',
+    'socialChannelsDesc': 'Жаңалықтар мен хабарландырулар',
+    'supportContact': 'Техникалық қолдау',
+    'supportContactDesc': 'Telegram арқылы бізбен байланысыңыз',
     'account': 'Аккаунт',
     'logoutDesc': 'Аккаунттан шығу',
     'logoutConfirm': 'Жүйеден шығғыңыз келе ме?',
@@ -4522,6 +4550,11 @@ class S {
     'privacyPolicyDesc': 'Жеке маалыматтарды коргоо',
     'termsOfService': 'Колдонуу шарттары',
     'termsOfServiceDesc': 'Кызмат көрсөтүү эрежелери',
+    'contactSection': 'Байланыш',
+    'socialChannels': 'Социалдык тармактарыбыз',
+    'socialChannelsDesc': 'Жаңылыктар жана жарыялар',
+    'supportContact': 'Техникалык колдоо',
+    'supportContactDesc': 'Telegram аркылуу биз менен байланышыңыз',
     'account': 'Аккаунт',
     'logoutDesc': 'Аккаунттан чыгуу',
     'logoutConfirm': 'Системадан чыккыңыз келеби?',
@@ -5280,6 +5313,11 @@ class S {
     'privacyPolicyDesc': 'Kişisel verilerin korunması',
     'termsOfService': 'Kullanım Koşulları',
     'termsOfServiceDesc': 'Hizmet şartları',
+    'contactSection': 'İletişim',
+    'socialChannels': 'Sosyal medya hesaplarımız',
+    'socialChannelsDesc': 'Haberler ve duyurular',
+    'supportContact': 'Teknik destek',
+    'supportContactDesc': 'Telegram üzerinden bize ulaşın',
     'account': 'Hesap',
     'logoutDesc': 'Hesabınızdan çıkın',
     'logoutConfirm': 'Sistemden çıkmak istiyor musunuz?',

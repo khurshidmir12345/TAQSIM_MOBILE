@@ -15,6 +15,8 @@ import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../subscription/domain/providers/subscription_provider.dart';
+import '../../domain/models/system_link_model.dart';
+import '../../domain/providers/system_link_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -220,6 +222,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     onTap: () => _launchUrl('https://www.taqseem.uz/terms'),
                   ),
                 ]),
+                // ─── Aloqa: ijtimoiy tarmoqlar + texnik yordam ───
+                // Admin paneldagi SystemLink dan o'qiladi. Faqat is_active=true
+                // va URL bo'sh bo'lmagan yozuvlar ko'rsatiladi. Hech qanday
+                // havola sozlanmagan bo'lsa, butun bo'lim (sarlavha va bo'sh
+                // joy bilan birga) yashiriladi.
+                _ContactSection(onOpenUrl: _launchUrl),
                 const SizedBox(height: 20),
                 _SectionTitle(
                   title: s.account,
@@ -1318,6 +1326,194 @@ class _LanguageItem extends StatelessWidget {
               Icon(Icons.chevron_right_rounded,
                   size: 20, color: cs.onSurface.withValues(alpha: 0.2)),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Contact Section (ijtimoiy tarmoqlar + texnik yordam) ────────────────────
+
+/// Profilning eng pastida "Aloqa" bo'limi.
+///
+/// Backenddagi SystemLink yozuvlari (`is_active=true`) asosida quriladi.
+/// `socialChannels` qatori: Telegram / Instagram / YouTube uchun yumaloq
+/// ikona-tugmalar bo'lib, faqat URL'i bo'lgan platformalar ko'rinadi.
+/// `support` turi mavjud bo'lsa, alohida menyu satri sifatida pastda paydo
+/// bo'ladi va bosilganda Telegram bot/akkountga o'tadi.
+class _ContactSection extends ConsumerWidget {
+  final Future<void> Function(String url) onOpenUrl;
+  const _ContactSection({required this.onOpenUrl});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = S.of(context);
+    final async = ref.watch(systemLinksProvider);
+    final cs = Theme.of(context).colorScheme;
+
+    final links = async.asData?.value ?? const <SystemLinkModel>[];
+
+    final telegram = findSystemLink(links, 'telegram');
+    final instagram = findSystemLink(links, 'instagram');
+    final youtube = findSystemLink(links, 'youtube');
+    final support = findSystemLink(links, 'support');
+
+    final hasAnySocial =
+        telegram != null || instagram != null || youtube != null;
+    final hasSupport = support != null;
+
+    if (!hasAnySocial && !hasSupport) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 20),
+        _SectionTitle(title: s.contactSection),
+        const SizedBox(height: 8),
+        _MenuCard(
+          children: [
+            if (hasAnySocial)
+              _SocialChannelsRow(
+                telegram: telegram,
+                instagram: instagram,
+                youtube: youtube,
+                onOpen: onOpenUrl,
+                cs: cs,
+              ),
+            if (hasSupport)
+              _MenuItem(
+                icon: Icons.support_agent_rounded,
+                title: s.supportContact,
+                subtitle: s.supportContactDesc,
+                iconBg: AppColors.primary.withValues(alpha: 0.10),
+                iconColor: AppColors.primary,
+                onTap: () => onOpenUrl(support.url),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _SocialChannelsRow extends StatelessWidget {
+  final SystemLinkModel? telegram;
+  final SystemLinkModel? instagram;
+  final SystemLinkModel? youtube;
+  final Future<void> Function(String url) onOpen;
+  final ColorScheme cs;
+
+  const _SocialChannelsRow({
+    required this.telegram,
+    required this.instagram,
+    required this.youtube,
+    required this.onOpen,
+    required this.cs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  s.socialChannels,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  s.socialChannelsDesc,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: cs.onSurface.withValues(alpha: 0.45),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (telegram != null)
+                _SocialIconButton(
+                  icon: Icons.send_rounded,
+                  color: const Color(0xFF229ED9),
+                  semanticLabel: 'Telegram',
+                  onTap: () => onOpen(telegram!.url),
+                ),
+              if (instagram != null) ...[
+                if (telegram != null) const SizedBox(width: 8),
+                _SocialIconButton(
+                  icon: Icons.camera_alt_rounded,
+                  color: const Color(0xFFE1306C),
+                  semanticLabel: 'Instagram',
+                  onTap: () => onOpen(instagram!.url),
+                ),
+              ],
+              if (youtube != null) ...[
+                if (telegram != null || instagram != null)
+                  const SizedBox(width: 8),
+                _SocialIconButton(
+                  icon: Icons.play_arrow_rounded,
+                  color: const Color(0xFFFF0000),
+                  semanticLabel: 'YouTube',
+                  onTap: () => onOpen(youtube!.url),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SocialIconButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String semanticLabel;
+  final VoidCallback onTap;
+
+  const _SocialIconButton({
+    required this.icon,
+    required this.color,
+    required this.semanticLabel,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: Material(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onTap();
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Icon(icon, color: color, size: 20),
           ),
         ),
       ),
