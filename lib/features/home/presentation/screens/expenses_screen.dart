@@ -15,15 +15,17 @@ import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_retry_widget.dart';
 import '../../../../core/widgets/time_badge.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import '../../domain/models/daily_report_model.dart';
 import '../../domain/models/expense_model.dart';
 import '../../domain/providers/daily_provider.dart';
 import '../widgets/expense_actions.dart';
 
-/// Bugungi tashqi xarajatlar uchun mustaqil ekran.
+/// Kassa bo'limi — davr bo'yicha tushum/xarajat/sof natija + bugungi
+/// xarajatlar ro'yxati.
 ///
-/// Avval Tarix ichidagi `Kassa` tab edi — endi alohida bo'lim. Mantiq aynan
-/// avvalgidek (sana = bugun, refresh-on-mount, FAB), faqat alohida sahifaga
-/// ko'chirilib zamonaviy header qo'shildi.
+/// Tushum (income) = netto sotuv (`report.netSales`),
+/// Xarajat (expense) = umumiy xarajatlar (`report.expenses.total`),
+/// Sof (net) = `report.profit`.
 class ExpensesScreen extends ConsumerStatefulWidget {
   const ExpensesScreen({super.key});
 
@@ -31,7 +33,12 @@ class ExpensesScreen extends ConsumerStatefulWidget {
   ExpensesScreenState createState() => ExpensesScreenState();
 }
 
+enum _CashPeriod { day, week, month }
+
 class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
+  _CashPeriod _period = _CashPeriod.day;
+
+  DailyReportModel? _report;
   List<ExpenseModel> _expenses = [];
   bool _loading = true;
   String? _error;
@@ -45,32 +52,60 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
   /// Tashqaridan refresh qilish uchun (Shell tab tap'da chaqiriladi).
   void refresh() => _load();
 
+  ({DateTime from, DateTime to}) _periodRange() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return switch (_period) {
+      _CashPeriod.day => (from: today, to: today),
+      _CashPeriod.week => (
+          from: today.subtract(Duration(days: today.weekday - 1)),
+          to: today,
+        ),
+      _CashPeriod.month => (from: DateTime(now.year, now.month), to: today),
+    };
+  }
+
+  String _ymd(DateTime d) => d.toIso8601String().split('T').first;
+
   Future<void> _load() async {
     final shop = ref.read(shopProvider).selected;
     if (shop == null) {
       if (!mounted) return;
       setState(() {
         _loading = false;
+        _report = null;
         _expenses = [];
       });
       return;
     }
-    final date = DateTime.now().toIso8601String().split('T').first;
+
     if (mounted) {
       setState(() {
         _loading = true;
         _error = null;
       });
     }
+
+    final range = _periodRange();
+    final repo = ref.read(dailyRepositoryProvider);
+    final todayStr = _ymd(DateTime.now());
+    final locale = expenseApiLocale(context);
+
     try {
-      final list = await ref.read(dailyRepositoryProvider).getExpenses(
-            shop.id,
-            date,
-            locale: expenseApiLocale(context),
-          );
+      final report = _period == _CashPeriod.day
+          ? await repo.getDailyReport(shop.id, todayStr)
+          : await repo.getRangeReport(shop.id, _ymd(range.from), _ymd(range.to));
+
+      final expenses = await repo.getExpenses(
+        shop.id,
+        todayStr,
+        locale: locale,
+      );
+
       if (!mounted) return;
       setState(() {
-        _expenses = list;
+        _report = report;
+        _expenses = expenses;
         _loading = false;
       });
     } catch (e) {
@@ -91,14 +126,6 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
         .format(n);
   }
 
-  double get _total {
-    var sum = 0.0;
-    for (final e in _expenses) {
-      sum += e.amount;
-    }
-    return sum;
-  }
-
   Future<void> _openCreate() async {
     HapticFeedback.selectionClick();
     await context.push('/expense-create');
@@ -106,12 +133,15 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
   }
 
   Future<void> _openActions(ExpenseModel e) async {
-    final changed = await showExpenseActions(
-      context,
-      ref: ref,
-      expense: e,
-    );
+    final changed = await showExpenseActions(context, ref: ref, expense: e);
     if (changed && mounted) _load();
+  }
+
+  void _setPeriod(_CashPeriod p) {
+    if (p == _period) return;
+    HapticFeedback.selectionClick();
+    setState(() => _period = p);
+    _load();
   }
 
   @override
@@ -130,10 +160,19 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
             Padding(
               padding: EdgeInsets.fromLTRB(pad, 12, pad, 4),
               child: Text(
-                s.expenses,
+                s.cashbox,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(pad, 4, pad, 8),
+              child: _PeriodSelector(
+                period: _period,
+                onChanged: _setPeriod,
+                cs: cs,
+                isDark: isDark,
               ),
             ),
             Expanded(
@@ -141,12 +180,11 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
                   ? const Center(child: AppLoading())
                   : _error != null
                       ? ErrorRetryWidget(message: _error!, onRetry: _load)
-                      : _ExpensesBody(
+                      : _CashboxBody(
+                          report: _report,
                           expenses: _expenses,
-                          total: _total,
                           fmt: _fmtMoney,
                           currency: s.currency,
-                          subtitle: s.cashRegister,
                           pad: pad,
                           cs: cs,
                           isDark: isDark,
@@ -168,13 +206,83 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
   }
 }
 
-class _ExpensesBody extends StatelessWidget {
-  const _ExpensesBody({
+class _PeriodSelector extends StatelessWidget {
+  const _PeriodSelector({
+    required this.period,
+    required this.onChanged,
+    required this.cs,
+    required this.isDark,
+  });
+
+  final _CashPeriod period;
+  final ValueChanged<_CashPeriod> onChanged;
+  final ColorScheme cs;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final items = <(_CashPeriod, String)>[
+      (_CashPeriod.day, s.daily),
+      (_CashPeriod.week, s.weekly),
+      (_CashPeriod.month, s.monthly),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest.withValues(alpha: isDark ? 0.3 : 0.6),
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+      ),
+      child: Row(
+        children: [
+          for (final (p, label) in items)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => onChanged(p),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  padding: const EdgeInsets.symmetric(vertical: 9),
+                  decoration: BoxDecoration(
+                    color: p == period ? cs.surface : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: p == period && !isDark
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.06),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: p == period
+                          ? cs.primary
+                          : cs.onSurface.withValues(alpha: 0.55),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CashboxBody extends StatelessWidget {
+  const _CashboxBody({
+    required this.report,
     required this.expenses,
-    required this.total,
     required this.fmt,
     required this.currency,
-    required this.subtitle,
     required this.pad,
     required this.cs,
     required this.isDark,
@@ -182,11 +290,10 @@ class _ExpensesBody extends StatelessWidget {
     required this.onTapExpense,
   });
 
+  final DailyReportModel? report;
   final List<ExpenseModel> expenses;
-  final double total;
   final String Function(double) fmt;
   final String currency;
-  final String subtitle;
   final double pad;
   final ColorScheme cs;
   final bool isDark;
@@ -196,6 +303,9 @@ class _ExpensesBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+    final income = report?.netSales ?? 0;
+    final expense = report?.expenses.total ?? 0;
+    final net = report?.profit ?? (income - expense);
 
     return RefreshIndicator(
       color: cs.primary,
@@ -206,32 +316,56 @@ class _ExpensesBody extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(pad, AppSpacing.sm, pad, 0),
-              child: _ExpensesSummaryHero(
-                total: total,
+              child: _CashSummary(
+                income: income,
+                expense: expense,
+                net: net,
                 currency: currency,
                 fmt: fmt,
                 cs: cs,
                 isDark: isDark,
-                subtitle: subtitle,
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(pad, AppSpacing.lg, pad, AppSpacing.sm),
+              child: Row(
+                children: [
+                  Icon(Icons.receipt_long_outlined,
+                      size: 18, color: cs.onSurface.withValues(alpha: 0.6)),
+                  const SizedBox(width: 8),
+                  Text(
+                    s.expenses,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    s.daily,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.45),
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ],
               ),
             ),
           ),
           if (expenses.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: EmptyStateWidget(
-                icon: Icons.account_balance_wallet_outlined,
-                title: s.noExpenseToday,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 32, bottom: 32),
+                child: EmptyStateWidget(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: s.noExpenseToday,
+                ),
               ),
             )
           else
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(
-                pad,
-                AppSpacing.lg,
-                pad,
-                120,
-              ),
+              padding: EdgeInsets.fromLTRB(pad, 0, pad, 120),
               sliver: SliverList.separated(
                 itemCount: expenses.length,
                 separatorBuilder: (_, _) =>
@@ -253,25 +387,29 @@ class _ExpensesBody extends StatelessWidget {
   }
 }
 
-class _ExpensesSummaryHero extends StatelessWidget {
-  const _ExpensesSummaryHero({
-    required this.total,
+class _CashSummary extends StatelessWidget {
+  const _CashSummary({
+    required this.income,
+    required this.expense,
+    required this.net,
     required this.currency,
     required this.fmt,
     required this.cs,
     required this.isDark,
-    required this.subtitle,
   });
 
-  final double total;
+  final double income;
+  final double expense;
+  final double net;
   final String currency;
   final String Function(double) fmt;
   final ColorScheme cs;
   final bool isDark;
-  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+    final netColor = net >= 0 ? AppColors.success : AppColors.error;
     final border = cs.outline.withValues(alpha: isDark ? 0.35 : 0.18);
 
     return Container(
@@ -280,8 +418,8 @@ class _ExpensesSummaryHero extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            cs.primary.withValues(alpha: isDark ? 0.22 : 0.12),
-            cs.tertiary.withValues(alpha: isDark ? 0.14 : 0.08),
+            cs.primary.withValues(alpha: isDark ? 0.20 : 0.10),
+            cs.tertiary.withValues(alpha: isDark ? 0.12 : 0.06),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -293,27 +431,109 @@ class _ExpensesSummaryHero extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            subtitle,
+            s.cashNet,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w700,
                 ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
-            '${fmt(total)} $currency',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            '${fmt(net)} $currency',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: cs.onSurface,
+                  color: netColor,
                   letterSpacing: -0.5,
                 ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: _MiniStat(
+                  label: s.income,
+                  value: '${fmt(income)} $currency',
+                  color: AppColors.success,
+                  icon: Icons.south_west_rounded,
+                  cs: cs,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: _MiniStat(
+                  label: s.expense,
+                  value: '${fmt(expense)} $currency',
+                  color: AppColors.error,
+                  icon: Icons.north_east_rounded,
+                  cs: cs,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+    required this.cs,
+  });
+
+  final String label;
+  final String value;
+  final Color color;
+  final IconData icon;
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: cs.surface.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 14, color: color),
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.55),
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
           Text(
-            S.of(context).daily,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.45),
-                  fontWeight: FontWeight.w600,
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
                 ),
           ),
         ],

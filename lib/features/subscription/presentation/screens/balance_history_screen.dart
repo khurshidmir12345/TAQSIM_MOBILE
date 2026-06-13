@@ -64,6 +64,14 @@ class _BalanceHistoryScreenState extends ConsumerState<BalanceHistoryScreen> {
     };
   }
 
+  /// Sana formati uchun xavfsiz locale (main.dart da initializeDateFormatting
+  /// faqat uz/ru/kk/tr uchun chaqirilgan; boshqalari uz ga tushadi).
+  String _dateLocale() {
+    const supported = {'uz', 'ru', 'kk', 'tr'};
+    final lang = Localizations.localeOf(context).languageCode;
+    return supported.contains(lang) ? lang : 'uz';
+  }
+
   String _dayLabel(S s, DateTime day) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -71,7 +79,7 @@ class _BalanceHistoryScreenState extends ConsumerState<BalanceHistoryScreen> {
     final diff = today.difference(d).inDays;
     if (diff == 0) return s.reportChipToday;
     if (diff == 1) return s.reportChipYesterday;
-    return DateFormat('d MMMM, yyyy', 'uz').format(d);
+    return DateFormat('d MMMM, yyyy', _dateLocale()).format(d);
   }
 
   String _time(String? iso) {
@@ -238,7 +246,7 @@ class _BalanceCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                '$balance UZS',
+                '$balance ${s.currency}',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 26,

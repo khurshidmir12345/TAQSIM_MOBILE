@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/api/api_exceptions.dart';
@@ -44,88 +45,12 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
     return DateFormat('dd.MM.yyyy HH:mm').format(d.toLocal());
   }
 
-  Future<void> _openTopUp(BuildContext context, WidgetRef ref) async {
-    final s = S.of(context);
-    final controller = TextEditingController();
-    var loading = false;
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                left: AppSpacing.md,
-                right: AppSpacing.md,
-                top: AppSpacing.sm,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.lg,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    s.topUpRequest,
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  TextField(
-                    controller: controller,
-                    keyboardType: TextInputType.number,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      labelText: s.topUpAmount,
-                      border: const OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    s.topUpHint,
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(ctx).colorScheme.onSurfaceVariant),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  AppButton(
-                    label: s.topUpRequest,
-                    isLoading: loading,
-                    onPressed: () async {
-                      final amount =
-                          double.tryParse(controller.text.replaceAll(' ', ''));
-                      if (amount == null || amount < 1000) return;
-                      setSheetState(() => loading = true);
-                      try {
-                        await ref
-                            .read(subscriptionRepositoryProvider)
-                            .topup(amount);
-                        if (ctx.mounted) Navigator.pop(ctx);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(s.topUpPendingMsg)),
-                          );
-                          ref.invalidate(ordersListProvider);
-                        }
-                      } on ApiException catch (e) {
-                        setSheetState(() => loading = false);
-                        if (ctx.mounted) {
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                            SnackBar(content: Text(e.message)),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
+  Future<void> _openTopUp(BuildContext context) async {
+    // Balans to'ldirish endi alohida ekran (karta + chek + admin tasdiqlovi).
+    await context.push('/top-up');
+    if (!mounted) return;
+    ref.invalidate(walletTransactionsProvider);
+    await ref.read(subscriptionStatusProvider.notifier).refresh();
   }
 
   @override
@@ -151,7 +76,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
           children: [
             _BalanceHeader(
               balance: _fmt(balance),
-              onTopUp: () => _openTopUp(context, ref),
+              onTopUp: () => _openTopUp(context),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(

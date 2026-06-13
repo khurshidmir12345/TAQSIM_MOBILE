@@ -122,6 +122,8 @@ class S {
   // ─── Shell ───
   String get home => _t('home');
   String get cashRegister => _t('cashRegister');
+  String get cashbox => _t('cashbox');
+  String get cashNet => _t('cashNet');
   String get statistics => _t('statistics');
   String get orders => _t('orders');
   String get ordersComingSoon => _t('ordersComingSoon');
@@ -718,6 +720,34 @@ class S {
   String get topUpComingSoonDesc => _t('topUpComingSoonDesc');
   String get goBack => _t('goBack');
 
+  // ─── Devices (multi-device) ───
+  String get devicesTitle => _t('devicesTitle');
+  String get devicesMenuDesc => _t('devicesMenuDesc');
+  String get devicesEmptyTitle => _t('devicesEmptyTitle');
+  String get devicesEmptyDesc => _t('devicesEmptyDesc');
+  String get deviceCurrent => _t('deviceCurrent');
+  String get deviceLastActive => _t('deviceLastActive');
+  String get deviceUnknown => _t('deviceUnknown');
+  String get deviceRevoke => _t('deviceRevoke');
+  String get deviceRevokeTitle => _t('deviceRevokeTitle');
+  String get deviceRevokeConfirm => _t('deviceRevokeConfirm');
+  String get deviceRevokeCurrentConfirm => _t('deviceRevokeCurrentConfirm');
+  String get deviceRevokedMsg => _t('deviceRevokedMsg');
+  String get deviceRevokeFailed => _t('deviceRevokeFailed');
+
+  // ─── Topup (karta + chek) ───
+  String get topUpCardLabel => _t('topUpCardLabel');
+  String get topUpCardHolderLabel => _t('topUpCardHolderLabel');
+  String get copyAction => _t('copyAction');
+  String get copiedMsg => _t('copiedMsg');
+  String get uploadReceipt => _t('uploadReceipt');
+  String get receiptAttached => _t('receiptAttached');
+  String get changeReceipt => _t('changeReceipt');
+  String get receiptRequired => _t('receiptRequired');
+  String get topUpSubmit => _t('topUpSubmit');
+  String get topUpAmountTooSmall => _t('topUpAmountTooSmall');
+  String get topUpHowToTitle => _t('topUpHowToTitle');
+
   // ─── Onboarding ───
   String get onboardingTitle1 => _t('onboardingTitle1');
   String get onboardingDesc1 => _t('onboardingDesc1');
@@ -891,6 +921,31 @@ class S {
   };
 
   static const _uz = {
+    'devicesTitle': 'Qurilmalar',
+    'devicesMenuDesc': 'Aktiv sessiyalar',
+    'devicesEmptyTitle': 'Qurilmalar yo‘q',
+    'devicesEmptyDesc': 'Aktiv sessiyalar bu yerda ko‘rinadi',
+    'deviceCurrent': 'Joriy',
+    'deviceLastActive': 'Oxirgi faollik',
+    'deviceUnknown': 'Noma’lum qurilma',
+    'deviceRevoke': 'Chiqarish',
+    'deviceRevokeTitle': 'Qurilmani chiqarish',
+    'deviceRevokeConfirm': 'Bu qurilma sessiyasi tugatiladi.',
+    'deviceRevokeCurrentConfirm':
+        'Bu joriy qurilma. Chiqarsangiz, tizimdan chiqasiz.',
+    'deviceRevokedMsg': 'Qurilma chiqarildi',
+    'deviceRevokeFailed': 'Chiqarib bo‘lmadi',
+    'topUpCardLabel': 'Karta raqami',
+    'topUpCardHolderLabel': 'Karta egasi',
+    'copyAction': 'Nusxa olish',
+    'copiedMsg': 'Nusxa olindi',
+    'uploadReceipt': 'Chek rasmini yuklash',
+    'receiptAttached': 'Chek tanlandi',
+    'changeReceipt': 'Rasmni o‘zgartirish',
+    'receiptRequired': 'Chek rasmini yuklang',
+    'topUpSubmit': 'Yuborish',
+    'topUpAmountTooSmall': 'Eng kam summa — 1 000 so‘m',
+    'topUpHowToTitle': 'Qanday to‘ldiriladi?',
     'subscription': 'Obuna',
     'mySubscription': 'Mening tarifim',
     'currentPlan': 'Joriy tarif',
@@ -1019,6 +1074,8 @@ class S {
     'currency': 'so\'m',
     'home': 'Asosiy',
     'cashRegister': 'Tashqi xarajat',
+    'cashbox': 'Kassa',
+    'cashNet': 'Sof natija',
     'statistics': 'Statistika',
     'orders': 'Zakazlar',
     'ordersComingSoon': 'Tez kunda',
@@ -1621,6 +1678,31 @@ class S {
   };
 
   static const _uzCyrl = {
+    'devicesTitle': 'Қурилмалар',
+    'devicesMenuDesc': 'Актив сессиялар',
+    'devicesEmptyTitle': 'Қурилмалар йўқ',
+    'devicesEmptyDesc': 'Актив сессиялар бу ерда кўринади',
+    'deviceCurrent': 'Жорий',
+    'deviceLastActive': 'Охирги фаоллик',
+    'deviceUnknown': 'Номаълум қурилма',
+    'deviceRevoke': 'Чиқариш',
+    'deviceRevokeTitle': 'Қурилмани чиқариш',
+    'deviceRevokeConfirm': 'Бу қурилма сессияси тугатилади.',
+    'deviceRevokeCurrentConfirm':
+        'Бу жорий қурилма. Чиқарсангиз, тизимдан чиқасиз.',
+    'deviceRevokedMsg': 'Қурилма чиқарилди',
+    'deviceRevokeFailed': 'Чиқариб бўлмади',
+    'topUpCardLabel': 'Карта рақами',
+    'topUpCardHolderLabel': 'Карта эгаси',
+    'copyAction': 'Нусха олиш',
+    'copiedMsg': 'Нусха олинди',
+    'uploadReceipt': 'Чек расмини юклаш',
+    'receiptAttached': 'Чек танланди',
+    'changeReceipt': 'Расмни ўзгартириш',
+    'receiptRequired': 'Чек расмини юкланг',
+    'topUpSubmit': 'Юбориш',
+    'topUpAmountTooSmall': 'Энг кам сумма — 1 000 сўм',
+    'topUpHowToTitle': 'Қандай тўлдирилади?',
     'subscription': 'Обуна',
     'mySubscription': 'Менинг тарифим',
     'currentPlan': 'Жорий тариф',
@@ -1749,6 +1831,8 @@ class S {
     'currency': 'сўм',
     'home': 'Асосий',
     'cashRegister': 'Ташқи харажат',
+    'cashbox': 'Касса',
+    'cashNet': 'Соф натижа',
     'statistics': 'Статистика',
     'orders': 'Заказлар',
     'ordersComingSoon': 'Тез кунда',
@@ -2352,6 +2436,31 @@ class S {
   };
 
   static const _ru = {
+    'devicesTitle': 'Устройства',
+    'devicesMenuDesc': 'Активные сессии',
+    'devicesEmptyTitle': 'Нет устройств',
+    'devicesEmptyDesc': 'Активные сессии появятся здесь',
+    'deviceCurrent': 'Текущее',
+    'deviceLastActive': 'Последняя активность',
+    'deviceUnknown': 'Неизвестное устройство',
+    'deviceRevoke': 'Выйти',
+    'deviceRevokeTitle': 'Выйти с устройства',
+    'deviceRevokeConfirm': 'Сессия этого устройства будет завершена.',
+    'deviceRevokeCurrentConfirm':
+        'Это текущее устройство. После выхода вы выйдете из системы.',
+    'deviceRevokedMsg': 'Устройство отключено',
+    'deviceRevokeFailed': 'Не удалось отключить',
+    'topUpCardLabel': 'Номер карты',
+    'topUpCardHolderLabel': 'Владелец карты',
+    'copyAction': 'Копировать',
+    'copiedMsg': 'Скопировано',
+    'uploadReceipt': 'Загрузить фото чека',
+    'receiptAttached': 'Чек выбран',
+    'changeReceipt': 'Изменить фото',
+    'receiptRequired': 'Загрузите фото чека',
+    'topUpSubmit': 'Отправить',
+    'topUpAmountTooSmall': 'Минимальная сумма — 1 000 сум',
+    'topUpHowToTitle': 'Как пополнить?',
     'subscription': 'Подписка',
     'mySubscription': 'Мой тариф',
     'currentPlan': 'Текущий тариф',
@@ -2480,6 +2589,8 @@ class S {
     'currency': 'сум',
     'home': 'Главная',
     'cashRegister': 'Внешний расход',
+    'cashbox': 'Касса',
+    'cashNet': 'Чистый итог',
     'statistics': 'Статистика',
     'orders': 'Заказы',
     'ordersComingSoon': 'Скоро',
@@ -3083,6 +3194,31 @@ class S {
   };
 
   static const _kk = {
+    'devicesTitle': 'Құрылғылар',
+    'devicesMenuDesc': 'Белсенді сессиялар',
+    'devicesEmptyTitle': 'Құрылғылар жоқ',
+    'devicesEmptyDesc': 'Белсенді сессиялар осында көрінеді',
+    'deviceCurrent': 'Ағымдағы',
+    'deviceLastActive': 'Соңғы белсенділік',
+    'deviceUnknown': 'Белгісіз құрылғы',
+    'deviceRevoke': 'Шығу',
+    'deviceRevokeTitle': 'Құрылғыдан шығу',
+    'deviceRevokeConfirm': 'Бұл құрылғы сессиясы аяқталады.',
+    'deviceRevokeCurrentConfirm':
+        'Бұл ағымдағы құрылғы. Шықсаңыз, жүйеден шығасыз.',
+    'deviceRevokedMsg': 'Құрылғы шығарылды',
+    'deviceRevokeFailed': 'Шығару мүмкін болмады',
+    'topUpCardLabel': 'Карта нөмірі',
+    'topUpCardHolderLabel': 'Карта иесі',
+    'copyAction': 'Көшіру',
+    'copiedMsg': 'Көшірілді',
+    'uploadReceipt': 'Чек суретін жүктеу',
+    'receiptAttached': 'Чек таңдалды',
+    'changeReceipt': 'Суретті өзгерту',
+    'receiptRequired': 'Чек суретін жүктеңіз',
+    'topUpSubmit': 'Жіберу',
+    'topUpAmountTooSmall': 'Ең аз сома — 1 000 сом',
+    'topUpHowToTitle': 'Қалай толтырылады?',
     'subscription': 'Жазылым',
     'mySubscription': 'Менің тарифім',
     'currentPlan': 'Ағымдағы тариф',
@@ -3211,6 +3347,8 @@ class S {
     'currency': 'сом',
     'home': 'Басты',
     'cashRegister': 'Сыртқы шығын',
+    'cashbox': 'Касса',
+    'cashNet': 'Таза нәтиже',
     'statistics': 'Статистика',
     'orders': 'Тапсырыстар',
     'ordersComingSoon': 'Жақында',
@@ -3814,6 +3952,31 @@ class S {
   };
 
   static const _ky = {
+    'devicesTitle': 'Түзмөктөр',
+    'devicesMenuDesc': 'Активдүү сессиялар',
+    'devicesEmptyTitle': 'Түзмөктөр жок',
+    'devicesEmptyDesc': 'Активдүү сессиялар бул жерде көрүнөт',
+    'deviceCurrent': 'Учурдагы',
+    'deviceLastActive': 'Акыркы аракет',
+    'deviceUnknown': 'Белгисиз түзмөк',
+    'deviceRevoke': 'Чыгуу',
+    'deviceRevokeTitle': 'Түзмөктөн чыгуу',
+    'deviceRevokeConfirm': 'Бул түзмөктүн сессиясы аяктайт.',
+    'deviceRevokeCurrentConfirm':
+        'Бул учурдагы түзмөк. Чыксаңыз, системадан чыгасыз.',
+    'deviceRevokedMsg': 'Түзмөк чыгарылды',
+    'deviceRevokeFailed': 'Чыгаруу мүмкүн болбоду',
+    'topUpCardLabel': 'Карта номери',
+    'topUpCardHolderLabel': 'Карта ээси',
+    'copyAction': 'Көчүрүү',
+    'copiedMsg': 'Көчүрүлдү',
+    'uploadReceipt': 'Чек сүрөтүн жүктөө',
+    'receiptAttached': 'Чек тандалды',
+    'changeReceipt': 'Сүрөттү өзгөртүү',
+    'receiptRequired': 'Чек сүрөтүн жүктөңүз',
+    'topUpSubmit': 'Жөнөтүү',
+    'topUpAmountTooSmall': 'Эң аз сумма — 1 000 сом',
+    'topUpHowToTitle': 'Кантип толтурулат?',
     'subscription': 'Жазылуу',
     'mySubscription': 'Менин тарифим',
     'currentPlan': 'Учурдагы тариф',
@@ -3942,6 +4105,8 @@ class S {
     'currency': 'сом',
     'home': 'Башкы',
     'cashRegister': 'Тышкы чыгаша',
+    'cashbox': 'Касса',
+    'cashNet': 'Таза жыйынтык',
     'statistics': 'Статистика',
     'orders': 'Буйрутмалар',
     'ordersComingSoon': 'Жакында',
@@ -4545,6 +4710,31 @@ class S {
   };
 
   static const _tr = {
+    'devicesTitle': 'Cihazlar',
+    'devicesMenuDesc': 'Aktif oturumlar',
+    'devicesEmptyTitle': 'Cihaz yok',
+    'devicesEmptyDesc': 'Aktif oturumlar burada görünür',
+    'deviceCurrent': 'Geçerli',
+    'deviceLastActive': 'Son etkinlik',
+    'deviceUnknown': 'Bilinmeyen cihaz',
+    'deviceRevoke': 'Çıkar',
+    'deviceRevokeTitle': 'Cihazdan çıkar',
+    'deviceRevokeConfirm': 'Bu cihazın oturumu sonlandırılacak.',
+    'deviceRevokeCurrentConfirm':
+        'Bu geçerli cihaz. Çıkarırsanız oturumunuz kapanır.',
+    'deviceRevokedMsg': 'Cihaz çıkarıldı',
+    'deviceRevokeFailed': 'Çıkarılamadı',
+    'topUpCardLabel': 'Kart numarası',
+    'topUpCardHolderLabel': 'Kart sahibi',
+    'copyAction': 'Kopyala',
+    'copiedMsg': 'Kopyalandı',
+    'uploadReceipt': 'Dekont fotoğrafı yükle',
+    'receiptAttached': 'Dekont seçildi',
+    'changeReceipt': 'Fotoğrafı değiştir',
+    'receiptRequired': 'Dekont fotoğrafı yükleyin',
+    'topUpSubmit': 'Gönder',
+    'topUpAmountTooSmall': 'En az tutar — 1 000 so‘m',
+    'topUpHowToTitle': 'Nasıl yüklenir?',
     'subscription': 'Abonelik',
     'mySubscription': 'Paketim',
     'currentPlan': 'Mevcut paket',
@@ -4673,6 +4863,8 @@ class S {
     'currency': 'som',
     'home': 'Ana sayfa',
     'cashRegister': 'Dış gider',
+    'cashbox': 'Kasa',
+    'cashNet': 'Net sonuç',
     'statistics': 'İstatistik',
     'orders': 'Siparişler',
     'ordersComingSoon': 'Yakında',

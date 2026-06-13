@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../../core/api/api_provider.dart';
+import '../../../../core/constants/shop_permissions.dart';
 import '../../data/auth_repository.dart';
 import '../models/user_model.dart';
 import 'shop_provider.dart';
@@ -330,3 +331,22 @@ final isSellerProvider = Provider<bool>((ref) {
 
 /// Joriy foydalanuvchi biznes egasi (owner) ekanligi.
 final isOwnerProvider = Provider<bool>((ref) => !ref.watch(isSellerProvider));
+
+/// Joriy tanlangan do'kondagi ruxsatlar to'plami.
+/// Owner doim barcha ruxsatlarga ega; seller uchun backend pivotidan keladi.
+final currentPermissionsProvider = Provider<Set<String>>((ref) {
+  if (ref.watch(isOwnerProvider)) {
+    return ShopPermissions.all.toSet();
+  }
+
+  final shopPerms =
+      ref.watch(shopProvider.select((s) => s.selected?.permissions));
+  return (shopPerms ?? const <String>[]).toSet();
+});
+
+/// Berilgan ruxsat joriy foydalanuvchida bor-yo'qligini bildiradi.
+/// Owner uchun doim `true`.
+final hasPermissionProvider = Provider.family<bool, String>((ref, permission) {
+  if (ref.watch(isOwnerProvider)) return true;
+  return ref.watch(currentPermissionsProvider).contains(permission);
+});

@@ -82,9 +82,30 @@ class SubscriptionRepository {
     }
   }
 
-  Future<void> topup(double amount) async {
+  /// Balans to'ldirish karta ma'lumotlari (raqam, egasi, izoh).
+  Future<({String? cardNumber, String? cardHolder, String? note})>
+      getTopupInfo() async {
     try {
-      await apiClient.dio.post('/v1/wallet/topup', data: {'amount': amount});
+      final response = await apiClient.dio.get('/v1/wallet/topup-info');
+      final data = _body(response)['data'] as Map<String, dynamic>;
+      return (
+        cardNumber: data['card_number'] as String?,
+        cardHolder: data['card_holder'] as String?,
+        note: data['note'] as String?,
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  /// Balansni to'ldirish so'rovi: summa + chek rasmi (multipart).
+  Future<void> topup(double amount, {required String receiptPath}) async {
+    try {
+      final formData = FormData.fromMap({
+        'amount': amount,
+        'receipt_image': await MultipartFile.fromFile(receiptPath),
+      });
+      await apiClient.dio.post('/v1/wallet/topup', data: formData);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }

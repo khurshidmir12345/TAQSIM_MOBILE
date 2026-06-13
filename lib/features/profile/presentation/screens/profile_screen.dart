@@ -127,6 +127,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     iconColor: AppColors.info,
                     onTap: () => context.push('/profile-info'),
                   ),
+                  // Qurilmalar (multi-device) — har bir foydalanuvchiga ko'rinadi.
+                  _MenuItem(
+                    icon: Icons.devices_other_rounded,
+                    title: s.devicesTitle,
+                    subtitle: s.devicesMenuDesc,
+                    iconBg: cs.primary.withValues(alpha: 0.1),
+                    iconColor: cs.primary,
+                    onTap: () => context.push('/devices'),
+                  ),
                   // Bizneslar ro'yxati/almashtirish faqat egaga (xodimda 1 ta biznes).
                   if (isOwner)
                     _MenuItem(

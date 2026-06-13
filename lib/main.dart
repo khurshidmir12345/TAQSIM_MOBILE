@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'core/api/api_client.dart';
+import 'core/api/device_info.dart';
 import 'core/l10n/app_locale.dart';
 import 'core/providers/deep_link_provider.dart';
 import 'core/router/app_router.dart';
@@ -21,6 +23,9 @@ void main() async {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+
+  // Multi-device sessiya uchun qurilma metama'lumotini barcha so'rovlarga ulaymiz.
+  await DeviceInfo.attachToClient(ApiClient());
 
   runApp(const ProviderScope(child: TaqseemApp()));
 }

@@ -55,6 +55,24 @@ class ApiClient {
     dio.options.headers['Accept-Language'] = code;
   }
 
+  /// Multi-device sessiya uchun qurilma metama'lumotini barcha so'rovlarga qo'shadi
+  /// (backend login/register paytida saqlaydi).
+  void setDeviceHeaders({
+    String? deviceName,
+    String? platform,
+    String? appVersion,
+  }) {
+    if (deviceName != null && deviceName.isNotEmpty) {
+      dio.options.headers['X-Device-Name'] = deviceName;
+    }
+    if (platform != null && platform.isNotEmpty) {
+      dio.options.headers['X-Device-Platform'] = platform;
+    }
+    if (appVersion != null && appVersion.isNotEmpty) {
+      dio.options.headers['X-App-Version'] = appVersion;
+    }
+  }
+
   void setToken(String token) {
     dio.options.headers['Authorization'] = 'Bearer $token';
   }

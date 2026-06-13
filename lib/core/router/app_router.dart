@@ -28,6 +28,7 @@ import '../../features/profile/presentation/screens/about_app_screen.dart';
 import '../../features/profile/presentation/screens/profile_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/telegram_connect_screen.dart';
+import '../../features/profile/presentation/screens/devices_screen.dart';
 import '../../features/profile/presentation/screens/top_up_screen.dart';
 import '../../features/employees/presentation/screens/employees_screen.dart';
 import '../../features/statistics/presentation/screens/report_screen.dart';
@@ -41,6 +42,16 @@ import '../api/api_provider.dart';
 /// Masalan, dashboard qayta ochilganda sana filterini tozalash uchun.
 final RouteObserver<ModalRoute<void>> appRouteObserver =
     RouteObserver<ModalRoute<void>>();
+
+/// Faqat biznes egasiga (owner) ruxsat etilgan sahifalar.
+/// Seller bu manzillarga yozsa — `/shell`ga qaytariladi.
+const Set<String> _ownerOnlyRoutes = {
+  '/employees',
+  '/subscription',
+  '/balance-history',
+  '/wallet',
+  '/top-up',
+};
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -73,6 +84,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           if (shopState.shops.isEmpty && !shopState.isLoading) {
             return '/shop-select';
           }
+          return '/shell';
+        }
+
+        // Owner-only sahifalarga sellerni kiritmaslik (xavfsizlik to'ri).
+        // Bu sahifalar UI menyusida sellerga ko'rsatilmaydi; bu — qo'shimcha himoya.
+        if (_ownerOnlyRoutes.contains(location) && ref.read(isSellerProvider)) {
           return '/shell';
         }
       }
@@ -184,6 +201,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/telegram-connect',
         builder: (context, state) => const TelegramConnectScreen(),
+      ),
+      GoRoute(
+        path: '/devices',
+        builder: (context, state) => const DevicesScreen(),
       ),
       GoRoute(
         path: '/employees',

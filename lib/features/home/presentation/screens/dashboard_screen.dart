@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/shop_permissions.dart';
 import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/providers/terminology_provider.dart';
@@ -1804,14 +1805,24 @@ class _DashboardExpenseCard extends StatelessWidget {
   }
 }
 
-class _ActionBar extends StatelessWidget {
+class _ActionBar extends ConsumerWidget {
   final double pad;
   const _ActionBar({required this.pad});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final s = S.of(context);
+
+    // Seller faqat ruxsati bor amallarni ko'radi (owner barchasini).
+    final canProduce =
+        ref.watch(hasPermissionProvider(ShopPermissions.manageProduction));
+    final canSell =
+        ref.watch(hasPermissionProvider(ShopPermissions.manageSales));
+
+    if (!canProduce && !canSell) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       padding: EdgeInsets.fromLTRB(pad, 12, pad, 16),
@@ -1822,23 +1833,25 @@ class _ActionBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: _ActionButton(
-              icon: Icons.north_east_rounded,
-              label: s.productOut,
-              color: AppColors.primary,
-              onTap: () => context.push('/production-create'),
+          if (canProduce)
+            Expanded(
+              child: _ActionButton(
+                icon: Icons.north_east_rounded,
+                label: s.productOut,
+                color: AppColors.primary,
+                onTap: () => context.push('/production-create'),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _ActionButton(
-              icon: Icons.south_west_rounded,
-              label: s.productReturned,
-              color: AppColors.error,
-              onTap: () => context.push('/return-create'),
+          if (canProduce && canSell) const SizedBox(width: 12),
+          if (canSell)
+            Expanded(
+              child: _ActionButton(
+                icon: Icons.south_west_rounded,
+                label: s.productReturned,
+                color: AppColors.error,
+                onTap: () => context.push('/return-create'),
+              ),
             ),
-          ),
         ],
       ),
     );
