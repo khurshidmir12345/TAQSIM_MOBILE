@@ -1,64 +1,105 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../features/auth/domain/providers/auth_provider.dart';
 import '../constants/app_spacing.dart';
 import '../l10n/translations.dart';
 
+/// Qaysi provider hozir kirish jarayonida ekanini bildiradi (faqat bosilgan
+/// tugmada spinner ko'rsatish uchun).
+enum _SocialProvider { apple, google }
+
 /// Login va Register sahifalarida bir xil ishlatiladi.
 ///
 /// "— yoki —" divider + ijtimoiy kirish:
 ///  - iOS/macOS: Apple Sign In (Guideline 4.8 majburiyati)
-///  - Google (hozircha "tez orada", full-width)
-class SocialAuthSection extends ConsumerWidget {
+///  - Google Sign In (Android + iOS) — rasmiy brending bilan.
+class SocialAuthSection extends ConsumerStatefulWidget {
   const SocialAuthSection({super.key, this.onAuthenticated});
 
-  /// Apple orqali muvaffaqiyatli kirgandan keyin chaqiriladi (router navigatsiya
-  /// va shop yuklash uchun).
+  /// Muvaffaqiyatli kirgandan keyin chaqiriladi (router navigatsiya va shop
+  /// yuklash uchun).
   final VoidCallback? onAuthenticated;
+
+  @override
+  ConsumerState<SocialAuthSection> createState() => _SocialAuthSectionState();
+}
+
+class _SocialAuthSectionState extends ConsumerState<SocialAuthSection> {
+  _SocialProvider? _pending;
 
   bool get _isApplePlatform => Platform.isIOS || Platform.isMacOS;
 
-  void _showComingSoon(BuildContext context, String name) {
+  Future<void> _handleApple() async {
+    if (_pending != null) return;
+    HapticFeedback.lightImpact();
+    setState(() => _pending = _SocialProvider.apple);
+
     final s = S.of(context);
+    final ok = await ref.read(authProvider.notifier).signInWithApple();
+    if (!mounted) return;
+    setState(() => _pending = null);
+
+    if (ok) {
+      widget.onAuthenticated?.call();
+      return;
+    }
+    final error = ref.read(authProvider).error;
+    if (error != null && error.isNotEmpty && error != 'apple_unsupported_platform') {
+      _showError(_withDebugDetail(s.appleSignInFailed, error));
+    }
+  }
+
+  Future<void> _handleGoogle() async {
+    if (_pending != null) return;
+    HapticFeedback.lightImpact();
+    setState(() => _pending = _SocialProvider.google);
+
+    final s = S.of(context);
+    final ok = await ref.read(authProvider.notifier).signInWithGoogle();
+    if (!mounted) return;
+    setState(() => _pending = null);
+
+    if (ok) {
+      widget.onAuthenticated?.call();
+      return;
+    }
+    final error = ref.read(authProvider).error;
+    if (error != null &&
+        error.isNotEmpty &&
+        error != 'google_unsupported_platform') {
+      _showError(_withDebugDetail(s.googleSignInFailed, error));
+    }
+  }
+
+  /// Debug build'da xatoning texnik tafsilotini xabarga qo'shadi — diagnostika
+  /// uchun. Release'da faqat foydalanuvchiga tushunarli xabar ko'rinadi.
+  String _withDebugDetail(String message, String error) {
+    if (kDebugMode) return '$message\n[$error]';
+    return message;
+  }
+
+  void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(s.socialComingSoon(name)),
+        content: Text(message),
         behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  Future<void> _handleApple(BuildContext context, WidgetRef ref) async {
-    final s = S.of(context);
-    final ok = await ref.read(authProvider.notifier).signInWithApple();
-    if (!context.mounted) return;
-    if (ok) {
-      onAuthenticated?.call();
-    } else {
-      final error = ref.read(authProvider).error;
-      if (error != null && error.isNotEmpty && error != 'apple_unsupported_platform') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(s.appleSignInFailed),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-        );
-      }
-    }
-  }
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final s = S.of(context);
     final theme = Theme.of(context);
-    final borderColor = theme.colorScheme.outline.withValues(alpha: 0.35);
-    final isLoading = ref.watch(authProvider.select((a) => a.isLoading));
+    final busy = _pending != null;
 
     return Column(
       children: [
@@ -95,32 +136,33 @@ class SocialAuthSection extends ConsumerWidget {
         const SizedBox(height: 8),
         if (_isApplePlatform) ...[
           _AppleButton(
-            isLoading: isLoading,
-            onTap: () => _handleApple(context, ref),
+            isLoading: _pending == _SocialProvider.apple,
+            enabled: !busy,
+            onTap: _handleApple,
           ),
           const SizedBox(height: 10),
         ],
-        SizedBox(
-          width: double.infinity,
-          child: _SocialBtn(
-            icon: null,
-            iconColor: const Color(0xFFDB4437),
-            label: 'Google',
-            borderColor: borderColor,
-            onTap: () => _showComingSoon(context, 'Google'),
-          ),
+        _GoogleButton(
+          label: s.signInWithGoogle,
+          isLoading: _pending == _SocialProvider.google,
+          enabled: !busy,
+          onTap: _handleGoogle,
         ),
       ],
     );
   }
 }
 
-/// Apple guidelinega muvofiq qora rangli, oq Apple logosi va "Sign in with
-/// Apple" matnli rasmiy ko'rinish.
+/// Apple guidelinega muvofiq qora rangli, oq Apple logosi va matnli ko'rinish.
 class _AppleButton extends StatelessWidget {
-  const _AppleButton({required this.isLoading, required this.onTap});
+  const _AppleButton({
+    required this.isLoading,
+    required this.enabled,
+    required this.onTap,
+  });
 
   final bool isLoading;
+  final bool enabled;
   final VoidCallback onTap;
 
   @override
@@ -130,41 +172,44 @@ class _AppleButton extends StatelessWidget {
     final fg = isDark ? Colors.black : Colors.white;
     final s = S.of(context);
 
-    return SizedBox(
-      height: 48,
-      width: double.infinity,
-      child: Material(
-        color: bg,
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-        child: InkWell(
-          onTap: isLoading ? null : onTap,
+    return Opacity(
+      opacity: enabled || isLoading ? 1 : 0.6,
+      child: SizedBox(
+        height: 50,
+        width: double.infinity,
+        child: Material(
+          color: bg,
           borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-          child: Center(
-            child: isLoading
-                ? SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      valueColor: AlwaysStoppedAnimation<Color>(fg),
-                    ),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.apple, color: fg, size: 22),
-                      const SizedBox(width: 8),
-                      Text(
-                        s.signInWithApple,
-                        style: TextStyle(
-                          color: fg,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.1,
-                        ),
+          child: InkWell(
+            onTap: enabled ? onTap : null,
+            borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+            child: Center(
+              child: isLoading
+                  ? SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        valueColor: AlwaysStoppedAnimation<Color>(fg),
                       ),
-                    ],
-                  ),
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.apple, color: fg, size: 22),
+                        const SizedBox(width: 8),
+                        Text(
+                          s.signInWithApple,
+                          style: TextStyle(
+                            color: fg,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.1,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
           ),
         ),
       ),
@@ -172,49 +217,79 @@ class _AppleButton extends StatelessWidget {
   }
 }
 
-class _SocialBtn extends StatelessWidget {
-  const _SocialBtn({
-    required this.icon,
-    required this.iconColor,
+/// Google brending qoidalariga mos tugma:
+///  - Light: oq fon (#FFFFFF), kulrang chegara, to'q matn.
+///  - Dark: to'q fon (#131314), och matn.
+///  - Markazda rasmiy 4-rangli "G" logosi.
+class _GoogleButton extends StatelessWidget {
+  const _GoogleButton({
     required this.label,
-    required this.borderColor,
+    required this.isLoading,
+    required this.enabled,
     required this.onTap,
   });
 
-  /// null → Google "G" styled icon
-  final IconData? icon;
-  final Color iconColor;
   final String label;
-  final Color borderColor;
+  final bool isLoading;
+  final bool enabled;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Material(
-      color: theme.colorScheme.surface,
-      borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-        child: Container(
-          height: 48,
-          decoration: BoxDecoration(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? const Color(0xFF131314) : Colors.white;
+    final fg = isDark ? const Color(0xFFE3E3E3) : const Color(0xFF1F1F1F);
+    final border =
+        isDark ? const Color(0xFF8E918F) : const Color(0xFFDADCE0);
+
+    return Opacity(
+      opacity: enabled || isLoading ? 1 : 0.6,
+      child: SizedBox(
+        height: 50,
+        width: double.infinity,
+        child: Material(
+          color: bg,
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+          child: InkWell(
+            onTap: enabled ? onTap : null,
             borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-            border: Border.all(color: borderColor),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _IconWidget(icon: icon, color: iconColor),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+                border: Border.all(color: border),
               ),
-            ],
+              child: Center(
+                child: isLoading
+                    ? SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          valueColor: AlwaysStoppedAnimation<Color>(fg),
+                        ),
+                      )
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.string(
+                            _googleGLogoSvg,
+                            width: 20,
+                            height: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              color: fg,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.1,
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
           ),
         ),
       ),
@@ -222,35 +297,13 @@ class _SocialBtn extends StatelessWidget {
   }
 }
 
-class _IconWidget extends StatelessWidget {
-  const _IconWidget({required this.icon, required this.color});
-
-  final IconData? icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    if (icon != null) {
-      return Icon(icon, color: color, size: 20);
-    }
-    return Container(
-      width: 20,
-      height: 20,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: color, width: 1.8),
-      ),
-      child: Center(
-        child: Text(
-          'G',
-          style: TextStyle(
-            color: color,
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            height: 1,
-          ),
-        ),
-      ),
-    );
-  }
-}
+/// Rasmiy Google "G" logosi (4-rangli), brending qoidalariga mos.
+const String _googleGLogoSvg = '''
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+<path fill="none" d="M0 0h48v48H0z"/>
+</svg>
+''';

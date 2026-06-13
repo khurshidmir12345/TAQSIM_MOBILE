@@ -706,6 +706,8 @@ class S {
   String get deleteAccountFailed => _t('deleteAccountFailed');
   String get signInWithApple => _t('signInWithApple');
   String get appleSignInFailed => _t('appleSignInFailed');
+  String get signInWithGoogle => _t('signInWithGoogle');
+  String get googleSignInFailed => _t('googleSignInFailed');
   String get cancel => _t('cancel');
   String get delete => _t('delete');
   String get privacyPolicy => _t('privacyPolicy');
@@ -1493,6 +1495,8 @@ class S {
     'deleteAccountFailed': 'Hisobni o\'chirishda xatolik yuz berdi.',
     'signInWithApple': 'Apple bilan kirish',
     'appleSignInFailed': 'Apple orqali kirishda xatolik yuz berdi.',
+    'signInWithGoogle': 'Google bilan kirish',
+    'googleSignInFailed': 'Google orqali kirishda xatolik yuz berdi.',
     'cancel': 'Bekor qilish',
     'delete': 'O\'chirish',
     'privacyPolicy': 'Maxfiylik siyosati',
@@ -2255,6 +2259,8 @@ class S {
     'deleteAccountFailed': 'Ҳисобни ўчиришда хатолик юз берди.',
     'signInWithApple': 'Apple билан кириш',
     'appleSignInFailed': 'Apple орқали киришда хатолик юз берди.',
+    'signInWithGoogle': 'Google билан кириш',
+    'googleSignInFailed': 'Google орқали киришда хатолик юз берди.',
     'cancel': 'Бекор қилиш',
     'delete': 'Ўчириш',
     'privacyPolicy': 'Махфийлик сиёсати',
@@ -3018,6 +3024,8 @@ class S {
     'deleteAccountFailed': 'Не удалось удалить аккаунт.',
     'signInWithApple': 'Войти с Apple',
     'appleSignInFailed': 'Ошибка входа через Apple.',
+    'signInWithGoogle': 'Войти через Google',
+    'googleSignInFailed': 'Ошибка входа через Google.',
     'cancel': 'Отмена',
     'delete': 'Удалить',
     'privacyPolicy': 'Политика конфиденциальности',
@@ -3781,6 +3789,8 @@ class S {
     'deleteAccountFailed': 'Аккаунтты жою сәтсіз аяқталды.',
     'signInWithApple': 'Apple арқылы кіру',
     'appleSignInFailed': 'Apple арқылы кіру қатесі.',
+    'signInWithGoogle': 'Google арқылы кіру',
+    'googleSignInFailed': 'Google арқылы кіру қатесі.',
     'cancel': 'Бас тарту',
     'delete': 'Жою',
     'privacyPolicy': 'Құпиялылық саясаты',
@@ -4544,6 +4554,8 @@ class S {
     'deleteAccountFailed': 'Аккаунтту жок кылууда ката кетти.',
     'signInWithApple': 'Apple менен кирүү',
     'appleSignInFailed': 'Apple аркылуу кирүүдө ката.',
+    'signInWithGoogle': 'Google менен кирүү',
+    'googleSignInFailed': 'Google аркылуу кирүүдө ката.',
     'cancel': 'Жокко чыгаруу',
     'delete': 'Жок кылуу',
     'privacyPolicy': 'Купуялуулук саясаты',
@@ -5307,6 +5319,8 @@ class S {
     'deleteAccountFailed': 'Hesap silinemedi.',
     'signInWithApple': 'Apple ile giriş yap',
     'appleSignInFailed': 'Apple ile giriş yapılamadı.',
+    'signInWithGoogle': 'Google ile giriş yap',
+    'googleSignInFailed': 'Google ile giriş yapılamadı.',
     'cancel': 'İptal',
     'delete': 'Sil',
     'privacyPolicy': 'Gizlilik Politikası',

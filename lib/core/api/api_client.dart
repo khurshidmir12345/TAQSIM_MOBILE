@@ -62,8 +62,9 @@ class ApiClient {
     String? platform,
     String? appVersion,
   }) {
-    if (deviceName != null && deviceName.isNotEmpty) {
-      dio.options.headers['X-Device-Name'] = deviceName;
+    final name = _asciiHeaderValue(deviceName);
+    if (name != null && name.isNotEmpty) {
+      dio.options.headers['X-Device-Name'] = name;
     }
     if (platform != null && platform.isNotEmpty) {
       dio.options.headers['X-Device-Platform'] = platform;
@@ -71,6 +72,20 @@ class ApiClient {
     if (appVersion != null && appVersion.isNotEmpty) {
       dio.options.headers['X-App-Version'] = appVersion;
     }
+  }
+
+  /// HTTP header qiymatlari faqat printable ASCII bo'lishi shart.
+  /// Qurilma nomidagi `·`, `’`, emoji kabi belgilar `FormatException` keltirib
+  /// chiqaradi va so'rovni butunlay uzadi — shu sabab xavfsiz tozalaymiz.
+  String? _asciiHeaderValue(String? value) {
+    if (value == null) return null;
+    final buffer = StringBuffer();
+    for (final code in value.codeUnits) {
+      if (code >= 0x20 && code <= 0x7E) {
+        buffer.writeCharCode(code);
+      }
+    }
+    return buffer.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
   }
 
   void setToken(String token) {

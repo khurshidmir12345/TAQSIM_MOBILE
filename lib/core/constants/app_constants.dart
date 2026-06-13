@@ -16,4 +16,14 @@ abstract final class AppConstants {
     if (_overrideBaseUrl.isNotEmpty) return _overrideBaseUrl;
     return kReleaseMode ? _prodBaseUrl : _devBaseUrl;
   }
+
+  // ─── Google Sign-In ──────────────────────────────────────────────────────
+  /// Web (server) OAuth client ID. Android'da `serverClientId` sifatida
+  /// majburiy; backend ID token `aud` ni shu qiymatga tekshiradi.
+  static const String googleServerClientId =
+      '668168366908-61n4be971j9scsvc6mepaba1g2e73o1f.apps.googleusercontent.com';
+
+  /// iOS OAuth client ID (GoogleService-Info.plist `CLIENT_ID`).
+  static const String googleIosClientId =
+      '668168366908-kpclm2r1vmbt0r4kl2s9eb5srb7n4r6p.apps.googleusercontent.com';
 }

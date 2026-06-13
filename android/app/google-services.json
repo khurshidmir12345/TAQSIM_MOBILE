@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "668168366908",
+    "project_id": "taqseem-1fc18",
+    "storage_bucket": "taqseem-1fc18.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:668168366908:android:cc0852175c5ab6463c0c39",
+        "android_client_info": {
+          "package_name": "uz.taqseem.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "668168366908-61n4be971j9scsvc6mepaba1g2e73o1f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjRZvvMmyp2-tmPZZ7KbAai4dqfEyCm5I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "668168366908-61n4be971j9scsvc6mepaba1g2e73o1f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

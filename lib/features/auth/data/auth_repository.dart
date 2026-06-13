@@ -127,6 +127,33 @@ class AuthRepository {
     }
   }
 
+  /// Sign in with Google. Google ID token (JWT) backend tomonidan Google
+  /// JWKS bilan tekshiriladi va Sanctum token qaytariladi.
+  Future<({UserModel user, String token})> signInWithGoogle({
+    required String idToken,
+    String? name,
+    String? email,
+  }) async {
+    try {
+      final response = await apiClient.dio.post('/v1/auth/google', data: {
+        'id_token': idToken,
+        if (name != null && name.isNotEmpty) 'name': name,
+        if (email != null && email.isNotEmpty) 'email': email,
+      });
+
+      final data = _body(response)['data'] as Map<String, dynamic>;
+      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      final token = data['token'] as String;
+
+      await _saveToken(token);
+      apiClient.setToken(token);
+
+      return (user: user, token: token);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   Future<UserModel> me() async {
     try {
       final response = await apiClient.dio.get('/v1/auth/me');

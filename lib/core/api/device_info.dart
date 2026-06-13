@@ -38,12 +38,12 @@ class DeviceInfo {
 
     if (Platform.isIOS) {
       final ios = await info.iosInfo;
-      return '${ios.name} · iOS ${ios.systemVersion}';
+      return '${ios.name} - iOS ${ios.systemVersion}';
     }
 
     if (Platform.isAndroid) {
       final android = await info.androidInfo;
-      return '${android.manufacturer} ${android.model} · Android ${android.version.release}';
+      return '${android.manufacturer} ${android.model} - Android ${android.version.release}';
     }
 
     return null;
