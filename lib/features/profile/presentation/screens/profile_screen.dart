@@ -1503,7 +1503,7 @@ class _ContactCardState extends State<_ContactCard> {
           duration: const Duration(milliseconds: 110),
           curve: Curves.easeOut,
           child: AspectRatio(
-            aspectRatio: 0.95,
+            aspectRatio: 1,
             child: Container(
               decoration: BoxDecoration(
                 gradient: widget.data.gradient,
@@ -1516,29 +1516,8 @@ class _ContactCardState extends State<_ContactCard> {
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(widget.data.icon, color: Colors.white, size: 28),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        widget.data.label,
-                        maxLines: 1,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.1,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              alignment: Alignment.center,
+              child: Icon(widget.data.icon, color: Colors.white, size: 32),
             ),
           ),
         ),
