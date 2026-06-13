@@ -1333,15 +1333,46 @@ class _LanguageItem extends StatelessWidget {
   }
 }
 
-// ─── Contact Section (ijtimoiy tarmoqlar + texnik yordam) ────────────────────
+// ─── Contact Section (Aloqa kartalari — Telegram / Instagram / YouTube / Yordam) ─
 
-/// Profilning eng pastida "Aloqa" bo'limi.
+/// Brand-stilidagi gradient'lar. Faqat ranglar — hech qanday tovar belgisi
+/// nusxalanmagan. Ikonalar Material'ning generic versiyalari (paper plane,
+/// camera, play, headset).
+const _telegramGradient = LinearGradient(
+  colors: [Color(0xFF2AABEE), Color(0xFF229ED9)],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+const _instagramGradient = LinearGradient(
+  colors: [
+    Color(0xFFFEDA77),
+    Color(0xFFF58529),
+    Color(0xFFDD2A7B),
+    Color(0xFF8134AF),
+    Color(0xFF515BD4),
+  ],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+const _youtubeGradient = LinearGradient(
+  colors: [Color(0xFFFF3D3D), Color(0xFFCC0000)],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+const _supportGradient = LinearGradient(
+  colors: [Color(0xFF11D5A0), Color(0xFF00A896)],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+/// Profilning eng pastida (Logout dan oldin) "Aloqa" bo'limi.
 ///
-/// Backenddagi SystemLink yozuvlari (`is_active=true`) asosida quriladi.
-/// `socialChannels` qatori: Telegram / Instagram / YouTube uchun yumaloq
-/// ikona-tugmalar bo'lib, faqat URL'i bo'lgan platformalar ko'rinadi.
-/// `support` turi mavjud bo'lsa, alohida menyu satri sifatida pastda paydo
-/// bo'ladi va bosilganda Telegram bot/akkountga o'tadi.
+/// Faqat backenddagi `SystemLink` yozuvlari (`is_active=true`) asosida
+/// quriladi. Hech qanday faol havola sozlanmagan bo'lsa, butun bo'lim
+/// avtomatik yashiriladi (joy egallamaydi).
 class _ContactSection extends ConsumerWidget {
   final Future<void> Function(String url) onOpenUrl;
   const _ContactSection({required this.onOpenUrl});
@@ -1350,8 +1381,6 @@ class _ContactSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final s = S.of(context);
     final async = ref.watch(systemLinksProvider);
-    final cs = Theme.of(context).colorScheme;
-
     final links = async.asData?.value ?? const <SystemLinkModel>[];
 
     final telegram = findSystemLink(links, 'telegram');
@@ -1359,39 +1388,60 @@ class _ContactSection extends ConsumerWidget {
     final youtube = findSystemLink(links, 'youtube');
     final support = findSystemLink(links, 'support');
 
-    final hasAnySocial =
-        telegram != null || instagram != null || youtube != null;
-    final hasSupport = support != null;
+    final cards = <_ContactCardData>[
+      if (telegram != null)
+        _ContactCardData(
+          label: 'Telegram',
+          icon: Icons.send_rounded,
+          gradient: _telegramGradient,
+          shadowColor: const Color(0xFF229ED9),
+          url: telegram.url,
+        ),
+      if (instagram != null)
+        _ContactCardData(
+          label: 'Instagram',
+          icon: Icons.camera_alt_rounded,
+          gradient: _instagramGradient,
+          shadowColor: const Color(0xFFDD2A7B),
+          url: instagram.url,
+        ),
+      if (youtube != null)
+        _ContactCardData(
+          label: 'YouTube',
+          icon: Icons.play_arrow_rounded,
+          gradient: _youtubeGradient,
+          shadowColor: const Color(0xFFCC0000),
+          url: youtube.url,
+        ),
+      if (support != null)
+        _ContactCardData(
+          label: s.supportContact,
+          icon: Icons.headset_mic_rounded,
+          gradient: _supportGradient,
+          shadowColor: const Color(0xFF00A896),
+          url: support.url,
+        ),
+    ];
 
-    if (!hasAnySocial && !hasSupport) {
-      return const SizedBox.shrink();
-    }
+    if (cards.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 20),
         _SectionTitle(title: s.contactSection),
-        const SizedBox(height: 8),
-        _MenuCard(
+        const SizedBox(height: 12),
+        Row(
           children: [
-            if (hasAnySocial)
-              _SocialChannelsRow(
-                telegram: telegram,
-                instagram: instagram,
-                youtube: youtube,
-                onOpen: onOpenUrl,
-                cs: cs,
+            for (var i = 0; i < cards.length; i++) ...[
+              if (i > 0) const SizedBox(width: 10),
+              Expanded(
+                child: _ContactCard(
+                  data: cards[i],
+                  onOpen: onOpenUrl,
+                ),
               ),
-            if (hasSupport)
-              _MenuItem(
-                icon: Icons.support_agent_rounded,
-                title: s.supportContact,
-                subtitle: s.supportContactDesc,
-                iconBg: AppColors.primary.withValues(alpha: 0.10),
-                iconColor: AppColors.primary,
-                onTap: () => onOpenUrl(support.url),
-              ),
+            ],
           ],
         ),
       ],
@@ -1399,121 +1449,97 @@ class _ContactSection extends ConsumerWidget {
   }
 }
 
-class _SocialChannelsRow extends StatelessWidget {
-  final SystemLinkModel? telegram;
-  final SystemLinkModel? instagram;
-  final SystemLinkModel? youtube;
-  final Future<void> Function(String url) onOpen;
-  final ColorScheme cs;
+class _ContactCardData {
+  final String label;
+  final IconData icon;
+  final Gradient gradient;
+  final Color shadowColor;
+  final String url;
 
-  const _SocialChannelsRow({
-    required this.telegram,
-    required this.instagram,
-    required this.youtube,
-    required this.onOpen,
-    required this.cs,
+  const _ContactCardData({
+    required this.label,
+    required this.icon,
+    required this.gradient,
+    required this.shadowColor,
+    required this.url,
   });
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  s.socialChannels,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: cs.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  s.socialChannelsDesc,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: cs.onSurface.withValues(alpha: 0.45),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (telegram != null)
-                _SocialIconButton(
-                  icon: Icons.send_rounded,
-                  color: const Color(0xFF229ED9),
-                  semanticLabel: 'Telegram',
-                  onTap: () => onOpen(telegram!.url),
-                ),
-              if (instagram != null) ...[
-                if (telegram != null) const SizedBox(width: 8),
-                _SocialIconButton(
-                  icon: Icons.camera_alt_rounded,
-                  color: const Color(0xFFE1306C),
-                  semanticLabel: 'Instagram',
-                  onTap: () => onOpen(instagram!.url),
-                ),
-              ],
-              if (youtube != null) ...[
-                if (telegram != null || instagram != null)
-                  const SizedBox(width: 8),
-                _SocialIconButton(
-                  icon: Icons.play_arrow_rounded,
-                  color: const Color(0xFFFF0000),
-                  semanticLabel: 'YouTube',
-                  onTap: () => onOpen(youtube!.url),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-class _SocialIconButton extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String semanticLabel;
-  final VoidCallback onTap;
+/// Bitta kartochka — gradient fon + oq ikona + brand nomi. Bosilganda
+/// haptic + scale-down animatsiya (haqiqiy ilovalardagi tap feedback).
+class _ContactCard extends StatefulWidget {
+  final _ContactCardData data;
+  final Future<void> Function(String url) onOpen;
 
-  const _SocialIconButton({
-    required this.icon,
-    required this.color,
-    required this.semanticLabel,
-    required this.onTap,
-  });
+  const _ContactCard({required this.data, required this.onOpen});
+
+  @override
+  State<_ContactCard> createState() => _ContactCardState();
+}
+
+class _ContactCardState extends State<_ContactCard> {
+  bool _pressed = false;
+
+  void _setPressed(bool v) {
+    if (_pressed == v) return;
+    setState(() => _pressed = v);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: semanticLabel,
-      child: Material(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          onTap: () {
-            HapticFeedback.selectionClick();
-            onTap();
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: SizedBox(
-            width: 40,
-            height: 40,
-            child: Icon(icon, color: color, size: 20),
+      label: widget.data.label,
+      child: GestureDetector(
+        onTapDown: (_) {
+          _setPressed(true);
+          HapticFeedback.selectionClick();
+        },
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        onTap: () => widget.onOpen(widget.data.url),
+        child: AnimatedScale(
+          scale: _pressed ? 0.94 : 1.0,
+          duration: const Duration(milliseconds: 110),
+          curve: Curves.easeOut,
+          child: AspectRatio(
+            aspectRatio: 0.95,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: widget.data.gradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.data.shadowColor.withValues(alpha: 0.28),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(widget.data.icon, color: Colors.white, size: 28),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        widget.data.label,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
