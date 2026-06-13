@@ -1431,17 +1431,12 @@ class _ContactSection extends ConsumerWidget {
         const SizedBox(height: 20),
         _SectionTitle(title: s.contactSection),
         const SizedBox(height: 12),
-        Row(
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
           children: [
-            for (var i = 0; i < cards.length; i++) ...[
-              if (i > 0) const SizedBox(width: 10),
-              Expanded(
-                child: _ContactCard(
-                  data: cards[i],
-                  onOpen: onOpenUrl,
-                ),
-              ),
-            ],
+            for (final c in cards)
+              _ContactCard(data: c, onOpen: onOpenUrl),
           ],
         ),
       ],
@@ -1499,26 +1494,25 @@ class _ContactCardState extends State<_ContactCard> {
         onTapCancel: () => _setPressed(false),
         onTap: () => widget.onOpen(widget.data.url),
         child: AnimatedScale(
-          scale: _pressed ? 0.94 : 1.0,
+          scale: _pressed ? 0.92 : 1.0,
           duration: const Duration(milliseconds: 110),
           curve: Curves.easeOut,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: widget.data.gradient,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: widget.data.shadowColor.withValues(alpha: 0.28),
-                    blurRadius: 14,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: Icon(widget.data.icon, color: Colors.white, size: 32),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: widget.data.gradient,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.data.shadowColor.withValues(alpha: 0.25),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
+            alignment: Alignment.center,
+            child: Icon(widget.data.icon, color: Colors.white, size: 20),
           ),
         ),
       ),
