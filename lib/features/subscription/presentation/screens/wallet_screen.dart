@@ -46,11 +46,28 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   }
 
   Future<void> _openTopUp(BuildContext context) async {
-    // Balans to'ldirish endi alohida ekran (karta + chek + admin tasdiqlovi).
+    final info = ref.read(topupInfoProvider).valueOrNull;
+    if (info != null && !info.topupEnabled) {
+      _showMaintenanceSheet(context);
+      return;
+    }
     await context.push('/top-up');
     if (!mounted) return;
     ref.invalidate(walletTransactionsProvider);
     await ref.read(subscriptionStatusProvider.notifier).refresh();
+  }
+
+  void _showMaintenanceSheet(BuildContext context) {
+    final s = S.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _TopupMaintenanceSheet(
+        title: s.topUpComingSoonTitle,
+        desc: s.topUpComingSoonDesc,
+      ),
+    );
   }
 
   @override
@@ -182,8 +199,123 @@ class _BalanceHeader extends StatelessWidget {
   }
 }
 
+class _TopupMaintenanceSheet extends StatefulWidget {
+  final String title;
+  final String desc;
+
+  const _TopupMaintenanceSheet({required this.title, required this.desc});
+
+  @override
+  State<_TopupMaintenanceSheet> createState() => _TopupMaintenanceSheetState();
+}
+
+class _TopupMaintenanceSheetState extends State<_TopupMaintenanceSheet>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _scale;
+  late final Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _scale = Tween<double>(begin: 0.92, end: 1.08).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+    _fade = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: cs.outlineVariant,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 28),
+          AnimatedBuilder(
+            animation: _ctrl,
+            builder: (_, child) => Transform.scale(
+              scale: _scale.value,
+              child: Opacity(opacity: _fade.value, child: child),
+            ),
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.construction_rounded,
+                size: 38,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            widget.title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            widget.desc,
+            style: TextStyle(
+              fontSize: 13.5,
+              height: 1.5,
+              color: cs.onSurface.withValues(alpha: 0.6),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: const Text('OK', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _TxnTile extends StatelessWidget {
-  final WalletTransactionModel txn;
   final String label;
   final String date;
   final String amount;

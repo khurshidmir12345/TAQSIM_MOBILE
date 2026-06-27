@@ -1,12 +1,20 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- geolocator: biznes manzilini avtomatik aniqlash uchun -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
-    <!-- image_picker: galereyadan rasm tanlash Android Photo Picker orqali
-         ishlaydi (Android 13+), hech qanday media ruxsati talab qilinmaydi. -->
+    <!-- image_picker faqat Android Photo Picker (ACTION_PICK_IMAGES) orqali
+         ishlaydi — hech qanday media/storage ruxsati kerak emas. Quyidagilar
+         plugin tomonidan avtomatik qo'shilishi mumkin bo'lgan ruxsatlarni
+         olib tashlaydi (Google Play "keraksiz ruxsat" reject'ining oldini oladi). -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove"/>
 
     <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
 

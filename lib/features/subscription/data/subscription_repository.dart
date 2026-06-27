@@ -82,13 +82,14 @@ class SubscriptionRepository {
     }
   }
 
-  /// Balans to'ldirish karta ma'lumotlari (raqam, egasi, izoh).
-  Future<({String? cardNumber, String? cardHolder, String? note})>
+  /// Balans to'ldirish karta ma'lumotlari (raqam, egasi, izoh, yoqilgan holati).
+  Future<({bool topupEnabled, String? cardNumber, String? cardHolder, String? note})>
       getTopupInfo() async {
     try {
       final response = await apiClient.dio.get('/v1/wallet/topup-info');
       final data = _body(response)['data'] as Map<String, dynamic>;
       return (
+        topupEnabled: data['topup_enabled'] as bool? ?? true,
         cardNumber: data['card_number'] as String?,
         cardHolder: data['card_holder'] as String?,
         note: data['note'] as String?,

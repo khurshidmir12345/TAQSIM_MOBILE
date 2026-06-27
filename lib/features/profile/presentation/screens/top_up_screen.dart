@@ -56,68 +56,76 @@ class _TopUpScreenState extends ConsumerState<TopUpScreen> {
           message: s.noInternet,
           onRetry: () => ref.invalidate(topupInfoProvider),
         ),
-        data: (info) => ListView(
-          padding: EdgeInsets.fromLTRB(pad, 16, pad, 32),
-          children: [
-            _CardInfo(
-              cardNumber: info.cardNumber ?? '—',
-              cardHolder: info.cardHolder,
-              onCopy: () => _copyCard(info.cardNumber),
-            ),
-            if (info.note?.isNotEmpty == true) ...[
-              const SizedBox(height: 16),
-              _NoteCard(note: info.note!),
-            ],
-            const SizedBox(height: 24),
-            _Label(s.topUpAmount),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                hintText: '50 000',
-                suffixText: 'UZS',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
+        data: (info) {
+          if (!info.topupEnabled) {
+            return _MaintenanceBody(
+              title: s.topUpComingSoonTitle,
+              desc: s.topUpComingSoonDesc,
+            );
+          }
+          return ListView(
+            padding: EdgeInsets.fromLTRB(pad, 16, pad, 32),
+            children: [
+              _CardInfo(
+                cardNumber: info.cardNumber ?? '—',
+                cardHolder: info.cardHolder,
+                onCopy: () => _copyCard(info.cardNumber),
               ),
-            ),
-            const SizedBox(height: 20),
-            _Label(s.uploadReceipt),
-            const SizedBox(height: 8),
-            _ReceiptPicker(
-              file: _receipt,
-              onPick: _pickReceipt,
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _submitting ? null : _submit,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
+              if (info.note?.isNotEmpty == true) ...[
+                const SizedBox(height: 16),
+                _NoteCard(note: info.note!),
+              ],
+              const SizedBox(height: 24),
+              _Label(s.topUpAmount),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  hintText: '50 000',
+                  suffixText: 'UZS',
+                  border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: _submitting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : Text(s.topUpSubmit,
-                        style: const TextStyle(
-                            fontSize: 15.5, fontWeight: FontWeight.w700)),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 20),
+              _Label(s.uploadReceipt),
+              const SizedBox(height: 8),
+              _ReceiptPicker(
+                file: _receipt,
+                onPick: _pickReceipt,
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _submitting ? null : _submit,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: _submitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Text(s.topUpSubmit,
+                          style: const TextStyle(
+                              fontSize: 15.5, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -184,6 +192,96 @@ class _TopUpScreenState extends ConsumerState<TopUpScreen> {
         backgroundColor: isError ? AppColors.error : null,
         content: Text(message),
       ));
+  }
+}
+
+class _MaintenanceBody extends StatefulWidget {
+  final String title;
+  final String desc;
+
+  const _MaintenanceBody({required this.title, required this.desc});
+
+  @override
+  State<_MaintenanceBody> createState() => _MaintenanceBodyState();
+}
+
+class _MaintenanceBodyState extends State<_MaintenanceBody>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _scale;
+  late final Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _scale = Tween<double>(begin: 0.92, end: 1.08).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+    _fade = Tween<double>(begin: 0.45, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedBuilder(
+              animation: _ctrl,
+              builder: (_, child) => Transform.scale(
+                scale: _scale.value,
+                child: Opacity(opacity: _fade.value, child: child),
+              ),
+              child: Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.construction_rounded,
+                  size: 44,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              widget.title,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              widget.desc,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.55,
+                color: cs.onSurface.withValues(alpha: 0.58),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

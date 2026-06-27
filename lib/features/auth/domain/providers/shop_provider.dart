@@ -119,11 +119,18 @@ class ShopState {
   final bool isLoading;
   final String? error;
 
+  /// Do'konlar serverdan kamida bir marta muvaffaqiyatli yuklanganmi.
+  /// Navigatsiya uchun muhim: faqat shu `true` bo'lib, ro'yxat bo'sh bo'lsagina
+  /// "biznes tanlash" sahifasiga yo'naltiramiz — aks holda login'dan keyin
+  /// hali yuklanmagan paytda noto'g'ri sahifaga o'tib ketmaydi.
+  final bool loadedOnce;
+
   const ShopState({
     this.shops    = const [],
     this.selected,
     this.isLoading = false,
     this.error,
+    this.loadedOnce = false,
   });
 
   ShopState copyWith({
@@ -131,12 +138,14 @@ class ShopState {
     ShopModel? selected,
     bool? isLoading,
     String? error,
+    bool? loadedOnce,
   }) {
     return ShopState(
-      shops:     shops     ?? this.shops,
-      selected:  selected  ?? this.selected,
-      isLoading: isLoading ?? this.isLoading,
-      error:     error,
+      shops:      shops      ?? this.shops,
+      selected:   selected   ?? this.selected,
+      isLoading:  isLoading  ?? this.isLoading,
+      error:      error,
+      loadedOnce: loadedOnce ?? this.loadedOnce,
     );
   }
 }
@@ -174,6 +183,7 @@ class ShopNotifier extends Notifier<ShopState> {
         shops: shops,
         selected: selected,
         isLoading: false,
+        loadedOnce: true,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -190,10 +200,11 @@ class ShopNotifier extends Notifier<ShopState> {
     Future.microtask(() => _persistSelectedId(shop.id));
   }
 
-  /// Chiqish yoki akkaunt o‘chirishda — cache va state tozalanadi.
+  /// Chiqishda state tozalanadi, lekin oxirgi tanlangan biznes ID'si
+  /// `SharedPreferences`'da qoladi — shu hisob qayta kirsa, aynan oxirgi
+  /// ishlatgan biznesi tanlangan holda ochiladi (`loadShops` ID'ni baribir
+  /// yangi ro'yxatga tekshiradi, shuning uchun boshqa hisob uchun xavfsiz).
   Future<void> resetOnLogout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_kSelectedShopId);
     state = const ShopState();
   }
 

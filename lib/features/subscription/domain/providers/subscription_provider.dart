@@ -55,8 +55,8 @@ final ordersListProvider =
   return res.items;
 });
 
-/// Balans to'ldirish karta ma'lumotlari (raqam, egasi, izoh).
+/// Balans to'ldirish karta ma'lumotlari (raqam, egasi, izoh, yoqilgan holati).
 final topupInfoProvider = FutureProvider.autoDispose<
-    ({String? cardNumber, String? cardHolder, String? note})>((ref) async {
+    ({bool topupEnabled, String? cardNumber, String? cardHolder, String? note})>((ref) async {
   return ref.read(subscriptionRepositoryProvider).getTopupInfo();
 });

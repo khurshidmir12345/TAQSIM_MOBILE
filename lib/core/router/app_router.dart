@@ -81,10 +81,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (authState.status == AuthStatus.authenticated) {
         if (isOnSplash || isOnAuth) {
           final shopState = ref.read(shopProvider);
-          if (shopState.shops.isEmpty && !shopState.isLoading) {
-            return '/shop-select';
-          }
-          return '/shell';
+          // Biznes tanlangan bo'lsa — to'g'ri asosiy sahifaga (/shell).
+          if (shopState.selected != null) return '/shell';
+          // Yuklanib bo'lib, biznes umuman yo'q bo'lsa — biznes tanlash.
+          if (shopState.loadedOnce) return '/shop-select';
+          // Hali yuklanmagan — sahifani o'zgartirmaymiz; do'konlar yuklangach
+          // (login ekrani yoki splash) aniq navigatsiya qiladi. Bu social
+          // login'da "bizneslar" sahifasiga noto'g'ri o'tib ketishning oldini oladi.
+          return null;
         }
 
         // Owner-only sahifalarga sellerni kiritmaslik (xavfsizlik to'ri).
@@ -254,17 +258,25 @@ final routerProvider = Provider<GoRouter>((ref) {
 });
 
 class _AuthRefreshNotifier extends ChangeNotifier {
-  late final ProviderSubscription _sub;
+  late final ProviderSubscription _authSub;
+  late final ProviderSubscription _shopSub;
 
   _AuthRefreshNotifier(Ref ref) {
-    _sub = ref.listen(authProvider, (_, _) {
+    _authSub = ref.listen(authProvider, (_, _) {
       notifyListeners();
     });
+    // Do'konlar yuklanib, biznes tanlangach (yoki bo'sh ekani aniqlangach)
+    // redirect qayta hisoblanib, to'g'ri sahifaga o'tadi.
+    _shopSub = ref.listen(
+      shopProvider.select((s) => (s.selected?.id, s.loadedOnce)),
+      (_, _) => notifyListeners(),
+    );
   }
 
   @override
   void dispose() {
-    _sub.close();
+    _authSub.close();
+    _shopSub.close();
     super.dispose();
   }
 }
