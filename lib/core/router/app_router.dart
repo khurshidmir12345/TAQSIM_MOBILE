@@ -11,6 +11,7 @@ import '../../features/auth/presentation/screens/shop_select_screen.dart';
 import '../../features/home/presentation/screens/production_create_screen.dart';
 import '../../features/home/domain/models/production_model.dart';
 import '../../features/home/presentation/screens/production_detail_screen.dart';
+import '../constants/app_constants.dart';
 import '../l10n/translations.dart';
 import '../../features/home/presentation/screens/return_create_screen.dart';
 import '../../features/home/presentation/screens/expense_create_screen.dart';
@@ -246,8 +247,10 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 
   // Feature so'rovi 402 (subscription_required) qaytarsa — paywall'ga yo'naltirish.
+  // Billing o'chirilgan bo'lsa yo'naltirish ham o'chiriladi.
   var navigatingToPaywall = false;
   ref.read(apiClientProvider).setSubscriptionBlockedCallback(() {
+    if (!AppConstants.billingEnabled) return;
     if (navigatingToPaywall) return;
     navigatingToPaywall = true;
     router.go('/subscription');

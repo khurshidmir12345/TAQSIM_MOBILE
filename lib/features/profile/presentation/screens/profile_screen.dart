@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/theme/theme_provider.dart';
@@ -110,7 +111,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Balans va to'ldirish faqat egaga (owner) ko'rinadi.
-                if (isOwner) ...[
+                // Billing o'chirilgan bo'lsa yashiriladi.
+                if (isOwner && AppConstants.billingEnabled) ...[
                   _BalanceCard(
                     balance: _fmtBalance(user?.balance),
                     isDark: isDark,
@@ -157,8 +159,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       iconColor: AppColors.info,
                       onTap: () => context.push('/employees'),
                     ),
-                  // Balans tarixi faqat egaga.
-                  if (isOwner)
+                  // Balans tarixi faqat egaga (billing yoqilganda).
+                  if (isOwner && AppConstants.billingEnabled)
                     _MenuItem(
                       icon: Icons.receipt_long_outlined,
                       title: s.balanceHistory,
@@ -167,8 +169,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       iconColor: AppColors.success,
                       onTap: () => context.push('/balance-history'),
                     ),
-                  // Obuna/tariflar faqat egaga.
-                  if (isOwner)
+                  // Obuna/tariflar faqat egaga (billing yoqilganda).
+                  if (isOwner && AppConstants.billingEnabled)
                     _MenuItem(
                       icon: Icons.workspace_premium_outlined,
                       title: s.subscription,
