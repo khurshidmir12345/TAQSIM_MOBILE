@@ -8,13 +8,11 @@ import '../constants/app_constants.dart';
 import '../l10n/api_locale_holder.dart';
 
 typedef LogoutCallback = FutureOr<void> Function();
-typedef SubscriptionBlockedCallback = void Function();
 
 class ApiClient {
   static ApiClient? _instance;
   late final Dio dio;
   LogoutCallback? _onForceLogout;
-  SubscriptionBlockedCallback? _onSubscriptionBlocked;
 
   factory ApiClient() {
     _instance ??= ApiClient._internal();
@@ -100,14 +98,6 @@ class ApiClient {
     _onForceLogout = callback;
   }
 
-  void setSubscriptionBlockedCallback(SubscriptionBlockedCallback callback) {
-    _onSubscriptionBlocked = callback;
-  }
-
-  void notifySubscriptionBlocked() {
-    _onSubscriptionBlocked?.call();
-  }
-
   Future<void> forceLogout() async {
     clearToken();
     if (_onForceLogout != null) {
@@ -138,20 +128,22 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (err.response?.statusCode == 401) {
+    final status = err.response?.statusCode;
+
+    // 401 (token yaroqsiz) yoki 403 account_blocked (sessiya davomida admin
+    // bloklagan) → majburiy chiqish: token tozalanadi, foydalanuvchi login
+    // ekraniga qaytadi. Auth endpointlarida (login/register) majburiy chiqish
+    // qilinmaydi — u yerda xato xabari to'g'ridan-to'g'ri ko'rsatiladi.
+    final data = err.response?.data;
+    final code = data is Map ? data['code']?.toString() : null;
+    final isBlocked = status == 403 && code == 'account_blocked';
+
+    if (status == 401 || isBlocked) {
       final path = err.requestOptions.path;
       final isAuthEndpoint = _authPaths.any(path.contains);
       if (!isAuthEndpoint && !_isLoggingOut) {
         _isLoggingOut = true;
         _client.forceLogout().whenComplete(() => _isLoggingOut = false);
-      }
-    }
-
-    if (err.response?.statusCode == 402) {
-      final data = err.response?.data;
-      final code = data is Map ? data['code']?.toString() : null;
-      if (code == 'subscription_required') {
-        _client.notifySubscriptionBlocked();
       }
     }
 

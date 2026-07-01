@@ -9,13 +9,11 @@ import '../../domain/shell_tab_provider.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../../home/presentation/screens/expenses_screen.dart';
-import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../setup/domain/providers/setup_provider.dart';
 import '../../../statistics/presentation/screens/report_screen.dart';
-import '../../../subscription/domain/providers/subscription_provider.dart';
 
 /// Shell tab turlari. Ko'rinishi foydalanuvchi ruxsatlariga bog'liq.
-enum ShellTab { home, expenses, statistics, orders }
+enum ShellTab { home, expenses, statistics }
 
 class ShellScreen extends ConsumerStatefulWidget {
   const ShellScreen({super.key});
@@ -69,7 +67,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
   }
 
   /// Joriy ruxsatlarga qarab ko'rinadigan tablar ro'yxati.
-  /// Home va Orders hammaga; Statistics -> view_reports; Expenses -> manage_expenses.
+  /// Home hammaga; Statistics -> view_reports; Expenses -> manage_expenses.
   List<ShellTab> _visibleTabs(Set<String> perms) {
     final isOwner = ref.read(isOwnerProvider);
     return [
@@ -78,7 +76,6 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
         ShellTab.expenses,
       if (isOwner || perms.contains(ShopPermissions.viewReports))
         ShellTab.statistics,
-      ShellTab.orders,
     ];
   }
 
@@ -93,11 +90,8 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
     switch (tabs[index]) {
       case ShellTab.home:
         _dashboardKey.currentState?.resetToToday();
-        ref.read(subscriptionStatusProvider.notifier).refresh();
       case ShellTab.expenses:
         _expensesKey.currentState?.refresh();
-      case ShellTab.orders:
-        break;
       case ShellTab.statistics:
         break;
     }
@@ -142,8 +136,6 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
         return ExpensesScreen(key: _expensesKey);
       case ShellTab.statistics:
         return const ReportScreen();
-      case ShellTab.orders:
-        return const OrdersScreen();
     }
   }
 
@@ -167,12 +159,6 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
           icon: Icons.bar_chart_outlined,
           activeIcon: Icons.bar_chart_rounded,
           label: s.statistics,
-        );
-      case ShellTab.orders:
-        return (
-          icon: Icons.shopping_bag_outlined,
-          activeIcon: Icons.shopping_bag_rounded,
-          label: s.orders,
         );
     }
   }

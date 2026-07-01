@@ -13,8 +13,6 @@ Map<String, dynamic> _body(Response response) {
   throw ApiException.invalidResponse();
 }
 
-typedef EmployeesResult = ({List<EmployeeModel> employees, EmployeesMeta meta});
-
 class EmployeeRepository {
   final ApiClient _apiClient;
 
@@ -22,34 +20,30 @@ class EmployeeRepository {
 
   String _base(String shopId) => '/v1/shops/$shopId/employees';
 
-  Future<EmployeesResult> getEmployees(String shopId) async {
+  Future<List<EmployeeModel>> getEmployees(String shopId) async {
     try {
       final res = await _apiClient.dio.get(_base(shopId));
       final data = _body(res)['data'] as Map<String, dynamic>;
-      final list = (data['employees'] as List)
+      return (data['employees'] as List)
           .map((e) => EmployeeModel.fromJson(e as Map<String, dynamic>))
           .toList();
-      final meta = EmployeesMeta.fromJson((data['meta'] as Map).cast<String, dynamic>());
-      return (employees: list, meta: meta);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
   }
 
-  Future<EmployeeInviteResult> startInvite(
+  Future<void> startInvite(
     String shopId, {
     required String name,
     required String phone,
     required String password,
   }) async {
     try {
-      final res = await _apiClient.dio.post(_base(shopId), data: {
+      await _apiClient.dio.post(_base(shopId), data: {
         'name': name,
         'phone': phone,
         'password': password,
       });
-      final data = _body(res)['data'] as Map<String, dynamic>;
-      return EmployeeInviteResult.fromJson(data);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }

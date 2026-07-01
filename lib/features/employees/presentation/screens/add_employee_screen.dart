@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/api/api_exceptions.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -43,8 +41,6 @@ class _AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
     super.dispose();
   }
 
-  String _money(double v) => '${NumberFormat('#,##0', 'uz').format(v)} UZS';
-
   void _snack(String message, {bool error = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
@@ -60,14 +56,6 @@ class _AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
 
-    final meta = ref.read(employeesProvider).asData?.value.meta;
-
-    if (meta != null && !meta.hasFreeSlot) {
-      final ok = await _confirmPaidSeat(meta.seatPriceLocal, meta.fridayDiscount,
-          meta.fridayDiscountPercent);
-      if (ok != true) return;
-    }
-
     setState(() => _loading = true);
     try {
       await ref.read(employeesProvider.notifier).startInvite(
@@ -78,7 +66,7 @@ class _AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
       if (!mounted) return;
       setState(() => _step = _Step.otp);
     } on ApiException catch (e) {
-      _handleError(e);
+      _snack(e.message, error: true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -98,125 +86,11 @@ class _AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
         _snack(e.message, error: true);
         if (mounted) setState(() => _step = _Step.form);
       } else {
-        _handleError(e);
+        _snack(e.message, error: true);
       }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
-  }
-
-  void _handleError(ApiException e) {
-    if (e.isInsufficientBalance) {
-      _showInsufficientBalance();
-    } else {
-      _snack(e.message, error: true);
-    }
-  }
-
-  Future<bool?> _confirmPaidSeat(double priceLocal, bool friday, int percent) {
-    final s = S.of(context);
-    final cs = Theme.of(context).colorScheme;
-    return showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 14, 24, 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: cs.onSurface.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 22),
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: AppColors.gold.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(Icons.workspace_premium_rounded,
-                    color: AppColors.gold, size: 28),
-              ),
-              const SizedBox(height: 16),
-              Text(s.employeePaidConfirmTitle,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 8),
-              Text(
-                s.employeePaidConfirmMsg.replaceAll('{price}', _money(priceLocal)),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: cs.onSurfaceVariant, height: 1.4),
-              ),
-              if (friday) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.local_offer_rounded,
-                          size: 15, color: AppColors.gold),
-                      const SizedBox(width: 6),
-                      Text(
-                        s.employeeFridayDiscount.replaceAll('{percent}', '$percent'),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700, color: AppColors.gold),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 22),
-              AppButton(
-                label: s.employeeContinueBtn,
-                onPressed: () => Navigator.pop(ctx, true),
-              ),
-              const SizedBox(height: 8),
-              AppButton(
-                label: s.cancel,
-                variant: AppButtonVariant.text,
-                onPressed: () => Navigator.pop(ctx, false),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showInsufficientBalance() {
-    final s = S.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(s.insufficientBalanceTitle),
-        content: Text(s.insufficientBalanceMsg),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(s.cancel)),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.push('/wallet');
-            },
-            child: Text(s.topUpNow),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -235,9 +109,6 @@ class _AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
   }
 
   Widget _buildForm(S s) {
-    final meta = ref.watch(employeesProvider).asData?.value.meta;
-    final paidMeta = (meta != null && !meta.hasFreeSlot) ? meta : null;
-
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Form(
@@ -245,17 +116,6 @@ class _AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (paidMeta != null) ...[
-              _PaidNotice(
-                text: s.employeePaidPerMonth
-                    .replaceAll('{price}', _money(paidMeta.seatPriceLocal)),
-                friday: paidMeta.fridayDiscount
-                    ? s.employeeFridayDiscount
-                        .replaceAll('{percent}', '${paidMeta.fridayDiscountPercent}')
-                    : null,
-              ),
-              const SizedBox(height: AppSpacing.md),
-            ],
             AppTextField(
               label: s.employeeNameLabel,
               controller: _nameController,
@@ -293,7 +153,7 @@ class _AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
             ),
             const SizedBox(height: AppSpacing.xl),
             AppButton(
-              label: paidMeta != null ? s.employeeContinueBtn : s.addEmployee,
+              label: s.addEmployee,
               icon: Icons.send_rounded,
               isLoading: _loading,
               onPressed: _loading ? null : _submitForm,
@@ -345,49 +205,6 @@ class _AddEmployeeScreenState extends ConsumerState<AddEmployeeScreen> {
             label: s.cancel,
             variant: AppButtonVariant.text,
             onPressed: _loading ? null : () => setState(() => _step = _Step.form),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaidNotice extends StatelessWidget {
-  final String text;
-  final String? friday;
-  const _PaidNotice({required this.text, this.friday});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppColors.gold.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadius),
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.info_outline_rounded, color: AppColors.gold, size: 20),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(text,
-                    style: TextStyle(
-                        fontSize: 13, fontWeight: FontWeight.w600, color: cs.onSurface)),
-                if (friday != null) ...[
-                  const SizedBox(height: 2),
-                  Text(friday!,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.gold)),
-                ],
-              ],
-            ),
           ),
         ],
       ),

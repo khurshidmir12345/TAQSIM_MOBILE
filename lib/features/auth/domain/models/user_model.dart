@@ -6,7 +6,6 @@ class UserModel {
   final int? telegramChatId;
   final String? telegramUsername;
   final String? googleId;
-  final String? balance;
   final String? role;
 
   /// Global rol: 'owner' yoki 'seller' (har bir API javobida keladi).
@@ -24,7 +23,6 @@ class UserModel {
     this.telegramChatId,
     this.telegramUsername,
     this.googleId,
-    this.balance,
     this.role,
     this.userType,
     this.isAcceptedPolicy = false,
@@ -42,7 +40,6 @@ class UserModel {
       telegramChatId: json['telegram_chat_id'] as int?,
       telegramUsername: json['telegram_username'] as String?,
       googleId: json['google_id'] as String?,
-      balance: json['balance']?.toString(),
       role: json['role'] as String?,
       userType: json['user_type'] as String?,
       isAcceptedPolicy: json['is_accepted_policy'] as bool? ?? false,
@@ -61,7 +58,6 @@ class UserModel {
       'telegram_chat_id': telegramChatId,
       'telegram_username': telegramUsername,
       'google_id': googleId,
-      'balance': balance,
       'role': role,
       'user_type': userType,
       'is_accepted_policy': isAcceptedPolicy,
@@ -92,7 +88,6 @@ class UserModel {
       telegramChatId: telegramChatId,
       telegramUsername: telegramUsername,
       googleId: googleId,
-      balance: balance,
       role: role ?? this.role,
       userType: userType ?? this.userType,
       isAcceptedPolicy: isAcceptedPolicy,

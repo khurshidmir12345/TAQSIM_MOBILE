@@ -7,11 +7,10 @@ class ApiException implements Exception {
   final String message;
   final int? statusCode;
 
-  /// Backend biznes-kodi (masalan: subscription_required,
-  /// plan_limit_reached, insufficient_balance).
+  /// Backend biznes-kodi (masalan: account_blocked, phone_taken).
   final String? code;
 
-  /// Xato javobidagi qo'shimcha `data` (limit/usage, shortfall va h.k.).
+  /// Xato javobidagi qo'shimcha `data`.
   final Map<String, dynamic>? data;
 
   const ApiException({
@@ -28,10 +27,7 @@ class ApiException implements Exception {
         ),
       );
 
-  bool get isSubscriptionRequired => code == 'subscription_required';
-  bool get isGraceReadOnly => code == 'subscription_grace_readonly';
-  bool get isPlanLimitReached => code == 'plan_limit_reached';
-  bool get isInsufficientBalance => code == 'insufficient_balance';
+  bool get isAccountBlocked => code == 'account_blocked';
   bool get isPhoneTaken => code == 'phone_taken';
   bool get isInviteExpired => code == 'invite_expired';
   bool get isInvalidCode => code == 'invalid_code';

@@ -3,12 +3,6 @@ import 'package:flutter/foundation.dart';
 abstract final class AppConstants {
   static const String appName = 'TAQSEEM';
 
-  /// Obuna/billing UI'ni umumiy yoqish/o'chirish kaliti.
-  /// false bo'lsa: obuna, balans/hamyon va tariflar ekranlari yashiriladi
-  /// (ilova bepul ishlaydi). Kod saqlanadi — true qilinsa hammasi tiklanadi.
-  /// Backenddagi `BILLING_ENABLED` bilan birga o'zgartirilishi kerak.
-  static const bool billingEnabled = false;
-
   static const String _prodBaseUrl = 'https://api.taqseem.uz/api';
   static const String _devBaseUrl = 'https://api.dev.taqseem.uz/api';
 

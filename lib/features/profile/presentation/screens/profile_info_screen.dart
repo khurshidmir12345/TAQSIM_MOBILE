@@ -4,13 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
-import '../../../subscription/domain/providers/subscription_provider.dart';
-import '../../../subscription/presentation/widgets/current_plan_card.dart';
 
 /// Profile information screen.
 ///
@@ -35,7 +32,6 @@ class _ProfileInfoScreenState extends ConsumerState<ProfileInfoScreen> {
     Future.microtask(() {
       if (!mounted) return;
       ref.read(authProvider.notifier).refreshUser();
-      ref.read(subscriptionStatusProvider.notifier).refresh();
     });
   }
 
@@ -66,13 +62,6 @@ class _ProfileInfoScreenState extends ConsumerState<ProfileInfoScreen> {
       body: ListView(
         padding: EdgeInsets.fromLTRB(pad, 12, pad, 32),
         children: [
-          // Obuna bo'limi — billing o'chirilgan bo'lsa yashiriladi.
-          if (AppConstants.billingEnabled) ...[
-            _SectionLabel(text: s.subscription),
-            const SizedBox(height: 8),
-            const CurrentPlanCard(),
-            const SizedBox(height: 24),
-          ],
           _SectionLabel(text: s.personalInfo),
           const SizedBox(height: 8),
           _PersonalInfoCard(user: user),

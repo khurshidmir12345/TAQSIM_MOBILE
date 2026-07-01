@@ -9,15 +9,8 @@ final employeeRepositoryProvider = Provider<EmployeeRepository>((ref) {
   return EmployeeRepository(ref.read(apiClientProvider));
 });
 
-class EmployeesState {
-  final List<EmployeeModel> employees;
-  final EmployeesMeta meta;
-
-  const EmployeesState({required this.employees, required this.meta});
-}
-
-/// Joriy do'kon xodimlari + limit/narx meta. Faqat owner uchun ishlatiladi.
-class EmployeesNotifier extends AsyncNotifier<EmployeesState> {
+/// Joriy do'kon xodimlari. Faqat owner uchun ishlatiladi.
+class EmployeesNotifier extends AsyncNotifier<List<EmployeeModel>> {
   EmployeeRepository get _repo => ref.read(employeeRepositoryProvider);
 
   String get _shopId {
@@ -29,19 +22,16 @@ class EmployeesNotifier extends AsyncNotifier<EmployeesState> {
   }
 
   @override
-  Future<EmployeesState> build() => _load();
+  Future<List<EmployeeModel>> build() => _load();
 
-  Future<EmployeesState> _load() async {
-    final res = await _repo.getEmployees(_shopId);
-    return EmployeesState(employees: res.employees, meta: res.meta);
-  }
+  Future<List<EmployeeModel>> _load() => _repo.getEmployees(_shopId);
 
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_load);
   }
 
-  Future<EmployeeInviteResult> startInvite({
+  Future<void> startInvite({
     required String name,
     required String phone,
     required String password,
@@ -68,7 +58,7 @@ class EmployeesNotifier extends AsyncNotifier<EmployeesState> {
 }
 
 final employeesProvider =
-    AsyncNotifierProvider<EmployeesNotifier, EmployeesState>(EmployeesNotifier.new);
+    AsyncNotifierProvider<EmployeesNotifier, List<EmployeeModel>>(EmployeesNotifier.new);
 
 /// App ichidagi barcha modul ruxsatlari (UI toggle uchun tartibda).
 const kShopPermissions = <String>[

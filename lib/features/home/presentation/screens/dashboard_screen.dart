@@ -14,7 +14,6 @@ import '../../../../core/utils/time_format.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/time_badge.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
-import '../../../subscription/presentation/widgets/subscription_banner.dart';
 import '../../../tutorial/domain/providers/shop_tutorial_provider.dart';
 import '../../../tutorial/presentation/widgets/tutorial_spotlight.dart';
 import '../../../auth/domain/models/shop_model.dart';
@@ -188,12 +187,6 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
               child: ListView(
                 padding: EdgeInsets.fromLTRB(0, 20, 0, pad + 16),
                 children: [
-                  // Obuna banneri faqat egaga (xodimda obuna yo'q).
-                  if (ref.watch(isOwnerProvider))
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: pad),
-                      child: const SubscriptionBanner(),
-                    ),
                   if (reportState.isLoading)
                     const Padding(
                       padding: EdgeInsets.all(48),

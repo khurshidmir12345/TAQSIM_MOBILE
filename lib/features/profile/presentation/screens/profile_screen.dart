@@ -4,18 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
-import '../../../subscription/domain/providers/subscription_provider.dart';
 import '../../domain/models/system_link_model.dart';
 import '../../domain/providers/system_link_provider.dart';
 
@@ -35,23 +32,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     Future.microtask(() {
       if (!mounted) return;
       ref.read(authProvider.notifier).refreshUser();
-      // Obuna holati faqat egaga kerak.
-      if (ref.read(isOwnerProvider)) {
-        ref.read(subscriptionStatusProvider.notifier).refresh();
-      }
     });
-  }
-
-  String _fmtBalance(String? raw) {
-    final v = double.tryParse(raw ?? '0') ?? 0;
-    return NumberFormat('#,##0', 'uz').format(v);
   }
 
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
     final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeMode = ref.watch(themeModeProvider).value ?? ThemeMode.system;
     final pad = Responsive.horizontalPadding(context);
     final s = S.of(context);
@@ -59,20 +46,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ref.watch(localeProvider.select((a) => a.value ?? AppLocale.uz));
     final canPop = Navigator.of(context).canPop();
     final isOwner = ref.watch(isOwnerProvider);
-
-    // Obuna holati faqat egaga kerak — xodim uchun so'rov yuborilmaydi.
-    final subSubtitle = isOwner
-        ? ref.watch(subscriptionStatusProvider).maybeWhen(
-            data: (st) {
-              final sub = st.subscription;
-              if (sub == null) return s.viewPlans;
-              final name = sub.plan?.name ?? (sub.isTrial ? s.trialBadge : '');
-              final days = s.daysLeftShort.replaceAll('{n}', '${sub.daysLeft}');
-              return name.isEmpty ? days : '$name · $days';
-            },
-            orElse: () => s.viewPlans,
-          )
-        : '';
 
     return Scaffold(
       appBar: AppBar(
@@ -110,16 +83,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             padding: EdgeInsets.fromLTRB(pad, 16, pad, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Balans va to'ldirish faqat egaga (owner) ko'rinadi.
-                // Billing o'chirilgan bo'lsa yashiriladi.
-                if (isOwner && AppConstants.billingEnabled) ...[
-                  _BalanceCard(
-                    balance: _fmtBalance(user?.balance),
-                    isDark: isDark,
-                    onTopUp: () => context.push('/wallet'),
-                  ),
-                  const SizedBox(height: 20),
-                ],
                 _SectionTitle(title: s.general),
                 const SizedBox(height: 8),
                 _MenuCard(children: [
@@ -158,26 +121,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       iconBg: AppColors.info.withValues(alpha: 0.1),
                       iconColor: AppColors.info,
                       onTap: () => context.push('/employees'),
-                    ),
-                  // Balans tarixi faqat egaga (billing yoqilganda).
-                  if (isOwner && AppConstants.billingEnabled)
-                    _MenuItem(
-                      icon: Icons.receipt_long_outlined,
-                      title: s.balanceHistory,
-                      subtitle: s.balanceHistoryDesc,
-                      iconBg: AppColors.success.withValues(alpha: 0.12),
-                      iconColor: AppColors.success,
-                      onTap: () => context.push('/balance-history'),
-                    ),
-                  // Obuna/tariflar faqat egaga (billing yoqilganda).
-                  if (isOwner && AppConstants.billingEnabled)
-                    _MenuItem(
-                      icon: Icons.workspace_premium_outlined,
-                      title: s.subscription,
-                      subtitle: subSubtitle,
-                      iconBg: AppColors.gold.withValues(alpha: 0.12),
-                      iconColor: AppColors.gold,
-                      onTap: () => context.push('/subscription'),
                     ),
                 ]),
                 const SizedBox(height: 20),
@@ -976,117 +919,6 @@ class _SheetTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// ─── Balance Card ────────────────────────────────────────────────────────────
-
-class _BalanceCard extends StatelessWidget {
-  final String balance;
-  final bool isDark;
-  final VoidCallback onTopUp;
-
-  const _BalanceCard({
-    required this.balance,
-    required this.isDark,
-    required this.onTopUp,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final s = S.of(context);
-
-    return Container(
-        padding: const EdgeInsets.fromLTRB(20, 18, 16, 18),
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          border: Border.all(color: cs.outline.withValues(alpha: 0.5)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: AppColors.cardGradient,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(Icons.account_balance_wallet_rounded,
-                  color: Colors.white, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(s.balance,
-                      style: TextStyle(
-                          color: cs.onSurface.withValues(alpha: 0.5),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$balance UZS',
-                    style: TextStyle(
-                        color: cs.onSurface,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5),
-                  ),
-                ],
-              ),
-            ),
-            GestureDetector(
-              onTap: onTopUp,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: AppColors.cardGradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.add_rounded,
-                        color: Colors.white, size: 18),
-                    const SizedBox(width: 4),
-                    Text(s.topUp,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
     );
   }
 }
