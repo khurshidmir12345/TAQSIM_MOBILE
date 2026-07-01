@@ -46,7 +46,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   }
 
   Future<void> _openTopUp(BuildContext context) async {
-    final info = ref.read(topupInfoProvider).valueOrNull;
+    final info = ref.read(topupInfoProvider).asData?.value;
     if (info != null && !info.topupEnabled) {
       _showMaintenanceSheet(context);
       return;
@@ -316,6 +316,7 @@ class _TopupMaintenanceSheetState extends State<_TopupMaintenanceSheet>
 }
 
 class _TxnTile extends StatelessWidget {
+  final WalletTransactionModel txn;
   final String label;
   final String date;
   final String amount;
