@@ -8,12 +8,16 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import '../../../subscription/domain/providers/subscription_provider.dart';
+import '../../domain/models/system_link_model.dart';
+import '../../domain/providers/system_link_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -24,6 +28,19 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _isUploadingAvatar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (!mounted) return;
+      ref.read(authProvider.notifier).refreshUser();
+      // Obuna holati faqat egaga kerak.
+      if (ref.read(isOwnerProvider)) {
+        ref.read(subscriptionStatusProvider.notifier).refresh();
+      }
+    });
+  }
 
   String _fmtBalance(String? raw) {
     final v = double.tryParse(raw ?? '0') ?? 0;
@@ -41,6 +58,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final currentLocale =
         ref.watch(localeProvider.select((a) => a.value ?? AppLocale.uz));
     final canPop = Navigator.of(context).canPop();
+    final isOwner = ref.watch(isOwnerProvider);
+
+    // Obuna holati faqat egaga kerak — xodim uchun so'rov yuborilmaydi.
+    final subSubtitle = isOwner
+        ? ref.watch(subscriptionStatusProvider).maybeWhen(
+            data: (st) {
+              final sub = st.subscription;
+              if (sub == null) return s.viewPlans;
+              final name = sub.plan?.name ?? (sub.isTrial ? s.trialBadge : '');
+              final days = s.daysLeftShort.replaceAll('{n}', '${sub.daysLeft}');
+              return name.isEmpty ? days : '$name · $days';
+            },
+            orElse: () => s.viewPlans,
+          )
+        : '';
 
     return Scaffold(
       appBar: AppBar(
@@ -78,12 +110,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             padding: EdgeInsets.fromLTRB(pad, 16, pad, 40),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _BalanceCard(
-                  balance: _fmtBalance(user?.balance),
-                  isDark: isDark,
-                  onTopUp: () => context.push('/top-up'),
-                ),
-                const SizedBox(height: 20),
+                // Balans va to'ldirish faqat egaga (owner) ko'rinadi.
+                // Billing o'chirilgan bo'lsa yashiriladi.
+                if (isOwner && AppConstants.billingEnabled) ...[
+                  _BalanceCard(
+                    balance: _fmtBalance(user?.balance),
+                    isDark: isDark,
+                    onTopUp: () => context.push('/wallet'),
+                  ),
+                  const SizedBox(height: 20),
+                ],
                 _SectionTitle(title: s.general),
                 const SizedBox(height: 8),
                 _MenuCard(children: [
@@ -95,14 +131,54 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     iconColor: AppColors.info,
                     onTap: () => context.push('/profile-info'),
                   ),
+                  // Qurilmalar (multi-device) — har bir foydalanuvchiga ko'rinadi.
                   _MenuItem(
-                    icon: Icons.storefront_outlined,
-                    title: s.bakeries,
-                    subtitle: s.manageAndSwitch,
+                    icon: Icons.devices_other_rounded,
+                    title: s.devicesTitle,
+                    subtitle: s.devicesMenuDesc,
                     iconBg: cs.primary.withValues(alpha: 0.1),
                     iconColor: cs.primary,
-                    onTap: () => context.go('/shop-select'),
+                    onTap: () => context.push('/devices'),
                   ),
+                  // Bizneslar ro'yxati/almashtirish faqat egaga (xodimda 1 ta biznes).
+                  if (isOwner)
+                    _MenuItem(
+                      icon: Icons.storefront_outlined,
+                      title: s.bakeries,
+                      subtitle: s.manageAndSwitch,
+                      iconBg: cs.primary.withValues(alpha: 0.1),
+                      iconColor: cs.primary,
+                      onTap: () => context.go('/shop-select'),
+                    ),
+                  if (isOwner)
+                    _MenuItem(
+                      icon: Icons.groups_2_outlined,
+                      title: s.employeesTitle,
+                      subtitle: s.employeesMenuDesc,
+                      iconBg: AppColors.info.withValues(alpha: 0.1),
+                      iconColor: AppColors.info,
+                      onTap: () => context.push('/employees'),
+                    ),
+                  // Balans tarixi faqat egaga (billing yoqilganda).
+                  if (isOwner && AppConstants.billingEnabled)
+                    _MenuItem(
+                      icon: Icons.receipt_long_outlined,
+                      title: s.balanceHistory,
+                      subtitle: s.balanceHistoryDesc,
+                      iconBg: AppColors.success.withValues(alpha: 0.12),
+                      iconColor: AppColors.success,
+                      onTap: () => context.push('/balance-history'),
+                    ),
+                  // Obuna/tariflar faqat egaga (billing yoqilganda).
+                  if (isOwner && AppConstants.billingEnabled)
+                    _MenuItem(
+                      icon: Icons.workspace_premium_outlined,
+                      title: s.subscription,
+                      subtitle: subSubtitle,
+                      iconBg: AppColors.gold.withValues(alpha: 0.12),
+                      iconColor: AppColors.gold,
+                      onTap: () => context.push('/subscription'),
+                    ),
                 ]),
                 const SizedBox(height: 20),
                 _SectionTitle(title: s.settings),
@@ -148,6 +224,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     onTap: () => _launchUrl('https://www.taqseem.uz/terms'),
                   ),
                 ]),
+                // ─── Aloqa: ijtimoiy tarmoqlar + texnik yordam ───
+                // Admin paneldagi SystemLink dan o'qiladi. Faqat is_active=true
+                // va URL bo'sh bo'lmagan yozuvlar ko'rsatiladi. Hech qanday
+                // havola sozlanmagan bo'lsa, butun bo'lim (sarlavha va bo'sh
+                // joy bilan birga) yashiriladi.
+                _ContactSection(onOpenUrl: _launchUrl),
                 const SizedBox(height: 20),
                 _SectionTitle(
                   title: s.account,
@@ -164,16 +246,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     titleColor: AppColors.error,
                     showChevron: false,
                     onTap: () => _showLogoutConfirm(context, ref, cs, s),
-                  ),
-                  _MenuItem(
-                    icon: Icons.delete_forever_rounded,
-                    title: s.deleteAccount,
-                    subtitle: s.deleteAccountDesc,
-                    iconBg: AppColors.error.withValues(alpha: 0.08),
-                    iconColor: AppColors.error,
-                    titleColor: AppColors.error,
-                    showChevron: false,
-                    onTap: () => _startDeleteAccountFlow(context, ref, cs, s),
                   ),
                 ]),
                 const SizedBox(height: 16),
@@ -524,91 +596,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   ///  1) Birinchi modal — ogohlantirish va "Davom etish" / "Bekor qilish"
   ///  2) Ikkinchi modal — yakuniy tasdiqlash ("Albatta o'chirish")
   /// Ikkalasi ham tasdiqlangandan keyin API chaqirib login ekraniga qaytariladi.
-  Future<void> _startDeleteAccountFlow(
-      BuildContext context, WidgetRef ref, ColorScheme cs, S s) async {
-    HapticFeedback.selectionClick();
-
-    final firstStepOk = await showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _DeleteAccountSheet(
-        title: s.deleteAccountTitle,
-        message: s.deleteAccountWarning,
-        primaryLabel: s.deleteAccountContinue,
-        cancelLabel: s.cancel,
-      ),
-    );
-
-    if (firstStepOk != true || !context.mounted) return;
-
-    final finalConfirm = await showModalBottomSheet<bool>(
-      context: context,
-      isDismissible: false,
-      enableDrag: false,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _DeleteAccountSheet(
-        title: s.deleteAccountFinalTitle,
-        message: s.deleteAccountFinalWarning,
-        primaryLabel: s.deleteAccountConfirm,
-        cancelLabel: s.cancel,
-        emphasized: true,
-      ),
-    );
-
-    if (finalConfirm != true || !context.mounted) return;
-
-    _showProcessingDialog(context, s);
-    final success = await ref.read(authProvider.notifier).deleteAccount();
-
-    if (!context.mounted) return;
-    Navigator.of(context, rootNavigator: true).pop();
-
-    if (success) {
-      HapticFeedback.lightImpact();
-      _showSnack(s.deleteAccountSuccess);
-      if (context.mounted) context.go('/login');
-    } else {
-      _showSnack(
-        ref.read(authProvider).error ?? s.deleteAccountFailed,
-        isError: true,
-      );
-    }
-  }
-
-  void _showProcessingDialog(BuildContext context, S s) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Center(
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Theme.of(ctx).colorScheme.surface,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(
-                width: 36,
-                height: 36,
-                child: CircularProgressIndicator(strokeWidth: 3),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                s.deleteAccountProcessing,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   void _showLanguagePicker(
       BuildContext context, WidgetRef ref, AppLocale current) {
     final cs = Theme.of(context).colorScheme;
@@ -1348,143 +1335,194 @@ class _LanguageItem extends StatelessWidget {
   }
 }
 
-// ─── Delete Account Sheet ────────────────────────────────────────────────────
+// ─── Contact Section (Aloqa kartalari — Telegram / Instagram / YouTube / Yordam) ─
 
-/// Universal qizil ogohlantirish bottomsheet. Ikki bosqichli delete flow
-/// uchun bir necha marta ishlatiladi (sarlavha va matn parametrlari farq qiladi).
-class _DeleteAccountSheet extends StatelessWidget {
-  const _DeleteAccountSheet({
-    required this.title,
-    required this.message,
-    required this.primaryLabel,
-    required this.cancelLabel,
-    this.emphasized = false,
+/// Brand-stilidagi gradient'lar. Faqat ranglar — hech qanday tovar belgisi
+/// nusxalanmagan. Ikonalar Material'ning generic versiyalari (paper plane,
+/// camera, play, headset).
+const _telegramGradient = LinearGradient(
+  colors: [Color(0xFF2AABEE), Color(0xFF229ED9)],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+const _instagramGradient = LinearGradient(
+  colors: [
+    Color(0xFFFEDA77),
+    Color(0xFFF58529),
+    Color(0xFFDD2A7B),
+    Color(0xFF8134AF),
+    Color(0xFF515BD4),
+  ],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+const _youtubeGradient = LinearGradient(
+  colors: [Color(0xFFFF3D3D), Color(0xFFCC0000)],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+const _supportGradient = LinearGradient(
+  colors: [Color(0xFF11D5A0), Color(0xFF00A896)],
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+);
+
+/// Profilning eng pastida (Logout dan oldin) "Aloqa" bo'limi.
+///
+/// Faqat backenddagi `SystemLink` yozuvlari (`is_active=true`) asosida
+/// quriladi. Hech qanday faol havola sozlanmagan bo'lsa, butun bo'lim
+/// avtomatik yashiriladi (joy egallamaydi).
+class _ContactSection extends ConsumerWidget {
+  final Future<void> Function(String url) onOpenUrl;
+  const _ContactSection({required this.onOpenUrl});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = S.of(context);
+    final async = ref.watch(systemLinksProvider);
+    final links = async.asData?.value ?? const <SystemLinkModel>[];
+
+    final telegram = findSystemLink(links, 'telegram');
+    final instagram = findSystemLink(links, 'instagram');
+    final youtube = findSystemLink(links, 'youtube');
+    final support = findSystemLink(links, 'support');
+
+    final cards = <_ContactCardData>[
+      if (telegram != null)
+        _ContactCardData(
+          label: 'Telegram',
+          icon: Icons.send_rounded,
+          gradient: _telegramGradient,
+          shadowColor: const Color(0xFF229ED9),
+          url: telegram.url,
+        ),
+      if (instagram != null)
+        _ContactCardData(
+          label: 'Instagram',
+          icon: Icons.camera_alt_rounded,
+          gradient: _instagramGradient,
+          shadowColor: const Color(0xFFDD2A7B),
+          url: instagram.url,
+        ),
+      if (youtube != null)
+        _ContactCardData(
+          label: 'YouTube',
+          icon: Icons.play_arrow_rounded,
+          gradient: _youtubeGradient,
+          shadowColor: const Color(0xFFCC0000),
+          url: youtube.url,
+        ),
+      if (support != null)
+        _ContactCardData(
+          label: s.supportContact,
+          icon: Icons.headset_mic_rounded,
+          gradient: _supportGradient,
+          shadowColor: const Color(0xFF00A896),
+          url: support.url,
+        ),
+    ];
+
+    if (cards.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 20),
+        _SectionTitle(title: s.contactSection),
+        const SizedBox(height: 12),
+        // Har bir ikona ekran enining 1/N qismida markazlashgan —
+        // oralar avtomatik teng, lekin biror joyga to'planib qolmaydi.
+        Row(
+          children: [
+            for (final c in cards)
+              Expanded(
+                child: Center(
+                  child: _ContactCard(data: c, onOpen: onOpenUrl),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ContactCardData {
+  final String label;
+  final IconData icon;
+  final Gradient gradient;
+  final Color shadowColor;
+  final String url;
+
+  const _ContactCardData({
+    required this.label,
+    required this.icon,
+    required this.gradient,
+    required this.shadowColor,
+    required this.url,
   });
+}
 
-  final String title;
-  final String message;
-  final String primaryLabel;
-  final String cancelLabel;
-  final bool emphasized;
+/// Bitta kartochka — gradient fon + oq ikona + brand nomi. Bosilganda
+/// haptic + scale-down animatsiya (haqiqiy ilovalardagi tap feedback).
+class _ContactCard extends StatefulWidget {
+  final _ContactCardData data;
+  final Future<void> Function(String url) onOpen;
+
+  const _ContactCard({required this.data, required this.onOpen});
+
+  @override
+  State<_ContactCard> createState() => _ContactCardState();
+}
+
+class _ContactCardState extends State<_ContactCard> {
+  bool _pressed = false;
+
+  void _setPressed(bool v) {
+    if (_pressed == v) return;
+    setState(() => _pressed = v);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: cs.onSurface.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+    return Semantics(
+      button: true,
+      label: widget.data.label,
+      child: GestureDetector(
+        onTapDown: (_) {
+          _setPressed(true);
+          HapticFeedback.selectionClick();
+        },
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        onTap: () => widget.onOpen(widget.data.url),
+        child: AnimatedScale(
+          scale: _pressed ? 0.92 : 1.0,
+          duration: const Duration(milliseconds: 110),
+          curve: Curves.easeOut,
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              gradient: widget.data.gradient,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.data.shadowColor.withValues(alpha: 0.25),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Icon(
-                    emphasized
-                        ? Icons.delete_forever_rounded
-                        : Icons.warning_amber_rounded,
-                    color: AppColors.error,
-                    size: 32,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.2,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                message,
-                style: TextStyle(
-                  color: cs.onSurface.withValues(alpha: 0.7),
-                  fontSize: 13.5,
-                  height: 1.45,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context, false),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: cs.onSurface.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          cancelLabel,
-                          style: TextStyle(
-                            color: cs.onSurface,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context, true),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: AppColors.error,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          primaryLabel,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
+            alignment: Alignment.center,
+            child: Icon(widget.data.icon, color: Colors.white, size: 20),
           ),
         ),
       ),
     );
   }
 }
+

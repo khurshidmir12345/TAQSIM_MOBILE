@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/api/api_exceptions.dart';
 import '../../../../core/api/api_provider.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../data/setup_repository.dart';
@@ -18,22 +19,26 @@ class BreadCategoryListState {
   final List<BreadCategoryModel> items;
   final bool isLoading;
   final String? error;
+  final String? errorCode;
 
   const BreadCategoryListState({
     this.items = const [],
     this.isLoading = false,
     this.error,
+    this.errorCode,
   });
 
   BreadCategoryListState copyWith({
     List<BreadCategoryModel>? items,
     bool? isLoading,
     String? error,
+    String? errorCode,
   }) {
     return BreadCategoryListState(
       items: items ?? this.items,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      errorCode: errorCode,
     );
   }
 }
@@ -71,7 +76,10 @@ class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
       await load();
       return true;
     } catch (e) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(
+        error: e.toString(),
+        errorCode: e is ApiException ? e.code : null,
+      );
       return false;
     }
   }

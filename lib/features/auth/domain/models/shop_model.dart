@@ -25,6 +25,9 @@ class ShopModel {
   final String? phone;
   final bool isActive;
   final String? userType;
+
+  /// Joriy foydalanuvchining shu do'kondagi ruxsatlari (owner -> barchasi).
+  final List<String> permissions;
   final String? createdAt;
   final String? businessTypeId;
   final BusinessTypeModel? businessType;
@@ -43,6 +46,7 @@ class ShopModel {
     this.phone,
     this.isActive = true,
     this.userType,
+    this.permissions = const [],
     this.createdAt,
     this.businessTypeId,
     this.businessType,
@@ -69,6 +73,10 @@ class ShopModel {
       phone:          json['phone'] as String?,
       isActive:       json['is_active'] as bool? ?? true,
       userType:       json['user_type'] as String?,
+      permissions:    (json['permissions'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
       createdAt:      json['created_at'] as String?,
       businessTypeId: json['business_type_id'] as String?,
       businessType:   btJson != null ? BusinessTypeModel.fromJson(btJson) : null,

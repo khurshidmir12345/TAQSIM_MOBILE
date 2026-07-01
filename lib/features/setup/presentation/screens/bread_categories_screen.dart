@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_loading.dart';
 import '../../../auth/domain/models/currency_model.dart';
 import '../../../auth/domain/models/measurement_unit_model.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import '../../../subscription/presentation/widgets/plan_limit_sheet.dart';
 import '../../domain/models/bread_category_model.dart';
 import '../../domain/providers/setup_provider.dart';
 
@@ -508,6 +509,13 @@ class _CategoryFormBodyState extends ConsumerState<_CategoryFormBody> {
             );
 
     if (!mounted) return;
+
+    if (!ok &&
+        ref.read(breadCategoryProvider).errorCode == 'plan_limit_reached') {
+      await showPlanLimitSheet(context, 'products');
+      return;
+    }
+
     messenger.showSnackBar(
       SnackBar(
         content: Text(

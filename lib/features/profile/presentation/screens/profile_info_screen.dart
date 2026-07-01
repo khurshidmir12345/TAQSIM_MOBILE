@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/domain/models/user_model.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import '../../../subscription/domain/providers/subscription_provider.dart';
+import '../../../subscription/presentation/widgets/current_plan_card.dart';
 
 /// Profile information screen.
 ///
@@ -18,11 +21,26 @@ import '../../../auth/domain/providers/auth_provider.dart';
 ///   There is no loud "LINK" CTA that implies linking is required.
 /// - Delete account is a small action in the app bar instead of a big
 ///   destructive card.
-class ProfileInfoScreen extends ConsumerWidget {
+class ProfileInfoScreen extends ConsumerStatefulWidget {
   const ProfileInfoScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileInfoScreen> createState() => _ProfileInfoScreenState();
+}
+
+class _ProfileInfoScreenState extends ConsumerState<ProfileInfoScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (!mounted) return;
+      ref.read(authProvider.notifier).refreshUser();
+      ref.read(subscriptionStatusProvider.notifier).refresh();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authProvider).user;
     final cs = Theme.of(context).colorScheme;
     final pad = Responsive.horizontalPadding(context);
@@ -44,15 +62,17 @@ class ProfileInfoScreen extends ConsumerWidget {
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
-        actions: [
-          _DeleteMenuButton(
-            onDelete: () => _showDeleteConfirm(context, ref, cs, s),
-          ),
-        ],
       ),
       body: ListView(
         padding: EdgeInsets.fromLTRB(pad, 12, pad, 32),
         children: [
+          // Obuna bo'limi — billing o'chirilgan bo'lsa yashiriladi.
+          if (AppConstants.billingEnabled) ...[
+            _SectionLabel(text: s.subscription),
+            const SizedBox(height: 8),
+            const CurrentPlanCard(),
+            const SizedBox(height: 24),
+          ],
           _SectionLabel(text: s.personalInfo),
           const SizedBox(height: 8),
           _PersonalInfoCard(user: user),
@@ -60,6 +80,12 @@ class ProfileInfoScreen extends ConsumerWidget {
           _SectionLabel(text: s.loginMethods),
           const SizedBox(height: 8),
           _LoginMethodsCard(user: user),
+          const SizedBox(height: 32),
+          _SectionLabel(text: s.account),
+          const SizedBox(height: 8),
+          _DeleteAccountTile(
+            onTap: () => _showDeleteConfirm(context, ref, cs, s),
+          ),
         ],
       ),
     );
@@ -182,56 +208,81 @@ class ProfileInfoScreen extends ConsumerWidget {
   }
 }
 
-// ─── AppBar Delete Menu ──────────────────────────────────────────────────────
+// ─── Delete account (destructive) ────────────────────────────────────────────
 
-class _DeleteMenuButton extends StatelessWidget {
-  final VoidCallback onDelete;
-  const _DeleteMenuButton({required this.onDelete});
+class _DeleteAccountTile extends StatelessWidget {
+  final VoidCallback onTap;
+  const _DeleteAccountTile({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final s = S.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(right: 6),
-      child: PopupMenuButton<String>(
-        tooltip: '',
-        offset: const Offset(0, 44),
-        padding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
-        color: cs.surface,
-        elevation: 8,
-        icon: Icon(
-          Icons.more_vert_rounded,
-          size: 22,
-          color: cs.onSurface.withValues(alpha: 0.75),
-        ),
-        onSelected: (v) {
-          if (v == 'delete') onDelete();
-        },
-        itemBuilder: (ctx) => [
-          PopupMenuItem<String>(
-            value: 'delete',
-            height: 44,
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onTap();
+          },
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             child: Row(
               children: [
-                const Icon(Icons.delete_outline_rounded,
-                    color: AppColors.error, size: 18),
-                const SizedBox(width: 10),
-                Text(
-                  s.deleteAccount,
-                  style: const TextStyle(
-                    color: AppColors.error,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.delete_forever_rounded,
+                      color: AppColors.error, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        s.deleteAccount,
+                        style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.error,
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        s.deleteAccountDesc,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w500,
+                          color: cs.onSurface.withValues(alpha: 0.5),
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                Icon(Icons.chevron_right_rounded,
+                    color: AppColors.error.withValues(alpha: 0.6), size: 20),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -361,6 +412,7 @@ class _LoginMethodsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final s = S.of(context);
+    final isLoggedIn = user != null;
 
     final hasPhone = user?.phone?.isNotEmpty == true;
     final hasEmail = user?.email?.isNotEmpty == true;
@@ -400,7 +452,14 @@ class _LoginMethodsCard extends StatelessWidget {
             label: s.telegram,
             value: telegramValue,
             active: hasTelegram,
-            readOnly: true,
+            readOnly: hasTelegram || !isLoggedIn,
+            connectLabel: s.link,
+            onConnect: (hasTelegram || !isLoggedIn)
+                ? null
+                : () async {
+                    HapticFeedback.selectionClick();
+                    await context.push('/telegram-connect');
+                  },
           ),
         ],
       ),
@@ -422,6 +481,11 @@ class _MethodRow extends StatelessWidget {
   final bool active;
   final bool readOnly;
 
+  /// When provided (and not active), the row becomes tappable and shows a
+  /// small CTA pill prompting the user to connect this method.
+  final VoidCallback? onConnect;
+  final String? connectLabel;
+
   const _MethodRow({
     required this.icon,
     required this.brandColor,
@@ -429,27 +493,30 @@ class _MethodRow extends StatelessWidget {
     required this.value,
     required this.active,
     required this.readOnly,
+    this.onConnect,
+    this.connectLabel,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final baseText = cs.onSurface;
+    final canConnect = !active && onConnect != null;
 
     final labelColor = active
         ? baseText.withValues(alpha: 0.9)
-        : baseText.withValues(alpha: 0.38);
+        : baseText.withValues(alpha: canConnect ? 0.85 : 0.38);
     final valueColor = active
         ? baseText.withValues(alpha: 0.55)
         : baseText.withValues(alpha: 0.32);
-    final tileBg = active
+    final tileBg = (active || canConnect)
         ? brandColor.withValues(alpha: 0.12)
         : cs.onSurface.withValues(alpha: 0.05);
-    final iconColor = active
+    final iconColor = (active || canConnect)
         ? brandColor
         : cs.onSurface.withValues(alpha: 0.35);
 
-    return Padding(
+    final content = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       child: Row(
         children: [
@@ -507,7 +574,54 @@ class _MethodRow extends StatelessWidget {
                   ),
                 ],
               ),
+            )
+          else if (canConnect)
+            _ConnectPill(label: connectLabel ?? '', color: brandColor),
+        ],
+      ),
+    );
+
+    if (canConnect) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onConnect,
+          borderRadius: BorderRadius.circular(14),
+          child: content,
+        ),
+      );
+    }
+    return content;
+  }
+}
+
+/// Small CTA pill shown on an inactive, connectable login method row.
+class _ConnectPill extends StatelessWidget {
+  final String label;
+  final Color color;
+  const _ConnectPill({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
             ),
+          ),
+          const SizedBox(width: 3),
+          Icon(Icons.add_rounded, color: color, size: 15),
         ],
       ),
     );

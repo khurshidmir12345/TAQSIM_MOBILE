@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/shop_permissions.dart';
 import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/providers/terminology_provider.dart';
@@ -13,6 +14,7 @@ import '../../../../core/utils/time_format.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/time_badge.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
+import '../../../subscription/presentation/widgets/subscription_banner.dart';
 import '../../../tutorial/domain/providers/shop_tutorial_provider.dart';
 import '../../../tutorial/presentation/widgets/tutorial_spotlight.dart';
 import '../../../auth/domain/models/shop_model.dart';
@@ -186,6 +188,12 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
               child: ListView(
                 padding: EdgeInsets.fromLTRB(0, 20, 0, pad + 16),
                 children: [
+                  // Obuna banneri faqat egaga (xodimda obuna yo'q).
+                  if (ref.watch(isOwnerProvider))
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: pad),
+                      child: const SubscriptionBanner(),
+                    ),
                   if (reportState.isLoading)
                     const Padding(
                       padding: EdgeInsets.all(48),
@@ -1797,14 +1805,24 @@ class _DashboardExpenseCard extends StatelessWidget {
   }
 }
 
-class _ActionBar extends StatelessWidget {
+class _ActionBar extends ConsumerWidget {
   final double pad;
   const _ActionBar({required this.pad});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final s = S.of(context);
+
+    // Seller faqat ruxsati bor amallarni ko'radi (owner barchasini).
+    final canProduce =
+        ref.watch(hasPermissionProvider(ShopPermissions.manageProduction));
+    final canSell =
+        ref.watch(hasPermissionProvider(ShopPermissions.manageSales));
+
+    if (!canProduce && !canSell) {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       padding: EdgeInsets.fromLTRB(pad, 12, pad, 16),
@@ -1815,23 +1833,25 @@ class _ActionBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: _ActionButton(
-              icon: Icons.north_east_rounded,
-              label: s.productOut,
-              color: AppColors.primary,
-              onTap: () => context.push('/production-create'),
+          if (canProduce)
+            Expanded(
+              child: _ActionButton(
+                icon: Icons.north_east_rounded,
+                label: s.productOut,
+                color: AppColors.primary,
+                onTap: () => context.push('/production-create'),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _ActionButton(
-              icon: Icons.south_west_rounded,
-              label: s.productReturned,
-              color: AppColors.error,
-              onTap: () => context.push('/return-create'),
+          if (canProduce && canSell) const SizedBox(width: 12),
+          if (canSell)
+            Expanded(
+              child: _ActionButton(
+                icon: Icons.south_west_rounded,
+                label: s.productReturned,
+                color: AppColors.error,
+                onTap: () => context.push('/return-create'),
+              ),
             ),
-          ),
         ],
       ),
     );

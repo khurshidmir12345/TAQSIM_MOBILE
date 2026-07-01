@@ -11,6 +11,7 @@ import '../../features/auth/presentation/screens/shop_select_screen.dart';
 import '../../features/home/presentation/screens/production_create_screen.dart';
 import '../../features/home/domain/models/production_model.dart';
 import '../../features/home/presentation/screens/production_detail_screen.dart';
+import '../constants/app_constants.dart';
 import '../l10n/translations.dart';
 import '../../features/home/presentation/screens/return_create_screen.dart';
 import '../../features/home/presentation/screens/expense_create_screen.dart';
@@ -27,17 +28,34 @@ import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/profile/presentation/screens/about_app_screen.dart';
 import '../../features/profile/presentation/screens/profile_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/profile/presentation/screens/telegram_connect_screen.dart';
+import '../../features/profile/presentation/screens/devices_screen.dart';
 import '../../features/profile/presentation/screens/top_up_screen.dart';
+import '../../features/employees/presentation/screens/employees_screen.dart';
 import '../../features/statistics/presentation/screens/report_screen.dart';
 import '../../features/statistics/presentation/screens/charts_screen.dart';
+import '../../features/subscription/presentation/screens/balance_history_screen.dart';
+import '../../features/subscription/presentation/screens/paywall_screen.dart';
+import '../../features/subscription/presentation/screens/wallet_screen.dart';
+import '../api/api_provider.dart';
 
 /// Global route observer — ekranlar RouteAware mixinini qo‘llab kuzatishi uchun.
 /// Masalan, dashboard qayta ochilganda sana filterini tozalash uchun.
 final RouteObserver<ModalRoute<void>> appRouteObserver =
     RouteObserver<ModalRoute<void>>();
 
+/// Faqat biznes egasiga (owner) ruxsat etilgan sahifalar.
+/// Seller bu manzillarga yozsa — `/shell`ga qaytariladi.
+const Set<String> _ownerOnlyRoutes = {
+  '/employees',
+  '/subscription',
+  '/balance-history',
+  '/wallet',
+  '/top-up',
+};
+
 final routerProvider = Provider<GoRouter>((ref) {
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: '/',
     observers: [appRouteObserver],
     refreshListenable: _AuthRefreshNotifier(ref),
@@ -64,9 +82,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (authState.status == AuthStatus.authenticated) {
         if (isOnSplash || isOnAuth) {
           final shopState = ref.read(shopProvider);
-          if (shopState.shops.isEmpty && !shopState.isLoading) {
-            return '/shop-select';
-          }
+          // Biznes tanlangan bo'lsa — to'g'ri asosiy sahifaga (/shell).
+          if (shopState.selected != null) return '/shell';
+          // Yuklanib bo'lib, biznes umuman yo'q bo'lsa — biznes tanlash.
+          if (shopState.loadedOnce) return '/shop-select';
+          // Hali yuklanmagan — sahifani o'zgartirmaymiz; do'konlar yuklangach
+          // (login ekrani yoki splash) aniq navigatsiya qiladi. Bu social
+          // login'da "bizneslar" sahifasiga noto'g'ri o'tib ketishning oldini oladi.
+          return null;
+        }
+
+        // Owner-only sahifalarga sellerni kiritmaslik (xavfsizlik to'ri).
+        // Bu sahifalar UI menyusida sellerga ko'rsatilmaydi; bu — qo'shimcha himoya.
+        if (_ownerOnlyRoutes.contains(location) && ref.read(isSellerProvider)) {
           return '/shell';
         }
       }
@@ -176,12 +204,36 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileInfoScreen(),
       ),
       GoRoute(
+        path: '/telegram-connect',
+        builder: (context, state) => const TelegramConnectScreen(),
+      ),
+      GoRoute(
+        path: '/devices',
+        builder: (context, state) => const DevicesScreen(),
+      ),
+      GoRoute(
+        path: '/employees',
+        builder: (context, state) => const EmployeesScreen(),
+      ),
+      GoRoute(
         path: '/about-app',
         builder: (context, state) => const AboutAppScreen(),
       ),
       GoRoute(
         path: '/top-up',
         builder: (context, state) => const TopUpScreen(),
+      ),
+      GoRoute(
+        path: '/wallet',
+        builder: (context, state) => const WalletScreen(),
+      ),
+      GoRoute(
+        path: '/balance-history',
+        builder: (context, state) => const BalanceHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/subscription',
+        builder: (context, state) => const PaywallScreen(),
       ),
       GoRoute(
         path: '/report',
@@ -193,20 +245,41 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+
+  // Feature so'rovi 402 (subscription_required) qaytarsa — paywall'ga yo'naltirish.
+  // Billing o'chirilgan bo'lsa yo'naltirish ham o'chiriladi.
+  var navigatingToPaywall = false;
+  ref.read(apiClientProvider).setSubscriptionBlockedCallback(() {
+    if (!AppConstants.billingEnabled) return;
+    if (navigatingToPaywall) return;
+    navigatingToPaywall = true;
+    router.go('/subscription');
+    Future.delayed(const Duration(seconds: 1), () => navigatingToPaywall = false);
+  });
+
+  return router;
 });
 
 class _AuthRefreshNotifier extends ChangeNotifier {
-  late final ProviderSubscription _sub;
+  late final ProviderSubscription _authSub;
+  late final ProviderSubscription _shopSub;
 
   _AuthRefreshNotifier(Ref ref) {
-    _sub = ref.listen(authProvider, (_, _) {
+    _authSub = ref.listen(authProvider, (_, _) {
       notifyListeners();
     });
+    // Do'konlar yuklanib, biznes tanlangach (yoki bo'sh ekani aniqlangach)
+    // redirect qayta hisoblanib, to'g'ri sahifaga o'tadi.
+    _shopSub = ref.listen(
+      shopProvider.select((s) => (s.selected?.id, s.loadedOnce)),
+      (_, _) => notifyListeners(),
+    );
   }
 
   @override
   void dispose() {
-    _sub.close();
+    _authSub.close();
+    _shopSub.close();
     super.dispose();
   }
 }

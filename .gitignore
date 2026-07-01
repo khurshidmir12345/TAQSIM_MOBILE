@@ -31,7 +31,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/ios/build/
 /coverage/
+devtools_options.yaml
 
 # Symbolication related
 app.*.symbols

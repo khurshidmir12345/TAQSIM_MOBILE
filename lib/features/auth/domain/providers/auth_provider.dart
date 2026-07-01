@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../../core/api/api_provider.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/shop_permissions.dart';
 import '../../data/auth_repository.dart';
 import '../models/user_model.dart';
 import 'shop_provider.dart';
@@ -59,6 +62,9 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   AuthRepository get _repo => ref.read(authRepositoryProvider);
+
+  /// GoogleSignIn.initialize() bir marta chaqirilishini kafolatlovchi kesh.
+  Future<void>? _googleInit;
 
   Future<void> checkAuth() async {
     // Android'da flutter_secure_storage ba'zan Keystore initsializatsiyasi sababli
@@ -169,6 +175,23 @@ class AuthNotifier extends Notifier<AuthState> {
     );
   }
 
+  /// Serverdan kelgan yangilangan foydalanuvchi profilini holatga yozadi
+  /// (masalan, Telegram bog'langandan keyin).
+  void setUser(UserModel user) {
+    state = state.copyWith(user: user);
+  }
+
+  /// Profil ma'lumotlarini serverdan jim yangilaydi (auth statusiga tegmaydi).
+  /// Ekran ochilganda eng so'nggi ma'lumotni ko'rsatish uchun ishlatiladi.
+  Future<void> refreshUser() async {
+    try {
+      final user = await _repo.me();
+      state = state.copyWith(user: user);
+    } catch (_) {
+      // Jim — tarmoq xatosi profil ekranini buzmasligi kerak.
+    }
+  }
+
   /// Sign in with Apple flow:
   ///  1. Native sheet ochiladi (iOS/macOS only).
   ///  2. Identity token va ixtiyoriy ism/email backendga yuboriladi.
@@ -228,8 +251,83 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  /// Sign in with Google flow (google_sign_in v7):
+  ///  1. `GoogleSignIn.instance` bir marta initialize qilinadi (web/iOS/Android
+  ///     mos client ID bilan).
+  ///  2. `authenticate()` native account picker'ni ochadi.
+  ///  3. Olingan ID token backendga yuboriladi; backend tasdiqlab Sanctum
+  ///     token qaytaradi.
+  ///
+  /// Foydalanuvchi bekor qilsa `false` qaytaradi va xato chiqarmaydi.
+  Future<bool> signInWithGoogle() async {
+    if (!(Platform.isIOS || Platform.isAndroid || Platform.isMacOS)) {
+      state = state.copyWith(error: 'google_unsupported_platform');
+      return false;
+    }
+
+    state = state.copyWith(isLoading: true);
+    try {
+      final signIn = GoogleSignIn.instance;
+      await _ensureGoogleInitialized(signIn);
+
+      if (!signIn.supportsAuthenticate()) {
+        state = state.copyWith(isLoading: false, error: 'google_unsupported_platform');
+        return false;
+      }
+
+      final account = await signIn.authenticate(
+        scopeHint: const ['email', 'profile'],
+      );
+
+      final idToken = account.authentication.idToken;
+      if (idToken == null || idToken.isEmpty) {
+        state = state.copyWith(isLoading: false, error: 'google_no_token');
+        return false;
+      }
+
+      final result = await _repo.signInWithGoogle(
+        idToken: idToken,
+        name: account.displayName,
+        email: account.email,
+      );
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        user: result.user,
+        isLoading: false,
+      );
+      return true;
+    } on GoogleSignInException catch (e) {
+      // Bekor qilish — jim o'tkazamiz (xato ko'rsatilmaydi).
+      if (e.code == GoogleSignInExceptionCode.canceled ||
+          e.code == GoogleSignInExceptionCode.interrupted ||
+          e.code == GoogleSignInExceptionCode.uiUnavailable) {
+        state = state.copyWith(isLoading: false);
+        return false;
+      }
+      state = state.copyWith(isLoading: false, error: e.description ?? e.code.name);
+      return false;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  Future<void> _ensureGoogleInitialized(GoogleSignIn signIn) {
+    // initialize() faqat bir marta chaqirilishi kerak (paket talabi).
+    return _googleInit ??= signIn.initialize(
+      serverClientId: AppConstants.googleServerClientId,
+      // clientId faqat iOS/macOS uchun kerak; Android'da berilmasligi lozim.
+      clientId: (Platform.isIOS || Platform.isMacOS)
+          ? AppConstants.googleIosClientId
+          : null,
+    );
+  }
+
   Future<void> logout() async {
     await _repo.logout();
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {}
     state = const AuthState(status: AuthStatus.unauthenticated);
     await ref.read(shopProvider.notifier).resetOnLogout();
   }
@@ -300,3 +398,35 @@ class AuthNotifier extends Notifier<AuthState> {
 }
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
+
+/// Joriy foydalanuvchi xodim (seller) ekanligi — har bir API javobidagi
+/// `user_type` asosida. Auth user'da bo'lmasa tanlangan do'kon rolidan olinadi.
+final isSellerProvider = Provider<bool>((ref) {
+  final userType = ref.watch(authProvider.select((s) => s.user?.userType));
+  if (userType != null) return userType == 'seller';
+
+  final shopType = ref.watch(shopProvider.select((s) => s.selected?.userType));
+  return shopType == 'seller';
+});
+
+/// Joriy foydalanuvchi biznes egasi (owner) ekanligi.
+final isOwnerProvider = Provider<bool>((ref) => !ref.watch(isSellerProvider));
+
+/// Joriy tanlangan do'kondagi ruxsatlar to'plami.
+/// Owner doim barcha ruxsatlarga ega; seller uchun backend pivotidan keladi.
+final currentPermissionsProvider = Provider<Set<String>>((ref) {
+  if (ref.watch(isOwnerProvider)) {
+    return ShopPermissions.all.toSet();
+  }
+
+  final shopPerms =
+      ref.watch(shopProvider.select((s) => s.selected?.permissions));
+  return (shopPerms ?? const <String>[]).toSet();
+});
+
+/// Berilgan ruxsat joriy foydalanuvchida bor-yo'qligini bildiradi.
+/// Owner uchun doim `true`.
+final hasPermissionProvider = Provider.family<bool, String>((ref, permission) {
+  if (ref.watch(isOwnerProvider)) return true;
+  return ref.watch(currentPermissionsProvider).contains(permission);
+});

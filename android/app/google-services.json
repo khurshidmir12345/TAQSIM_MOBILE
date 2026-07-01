@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "668168366908",
+    "project_id": "taqseem-1fc18",
+    "storage_bucket": "taqseem-1fc18.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:668168366908:android:c6b91357345f1f963c0c39",
+        "android_client_info": {
+          "package_name": "uz.taqseem.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "668168366908-4q3sffovnml9vno8ffhahk0k307qitvm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "uz.taqseem.mobile",
+            "certificate_hash": "8d8b8ccdc91f3f9c693ba4a057ceb17f1bee749f"
+          }
+        },
+        {
+          "client_id": "668168366908-tka2u23n0uh115vp2tt4deblu4v5mqke.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "uz.taqseem.mobile",
+            "certificate_hash": "f5d37bdf2bcb4ff88b0e08cca25565d082b671f1"
+          }
+        },
+        {
+          "client_id": "668168366908-61n4be971j9scsvc6mepaba1g2e73o1f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjRZvvMmyp2-tmPZZ7KbAai4dqfEyCm5I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "668168366908-61n4be971j9scsvc6mepaba1g2e73o1f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "668168366908-kpclm2r1vmbt0r4kl2s9eb5srb7n4r6p.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "uz.taqseem.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/shop_permissions.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/router/app_router.dart';
 import '../../domain/shell_tab_provider.dart';
+import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../../home/presentation/screens/expenses_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../setup/domain/providers/setup_provider.dart';
 import '../../../statistics/presentation/screens/report_screen.dart';
+import '../../../subscription/domain/providers/subscription_provider.dart';
+
+/// Shell tab turlari. Ko'rinishi foydalanuvchi ruxsatlariga bog'liq.
+enum ShellTab { home, expenses, statistics, orders }
 
 class ShellScreen extends ConsumerStatefulWidget {
   const ShellScreen({super.key});
@@ -55,34 +61,54 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
   /// Bosh tab faol bo'lsa — dashboard sanasini bugunga tiklaymiz.
   @override
   void didPopNext() {
-    final currentIndex = ref.read(shellTabIndexProvider);
-    if (currentIndex == 0) {
+    final tabs = _visibleTabs(ref.read(currentPermissionsProvider));
+    final index = _clampIndex(ref.read(shellTabIndexProvider), tabs.length);
+    if (tabs[index] == ShellTab.home) {
       _dashboardKey.currentState?.resetToToday();
     }
   }
 
-  void _onTabTap(int index) {
+  /// Joriy ruxsatlarga qarab ko'rinadigan tablar ro'yxati.
+  /// Home va Orders hammaga; Statistics -> view_reports; Expenses -> manage_expenses.
+  List<ShellTab> _visibleTabs(Set<String> perms) {
+    final isOwner = ref.read(isOwnerProvider);
+    return [
+      ShellTab.home,
+      if (isOwner || perms.contains(ShopPermissions.manageExpenses))
+        ShellTab.expenses,
+      if (isOwner || perms.contains(ShopPermissions.viewReports))
+        ShellTab.statistics,
+      ShellTab.orders,
+    ];
+  }
+
+  int _clampIndex(int index, int length) {
+    if (length == 0) return 0;
+    return index.clamp(0, length - 1);
+  }
+
+  void _onTabTap(List<ShellTab> tabs, int index) {
     ref.read(shellTabIndexProvider.notifier).setIndex(index);
 
-    if (index == 0) {
-      _dashboardKey.currentState?.resetToToday();
-    } else if (index == 1) {
-      _expensesKey.currentState?.refresh();
+    switch (tabs[index]) {
+      case ShellTab.home:
+        _dashboardKey.currentState?.resetToToday();
+        ref.read(subscriptionStatusProvider.notifier).refresh();
+      case ShellTab.expenses:
+        _expensesKey.currentState?.refresh();
+      case ShellTab.orders:
+        break;
+      case ShellTab.statistics:
+        break;
     }
   }
 
-  /// Handles the Android hardware back gesture for the shell.
-  ///
-  /// Order of resolution:
-  /// 1. If current tab is not Home → switch to Home tab silently.
-  /// 2. If already on Home → show a "press again to exit" snackbar; if the
-  ///    user presses back again within [_backExitWindow], exit the app.
-  Future<void> _handleSystemBack(S s) async {
-    final index = ref.read(shellTabIndexProvider);
+  Future<void> _handleSystemBack(S s, List<ShellTab> tabs) async {
+    final index = _clampIndex(ref.read(shellTabIndexProvider), tabs.length);
 
-    if (index != 0) {
+    if (tabs[index] != ShellTab.home) {
       HapticFeedback.selectionClick();
-      _onTabTap(0);
+      _onTabTap(tabs, tabs.indexOf(ShellTab.home));
       return;
     }
 
@@ -108,90 +134,104 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
     await SystemNavigator.pop();
   }
 
+  Widget _buildTab(ShellTab tab) {
+    switch (tab) {
+      case ShellTab.home:
+        return DashboardScreen(key: _dashboardKey);
+      case ShellTab.expenses:
+        return ExpensesScreen(key: _expensesKey);
+      case ShellTab.statistics:
+        return const ReportScreen();
+      case ShellTab.orders:
+        return const OrdersScreen();
+    }
+  }
+
+  ({IconData icon, IconData activeIcon, String label}) _navMeta(
+      ShellTab tab, S s) {
+    switch (tab) {
+      case ShellTab.home:
+        return (
+          icon: Icons.home_outlined,
+          activeIcon: Icons.home_rounded,
+          label: s.home,
+        );
+      case ShellTab.expenses:
+        return (
+          icon: Icons.point_of_sale_outlined,
+          activeIcon: Icons.point_of_sale_rounded,
+          label: s.cashbox,
+        );
+      case ShellTab.statistics:
+        return (
+          icon: Icons.bar_chart_outlined,
+          activeIcon: Icons.bar_chart_rounded,
+          label: s.statistics,
+        );
+      case ShellTab.orders:
+        return (
+          icon: Icons.shopping_bag_outlined,
+          activeIcon: Icons.shopping_bag_rounded,
+          label: s.orders,
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final currentIndex = ref.watch(shellTabIndexProvider);
     final s = S.of(context);
+    final perms = ref.watch(currentPermissionsProvider);
+    final tabs = _visibleTabs(perms);
+    final currentIndex = _clampIndex(ref.watch(shellTabIndexProvider), tabs.length);
 
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        _handleSystemBack(s);
+        _handleSystemBack(s, tabs);
       },
       child: Scaffold(
-      body: IndexedStack(
-        index: currentIndex,
-        children: [
-          DashboardScreen(key: _dashboardKey),
-          ExpensesScreen(key: _expensesKey),
-          const ReportScreen(),
-          const OrdersScreen(),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: cs.surface,
-          border: Border(
-            top: BorderSide(color: cs.onSurface.withValues(alpha: 0.06)),
-          ),
+        body: IndexedStack(
+          index: currentIndex,
+          children: [for (final tab in tabs) _buildTab(tab)],
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _NavItem(
-                  icon: Icons.home_outlined,
-                  activeIcon: Icons.home_rounded,
-                  label: s.home,
-                  isActive: currentIndex == 0,
-                  onTap: () => _onTabTap(0),
-                ),
-                _NavItem(
-                  icon: Icons.calculate_outlined,
-                  activeIcon: Icons.calculate_rounded,
-                  label: s.expenses,
-                  isActive: currentIndex == 1,
-                  onTap: () => _onTabTap(1),
-                ),
-                _NavItem(
-                  icon: Icons.bar_chart_outlined,
-                  activeIcon: Icons.bar_chart_rounded,
-                  label: s.statistics,
-                  isActive: currentIndex == 2,
-                  onTap: () => _onTabTap(2),
-                ),
-                _NavItem(
-                  icon: Icons.shopping_bag_outlined,
-                  activeIcon: Icons.shopping_bag_rounded,
-                  label: s.orders,
-                  isActive: currentIndex == 3,
-                  onTap: () => _onTabTap(3),
-                ),
-              ],
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: cs.surface,
+            border: Border(
+              top: BorderSide(color: cs.onSurface.withValues(alpha: 0.06)),
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  for (var i = 0; i < tabs.length; i++)
+                    _NavItem(
+                      meta: _navMeta(tabs[i], s),
+                      isActive: currentIndex == i,
+                      onTap: () => _onTabTap(tabs, i),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 }
 
 class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
+  final ({IconData icon, IconData activeIcon, String label}) meta;
   final bool isActive;
   final VoidCallback onTap;
 
   const _NavItem({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
+    required this.meta,
     required this.isActive,
     required this.onTap,
   });
@@ -216,9 +256,9 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(isActive ? activeIcon : icon, size: 24, color: color),
+            Icon(isActive ? meta.activeIcon : meta.icon, size: 24, color: color),
             const SizedBox(height: 3),
-            Text(label,
+            Text(meta.label,
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
