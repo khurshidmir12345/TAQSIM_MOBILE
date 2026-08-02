@@ -8,5 +8,6 @@ class ShellTabIndexNotifier extends Notifier<int> {
   void setIndex(int index) => state = index;
 }
 
-final shellTabIndexProvider =
-    NotifierProvider<ShellTabIndexNotifier, int>(ShellTabIndexNotifier.new);
+final shellTabIndexProvider = NotifierProvider<ShellTabIndexNotifier, int>(
+  ShellTabIndexNotifier.new,
+);

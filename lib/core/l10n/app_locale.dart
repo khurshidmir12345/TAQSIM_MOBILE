@@ -10,7 +10,8 @@ enum AppLocale {
   ru(Locale('ru'), 'Русский', ''),
   kk(Locale('kk'), 'Қазақша', ''),
   ky(Locale('ky'), 'Кыргызча', ''),
-  tr(Locale('tr'), 'Türkçe', '');
+  tr(Locale('tr'), 'Türkçe', ''),
+  en(Locale('en'), 'English', '');
 
   final Locale locale;
   final String label;
@@ -62,5 +63,6 @@ class LocaleNotifier extends AsyncNotifier<AppLocale> {
   }
 }
 
-final localeProvider =
-    AsyncNotifierProvider<LocaleNotifier, AppLocale>(LocaleNotifier.new);
+final localeProvider = AsyncNotifierProvider<LocaleNotifier, AppLocale>(
+  LocaleNotifier.new,
+);

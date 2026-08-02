@@ -32,6 +32,13 @@ import '../../features/profile/presentation/screens/devices_screen.dart';
 import '../../features/employees/presentation/screens/employees_screen.dart';
 import '../../features/statistics/presentation/screens/report_screen.dart';
 import '../../features/statistics/presentation/screens/charts_screen.dart';
+import '../../features/orders/presentation/screens/order_create_screen.dart';
+import '../../features/orders/presentation/screens/order_edit_screen.dart';
+import '../../features/orders/presentation/screens/order_detail_screen.dart';
+import '../../features/orders/presentation/screens/customers_screen.dart';
+import '../../features/orders/presentation/screens/customer_form_screen.dart';
+import '../../features/orders/presentation/screens/customer_detail_screen.dart';
+import '../../features/orders/domain/models/customer_model.dart';
 
 /// Global route observer — ekranlar RouteAware mixinini qo‘llab kuzatishi uchun.
 /// Masalan, dashboard qayta ochilganda sana filterini tozalash uchun.
@@ -40,9 +47,7 @@ final RouteObserver<ModalRoute<void>> appRouteObserver =
 
 /// Faqat biznes egasiga (owner) ruxsat etilgan sahifalar.
 /// Seller bu manzillarga yozsa — `/shell`ga qaytariladi.
-const Set<String> _ownerOnlyRoutes = {
-  '/employees',
-};
+const Set<String> _ownerOnlyRoutes = {'/employees'};
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -55,7 +60,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isOnSplash = location == '/';
       final isOnOnboarding =
           location == '/language-selection' || location == '/onboarding';
-      final isOnAuth = location == '/login' ||
+      final isOnAuth =
+          location == '/login' ||
           location == '/register' ||
           location == '/telegram-auth';
 
@@ -92,10 +98,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const SplashScreen(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
       GoRoute(
         path: '/language-selection',
         builder: (context, state) => const LanguageSelectionScreen(),
@@ -104,10 +107,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/onboarding',
         builder: (context, state) => const OnboardingScreen(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
@@ -124,14 +124,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/shop-create',
         builder: (context, state) => const ShopCreateScreen(),
       ),
-      GoRoute(
-        path: '/shell',
-        builder: (context, state) => const ShellScreen(),
-      ),
-      GoRoute(
-        path: '/setup',
-        builder: (context, state) => const SetupScreen(),
-      ),
+      GoRoute(path: '/shell', builder: (context, state) => const ShellScreen()),
+      GoRoute(path: '/setup', builder: (context, state) => const SetupScreen()),
       GoRoute(
         path: '/bread-categories',
         builder: (context, state) => const BreadCategoriesScreen(),
@@ -216,6 +210,67 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/charts',
         builder: (context, state) => const ChartsScreen(),
+      ),
+      GoRoute(
+        path: '/order-create',
+        builder: (context, state) {
+          final extra = state.extra;
+          return OrderCreateScreen(
+            initialCustomer: extra is CustomerModel ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/orders/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return OrderDetailScreen(orderId: id);
+        },
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (context, state) {
+              final id = state.pathParameters['id']!;
+              return OrderEditScreen(orderId: id);
+            },
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/customers',
+        builder: (context, state) => const CustomersScreen(),
+      ),
+      GoRoute(
+        path: '/customers/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return CustomerDetailScreen(customerId: id);
+        },
+      ),
+      GoRoute(
+        path: '/customer-create',
+        builder: (context, state) => const CustomerFormScreen(),
+      ),
+      GoRoute(
+        path: '/customer-edit',
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! CustomerModel) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    S.of(context).snackbarErrorGeneric,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            );
+          }
+          return CustomerFormScreen(customer: extra);
+        },
       ),
     ],
   );

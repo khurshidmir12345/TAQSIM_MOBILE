@@ -10,6 +10,7 @@ class ShopPermissions {
   static const String manageProduction = 'manage_production';
   static const String manageExpenses = 'manage_expenses';
   static const String manageSales = 'manage_sales';
+  static const String manageOrders = 'manage_orders';
 
   static const List<String> all = [
     viewReports,
@@ -18,5 +19,6 @@ class ShopPermissions {
     manageProduction,
     manageExpenses,
     manageSales,
+    manageOrders,
   ];
 }

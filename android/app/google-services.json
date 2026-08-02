@@ -14,14 +14,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "668168366908-4q3sffovnml9vno8ffhahk0k307qitvm.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "uz.taqseem.mobile",
-            "certificate_hash": "8d8b8ccdc91f3f9c693ba4a057ceb17f1bee749f"
-          }
-        },
-        {
           "client_id": "668168366908-tka2u23n0uh115vp2tt4deblu4v5mqke.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

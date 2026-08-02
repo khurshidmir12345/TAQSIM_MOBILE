@@ -68,10 +68,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
 
-    final success = await ref.read(authProvider.notifier).login(
-          phone: _fullPhone,
-          password: _passwordController.text,
-        );
+    final success = await ref
+        .read(authProvider.notifier)
+        .login(phone: _fullPhone, password: _passwordController.text);
 
     if (success && mounted) {
       await ref.read(shopProvider.notifier).loadShops();
@@ -145,7 +144,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           minLength: _minPasswordLength,
                           obscure: _obscurePassword,
                           onToggle: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
                         ),
                       ),
                       validator: (v) =>
@@ -218,7 +218,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 AppRasterAssets.appBanner,
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
-                errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+                errorBuilder: (context, error, stack) =>
+                    const SizedBox.shrink(),
               ),
             ),
             // Gradient overlay — pastdan matn o'qilsin
@@ -270,24 +271,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Text(
                     AppConstants.appName,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.40),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.0,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.40),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
                         ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     s.appTagline,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.90),
-                        ),
+                      color: Colors.white.withValues(alpha: 0.90),
+                    ),
                   ),
                 ],
               ),
@@ -351,9 +352,7 @@ class _PasswordSuffix extends StatelessWidget {
         ),
         IconButton(
           icon: Icon(
-            obscure
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
+            obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
             size: 20,
           ),
           onPressed: onToggle,
@@ -369,23 +368,34 @@ class _PasswordSuffix extends StatelessWidget {
 ///  1) Qizil — xato xabari
 ///  2) Ko'k  — birinchi marta kiruvchiga yo'naltiruvchi hint
 class _SmartErrorBanner extends StatelessWidget {
-  const _SmartErrorBanner({
-    required this.message,
-    required this.onRegisterTap,
-  });
+  const _SmartErrorBanner({required this.message, required this.onRegisterTap});
 
   final String message;
   final VoidCallback onRegisterTap;
 
-  static const _infoBlue  = Color(0xFF1976D2);
-  static const _infoBg    = Color(0xFFE8F4FD);
+  static const _infoBlue = Color(0xFF1976D2);
+  static const _infoBg = Color(0xFFE8F4FD);
   static const _infoBgDark = Color(0xFF0D2D45);
+
+  static String _resolveMessage(S s, String message) {
+    switch (message) {
+      case 'google_no_token':
+        return s.authErrorGoogleNoToken;
+      case 'apple_no_token':
+        return s.authErrorAppleNoToken;
+      case 'google_unsupported_platform':
+        return s.authErrorGoogleUnsupported;
+      default:
+        return message;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final s = S.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final displayMessage = _resolveMessage(s, message);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -396,18 +406,19 @@ class _SmartErrorBanner extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.error.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: AppColors.error.withValues(alpha: 0.15),
-            ),
+            border: Border.all(color: AppColors.error.withValues(alpha: 0.15)),
           ),
           child: Row(
             children: [
-              const Icon(Icons.error_outline_rounded,
-                  color: AppColors.error, size: 14),
+              const Icon(
+                Icons.error_outline_rounded,
+                color: AppColors.error,
+                size: 14,
+              ),
               const SizedBox(width: 7),
               Expanded(
                 child: Text(
-                  message,
+                  displayMessage,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppColors.error,
                     fontWeight: FontWeight.w500,
@@ -435,8 +446,11 @@ class _SmartErrorBanner extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(Icons.info_outline_rounded,
-                  color: _infoBlue.withValues(alpha: 0.85), size: 13),
+              Icon(
+                Icons.info_outline_rounded,
+                color: _infoBlue.withValues(alpha: 0.85),
+                size: 13,
+              ),
               const SizedBox(width: 7),
               Expanded(
                 child: RichText(
@@ -576,10 +590,10 @@ class _RegisterChip extends StatelessWidget {
               Text(
                 S.of(context).registerLink,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.1,
-                    ),
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.1,
+                ),
               ),
               const SizedBox(width: 4),
               const Icon(

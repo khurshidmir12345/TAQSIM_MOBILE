@@ -32,24 +32,30 @@ class _EmployeePermissionsScreenState
   }
 
   static (IconData, String) _meta(S s, String key) => switch (key) {
-        'view_reports' => (Icons.bar_chart_rounded, s.permViewReports),
-        'manage_products' => (Icons.bakery_dining_rounded, s.permManageProducts),
-        'manage_recipes' => (Icons.menu_book_rounded, s.permManageRecipes),
-        'manage_production' => (Icons.precision_manufacturing_rounded, s.permManageProduction),
-        'manage_expenses' => (Icons.receipt_long_rounded, s.permManageExpenses),
-        'manage_sales' => (Icons.point_of_sale_rounded, s.permManageSales),
-        _ => (Icons.tune_rounded, key),
-      };
+    'view_reports' => (Icons.bar_chart_rounded, s.permViewReports),
+    'manage_products' => (Icons.bakery_dining_rounded, s.permManageProducts),
+    'manage_recipes' => (Icons.menu_book_rounded, s.permManageRecipes),
+    'manage_production' => (
+      Icons.precision_manufacturing_rounded,
+      s.permManageProduction,
+    ),
+    'manage_expenses' => (Icons.receipt_long_rounded, s.permManageExpenses),
+    'manage_sales' => (Icons.point_of_sale_rounded, s.permManageSales),
+    'manage_orders' => (Icons.receipt_long_rounded, s.permManageOrders),
+    _ => (Icons.tune_rounded, key),
+  };
 
   void _snack(String message, {bool error = false}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: error ? AppColors.error : null,
-        content: Text(message),
-      ));
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: error ? AppColors.error : null,
+          content: Text(message),
+        ),
+      );
   }
 
   Future<void> _save() async {
@@ -77,7 +83,10 @@ class _EmployeePermissionsScreenState
         title: Text(s.employeeRemoveTitle),
         content: Text(s.employeeRemoveConfirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(s.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(s.cancel),
+          ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(ctx, true),
@@ -108,8 +117,10 @@ class _EmployeePermissionsScreenState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(s.employeePermsTitle,
-            style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(
+          s.employeePermsTitle,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -121,8 +132,10 @@ class _EmployeePermissionsScreenState
                 children: [
                   _Header(employee: widget.employee),
                   const SizedBox(height: AppSpacing.md),
-                  Text(s.employeePermsDesc,
-                      style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+                  Text(
+                    s.employeePermsDesc,
+                    style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                  ),
                   const SizedBox(height: AppSpacing.sm),
                   AppCard(
                     padding: EdgeInsets.zero,
@@ -177,8 +190,9 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final initial =
-        employee.name.trim().isEmpty ? '?' : employee.name.trim()[0].toUpperCase();
+    final initial = employee.name.trim().isEmpty
+        ? '?'
+        : employee.name.trim()[0].toUpperCase();
 
     return Row(
       children: [
@@ -194,22 +208,34 @@ class _Header extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           alignment: Alignment.center,
-          child: Text(initial,
-              style: const TextStyle(
-                  color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800)),
+          child: Text(
+            initial,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(employee.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+              Text(
+                employee.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
+              ),
               if (employee.phone != null)
-                Text(employee.phone!,
-                    style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+                Text(
+                  employee.phone!,
+                  style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                ),
             ],
           ),
         ),
@@ -242,7 +268,11 @@ class _PermissionRow extends StatelessWidget {
     return Column(
       children: [
         if (showDivider)
-          Divider(height: 1, indent: 60, color: cs.onSurface.withValues(alpha: 0.06)),
+          Divider(
+            height: 1,
+            indent: 60,
+            color: cs.onSurface.withValues(alpha: 0.06),
+          ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           child: Row(
@@ -258,8 +288,13 @@ class _PermissionRow extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(label,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
               Switch.adaptive(
                 value: value,

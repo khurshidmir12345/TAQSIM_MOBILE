@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
+import '../l10n/translations.dart';
 
 class AppErrorWidget extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
 
-  const AppErrorWidget({
-    super.key,
-    required this.message,
-    this.onRetry,
-  });
+  const AppErrorWidget({super.key, required this.message, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
     return Center(
       child: Padding(
         padding: AppSpacing.screenPadding,
@@ -32,7 +31,7 @@ class AppErrorWidget extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Qayta urinish'),
+                label: Text(s.tryAgain),
               ),
             ],
           ],

@@ -11,18 +11,21 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'core/constants/app_constants.dart';
+import 'core/constants/app_environment.dart';
+import 'core/widgets/dev_environment_banner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  AppEnvironment.ensureValidConfiguration();
 
   await initializeDateFormatting('uz');
   await initializeDateFormatting('ru');
   await initializeDateFormatting('kk');
   await initializeDateFormatting('tr');
+  await initializeDateFormatting('en');
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   // Multi-device sessiya uchun qurilma metama'lumotini barcha so'rovlarga ulaymiz.
   await DeviceInfo.attachToClient(ApiClient());
@@ -68,6 +71,9 @@ class _TaqseemAppState extends ConsumerState<TaqseemApp> {
       ],
       localeResolutionCallback: (deviceLocale, supported) {
         return materialLocaleFor(appLocale);
+      },
+      builder: (context, child) {
+        return DevEnvironmentBanner(child: child ?? const SizedBox.shrink());
       },
       routerConfig: router,
     );

@@ -7,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/taqsim_logo_asset.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/app_locale.dart';
+import '../../../../core/l10n/translations.dart';
 
 class LanguageSelectionScreen extends ConsumerStatefulWidget {
   const LanguageSelectionScreen({super.key});
@@ -31,16 +32,11 @@ class _LanguageSelectionScreenState
     AppLocale.kk: '🇰🇿',
     AppLocale.ky: '🇰🇬',
     AppLocale.tr: '🇹🇷',
+    AppLocale.en: '🇬🇧',
   };
 
-  static const _continueLabels = <AppLocale, String>{
-    AppLocale.uz: 'Davom etish',
-    AppLocale.uzCyrl: 'Давом этиш',
-    AppLocale.ru: 'Продолжить',
-    AppLocale.kk: 'Жалғастыру',
-    AppLocale.ky: 'Улантуу',
-    AppLocale.tr: 'Devam et',
-  };
+  String _label(AppLocale locale, String key) =>
+      S.apiClientString(locale.code, key);
 
   @override
   void initState() {
@@ -88,14 +84,14 @@ class _LanguageSelectionScreenState
                 ),
                 const SizedBox(height: 36),
                 Text(
-                  'Tilni tanlang',
+                  _label(_selected, 'languageSelectTitle'),
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Выберите язык • Choose language',
+                  _label(_selected, 'languageSelectSubtitle'),
                   style: theme.textTheme.bodyMedium,
                 ),
                 const Spacer(),
@@ -124,7 +120,7 @@ class _LanguageSelectionScreenState
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: Text(
-                        _continueLabels[_selected] ?? 'Davom etish',
+                        _label(_selected, 'onboardingContinue'),
                         key: ValueKey(_selected),
                       ),
                     ),
@@ -214,8 +210,9 @@ class _LanguageCard extends StatelessWidget {
                       Text(
                         locale.label,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
                           color: isSelected ? AppColors.primary : null,
                           fontSize: 15,
                         ),

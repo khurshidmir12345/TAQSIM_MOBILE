@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_locale.dart';
+import 'translations_en.dart';
 
 class S {
   S._(this._locale);
@@ -20,6 +21,9 @@ class S {
     }
   }
 
+  @visibleForTesting
+  static S forTest(String localeKey) => S._(localeKey);
+
   static String _appLocaleToKey(AppLocale app) {
     switch (app) {
       case AppLocale.uz:
@@ -34,8 +38,19 @@ class S {
         return 'ky';
       case AppLocale.tr:
         return 'tr';
+      case AppLocale.en:
+        return 'en';
     }
   }
+
+  /// Tests/debug: read-only view of all locale key maps (no mutation).
+  static Map<String, Map<String, String>> get allLocaleMaps => {
+    for (final entry in _all.entries)
+      entry.key: Map<String, String>.from(entry.value),
+  };
+
+  /// Canonical key set from Uzbek (reference locale).
+  static Set<String> get referenceKeys => _all['uz']!.keys.toSet();
 
   /// `ru_RU` → `ru`, `uz_CYRL` → `uz_CYRL` — faqat [\_all] kalitlari bilan ishlaydi.
   static String _resolveLocaleKey(Locale locale) {
@@ -71,7 +86,8 @@ class S {
   String get shopUpdateSuccess => _t('shopUpdateSuccess');
   String get shopDeleteButton => _t('shopDeleteButton');
   String get shopDeleteTitle => _t('shopDeleteTitle');
-  String shopDeleteMessage(String name) => _t('shopDeleteMessage').replaceAll('{name}', name);
+  String shopDeleteMessage(String name) =>
+      _t('shopDeleteMessage').replaceAll('{name}', name);
   String get shopDeleteSuccess => _t('shopDeleteSuccess');
   String get manage => _t('manage');
   String get todayProfit => _t('todayProfit');
@@ -96,26 +112,23 @@ class S {
   String get dashboardKpiBatch => _t('dashboardKpiBatch');
   String get dashboardKpiSold => _t('dashboardKpiSold');
   String get dashboardKpiReturned => _t('dashboardKpiReturned');
-  String get dashboardCarouselEmptyTitle =>
-      _t('dashboardCarouselEmptyTitle');
+  String get dashboardCarouselEmptyTitle => _t('dashboardCarouselEmptyTitle');
   String get dashboardCarouselEmptySubtitle =>
       _t('dashboardCarouselEmptySubtitle');
   String get productDetailProduced => _t('productDetailProduced');
   String get productDetailReturnedQty => _t('productDetailReturnedQty');
   String get productDetailNetQty => _t('productDetailNetQty');
   String get productDetailGross => _t('productDetailGross');
-  String get productDetailReturnsAmount =>
-      _t('productDetailReturnsAmount');
+  String get productDetailReturnsAmount => _t('productDetailReturnsAmount');
   String get productDetailNetAmount => _t('productDetailNetAmount');
-  String get productDetailBatchesTitle =>
-      _t('productDetailBatchesTitle');
-  String get productDetailReturnedSuffix =>
-      _t('productDetailReturnedSuffix');
+  String get productDetailBatchesTitle => _t('productDetailBatchesTitle');
+  String get productDetailReturnedSuffix => _t('productDetailReturnedSuffix');
   String get dashboardEmptyOutput => _t('dashboardEmptyOutput');
   String get dashboardSectionOutput => _t('dashboardSectionOutput');
   String get dashboardTabOutput => _t('dashboardTabOutput');
   String get dashboardTabExpense => _t('dashboardTabExpense');
   String get dashboardEmptyExpense => _t('dashboardEmptyExpense');
+
   /// To‘plam / partiya soni yonidagi umumiy birlik (mahsulotga xos emas)
   String get dashboardBatchUnitGeneric => _t('dashboardBatchUnitGeneric');
 
@@ -162,6 +175,7 @@ class S {
   String get reportEmptyReturns => _t('reportEmptyReturns');
   String get reportEmptyProducts => _t('reportEmptyProducts');
   String get reportProductProduced => _t('reportProductProduced');
+
   /// Hisobot — ochiluvchi bo‘lim ichida: tur / mahsulot soni
   String reportExpandTypesCount(int n) =>
       _t('reportExpandTypesCount').replaceAll('{n}', '$n');
@@ -256,8 +270,10 @@ class S {
   String get recipeOutputHint => _t('recipeOutputHint');
   String get recipeOutputSectionTitle => _t('recipeOutputSectionTitle');
   String get recipeOutputSectionHelper => _t('recipeOutputSectionHelper');
-  String get recipeIngredientsSectionTitle => _t('recipeIngredientsSectionTitle');
-  String get recipeIngredientsSectionSubtitle => _t('recipeIngredientsSectionSubtitle');
+  String get recipeIngredientsSectionTitle =>
+      _t('recipeIngredientsSectionTitle');
+  String get recipeIngredientsSectionSubtitle =>
+      _t('recipeIngredientsSectionSubtitle');
 
   /// Retsept 2-qadami: tanlangan partiya birligi bo'yicha mahsulot sonini
   /// so'rovchi dinamik sarlavha. `{unit}` joyiga kichik harfli birlik nomi
@@ -288,16 +304,17 @@ class S {
   /// Retsept 3-qadam: "Yangi xom ashyo yaratish" tugmasi tavsifi.
   String get recipeCreateNewIngredientHint =>
       _t('recipeCreateNewIngredientHint');
-  String get recipeValidationSelectProduct => _t('recipeValidationSelectProduct');
+  String get recipeValidationSelectProduct =>
+      _t('recipeValidationSelectProduct');
   String get recipeValidationBatch => _t('recipeValidationBatch');
   String get recipeValidationOutput => _t('recipeValidationOutput');
   String get recipeValidationIngredients => _t('recipeValidationIngredients');
   String get recipeValidationDuplicateIngredient =>
       _t('recipeValidationDuplicateIngredient');
   String get recipeSaveSuccess => _t('recipeSaveSuccess');
-  String recipeRecipeBatchLine(String unit, String qty) => _t('recipeRecipeBatchLine')
-      .replaceAll('{unit}', unit)
-      .replaceAll('{qty}', qty);
+  String recipeRecipeBatchLine(String unit, String qty) => _t(
+    'recipeRecipeBatchLine',
+  ).replaceAll('{unit}', unit).replaceAll('{qty}', qty);
   String get recipeBack => _t('recipeBack');
   String get recipeIngredientSelectHint => _t('recipeIngredientSelectHint');
 
@@ -324,26 +341,38 @@ class S {
   String get productionDetailBatch => _t('productionDetailBatch');
   String get productionDetailOutput => _t('productionDetailOutput');
   String get productionDetailFlour => _t('productionDetailFlour');
-  String get productionDetailIngredientCost => _t('productionDetailIngredientCost');
-  String get productionDetailSalesEstimate => _t('productionDetailSalesEstimate');
+  String get productionDetailIngredientCost =>
+      _t('productionDetailIngredientCost');
+  String get productionDetailSalesEstimate =>
+      _t('productionDetailSalesEstimate');
   String get productionDetailBreakdown => _t('productionDetailBreakdown');
-  String get productionDetailOneRecipeBatch => _t('productionDetailOneRecipeBatch');
+  String get productionDetailOneRecipeBatch =>
+      _t('productionDetailOneRecipeBatch');
   String get productionDetailQtyTotal => _t('productionDetailQtyTotal');
   String productionDetailGrams(String grams) =>
       _t('productionDetailGrams').replaceAll('{g}', grams);
   String get productionDetailPricePerUnit => _t('productionDetailPricePerUnit');
-  String get productionDetailNoIngredients => _t('productionDetailNoIngredients');
+  String get productionDetailNoIngredients =>
+      _t('productionDetailNoIngredients');
   String get productionDetailReturnToday => _t('productionDetailReturnToday');
   String get productionDetailEdit => _t('productionDetailEdit');
-  String get productionDetailEditSheetTitle => _t('productionDetailEditSheetTitle');
-  String get productionDetailEditBatchLabel => _t('productionDetailEditBatchLabel');
-  String get productionDetailEditReturnsTitle => _t('productionDetailEditReturnsTitle');
-  String get productionDetailEditNoReturns => _t('productionDetailEditNoReturns');
-  String get productionDetailEditSaveBatch => _t('productionDetailEditSaveBatch');
+  String get productionDetailEditSheetTitle =>
+      _t('productionDetailEditSheetTitle');
+  String get productionDetailEditBatchLabel =>
+      _t('productionDetailEditBatchLabel');
+  String get productionDetailEditReturnsTitle =>
+      _t('productionDetailEditReturnsTitle');
+  String get productionDetailEditNoReturns =>
+      _t('productionDetailEditNoReturns');
+  String get productionDetailEditSaveBatch =>
+      _t('productionDetailEditSaveBatch');
   String get productionDetailBatchUpdated => _t('productionDetailBatchUpdated');
-  String get productionDetailReturnDeleted => _t('productionDetailReturnDeleted');
-  String get productionDetailDeleteReturnTitle => _t('productionDetailDeleteReturnTitle');
-  String get productionDetailDeleteReturnBody => _t('productionDetailDeleteReturnBody');
+  String get productionDetailReturnDeleted =>
+      _t('productionDetailReturnDeleted');
+  String get productionDetailDeleteReturnTitle =>
+      _t('productionDetailDeleteReturnTitle');
+  String get productionDetailDeleteReturnBody =>
+      _t('productionDetailDeleteReturnBody');
   String get productionDetailDeleteProductionTitle =>
       _t('productionDetailDeleteProductionTitle');
   String get productionDetailDeleteProductionBody =>
@@ -362,28 +391,31 @@ class S {
   String get productionOutCategoryHint => _t('productionOutCategoryHint');
   String get productionOutNoRecipeWarning => _t('productionOutNoRecipeWarning');
   String get productionOutStep2Title => _t('productionOutStep2Title');
-  String productionOutStep2Subtitle(String unit, String outputQty, String productUnit) =>
-      _t('productionOutStep2Subtitle')
-          .replaceAll('{unit}', unit)
-          .replaceAll('{qty}', outputQty)
-          .replaceAll('{productUnit}', productUnit);
+  String productionOutStep2Subtitle(
+    String unit,
+    String outputQty,
+    String productUnit,
+  ) => _t('productionOutStep2Subtitle')
+      .replaceAll('{unit}', unit)
+      .replaceAll('{qty}', outputQty)
+      .replaceAll('{productUnit}', productUnit);
   String productionOutBatchFieldLabel(String unit) =>
       _t('productionOutBatchFieldLabel').replaceAll('{unit}', unit);
   String get productionOutSummaryTitle => _t('productionOutSummaryTitle');
-  String productionOutTotalOutput(String qty, String productUnit) =>
-      _t('productionOutTotalOutput')
-          .replaceAll('{qty}', qty)
-          .replaceAll('{unit}', productUnit);
+  String productionOutTotalOutput(String qty, String productUnit) => _t(
+    'productionOutTotalOutput',
+  ).replaceAll('{qty}', qty).replaceAll('{unit}', productUnit);
   String get productionOutCostLabel => _t('productionOutCostLabel');
-  String get productionOutIngredientsPreview => _t('productionOutIngredientsPreview');
+  String get productionOutIngredientsPreview =>
+      _t('productionOutIngredientsPreview');
   String get productionOutCta => _t('productionOutCta');
-  String productionOutSuccess(String qty, String productUnit) =>
-      _t('productionOutSuccess')
-          .replaceAll('{qty}', qty)
-          .replaceAll('{unit}', productUnit);
+  String productionOutSuccess(String qty, String productUnit) => _t(
+    'productionOutSuccess',
+  ).replaceAll('{qty}', qty).replaceAll('{unit}', productUnit);
   String get productionOutValidationSelectProduct =>
       _t('productionOutValidationSelectProduct');
-  String get productionOutValidationNoRecipe => _t('productionOutValidationNoRecipe');
+  String get productionOutValidationNoRecipe =>
+      _t('productionOutValidationNoRecipe');
   String get productionOutValidationBatch => _t('productionOutValidationBatch');
   String get productionOutStep3Title => _t('productionOutStep3Title');
   String get productionOutStep3Subtitle => _t('productionOutStep3Subtitle');
@@ -434,7 +466,8 @@ class S {
   String get snackbarErrorGeneric => _t('snackbarErrorGeneric');
   String get actionAdd => _t('actionAdd');
   String get actionSave => _t('actionSave');
-  String get editProductCategoryModalTitle => _t('editProductCategoryModalTitle');
+  String get editProductCategoryModalTitle =>
+      _t('editProductCategoryModalTitle');
   String get editIngredientModalTitle => _t('editIngredientModalTitle');
   String snackbarCategoryAdded(String name) =>
       _t('snackbarCategoryAdded').replaceAll('{name}', name);
@@ -512,6 +545,12 @@ class S {
   String get enabled => _t('enabled');
   String get disabled => _t('disabled');
   String get language => _t('language');
+  String get languageSelectTitle => _t('languageSelectTitle');
+  String get languageSelectSubtitle => _t('languageSelectSubtitle');
+  String get onboardingContinue => _t('onboardingContinue');
+  String get authErrorGoogleNoToken => _t('authErrorGoogleNoToken');
+  String get authErrorAppleNoToken => _t('authErrorAppleNoToken');
+  String get authErrorGoogleUnsupported => _t('authErrorGoogleUnsupported');
   String get aboutApp => _t('aboutApp');
   String get aboutAppDescription => _t('aboutAppDescription');
   String get developer => _t('developer');
@@ -538,7 +577,8 @@ class S {
   String get planFeatureShopsUnlimited => _t('planFeatureShopsUnlimited');
   String get planFeatureEmployees => _t('planFeatureEmployees');
   String get planFeatureEmployeesNone => _t('planFeatureEmployeesNone');
-  String get planFeatureEmployeesUnlimited => _t('planFeatureEmployeesUnlimited');
+  String get planFeatureEmployeesUnlimited =>
+      _t('planFeatureEmployeesUnlimited');
   String get buy => _t('buy');
   String get purchaseConfirmTitle => _t('purchaseConfirmTitle');
   String get purchaseConfirmMsg => _t('purchaseConfirmMsg');
@@ -630,6 +670,101 @@ class S {
   String get permManageProduction => _t('permManageProduction');
   String get permManageExpenses => _t('permManageExpenses');
   String get permManageSales => _t('permManageSales');
+  // ─── Orders & Customers ───
+  String get ordersNewTitle => _t('ordersNewTitle');
+  String get ordersEditTitle => _t('ordersEditTitle');
+  String get ordersDetailTitle => _t('ordersDetailTitle');
+  String get ordersTabToday => _t('ordersTabToday');
+  String get ordersTabTomorrow => _t('ordersTabTomorrow');
+  String get ordersTabAll => _t('ordersTabAll');
+  String get ordersFilterAll => _t('ordersFilterAll');
+  String get ordersStatusActive => _t('ordersStatusActive');
+  String get ordersStatusDelivered => _t('ordersStatusDelivered');
+  String get ordersStatusCancelled => _t('ordersStatusCancelled');
+  String get ordersEmpty => _t('ordersEmpty');
+  String get ordersEmptyDesc => _t('ordersEmptyDesc');
+  String get ordersPaid => _t('ordersPaid');
+  String get ordersUnpaid => _t('ordersUnpaid');
+  String get ordersPartiallyPaid => _t('ordersPartiallyPaid');
+  String get ordersDeliverAction => _t('ordersDeliverAction');
+  String get ordersDeliverTitle => _t('ordersDeliverTitle');
+  String get ordersRemainingLabel => _t('ordersRemainingLabel');
+  String get ordersPaymentNowLabel => _t('ordersPaymentNowLabel');
+  String get ordersFillAll => _t('ordersFillAll');
+  String get ordersPayLater => _t('ordersPayLater');
+  String get ordersPayLaterHint => _t('ordersPayLaterHint');
+  String get ordersDeliverConfirm => _t('ordersDeliverConfirm');
+  String get ordersDelivered => _t('ordersDelivered');
+  String get ordersPaymentAdded => _t('ordersPaymentAdded');
+  String get ordersSelectCustomerRequired => _t('ordersSelectCustomerRequired');
+
+  String get ordersDeliveredAt => _t('ordersDeliveredAt');
+  String get ordersAddPayment => _t('ordersAddPayment');
+  String get ordersPaymentAmountLabel => _t('ordersPaymentAmountLabel');
+  String get ordersPaymentDateLabel => _t('ordersPaymentDateLabel');
+  String get ordersPaymentNoteLabel => _t('ordersPaymentNoteLabel');
+  String get ordersPaymentExceeds => _t('ordersPaymentExceeds');
+  String get ordersPaymentsTitle => _t('ordersPaymentsTitle');
+  String get ordersNoPayments => _t('ordersNoPayments');
+  String get ordersItemsTitle => _t('ordersItemsTitle');
+  String get ordersProductLabel => _t('ordersProductLabel');
+  String get ordersAddItem => _t('ordersAddItem');
+  String get ordersNoProducts => _t('ordersNoProducts');
+  String get ordersUnitPriceLabel => _t('ordersUnitPriceLabel');
+  String get ordersCustomerTitle => _t('ordersCustomerTitle');
+  String get ordersExistingCustomer => _t('ordersExistingCustomer');
+  String get ordersNewCustomer => _t('ordersNewCustomer');
+  String get ordersSelectCustomer => _t('ordersSelectCustomer');
+  String get ordersSearchCustomer => _t('ordersSearchCustomer');
+  String get ordersNoCustomers => _t('ordersNoCustomers');
+  String get ordersCustomerNameLabel => _t('ordersCustomerNameLabel');
+  String get ordersDeliveryTitle => _t('ordersDeliveryTitle');
+  String get ordersDeliveryDateLabel => _t('ordersDeliveryDateLabel');
+  String get ordersDeliveryTimeLabel => _t('ordersDeliveryTimeLabel');
+  String get ordersOtherDate => _t('ordersOtherDate');
+  String get ordersAdvanceLabel => _t('ordersAdvanceLabel');
+  String get ordersAdvanceExceeds => _t('ordersAdvanceExceeds');
+  String get ordersRemainingAfterAdvance => _t('ordersRemainingAfterAdvance');
+  String get ordersTotalBelowPaid => _t('ordersTotalBelowPaid');
+  String get ordersNoteLabel => _t('ordersNoteLabel');
+  String get ordersNotePlaceholder => _t('ordersNotePlaceholder');
+  String get ordersCreated => _t('ordersCreated');
+  String get ordersUpdated => _t('ordersUpdated');
+  String get ordersCancelOrder => _t('ordersCancelOrder');
+  String get ordersCancelTitle => _t('ordersCancelTitle');
+  String get ordersCancelDescription => _t('ordersCancelDescription');
+  String get ordersCancelledToast => _t('ordersCancelledToast');
+  String get ordersDeleteDescription => _t('ordersDeleteDescription');
+  String get ordersDeletedToast => _t('ordersDeletedToast');
+  String get ordersNotFound => _t('ordersNotFound');
+  String get ordersSummaryPaid => _t('ordersSummaryPaid');
+  String get ordersNotActiveEdit => _t('ordersNotActiveEdit');
+  String get ordersCreate => _t('ordersCreate');
+  String get ordersTotalLabel => _t('ordersTotalLabel');
+  String get ordersLoadMore => _t('ordersLoadMore');
+  String get customersTitle => _t('customersTitle');
+  String get customersNewTitle => _t('customersNewTitle');
+  String get customersEditTitle => _t('customersEditTitle');
+  String get customersDetailTitle => _t('customersDetailTitle');
+  String get customersEmpty => _t('customersEmpty');
+  String get customersEmptyDesc => _t('customersEmptyDesc');
+  String get customersCreated => _t('customersCreated');
+  String get customersUpdated => _t('customersUpdated');
+  String get customersDeleted => _t('customersDeleted');
+  String get customersDeleteTitle => _t('customersDeleteTitle');
+  String get customersDeleteConfirm => _t('customersDeleteConfirm');
+  String get customersNoteLabel => _t('customersNoteLabel');
+  String get customersNameLabel => _t('customersNameLabel');
+  String get customersOrdersHistory => _t('customersOrdersHistory');
+  String get customersSearchHint => _t('customersSearchHint');
+  String get customersCreateOrder => _t('customersCreateOrder');
+  String get customersNotFound => _t('customersNotFound');
+  String get permManageOrders => _t('permManageOrders');
+  String get permManageOrdersDesc => _t('permManageOrdersDesc');
+  String get noPermissionTitle => _t('noPermissionTitle');
+  String get noPermissionDesc => _t('noPermissionDesc');
+  String get quantityLabel => _t('quantityLabel');
+
   String get profileInfo => _t('profileInfo');
   String get phoneNumber => _t('phoneNumber');
   String get email => _t('email');
@@ -778,133 +913,134 @@ class S {
   String get loginButton => _t('loginButton');
   String get noAccount => _t('noAccount');
   String get registerLink => _t('registerLink');
-  String get tryAgain    => _t('tryAgain');
-  String get noInternet  => _t('noInternet');
-  String get appTagline           => _t('appTagline');
-  String get firstTimeHint        => _t('firstTimeHint');
-  String get createNewAccount     => _t('createNewAccount');
-  String get registerTitle        => _t('registerTitle');
-  String get registerSubtitle     => _t('registerSubtitle');
-  String get fullNameHint         => _t('fullNameHint');
-  String get enterName            => _t('enterName');
-  String get confirmPasswordHint  => _t('confirmPasswordHint');
-  String get passwordsNotMatch    => _t('passwordsNotMatch');
-  String get otpTitle             => _t('otpTitle');
-  String otpSentTo(String phone)  => _t('otpSentTo').replaceAll('{phone}', phone);
-  String get resendCode           => _t('resendCode');
-  String resendIn(String time)    => _t('resendIn').replaceAll('{time}', time);
-  String get codeNotReceived      => _t('codeNotReceived');
-  String get smsHelpTitle         => _t('smsHelpTitle');
-  String get smsHelpCauses        => _t('smsHelpCauses');
-  String get smsSpamTitle         => _t('smsSpamTitle');
-  String get smsSpamBody          => _t('smsSpamBody');
-  String get smsBalanceTitle      => _t('smsBalanceTitle');
-  String get smsBalanceBody       => _t('smsBalanceBody');
-  String get understood           => _t('understood');
-  String get policyLoginPrefix    => _t('policyLoginPrefix');
+  String get tryAgain => _t('tryAgain');
+  String get noInternet => _t('noInternet');
+  String get appTagline => _t('appTagline');
+  String get firstTimeHint => _t('firstTimeHint');
+  String get createNewAccount => _t('createNewAccount');
+  String get registerTitle => _t('registerTitle');
+  String get registerSubtitle => _t('registerSubtitle');
+  String get fullNameHint => _t('fullNameHint');
+  String get enterName => _t('enterName');
+  String get confirmPasswordHint => _t('confirmPasswordHint');
+  String get passwordsNotMatch => _t('passwordsNotMatch');
+  String get otpTitle => _t('otpTitle');
+  String otpSentTo(String phone) =>
+      _t('otpSentTo').replaceAll('{phone}', phone);
+  String get resendCode => _t('resendCode');
+  String resendIn(String time) => _t('resendIn').replaceAll('{time}', time);
+  String get codeNotReceived => _t('codeNotReceived');
+  String get smsHelpTitle => _t('smsHelpTitle');
+  String get smsHelpCauses => _t('smsHelpCauses');
+  String get smsSpamTitle => _t('smsSpamTitle');
+  String get smsSpamBody => _t('smsSpamBody');
+  String get smsBalanceTitle => _t('smsBalanceTitle');
+  String get smsBalanceBody => _t('smsBalanceBody');
+  String get understood => _t('understood');
+  String get policyLoginPrefix => _t('policyLoginPrefix');
   String get policyRegisterPrefix => _t('policyRegisterPrefix');
-  String get policyAnd            => _t('policyAnd');
-  String get policySuffix         => _t('policySuffix');
-  String get policyTerms          => _t('policyTerms');
-  String get policyPrivacy        => _t('policyPrivacy');
-  String get stepForm             => _t('stepForm');
-  String get stepVerify           => _t('stepVerify');
-  String get stepEnterApp         => _t('stepEnterApp');
-  String get phoneExistsTitle     => _t('phoneExistsTitle');
+  String get policyAnd => _t('policyAnd');
+  String get policySuffix => _t('policySuffix');
+  String get policyTerms => _t('policyTerms');
+  String get policyPrivacy => _t('policyPrivacy');
+  String get stepForm => _t('stepForm');
+  String get stepVerify => _t('stepVerify');
+  String get stepEnterApp => _t('stepEnterApp');
+  String get phoneExistsTitle => _t('phoneExistsTitle');
   String phoneExistsBody(String phone) =>
       _t('phoneExistsBody').replaceAll('{phone}', phone);
-  String get cancelShort          => _t('cancelShort');
+  String get cancelShort => _t('cancelShort');
   String socialComingSoon(String name) =>
       _t('socialComingSoon').replaceAll('{name}', name);
 
   // ─── Telegram Auth ───
-  String get telegramConnecting      => _t('telegramConnecting');
-  String get telegramConnectingHint  => _t('telegramConnectingHint');
-  String get telegramWaitingTitle    => _t('telegramWaitingTitle');
-  String get telegramWaitingHint     => _t('telegramWaitingHint');
-  String get telegramOpenAgain       => _t('telegramOpenAgain');
-  String get telegramRetry           => _t('telegramRetry');
-  String get telegramBackToLogin     => _t('telegramBackToLogin');
-  String get telegramSessionExpired  => _t('telegramSessionExpired');
+  String get telegramConnecting => _t('telegramConnecting');
+  String get telegramConnectingHint => _t('telegramConnectingHint');
+  String get telegramWaitingTitle => _t('telegramWaitingTitle');
+  String get telegramWaitingHint => _t('telegramWaitingHint');
+  String get telegramOpenAgain => _t('telegramOpenAgain');
+  String get telegramRetry => _t('telegramRetry');
+  String get telegramBackToLogin => _t('telegramBackToLogin');
+  String get telegramSessionExpired => _t('telegramSessionExpired');
 
   // ─── Telegram Connect (profilga bog'lash) ───
-  String get tgConnectTitle        => _t('tgConnectTitle');
-  String get tgConnectSubtitle     => _t('tgConnectSubtitle');
-  String get tgConnectStep1        => _t('tgConnectStep1');
-  String get tgConnectStep2        => _t('tgConnectStep2');
-  String get tgConnectStep3        => _t('tgConnectStep3');
-  String get tgConnectOpen         => _t('tgConnectOpen');
+  String get tgConnectTitle => _t('tgConnectTitle');
+  String get tgConnectSubtitle => _t('tgConnectSubtitle');
+  String get tgConnectStep1 => _t('tgConnectStep1');
+  String get tgConnectStep2 => _t('tgConnectStep2');
+  String get tgConnectStep3 => _t('tgConnectStep3');
+  String get tgConnectOpen => _t('tgConnectOpen');
   String get tgConnectWaitingTitle => _t('tgConnectWaitingTitle');
-  String get tgConnectWaitingHint  => _t('tgConnectWaitingHint');
+  String get tgConnectWaitingHint => _t('tgConnectWaitingHint');
   String get tgConnectSuccessTitle => _t('tgConnectSuccessTitle');
-  String get tgConnectSuccessHint  => _t('tgConnectSuccessHint');
-  String get tgConnectErrorTitle   => _t('tgConnectErrorTitle');
-  String get tgConnectErrorHint    => _t('tgConnectErrorHint');
-  String get loginInfoPrefix  => _t('loginInfoPrefix');
-  String get loginInfoAction  => _t('loginInfoAction');
-  String get loginInfoSuffix   => _t('loginInfoSuffix');
-  String get tapMapToSelect    => _t('tapMapToSelect');
+  String get tgConnectSuccessHint => _t('tgConnectSuccessHint');
+  String get tgConnectErrorTitle => _t('tgConnectErrorTitle');
+  String get tgConnectErrorHint => _t('tgConnectErrorHint');
+  String get loginInfoPrefix => _t('loginInfoPrefix');
+  String get loginInfoAction => _t('loginInfoAction');
+  String get loginInfoSuffix => _t('loginInfoSuffix');
+  String get tapMapToSelect => _t('tapMapToSelect');
   String get locationPermDenied => _t('locationPermDenied');
-  String get locationError     => _t('locationError');
+  String get locationError => _t('locationError');
 
   // Tutorial
   String get tutorialStep1Title => _t('tutorialStep1Title');
-  String get tutorialStep1Desc  => _t('tutorialStep1Desc');
+  String get tutorialStep1Desc => _t('tutorialStep1Desc');
   String get tutorialStep2Title => _t('tutorialStep2Title');
-  String get tutorialStep2Desc  => _t('tutorialStep2Desc');
+  String get tutorialStep2Desc => _t('tutorialStep2Desc');
   String get tutorialStep3Title => _t('tutorialStep3Title');
-  String get tutorialStep3Desc  => _t('tutorialStep3Desc');
-  String get tutorialGoAction   => _t('tutorialGoAction');
-  String get tutorialSkip       => _t('tutorialSkip');
+  String get tutorialStep3Desc => _t('tutorialStep3Desc');
+  String get tutorialGoAction => _t('tutorialGoAction');
+  String get tutorialSkip => _t('tutorialSkip');
   String get tutorialStep4Title => _t('tutorialStep4Title');
-  String get tutorialStep4Desc  => _t('tutorialStep4Desc');
-  String get tutorialGoSetup    => _t('tutorialGoSetup');
+  String get tutorialStep4Desc => _t('tutorialStep4Desc');
+  String get tutorialGoSetup => _t('tutorialGoSetup');
   String get tutorialGoSetupSub => _t('tutorialGoSetupSub');
-  String get tutorialTapAdd     => _t('tutorialTapAdd');
+  String get tutorialTapAdd => _t('tutorialTapAdd');
   // New tutorial keys
   String get tutorialProductIncomeTitle => _t('tutorialProductIncomeTitle');
-  String get tutorialProductIncomeDesc  => _t('tutorialProductIncomeDesc');
-  String get tutorialOpenCardTitle      => _t('tutorialOpenCardTitle');
-  String get tutorialOpenCardDesc       => _t('tutorialOpenCardDesc');
-  String get tutorialSettingsHintTitle   => _t('tutorialSettingsHintTitle');
+  String get tutorialProductIncomeDesc => _t('tutorialProductIncomeDesc');
+  String get tutorialOpenCardTitle => _t('tutorialOpenCardTitle');
+  String get tutorialOpenCardDesc => _t('tutorialOpenCardDesc');
+  String get tutorialSettingsHintTitle => _t('tutorialSettingsHintTitle');
   String get tutorialSettingsHintMessage => _t('tutorialSettingsHintMessage');
 
   // ─── Business Type / Shop Create ───
-  String get createBusiness         => _t('createBusiness');
-  String get businessTypeStep       => _t('businessTypeStep');
-  String get businessDetailsStep    => _t('businessDetailsStep');
-  String get businessLocationStep   => _t('businessLocationStep');
-  String get selectBusinessType     => _t('selectBusinessType');
+  String get createBusiness => _t('createBusiness');
+  String get businessTypeStep => _t('businessTypeStep');
+  String get businessDetailsStep => _t('businessDetailsStep');
+  String get businessLocationStep => _t('businessLocationStep');
+  String get selectBusinessType => _t('selectBusinessType');
   String get selectBusinessTypeDesc => _t('selectBusinessTypeDesc');
-  String get businessDetailsTitle   => _t('businessDetailsTitle');
-  String get businessDetailsDesc    => _t('businessDetailsDesc');
-  String get businessName           => _t('businessName');
-  String get businessDescHint       => _t('businessDescHint');
-  String get description            => _t('description');
-  String get address                => _t('address');
-  String get businessLocationTitle  => _t('businessLocationTitle');
-  String get businessLocationDesc   => _t('businessLocationDesc');
-  String get useGpsLocation         => _t('useGpsLocation');
-  String get fetchingLocation       => _t('fetchingLocation');
-  String get locationSaved          => _t('locationSaved');
-  String get orManualAddress        => _t('orManualAddress');
-  String get addressHint            => _t('addressHint');
-  String get locationOptionalNote   => _t('locationOptionalNote');
-  String get businessCreated        => _t('businessCreated');
-  String get startWorking           => _t('startWorking');
-  String get fieldRequired          => _t('fieldRequired');
-  String get continueWizard         => _t('continueWizard');
+  String get businessDetailsTitle => _t('businessDetailsTitle');
+  String get businessDetailsDesc => _t('businessDetailsDesc');
+  String get businessName => _t('businessName');
+  String get businessDescHint => _t('businessDescHint');
+  String get description => _t('description');
+  String get address => _t('address');
+  String get businessLocationTitle => _t('businessLocationTitle');
+  String get businessLocationDesc => _t('businessLocationDesc');
+  String get useGpsLocation => _t('useGpsLocation');
+  String get fetchingLocation => _t('fetchingLocation');
+  String get locationSaved => _t('locationSaved');
+  String get orManualAddress => _t('orManualAddress');
+  String get addressHint => _t('addressHint');
+  String get locationOptionalNote => _t('locationOptionalNote');
+  String get businessCreated => _t('businessCreated');
+  String get startWorking => _t('startWorking');
+  String get fieldRequired => _t('fieldRequired');
+  String get continueWizard => _t('continueWizard');
   String get customBusinessTypeInfo => _t('customBusinessTypeInfo');
   String get customBusinessTypeHint => _t('customBusinessTypeHint');
-  String get businessNameHint       => _t('businessNameHint');
+  String get businessNameHint => _t('businessNameHint');
   String get businessNameRequired => _t('businessNameRequired');
-  String get businessNameMinLength  => _t('businessNameMinLength');
-  String get selectCurrency         => _t('selectCurrency');
-  String get selectCurrencyDesc     => _t('selectCurrencyDesc');
-  String get gpsAutoDetectSubtitle  => _t('gpsAutoDetectSubtitle');
-  String get orDivider              => _t('orDivider');
-  String get manualAddressLabel     => _t('manualAddressLabel');
-  String get createBusinessSubmit   => _t('createBusinessSubmit');
+  String get businessNameMinLength => _t('businessNameMinLength');
+  String get selectCurrency => _t('selectCurrency');
+  String get selectCurrencyDesc => _t('selectCurrencyDesc');
+  String get gpsAutoDetectSubtitle => _t('gpsAutoDetectSubtitle');
+  String get orDivider => _t('orDivider');
+  String get manualAddressLabel => _t('manualAddressLabel');
+  String get createBusinessSubmit => _t('createBusinessSubmit');
 
   String termBatchUnit(String unit) => unit;
   String businessCreatedDesc(String name) =>
@@ -928,9 +1064,108 @@ class S {
     'kk': _kk,
     'ky': _ky,
     'tr': _tr,
+    'en': kEnTranslations,
   };
 
   static const _uz = {
+    'ordersNewTitle': 'Yangi zakaz',
+    'ordersEditTitle': 'Zakazni tahrirlash',
+    'ordersDetailTitle': 'Zakaz',
+    'ordersTabToday': 'Bugun',
+    'ordersTabTomorrow': 'Ertaga',
+    'ordersTabAll': 'Hammasi',
+    'ordersFilterAll': 'Barchasi',
+    'ordersStatusActive': 'Faol',
+    'ordersStatusDelivered': 'Topshirilgan',
+    'ordersStatusCancelled': 'Bekor qilingan',
+    'ordersEmpty': 'Zakazlar yo\'q',
+    'ordersEmptyDesc':
+        'Birinchi zakazni yarating — mijoz va mahsulotlarni kiriting',
+    'ordersPaid': 'To\'langan',
+    'ordersUnpaid': 'To\'lanmagan',
+    'ordersPartiallyPaid': 'Zaklad {paid} · Qoldiq {remaining}',
+    'ordersDeliverAction': 'Topshirildi',
+    'ordersDeliverTitle': 'Zakazni topshirish',
+    'ordersRemainingLabel': 'Qoldiq',
+    'ordersPaymentNowLabel': 'Hozir olingan to\'lov',
+    'ordersFillAll': 'Hammasi',
+    'ordersPayLater': 'Keyin to\'laydi',
+    'ordersPayLaterHint': 'To\'lovsiz topshiriladi — qoldiq keyin to\'lanadi',
+    'ordersDeliverConfirm': 'Topshirildi',
+    'ordersDelivered': 'Zakaz topshirildi',
+    'ordersSelectCustomerRequired': 'Mijozni tanlang',
+    'ordersPaymentAdded': 'To\'lov qo\'shildi',
+    'ordersDeliveredAt': 'Topshirilgan vaqti',
+    'ordersAddPayment': 'To\'lov qo\'shish',
+    'ordersPaymentAmountLabel': 'To\'lov summasi',
+    'ordersPaymentDateLabel': 'To\'lov vaqti',
+    'ordersPaymentNoteLabel': 'Izoh',
+    'ordersPaymentExceeds': 'To\'lov qoldiqdan oshmasligi kerak',
+    'ordersPaymentsTitle': 'To\'lovlar',
+    'ordersNoPayments': 'Hali to\'lov yo\'q',
+    'ordersItemsTitle': 'Mahsulotlar',
+    'ordersProductLabel': 'Mahsulot',
+    'ordersAddItem': 'Mahsulot qo\'shish',
+    'ordersNoProducts': 'Avval Sozlash bo\'limida mahsulot qo\'shing',
+    'ordersUnitPriceLabel': 'Birlik narxi',
+    'ordersCustomerTitle': 'Mijoz',
+    'ordersExistingCustomer': 'Mavjud mijoz',
+    'ordersNewCustomer': 'Yangi mijoz',
+    'ordersSelectCustomer': 'Mijozni tanlang',
+    'ordersSearchCustomer': 'Ism yoki telefon...',
+    'ordersNoCustomers': 'Mijoz topilmadi',
+    'ordersCustomerNameLabel': 'Ismi',
+    'ordersDeliveryTitle': 'Topshirish',
+    'ordersDeliveryDateLabel': 'Sana',
+    'ordersDeliveryTimeLabel': 'Vaqt',
+    'ordersOtherDate': 'Boshqa sana',
+    'ordersAdvanceLabel': 'Zaklad (oldindan to\'lov)',
+    'ordersAdvanceExceeds': 'Zaklad jami summadan oshmasligi kerak',
+    'ordersRemainingAfterAdvance': 'Topshirishda qoladi',
+    'ordersTotalBelowPaid':
+        'Jami summa to\'langan summadan ({paid}) kam bo\'lmasligi kerak',
+    'ordersNoteLabel': 'Izoh',
+    'ordersNotePlaceholder':
+        'Masalan: to\'y uchun, ertalabgacha tayyor bo\'lsin',
+    'ordersCreated': 'Zakaz yaratildi',
+    'ordersUpdated': 'Zakaz yangilandi',
+    'ordersCancelOrder': 'Bekor qilish',
+    'ordersCancelTitle': 'Zakaz bekor qilinsinmi?',
+    'ordersCancelDescription':
+        'Zakaz bekor qilingan holatga o\'tadi va uni qayta faollashtirib bo\'lmaydi.',
+    'ordersCancelledToast': 'Zakaz bekor qilindi',
+    'ordersDeleteDescription':
+        'Zakaz butunlay o\'chiriladi. Bu amalni ortga qaytarib bo\'lmaydi.',
+    'ordersDeletedToast': 'Zakaz o\'chirildi',
+    'ordersNotFound': 'Zakaz topilmadi',
+    'ordersSummaryPaid': 'To\'langan',
+    'ordersNotActiveEdit': 'Faqat faol zakazni tahrirlash mumkin',
+    'ordersCreate': 'Yangi zakaz',
+    'ordersTotalLabel': 'Jami',
+    'ordersLoadMore': 'Ko\'proq yuklash',
+    'customersTitle': 'Mijozlar',
+    'customersNewTitle': 'Yangi mijoz',
+    'customersEditTitle': 'Mijozni tahrirlash',
+    'customersDetailTitle': 'Mijoz',
+    'customersEmpty': 'Mijozlar yo\'q',
+    'customersEmptyDesc': 'Birinchi mijozingizni qo\'shing',
+    'customersCreated': 'Mijoz qo\'shildi',
+    'customersUpdated': 'Mijoz yangilandi',
+    'customersDeleted': 'Mijoz o\'chirildi',
+    'customersDeleteTitle': 'Mijoz o\'chirilsinmi?',
+    'customersDeleteConfirm': 'Mijoz butunlay o\'chiriladi. Davom etasizmi?',
+    'customersNoteLabel': 'Izoh',
+    'customersNameLabel': 'Ismi',
+    'customersOrdersHistory': 'Zakazlar tarixi',
+    'customersSearchHint': 'Ism yoki telefon bo\'yicha qidirish',
+    'customersCreateOrder': 'Zakaz yaratish',
+    'customersNotFound': 'Mijoz topilmadi',
+    'permManageOrders': 'Zakazlar',
+    'permManageOrdersDesc': 'Mijozlar va zakazlarni boshqarish',
+    'noPermissionTitle': 'Ruxsat yo\'q',
+    'noPermissionDesc': 'Bu bo\'limga kirish uchun ruxsatingiz yo\'q',
+    'quantityLabel': 'Miqdor',
+
     'devicesTitle': 'Qurilmalar',
     'devicesMenuDesc': 'Aktiv sessiyalar',
     'devicesEmptyTitle': 'Qurilmalar yo‘q',
@@ -974,7 +1209,8 @@ class S {
     'planFeatureEmployeesUnlimited': 'Cheksiz xodim',
     'buy': 'Sotib olish',
     'purchaseConfirmTitle': 'Xaridni tasdiqlang',
-    'purchaseConfirmMsg': '{plan} tarifi {price} ga sotib olinadi. Davom etamizmi?',
+    'purchaseConfirmMsg':
+        '{plan} tarifi {price} ga sotib olinadi. Davom etamizmi?',
     'purchaseSuccess': 'Tarif faollashtirildi',
     'insufficientBalanceTitle': 'Balans yetarli emas',
     'insufficientBalanceMsg': 'To\'lov uchun balansingizni to\'ldiring',
@@ -997,7 +1233,8 @@ class S {
     'txnSeat': 'Xodim o\'rni',
     'topUpAmount': 'Summa (UZS)',
     'topUpRequest': 'To\'ldirish so\'rovi',
-    'topUpPendingMsg': 'So\'rovingiz qabul qilindi. Tasdiqlangach balans yangilanadi.',
+    'topUpPendingMsg':
+        'So\'rovingiz qabul qilindi. Tasdiqlangach balans yangilanadi.',
     'topUpHint': 'To\'ldirish admin tomonidan tasdiqlanadi',
     'noOrders': 'Buyurtmalar yo\'q',
     'noOrdersDesc': 'Xaridlaringiz tarixi shu yerda ko\'rinadi',
@@ -1032,7 +1269,8 @@ class S {
     'selectBusiness': 'Biznes tanlang',
     'selectBusinessSubtitle': 'Boshqarmoqchi bo\'lgan biznesingizni tanlang',
     'noBusiness': 'Hali biznes yo\'q',
-    'createFirstBusiness': 'Birinchi biznesingizni yarating\nva boshqaruvni boshlang',
+    'createFirstBusiness':
+        'Birinchi biznesingizni yarating\nva boshqaruvni boshlang',
     'addBusiness': 'Yangi biznes qo\'shish',
     'shopSettingsTitle': 'Biznes sozlamalari',
     'shopNameLabel': 'Biznes nomi',
@@ -1042,7 +1280,8 @@ class S {
     'shopUpdateSuccess': 'Biznes yangilandi',
     'shopDeleteButton': 'Biznesni o\'chirish',
     'shopDeleteTitle': 'Biznesni o\'chirish',
-    'shopDeleteMessage': '«{name}» biznesini o\'chirmoqchimisiz? Bu amalni qaytarib bo\'lmaydi.',
+    'shopDeleteMessage':
+        '«{name}» biznesini o\'chirmoqchimisiz? Bu amalni qaytarib bo\'lmaydi.',
     'shopDeleteSuccess': 'Biznes o\'chirildi',
     'manage': 'Boshqarish',
     'todayProfit': 'Bugungi foyda',
@@ -1089,7 +1328,8 @@ class S {
     'statistics': 'Statistika',
     'orders': 'Zakazlar',
     'ordersComingSoon': 'Tez kunda',
-    'ordersComingSoonDesc': 'Zakazlar bo\'limi ustida ish olib borilmoqda.\nYaqin kunlarda tayyor bo\'ladi!',
+    'ordersComingSoonDesc':
+        'Zakazlar bo\'limi ustida ish olib borilmoqda.\nYaqin kunlarda tayyor bo\'ladi!',
     'charts': 'Grafiklar',
     'chartsScreenTitle': 'Batafsil grafiklar',
     'chartRevenue': 'Daromad taqsimoti',
@@ -1127,7 +1367,8 @@ class S {
     'noExpenseToday': 'Bugun xarajat yozilmagan',
     'addExpense': 'Xarajat',
     'expenseCreateTitle': 'Xarajat qo‘shish',
-    'expenseCreateSubtitle': 'Turini tanlang, summani kiriting — tez va tushunarli.',
+    'expenseCreateSubtitle':
+        'Turini tanlang, summani kiriting — tez va tushunarli.',
     'expenseCategorySearchHint': 'Kategoriyalarni qidirish',
     'expenseAddCategory': 'Yangi kategoriya',
     'expenseAddCategoryTitle': 'O‘zingiz uchun kategoriya',
@@ -1223,8 +1464,7 @@ class S {
     'recipeOutputLabel': 'Mahsulot soni',
     'recipeOutputHint': 'Masalan: 100',
     'recipeOutputSectionTitle': 'Mahsulot soni',
-    'recipeOutputSectionHelper':
-        '1 partiyadan nechta mahsulot chiqadi?',
+    'recipeOutputSectionHelper': '1 partiyadan nechta mahsulot chiqadi?',
     'recipeIngredientsSectionTitle': 'Bir partiya uchun xom ashyo miqdori',
     'recipeIngredientsSectionSubtitle':
         'Tanlangan birlikdagi bitta partiyaga ketadigan miqdorlarni kiriting.',
@@ -1257,8 +1497,7 @@ class S {
     'recipeDeleteConfirmTitle': 'Retseptni o‘chirish?',
     'recipeDeleteConfirmBody':
         '“{name}” retsepti o‘chiriladi. Bu amalni qaytarib bo‘lmaydi.',
-    'recipeCardTooltipOutput':
-        'Bitta partiyadan chiqadigan mahsulot soni.',
+    'recipeCardTooltipOutput': 'Bitta partiyadan chiqadigan mahsulot soni.',
     'recipeCardTooltipBatchCost':
         'Bitta partiya uchun xom ashyo tannaxi (jami).',
     'recipeCardTooltipUnitCost':
@@ -1282,7 +1521,8 @@ class S {
     'productionDetailEditSheetTitle': 'Partiya va vozvratlar',
     'productionDetailEditBatchLabel': 'Bugungi partiya soni',
     'productionDetailEditReturnsTitle': 'Shu tur bo\'yicha vozvratlar (bugun)',
-    'productionDetailEditNoReturns': 'Bugun bu tur uchun vozvrat qayd etilmagan',
+    'productionDetailEditNoReturns':
+        'Bugun bu tur uchun vozvrat qayd etilmagan',
     'productionDetailEditSaveBatch': 'Partiyani saqlash',
     'productionDetailBatchUpdated': 'Partiya yangilandi',
     'productionDetailReturnDeleted': 'Vozvrat o\'chirildi',
@@ -1409,7 +1649,8 @@ class S {
     'disabled': 'O\'chirilgan',
     'language': 'Til',
     'aboutApp': 'Ilova haqida',
-    'aboutAppDescription': "TAQSEEM — kichik va o'rta ishlab chiqaruvchi bizneslar uchun tannarx, foyda va xarajatlarni aniq hisoblash ilovasi.",
+    'aboutAppDescription':
+        "TAQSEEM — kichik va o'rta ishlab chiqaruvchi bizneslar uchun tannarx, foyda va xarajatlarni aniq hisoblash ilovasi.",
     'developer': 'Ishlab chiqaruvchi',
     'website': 'Veb-sayt',
     'support': 'Qo\'llab-quvvatlash',
@@ -1430,22 +1671,28 @@ class S {
     'changePhoto': 'Rasm o\'zgartirish',
     'aboutTagline': 'Biznesingizni bir qarashda boshqaring',
     'aboutWhyTitle': 'Nima uchun TAQSEEM?',
-    'aboutWhyBody': 'TAQSEEM — kichik va o\'rta ishlab chiqaruvchi bizneslar uchun yaratilgan zamonaviy boshqaruv tizimi. Kunlik ishlab chiqarish, chiqimlar, qaytarilgan tovarlar va sof foydani bir joyda, real vaqtda ko\'ring. Ortiqcha qog\'ozbozliksiz, ishonchli va oson.',
+    'aboutWhyBody':
+        'TAQSEEM — kichik va o\'rta ishlab chiqaruvchi bizneslar uchun yaratilgan zamonaviy boshqaruv tizimi. Kunlik ishlab chiqarish, chiqimlar, qaytarilgan tovarlar va sof foydani bir joyda, real vaqtda ko\'ring. Ortiqcha qog\'ozbozliksiz, ishonchli va oson.',
     'aboutFeaturesTitle': 'Asosiy imkoniyatlar',
     'featProductionTitle': 'Ishlab chiqarish hisobi',
-    'featProductionDesc': 'Kunlik ishlab chiqarilgan miqdor va tannarx nazorati.',
+    'featProductionDesc':
+        'Kunlik ishlab chiqarilgan miqdor va tannarx nazorati.',
     'featExpensesTitle': 'Chiqimlar boshqaruvi',
     'featExpensesDesc': 'Kategoriyalar bo\'yicha barcha xarajatlarni kuzating.',
     'featReturnsTitle': 'Qaytarilganlar',
-    'featReturnsDesc': 'Qaytgan tovarlar va yo\'qotishlarni aniq hisobga oling.',
+    'featReturnsDesc':
+        'Qaytgan tovarlar va yo\'qotishlarni aniq hisobga oling.',
     'featReportsTitle': 'Statistika va hisobotlar',
     'featReportsDesc': 'Kunlik, haftalik va oylik grafiklar hamda analitika.',
     'featMultiShopTitle': 'Ko\'p nonxona',
-    'featMultiShopDesc': 'Bir nechta shoxobcha va filiallarni bitta akkauntdan boshqaring.',
+    'featMultiShopDesc':
+        'Bir nechta shoxobcha va filiallarni bitta akkauntdan boshqaring.',
     'featRecipesTitle': 'Retseptlar',
-    'featRecipesDesc': 'Retsept va ingredientlar tannarxini avtomatik hisoblang.',
+    'featRecipesDesc':
+        'Retsept va ingredientlar tannarxini avtomatik hisoblang.',
     'featMultiLangTitle': 'Ko\'p tilli',
-    'featMultiLangDesc': 'Ilova 7 ta tilda: o\'zbek, rus, qozoq, qirg\'iz va boshqalar.',
+    'featMultiLangDesc':
+        'Ilova 7 ta tilda: o\'zbek, rus, qozoq, qirg\'iz va boshqalar.',
     'featDarkModeTitle': 'Dark / Light mode',
     'featDarkModeDesc': 'Ko\'zingizga yoqimli tungi va kunduzgi rejimlar.',
     'aboutContactTitle': 'Biz bilan bog\'laning',
@@ -1486,10 +1733,12 @@ class S {
     'deleteAccountDesc': 'Akkauntingizni butunlay o\'chirish',
     'deleteAccountConfirm': 'Albatta o\'chirish',
     'deleteAccountTitle': 'Hisobingizni o\'chirmoqchimisiz?',
-    'deleteAccountWarning': 'Hisobingiz o\'chirilsa, barcha do\'konlaringiz, hisobotlaringiz, retseptlaringiz va ma\'lumotlaringiz butunlay o\'chadi. Bu amalni qaytarib bo\'lmaydi.',
+    'deleteAccountWarning':
+        'Hisobingiz o\'chirilsa, barcha do\'konlaringiz, hisobotlaringiz, retseptlaringiz va ma\'lumotlaringiz butunlay o\'chadi. Bu amalni qaytarib bo\'lmaydi.',
     'deleteAccountContinue': 'Davom etish',
     'deleteAccountFinalTitle': 'Yakuniy tasdiqlash',
-    'deleteAccountFinalWarning': 'Bu oxirgi imkoniyat. Tugmani bossangiz hisobingiz va barcha ma\'lumotlaringiz darhol o\'chiriladi.',
+    'deleteAccountFinalWarning':
+        'Bu oxirgi imkoniyat. Tugmani bossangiz hisobingiz va barcha ma\'lumotlaringiz darhol o\'chiriladi.',
     'deleteAccountProcessing': 'Hisob o\'chirilmoqda...',
     'deleteAccountSuccess': 'Hisobingiz muvaffaqiyatli o\'chirildi.',
     'deleteAccountFailed': 'Hisobni o\'chirishda xatolik yuz berdi.',
@@ -1513,14 +1762,18 @@ class S {
     'logoutConfirm': 'Tizimdan chiqmoqchimisiz?',
     'madeInUzbekistan': "O'zbekistonda ishlab chiqilgan",
     'topUpComingSoonTitle': 'Tez orada ishga tushadi',
-    'topUpComingSoonDesc': "Balans to'ldirish bo'limi ustida ish olib borilmoqda. Tez orada siz ilovadan to'liq foydalana olasiz.",
+    'topUpComingSoonDesc':
+        "Balans to'ldirish bo'limi ustida ish olib borilmoqda. Tez orada siz ilovadan to'liq foydalana olasiz.",
     'goBack': 'Ortga qaytish',
     'onboardingTitle1': 'Har qanday biznes uchun',
-    'onboardingDesc1': 'Nonvoyxona, shashlikxona, somsahona, shirinliklar, fastfood — barchasini bir joydan boshqaring',
+    'onboardingDesc1':
+        'Nonvoyxona, shashlikxona, somsahona, shirinliklar, fastfood — barchasini bir joydan boshqaring',
     'onboardingTitle2': 'Tan narx va foyda hisobi',
-    'onboardingDesc2': 'Har bir mahsulotning tan narxini aniq hisoblab, real foydangizni bilib oling',
+    'onboardingDesc2':
+        'Har bir mahsulotning tan narxini aniq hisoblab, real foydangizni bilib oling',
     'onboardingTitle3': 'Biznesingiz nazoratda',
-    'onboardingDesc3': 'Sotuv, xarajat va ishlab chiqarishni real vaqtda kuzatib boring',
+    'onboardingDesc3':
+        'Sotuv, xarajat va ishlab chiqarishni real vaqtda kuzatib boring',
     'skip': 'O\'tkazib yuborish',
     'next': 'Keyingi',
     'getStarted': 'Boshlash',
@@ -1574,23 +1827,28 @@ class S {
     'telegramConnecting': 'Ulanmoqda...',
     'telegramConnectingHint': 'Telegram ochilmoqda',
     'telegramWaitingTitle': 'Telegram kutilmoqda',
-    'telegramWaitingHint': 'Telegramda telefon raqamingizni yuboring va ilovaga qaytish tugmasini bosing',
+    'telegramWaitingHint':
+        'Telegramda telefon raqamingizni yuboring va ilovaga qaytish tugmasini bosing',
     'telegramOpenAgain': 'Telegramni qayta ochish',
     'telegramRetry': 'Qaytadan urinish',
     'telegramBackToLogin': 'Kirishga qaytish',
     'telegramSessionExpired': "Vaqt tugadi. Qaytadan urinib ko'ring.",
     'tgConnectTitle': 'Telegramni ulash',
-    'tgConnectSubtitle': 'Bildirishnomalarni Telegram orqali olish uchun hisobingizni ulang',
+    'tgConnectSubtitle':
+        'Bildirishnomalarni Telegram orqali olish uchun hisobingizni ulang',
     'tgConnectStep1': 'Telegram ochiladi va botimiz topiladi',
     'tgConnectStep2': 'Telegramda «Start» tugmasini bosing',
     'tgConnectStep3': "Hisobingiz avtomatik bog'lanadi",
     'tgConnectOpen': 'Telegramni ochish',
     'tgConnectWaitingTitle': 'Telegramda tasdiqlang',
-    'tgConnectWaitingHint': "Telegramda «Start» tugmasini bosing. Bog'langach avtomatik qaytasiz.",
+    'tgConnectWaitingHint':
+        "Telegramda «Start» tugmasini bosing. Bog'langach avtomatik qaytasiz.",
     'tgConnectSuccessTitle': 'Telegram ulandi!',
-    'tgConnectSuccessHint': 'Endi muhim bildirishnomalarni Telegram orqali olasiz.',
+    'tgConnectSuccessHint':
+        'Endi muhim bildirishnomalarni Telegram orqali olasiz.',
     'tgConnectErrorTitle': "Ulab bo'lmadi",
-    'tgConnectErrorHint': "Bu Telegram hisobi boshqa foydalanuvchiga bog'langan bo'lishi mumkin. Qaytadan urinib ko'ring.",
+    'tgConnectErrorHint':
+        "Bu Telegram hisobi boshqa foydalanuvchiga bog'langan bo'lishi mumkin. Qaytadan urinib ko'ring.",
     'loginInfoPrefix': "Oldin hisob yaratmagan bo'lsangiz ",
     'loginInfoAction': 'Hisob Yaratish',
     'loginInfoSuffix': ' ni bosing',
@@ -1607,21 +1865,24 @@ class S {
     'tutorialSkip': "O'tkazib yuborish",
     'tutorialStep4Title': 'Chiqimni qayd eting',
     'tutorialStep4Desc': 'Bugun qancha mahsulot chiqqanini kiriting',
-    'tutorialGoSetup':    "Sozlamalar tugmasini bosing",
+    'tutorialGoSetup': "Sozlamalar tugmasini bosing",
     'tutorialGoSetupSub': "Mahsulot, xom ashyo va hisoblashni sozlang",
-    'tutorialTapAdd':     "Qo'shish tugmasini bosing",
+    'tutorialTapAdd': "Qo'shish tugmasini bosing",
     'tutorialProductIncomeTitle': "Mahsulot kirimi",
-    'tutorialProductIncomeDesc':  "Bugungi mahsulot chiqimini shu tugma orqali qayd eting",
-    'tutorialOpenCardTitle':      "Bo'limga o'ting",
-    'tutorialOpenCardDesc':       "Bu kartani bosib, tegishli sozlamaga kiring",
-    'tutorialSettingsHintTitle':   "Boshlash uchun sozlang",
-    'tutorialSettingsHintMessage': "Mahsulot va xom ashyolarni kiriting — ilova tannarx va foydani o'zi hisoblab beradi.",
+    'tutorialProductIncomeDesc':
+        "Bugungi mahsulot chiqimini shu tugma orqali qayd eting",
+    'tutorialOpenCardTitle': "Bo'limga o'ting",
+    'tutorialOpenCardDesc': "Bu kartani bosib, tegishli sozlamaga kiring",
+    'tutorialSettingsHintTitle': "Boshlash uchun sozlang",
+    'tutorialSettingsHintMessage':
+        "Mahsulot va xom ashyolarni kiriting — ilova tannarx va foydani o'zi hisoblab beradi.",
     'createBusiness': 'Biznes yaratish',
     'businessTypeStep': 'Kategoriya',
     'businessDetailsStep': "Ma'lumotlar",
     'businessLocationStep': 'Lokatsiya',
     'selectBusinessType': 'Biznes turini tanlang',
-    'selectBusinessTypeDesc': 'O\'zingizga mos kategoriyani tanlang — ilova ichida hamma narsa shunga moslashadi',
+    'selectBusinessTypeDesc':
+        'O\'zingizga mos kategoriyani tanlang — ilova ichida hamma narsa shunga moslashadi',
     'businessDetailsTitle': 'Biznes haqida',
     'businessDetailsDesc': 'Biznesingizning asosiy ma\'lumotlarini kiriting',
     'businessName': 'Biznes nomi',
@@ -1629,15 +1890,18 @@ class S {
     'description': 'Tavsif',
     'address': 'Manzil',
     'businessLocationTitle': 'Lokatsiya',
-    'businessLocationDesc': 'GPS orqali aniq joylashuvni saqlang yoki manzilni qo\'lda kiriting',
+    'businessLocationDesc':
+        'GPS orqali aniq joylashuvni saqlang yoki manzilni qo\'lda kiriting',
     'useGpsLocation': 'GPS orqali joylashuv',
     'fetchingLocation': 'Joylashuv aniqlanmoqda...',
     'locationSaved': 'Joylashuv saqlandi',
     'orManualAddress': 'yoki qo\'lda kiriting',
     'addressHint': 'Masalan: Toshkent sh., Amir Temur ko\'chasi, 1',
-    'locationOptionalNote': 'Lokatsiya ixtiyoriy. Keyinchalik ham qo\'shish mumkin.',
+    'locationOptionalNote':
+        'Lokatsiya ixtiyoriy. Keyinchalik ham qo\'shish mumkin.',
     'businessCreated': 'Biznes yaratildi! 🎉',
-    'businessCreatedDesc': '{name} muvaffaqiyatli yaratildi. Endi boshqaruv panelidan foydalanishingiz mumkin.',
+    'businessCreatedDesc':
+        '{name} muvaffaqiyatli yaratildi. Endi boshqaruv panelidan foydalanishingiz mumkin.',
     'startWorking': 'Ishni boshlash',
     'fieldRequired': 'Bu maydon majburiy',
     'continueWizard': 'Davom etish',
@@ -1662,7 +1926,8 @@ class S {
     'employeePhoneLabel': 'Telefon raqam',
     'employeePasswordLabel': 'Parol',
     'employeesEmptyTitle': 'Hali xodim yo\'q',
-    'employeesEmptyDesc': 'Birinchi xodimingizni qo\'shing va ruxsatlarini sozlang',
+    'employeesEmptyDesc':
+        'Birinchi xodimingizni qo\'shing va ruxsatlarini sozlang',
     'employeePaidBadge': 'Pulli o\'rin',
     'employeeSeatActive': 'Faol',
     'employeeSeatPastDue': 'To\'lov kerak',
@@ -1684,7 +1949,8 @@ class S {
     'employeePermsSaved': 'Ruxsatlar saqlandi',
     'employeeSaveBtn': 'Saqlash',
     'employeePaidConfirmTitle': 'Pulli xodim o\'rni',
-    'employeePaidConfirmMsg': 'Bepul limit tugagan. Bu xodim uchun balansdan {price} (oyiga) yechiladi.',
+    'employeePaidConfirmMsg':
+        'Bepul limit tugagan. Bu xodim uchun balansdan {price} (oyiga) yechiladi.',
     'employeeContinueBtn': 'Davom etish',
     'permViewReports': 'Hisobotlar',
     'permManageProducts': 'Mahsulotlar',
@@ -1692,9 +1958,116 @@ class S {
     'permManageProduction': 'Ishlab chiqarish',
     'permManageExpenses': 'Xarajatlar',
     'permManageSales': 'Sotuv / Qaytarish',
+    'languageSelectTitle': 'Tilni tanlang',
+    'languageSelectSubtitle':
+        '7 ta til — o\'zbek (lotin va kirill), ingliz, rus, qozoq, qirg\'iz va turk',
+    'onboardingContinue': 'Davom etish',
+    'authErrorGoogleNoToken':
+        'Google orqali kirish amalga oshmadi. Qayta urinib ko\'ring.',
+    'authErrorAppleNoToken':
+        'Apple orqali kirish amalga oshmadi. Qayta urinib ko\'ring.',
+    'authErrorGoogleUnsupported':
+        'Bu qurilmada Google orqali kirish qo\'llab-quvvatlanmaydi.',
   };
 
   static const _uzCyrl = {
+    'ordersNewTitle': 'Янги заказ',
+    'ordersEditTitle': 'Заказни таҳрирлаш',
+    'ordersDetailTitle': 'Заказ',
+    'ordersTabToday': 'Бугун',
+    'ordersTabTomorrow': 'Эртага',
+    'ordersTabAll': 'Ҳаммаси',
+    'ordersFilterAll': 'Барчаси',
+    'ordersStatusActive': 'Фаол',
+    'ordersStatusDelivered': 'Топширилган',
+    'ordersStatusCancelled': 'Бекор қилинган',
+    'ordersEmpty': 'Заказлар йўқ',
+    'ordersEmptyDesc':
+        'Биринчи заказни яратинг — мижоз ва маҳсулотларни киритинг',
+    'ordersPaid': 'Тўланган',
+    'ordersUnpaid': 'Тўланмаган',
+    'ordersPartiallyPaid': 'Заклад {paid} · Қолдиқ {remaining}',
+    'ordersDeliverAction': 'Топширилди',
+    'ordersDeliverTitle': 'Заказни топшириш',
+    'ordersRemainingLabel': 'Қолдиқ',
+    'ordersPaymentNowLabel': 'Ҳозир олинган тўлов',
+    'ordersFillAll': 'Ҳаммаси',
+    'ordersPayLater': 'Кейин тўлайди',
+    'ordersPayLaterHint': 'Тўловсиз топширилади — қолдиқ кейин тўланади',
+    'ordersDeliverConfirm': 'Топширилди',
+    'ordersDelivered': 'Заказ топширилди',
+    'ordersSelectCustomerRequired': 'Мижозни танланг',
+    'ordersPaymentAdded': 'Тўлов қўшилди',
+    'ordersDeliveredAt': 'Топширилган вақти',
+    'ordersAddPayment': 'Тўлов қўшиш',
+    'ordersPaymentAmountLabel': 'Тўлов суммаси',
+    'ordersPaymentDateLabel': 'Тўлов вақти',
+    'ordersPaymentNoteLabel': 'Изоҳ',
+    'ordersPaymentExceeds': 'Тўлов қолдиқдан ошмаслиги керак',
+    'ordersPaymentsTitle': 'Тўловлар',
+    'ordersNoPayments': 'Ҳали тўлов йўқ',
+    'ordersItemsTitle': 'Маҳсулотлар',
+    'ordersProductLabel': 'Маҳсулот',
+    'ordersAddItem': 'Маҳсулот қўшиш',
+    'ordersNoProducts': 'Аввал Созлаш бўлимида маҳсулот қўшинг',
+    'ordersUnitPriceLabel': 'Бирлик нархи',
+    'ordersCustomerTitle': 'Мижоз',
+    'ordersExistingCustomer': 'Мавжуд мижоз',
+    'ordersNewCustomer': 'Янги мижоз',
+    'ordersSelectCustomer': 'Мижозни танланг',
+    'ordersSearchCustomer': 'Исм ёки телефон...',
+    'ordersNoCustomers': 'Мижоз топилмади',
+    'ordersCustomerNameLabel': 'Исми',
+    'ordersDeliveryTitle': 'Топшириш',
+    'ordersDeliveryDateLabel': 'Сана',
+    'ordersDeliveryTimeLabel': 'Вақт',
+    'ordersOtherDate': 'Бошқа сана',
+    'ordersAdvanceLabel': 'Заклад (олдиндан тўлов)',
+    'ordersAdvanceExceeds': 'Заклад жами суммадан ошмаслиги керак',
+    'ordersRemainingAfterAdvance': 'Топширишда қолади',
+    'ordersTotalBelowPaid':
+        'Жами сумма тўланган суммадан ({paid}) кам бўлмаслиги керак',
+    'ordersNoteLabel': 'Изоҳ',
+    'ordersNotePlaceholder': 'Масалан: тўй учун, эрталабгача тайёр бўлсин',
+    'ordersCreated': 'Заказ яратилди',
+    'ordersUpdated': 'Заказ янгиланди',
+    'ordersCancelOrder': 'Бекор қилиш',
+    'ordersCancelTitle': 'Заказ бекор қилинсинми?',
+    'ordersCancelDescription':
+        'Заказ бекор қилинган ҳолатга ўтади ва уни қайта фаоллаштириб бўлмайди.',
+    'ordersCancelledToast': 'Заказ бекор қилинди',
+    'ordersDeleteDescription':
+        'Заказ бутунлай ўчирилади. Бу амални ортга қайтариб бўлмайди.',
+    'ordersDeletedToast': 'Заказ ўчирилди',
+    'ordersNotFound': 'Заказ топилмади',
+    'ordersSummaryPaid': 'Тўланган',
+    'ordersNotActiveEdit': 'Фақат фаол заказни таҳрирлаш мумкин',
+    'ordersCreate': 'Янги заказ',
+    'ordersTotalLabel': 'Жами',
+    'ordersLoadMore': 'Яна юклаш',
+    'customersTitle': 'Мижозлар',
+    'customersNewTitle': 'Янги мижоз',
+    'customersEditTitle': 'Мижозни таҳрирлаш',
+    'customersDetailTitle': 'Мижоз',
+    'customersEmpty': 'Мижозлар йўқ',
+    'customersEmptyDesc': 'Биринчи мижозингизни қўшинг',
+    'customersCreated': 'Мижоз қўшилди',
+    'customersUpdated': 'Мижоз янгиланди',
+    'customersDeleted': 'Мижоз ўчирилди',
+    'customersDeleteTitle': 'Мижоз ўчирилсинми?',
+    'customersDeleteConfirm': 'Мижоз бутунлай ўчирилади. Давом этасизми?',
+    'customersNoteLabel': 'Изоҳ',
+    'customersNameLabel': 'Исми',
+    'customersOrdersHistory': 'Заказлар тарихи',
+    'customersSearchHint': 'Исм ёки телефон бўйича қидириш',
+    'customersCreateOrder': 'Заказ яратиш',
+    'customersNotFound': 'Мижоз топилмади',
+    'permManageOrders': 'Заказлар',
+    'permManageOrdersDesc': 'Мижозлар ва Заказлар бошқаруви',
+    'noPermissionTitle': 'Рухсат йўқ',
+    'noPermissionDesc': 'Бу бўлимга рухсат берилмаган',
+    'quantityLabel': 'Miqdor',
+
     'devicesTitle': 'Қурилмалар',
     'devicesMenuDesc': 'Актив сессиялар',
     'devicesEmptyTitle': 'Қурилмалар йўқ',
@@ -1738,7 +2111,8 @@ class S {
     'planFeatureEmployeesUnlimited': 'Чексиз ходим',
     'buy': 'Сотиб олиш',
     'purchaseConfirmTitle': 'Харидни тасдиқланг',
-    'purchaseConfirmMsg': '{plan} тарифи {price} га сотиб олинади. Давом этамизми?',
+    'purchaseConfirmMsg':
+        '{plan} тарифи {price} га сотиб олинади. Давом этамизми?',
     'purchaseSuccess': 'Тариф фаоллаштирилди',
     'insufficientBalanceTitle': 'Баланс етарли эмас',
     'insufficientBalanceMsg': 'Тўлов учун балансингизни тўлдиринг',
@@ -1761,7 +2135,8 @@ class S {
     'txnSeat': 'Ходим ўрни',
     'topUpAmount': 'Сумма (UZS)',
     'topUpRequest': 'Тўлдириш сўрови',
-    'topUpPendingMsg': 'Сўровингиз қабул қилинди. Тасдиқлангач баланс янгиланади.',
+    'topUpPendingMsg':
+        'Сўровингиз қабул қилинди. Тасдиқлангач баланс янгиланади.',
     'topUpHint': 'Тўлдириш админ томонидан тасдиқланади',
     'noOrders': 'Буюртмалар йўқ',
     'noOrdersDesc': 'Харидларингиз тарихи шу ерда кўринади',
@@ -1796,7 +2171,8 @@ class S {
     'selectBusiness': 'Бизнес танланг',
     'selectBusinessSubtitle': 'Бошқармоқчи бўлган бизнесингизни танланг',
     'noBusiness': 'Ҳали бизнес йўқ',
-    'createFirstBusiness': 'Биринчи бизнесингизни яратинг\nва бошқарувни бошланг',
+    'createFirstBusiness':
+        'Биринчи бизнесингизни яратинг\nва бошқарувни бошланг',
     'addBusiness': 'Янги бизнес қўшиш',
     'shopSettingsTitle': 'Бизнес созламалари',
     'shopNameLabel': 'Бизнес номи',
@@ -1806,7 +2182,8 @@ class S {
     'shopUpdateSuccess': 'Бизнес янгиланди',
     'shopDeleteButton': 'Бизнесни ўчириш',
     'shopDeleteTitle': 'Бизнесни ўчириш',
-    'shopDeleteMessage': '«{name}» бизнесини ўчирмоқчимисиз? Бу амални қайтариб бўлмайди.',
+    'shopDeleteMessage':
+        '«{name}» бизнесини ўчирмоқчимисиз? Бу амални қайтариб бўлмайди.',
     'shopDeleteSuccess': 'Бизнес ўчирилди',
     'manage': 'Бошқариш',
     'todayProfit': 'Бугунги фойда',
@@ -1853,7 +2230,8 @@ class S {
     'statistics': 'Статистика',
     'orders': 'Заказлар',
     'ordersComingSoon': 'Тез кунда',
-    'ordersComingSoonDesc': 'Заказлар бўлими устида иш олиб борилмоқда.\nЯқин кунларда тайёр бўлади!',
+    'ordersComingSoonDesc':
+        'Заказлар бўлими устида иш олиб борилмоқда.\nЯқин кунларда тайёр бўлади!',
     'charts': 'Графиклар',
     'chartsScreenTitle': 'Батафсил графиклар',
     'chartRevenue': 'Даромад тақсимоти',
@@ -1987,12 +2365,10 @@ class S {
     'recipeOutputLabel': 'Маҳсулот сони',
     'recipeOutputHint': 'Масалан: 100',
     'recipeOutputSectionTitle': 'Маҳсулот сони',
-    'recipeOutputSectionHelper':
-        '1 партиядан нечта маҳсулот чиқади?',
+    'recipeOutputSectionHelper': '1 партиядан нечта маҳсулот чиқади?',
     'recipeIngredientsSectionTitle': 'Бир партия учун хом ашё миқдори',
     'recipeOutputLabelDynamic': '1 {unit}дан қанча маҳсулот чиқади?',
-    'recipeIngredientsSectionTitleDynamic':
-        'Бир {unit} учун хом ашё миқдори',
+    'recipeIngredientsSectionTitleDynamic': 'Бир {unit} учун хом ашё миқдори',
     'recipeIngredientsSectionSubtitleDynamic':
         'Бир {unit}га кетадиган ҳар бир хом ашё миқдорини киритинг.',
     'recipeIngredientsSectionSubtitle':
@@ -2021,10 +2397,8 @@ class S {
     'recipeDeleteConfirmTitle': 'Рецептни ўчириш?',
     'recipeDeleteConfirmBody':
         '«{name}» рецепти ўчирилади. Бу амални қайтариб бўлмайди.',
-    'recipeCardTooltipOutput':
-        'Битта партиядан чиқадиган маҳсулот сони.',
-    'recipeCardTooltipBatchCost':
-        'Битта партия учун хом ашё таннахи (жами).',
+    'recipeCardTooltipOutput': 'Битта партиядан чиқадиган маҳсулот сони.',
+    'recipeCardTooltipBatchCost': 'Битта партия учун хом ашё таннахи (жами).',
     'recipeCardTooltipUnitCost':
         'Битта маҳсулот бирлиги таннахи (жами ÷ чиқим).',
     'productionDetailTitle': 'Партия батафсил',
@@ -2173,7 +2547,8 @@ class S {
     'disabled': 'Ўчирилган',
     'language': 'Тил',
     'aboutApp': 'Илова ҳақида',
-    'aboutAppDescription': 'ТАҚСЕЕМ — кичик ва ўрта ишлаб чиқарувчи бизнеслар учун таннарх, фойда ва харажатларни аниқ ҳисоблаш иловаси.',
+    'aboutAppDescription':
+        'ТАҚСЕЕМ — кичик ва ўрта ишлаб чиқарувчи бизнеслар учун таннарх, фойда ва харажатларни аниқ ҳисоблаш иловаси.',
     'developer': 'Ишлаб чиқарувчи',
     'website': 'Веб-сайт',
     'support': 'Қўллаб-қувватлаш',
@@ -2194,7 +2569,8 @@ class S {
     'changePhoto': 'Расм ўзгартириш',
     'aboutTagline': 'Бизнесингизни бир қарашда бошқаринг',
     'aboutWhyTitle': 'Нима учун ТАҚСЕЕМ?',
-    'aboutWhyBody': 'ТАҚСЕЕМ — кичик ва ўрта ишлаб чиқарувчи бизнеслар учун яратилган замонавий бошқарув тизими. Кунлик ишлаб чиқариш, чиқимлар, қайтарилган товарлар ва соф фойдани бир жойда, реал вақтда кўринг.',
+    'aboutWhyBody':
+        'ТАҚСЕЕМ — кичик ва ўрта ишлаб чиқарувчи бизнеслар учун яратилган замонавий бошқарув тизими. Кунлик ишлаб чиқариш, чиқимлар, қайтарилган товарлар ва соф фойдани бир жойда, реал вақтда кўринг.',
     'aboutFeaturesTitle': 'Асосий имкониятлар',
     'featProductionTitle': 'Ишлаб чиқариш ҳисоби',
     'featProductionDesc': 'Кунлик ишлаб чиқарилган миқдор ва таннарх назорати.',
@@ -2205,11 +2581,14 @@ class S {
     'featReportsTitle': 'Статистика ва ҳисоботлар',
     'featReportsDesc': 'Кунлик, ҳафталик ва ойлик графиклар ва аналитика.',
     'featMultiShopTitle': 'Кўп нонхона',
-    'featMultiShopDesc': 'Бир нечта шохобча ва филиалларни битта аккаундан бошқаринг.',
+    'featMultiShopDesc':
+        'Бир нечта шохобча ва филиалларни битта аккаундан бошқаринг.',
     'featRecipesTitle': 'Рецептлар',
-    'featRecipesDesc': 'Рецепт ва ингредиентлар таннархини автоматик ҳисобланг.',
+    'featRecipesDesc':
+        'Рецепт ва ингредиентлар таннархини автоматик ҳисобланг.',
     'featMultiLangTitle': 'Кўп тилли',
-    'featMultiLangDesc': 'Илова 7 та тилда: ўзбек, рус, қозоқ, қирғиз ва бошқалар.',
+    'featMultiLangDesc':
+        'Илова 7 та тилда: ўзбек, рус, қозоқ, қирғиз ва бошқалар.',
     'featDarkModeTitle': 'Dark / Light режими',
     'featDarkModeDesc': 'Кўзингизга ёқимли тунги ва кундузги режимлар.',
     'aboutContactTitle': 'Биз билан боғланинг',
@@ -2250,10 +2629,12 @@ class S {
     'deleteAccountDesc': 'Аккаунтингизни бутунлай ўчириш',
     'deleteAccountConfirm': 'Албатта ўчириш',
     'deleteAccountTitle': 'Ҳисобингизни ўчирмоқчимисиз?',
-    'deleteAccountWarning': 'Ҳисобингиз ўчирилса, барча дўконларингиз, ҳисоботларингиз, рецептларингиз ва маълумотларингиз бутунлай ўчади. Бу амални қайтариб бўлмайди.',
+    'deleteAccountWarning':
+        'Ҳисобингиз ўчирилса, барча дўконларингиз, ҳисоботларингиз, рецептларингиз ва маълумотларингиз бутунлай ўчади. Бу амални қайтариб бўлмайди.',
     'deleteAccountContinue': 'Давом этиш',
     'deleteAccountFinalTitle': 'Якуний тасдиқлаш',
-    'deleteAccountFinalWarning': 'Бу охирги имконият. Тугмани боссангиз ҳисобингиз ва барча маълумотларингиз дарҳол ўчирилади.',
+    'deleteAccountFinalWarning':
+        'Бу охирги имконият. Тугмани боссангиз ҳисобингиз ва барча маълумотларингиз дарҳол ўчирилади.',
     'deleteAccountProcessing': 'Ҳисоб ўчирилмоқда...',
     'deleteAccountSuccess': 'Ҳисобингиз муваффақиятли ўчирилди.',
     'deleteAccountFailed': 'Ҳисобни ўчиришда хатолик юз берди.',
@@ -2277,14 +2658,18 @@ class S {
     'logoutConfirm': 'Тизимдан чиқмоқчимисиз?',
     'madeInUzbekistan': "Ўзбекистонда ишлаб чиқилган",
     'topUpComingSoonTitle': 'Тез орада ишга тушади',
-    'topUpComingSoonDesc': "Баланс тўлдириш бўлими устида иш олиб борилмоқда. Тез орада сиз иловадан тўлиқ фойдалана оласиз.",
+    'topUpComingSoonDesc':
+        "Баланс тўлдириш бўлими устида иш олиб борилмоқда. Тез орада сиз иловадан тўлиқ фойдалана оласиз.",
     'goBack': 'Ортга қайтиш',
     'onboardingTitle1': 'Ҳар қандай бизнес учун',
-    'onboardingDesc1': 'Нонвойхона, шашликхона, сомсахона, ширинликлар, фастфуд — барчасини бир жойдан бошқаринг',
+    'onboardingDesc1':
+        'Нонвойхона, шашликхона, сомсахона, ширинликлар, фастфуд — барчасини бир жойдан бошқаринг',
     'onboardingTitle2': 'Тан нарх ва фойда ҳисоби',
-    'onboardingDesc2': 'Ҳар бир маҳсулотнинг тан нархини аниқ ҳисоблаб, реал фойдангизни билиб олинг',
+    'onboardingDesc2':
+        'Ҳар бир маҳсулотнинг тан нархини аниқ ҳисоблаб, реал фойдангизни билиб олинг',
     'onboardingTitle3': 'Бизнесингиз назоратда',
-    'onboardingDesc3': 'Сотув, харажат ва ишлаб чиқаришни реал вақтда кузатиб боринг',
+    'onboardingDesc3':
+        'Сотув, харажат ва ишлаб чиқаришни реал вақтда кузатиб боринг',
     'skip': 'Ўтказиб юбориш',
     'next': 'Кейинги',
     'getStarted': 'Бошлаш',
@@ -2338,23 +2723,28 @@ class S {
     'telegramConnecting': 'Уланмоқда...',
     'telegramConnectingHint': 'Телеграм очилмоқда',
     'telegramWaitingTitle': 'Телеграм кутилмоқда',
-    'telegramWaitingHint': 'Телеграмда телефон рақамингизни юборинг ва иловага қайтиш тугмасини босинг',
+    'telegramWaitingHint':
+        'Телеграмда телефон рақамингизни юборинг ва иловага қайтиш тугмасини босинг',
     'telegramOpenAgain': 'Телеграмни қайта очиш',
     'telegramRetry': 'Қайтадан уриниш',
     'telegramBackToLogin': 'Киришга қайтиш',
     'telegramSessionExpired': 'Вақт тугади. Қайтадан уриниб кўринг.',
     'tgConnectTitle': 'Телеграмни улаш',
-    'tgConnectSubtitle': 'Билдиришномаларни Телеграм орқали олиш учун ҳисобингизни уланг',
+    'tgConnectSubtitle':
+        'Билдиришномаларни Телеграм орқали олиш учун ҳисобингизни уланг',
     'tgConnectStep1': 'Телеграм очилади ва ботимиз топилади',
     'tgConnectStep2': 'Телеграмда «Start» тугмасини босинг',
     'tgConnectStep3': 'Ҳисобингиз автоматик боғланади',
     'tgConnectOpen': 'Телеграмни очиш',
     'tgConnectWaitingTitle': 'Телеграмда тасдиқланг',
-    'tgConnectWaitingHint': 'Телеграмда «Start» тугмасини босинг. Боғлангач автоматик қайтасиз.',
+    'tgConnectWaitingHint':
+        'Телеграмда «Start» тугмасини босинг. Боғлангач автоматик қайтасиз.',
     'tgConnectSuccessTitle': 'Телеграм уланди!',
-    'tgConnectSuccessHint': 'Энди муҳим билдиришномаларни Телеграм орқали оласиз.',
+    'tgConnectSuccessHint':
+        'Энди муҳим билдиришномаларни Телеграм орқали оласиз.',
     'tgConnectErrorTitle': 'Улаб бўлмади',
-    'tgConnectErrorHint': 'Бу Телеграм ҳисоби бошқа фойдаланувчига боғланган бўлиши мумкин. Қайтадан уриниб кўринг.',
+    'tgConnectErrorHint':
+        'Бу Телеграм ҳисоби бошқа фойдаланувчига боғланган бўлиши мумкин. Қайтадан уриниб кўринг.',
     'loginInfoPrefix': 'Аввал ҳисоб яратмаган бўлсангиз ',
     'loginInfoAction': 'Ҳисоб Яратиш',
     'loginInfoSuffix': ' ни босинг',
@@ -2371,15 +2761,17 @@ class S {
     'tutorialSkip': "O'tkazib yuborish",
     'tutorialStep4Title': 'Chiqimni qayd eting',
     'tutorialStep4Desc': 'Bugun qancha mahsulot chiqqanini kiriting',
-    'tutorialGoSetup':    "Sozlamalar tugmasini bosing",
+    'tutorialGoSetup': "Sozlamalar tugmasini bosing",
     'tutorialGoSetupSub': "Mahsulot, xom ashyo va hisoblashni sozlang",
-    'tutorialTapAdd':     "Qo'shish tugmasini bosing",
+    'tutorialTapAdd': "Qo'shish tugmasini bosing",
     'tutorialProductIncomeTitle': "Mahsulot kirimi",
-    'tutorialProductIncomeDesc':  "Bugungi mahsulot chiqimini shu tugma orqali qayd eting",
-    'tutorialOpenCardTitle':      "Bo'limga o'ting",
-    'tutorialOpenCardDesc':       "Bu kartani bosib, tegishli sozlamaga kiring",
-    'tutorialSettingsHintTitle':   "Бошлаш учун созланг",
-    'tutorialSettingsHintMessage': "Маҳсулот ва хом ашёларни киритинг — илова таннарх ва фойдани ўзи ҳисоблаб беради.",
+    'tutorialProductIncomeDesc':
+        "Bugungi mahsulot chiqimini shu tugma orqali qayd eting",
+    'tutorialOpenCardTitle': "Bo'limga o'ting",
+    'tutorialOpenCardDesc': "Bu kartani bosib, tegishli sozlamaga kiring",
+    'tutorialSettingsHintTitle': "Бошлаш учун созланг",
+    'tutorialSettingsHintMessage':
+        "Маҳсулот ва хом ашёларни киритинг — илова таннарх ва фойдани ўзи ҳисоблаб беради.",
     'createBusiness': 'Бизнес яратиш',
     'businessTypeStep': 'Категория',
     'businessDetailsStep': 'Маълумотлар',
@@ -2393,7 +2785,8 @@ class S {
     'description': 'Тавсиф',
     'address': 'Манзил',
     'businessLocationTitle': 'Локация',
-    'businessLocationDesc': 'GPS орқали жойлашувни сақланг ёки мanzilni қўлда киритинг',
+    'businessLocationDesc':
+        'GPS орқали жойлашувни сақланг ёки мanzilni қўлда киритинг',
     'useGpsLocation': 'GPS орқали жойлашув',
     'fetchingLocation': 'Жойлашув аниқланмоқда...',
     'locationSaved': 'Жойлашув сақланди',
@@ -2412,10 +2805,8 @@ class S {
     'businessNameRequired': 'Бизнес номини киритинг',
     'businessNameMinLength': 'Камида 2 та ҳарф',
     'selectCurrency': 'Валюта',
-    'selectCurrencyDesc':
-        'Ҳисобот ва нархларда ишлатиладиган валютани танланг',
-    'gpsAutoDetectSubtitle':
-        'Ҳозирги жойлашувингизни автоматик аниқлаш',
+    'selectCurrencyDesc': 'Ҳисобот ва нархларда ишлатиладиган валютани танланг',
+    'gpsAutoDetectSubtitle': 'Ҳозирги жойлашувингизни автоматик аниқлаш',
     'orDivider': 'ёки',
     'manualAddressLabel': 'Манзилни қўлда киритинг',
     'createBusinessSubmit': 'Бизнесни яратиш',
@@ -2449,7 +2840,8 @@ class S {
     'employeePermsSaved': 'Рухсатлар сақланди',
     'employeeSaveBtn': 'Сақлаш',
     'employeePaidConfirmTitle': 'Пулли ходим ўрни',
-    'employeePaidConfirmMsg': 'Бепул лимит тугаган. Бу ходим учун балансдан {price} (ойига) ечилади.',
+    'employeePaidConfirmMsg':
+        'Бепул лимит тугаган. Бу ходим учун балансдан {price} (ойига) ечилади.',
     'employeeContinueBtn': 'Давом этиш',
     'permViewReports': 'Ҳисоботлар',
     'permManageProducts': 'Маҳсулотлар',
@@ -2457,9 +2849,116 @@ class S {
     'permManageProduction': 'Ишлаб чиқариш',
     'permManageExpenses': 'Харажатлар',
     'permManageSales': 'Сотув / Қайтариш',
+    'languageSelectTitle': 'Тилни tanlang',
+    'languageSelectSubtitle':
+        '7 та til — o\'zbek (lotin va kirill), ingliz, rus, qozoq, qirg\'iz va turk',
+    'onboardingContinue': 'Давом этиш',
+    'authErrorGoogleNoToken':
+        'Google orqali kirish amalga oshmadi. Qayta urinib ko\'ring.',
+    'authErrorAppleNoToken':
+        'Apple orqali kirish amalga oshmadi. Qayta urinib ko\'ring.',
+    'authErrorGoogleUnsupported':
+        'Bu qurilmada Google orqali kirish qo\'llab-quvvatlanmaydi.',
   };
 
   static const _ru = {
+    'ordersNewTitle': 'Новый заказ',
+    'ordersEditTitle': 'Редактировать заказ',
+    'ordersDetailTitle': 'Заказ',
+    'ordersTabToday': 'Сегодня',
+    'ordersTabTomorrow': 'Завтра',
+    'ordersTabAll': 'Все',
+    'ordersFilterAll': 'Все',
+    'ordersStatusActive': 'Активный',
+    'ordersStatusDelivered': 'Выдан',
+    'ordersStatusCancelled': 'Отменён',
+    'ordersEmpty': 'Заказов нет',
+    'ordersEmptyDesc': 'Создайте первый заказ — укажите клиента и продукты',
+    'ordersPaid': 'Оплачен',
+    'ordersUnpaid': 'Не оплачен',
+    'ordersPartiallyPaid': 'Задаток {paid} · Остаток {remaining}',
+    'ordersDeliverAction': 'Выдан',
+    'ordersDeliverTitle': 'Выдача заказа',
+    'ordersRemainingLabel': 'Остаток',
+    'ordersPaymentNowLabel': 'Оплата сейчас',
+    'ordersFillAll': 'Всё',
+    'ordersPayLater': 'Оплатит позже',
+    'ordersPayLaterHint':
+        'Заказ будет выдан без оплаты — остаток оплатят позже',
+    'ordersDeliverConfirm': 'Выдан',
+    'ordersDelivered': 'Заказ выдан',
+    'ordersSelectCustomerRequired': 'Выберите клиента',
+    'ordersPaymentAdded': 'Оплата добавлена',
+    'ordersDeliveredAt': 'Время выдачи',
+    'ordersAddPayment': 'Добавить оплату',
+    'ordersPaymentAmountLabel': 'Сумма оплаты',
+    'ordersPaymentDateLabel': 'Время оплаты',
+    'ordersPaymentNoteLabel': 'Комментарий',
+    'ordersPaymentExceeds': 'Оплата не должна превышать остаток',
+    'ordersPaymentsTitle': 'Оплаты',
+    'ordersNoPayments': 'Оплат пока нет',
+    'ordersItemsTitle': 'Продукты',
+    'ordersProductLabel': 'Продукт',
+    'ordersAddItem': 'Добавить продукт',
+    'ordersNoProducts': 'Сначала добавьте продукты в разделе «Настройка»',
+    'ordersUnitPriceLabel': 'Цена за единицу',
+    'ordersCustomerTitle': 'Клиент',
+    'ordersExistingCustomer': 'Существующий клиент',
+    'ordersNewCustomer': 'Новый клиент',
+    'ordersSelectCustomer': 'Выберите клиента',
+    'ordersSearchCustomer': 'Имя или телефон...',
+    'ordersNoCustomers': 'Клиент не найден',
+    'ordersCustomerNameLabel': 'Имя',
+    'ordersDeliveryTitle': 'Выдача',
+    'ordersDeliveryDateLabel': 'Дата',
+    'ordersDeliveryTimeLabel': 'Время',
+    'ordersOtherDate': 'Другая дата',
+    'ordersAdvanceLabel': 'Задаток (предоплата)',
+    'ordersAdvanceExceeds': 'Задаток не должен превышать общую сумму',
+    'ordersRemainingAfterAdvance': 'Останется при выдаче',
+    'ordersTotalBelowPaid':
+        'Общая сумма не должна быть меньше уже оплаченной ({paid})',
+    'ordersNoteLabel': 'Комментарий',
+    'ordersNotePlaceholder': 'Например: на свадьбу, готово к утру',
+    'ordersCreated': 'Заказ создан',
+    'ordersUpdated': 'Заказ обновлён',
+    'ordersCancelOrder': 'Отменить',
+    'ordersCancelTitle': 'Отменить заказ?',
+    'ordersCancelDescription':
+        'Заказ перейдёт в статус «Отменён», вернуть его в работу нельзя.',
+    'ordersCancelledToast': 'Заказ отменён',
+    'ordersDeleteDescription':
+        'Заказ будет удалён навсегда. Это действие нельзя отменить.',
+    'ordersDeletedToast': 'Заказ удалён',
+    'ordersNotFound': 'Заказ не найден',
+    'ordersSummaryPaid': 'Оплачено',
+    'ordersNotActiveEdit': 'Редактировать можно только активный заказ',
+    'ordersCreate': 'Новый заказ',
+    'ordersTotalLabel': 'Итого',
+    'ordersLoadMore': 'Загрузить ещё',
+    'customersTitle': 'Клиенты',
+    'customersNewTitle': 'Новый клиент',
+    'customersEditTitle': 'Редактировать клиента',
+    'customersDetailTitle': 'Клиент',
+    'customersEmpty': 'Клиентов пока нет',
+    'customersEmptyDesc': 'Добавьте первого клиента',
+    'customersCreated': 'Клиент добавлен',
+    'customersUpdated': 'Клиент обновлён',
+    'customersDeleted': 'Клиент удалён',
+    'customersDeleteTitle': 'Удалить клиента?',
+    'customersDeleteConfirm': 'Клиент будет удалён безвозвратно. Продолжить?',
+    'customersNoteLabel': 'Примечание',
+    'customersNameLabel': 'Имя',
+    'customersOrdersHistory': 'История заказов',
+    'customersSearchHint': 'Поиск по имени или телефону',
+    'customersCreateOrder': 'Создать заказ',
+    'customersNotFound': 'Клиент не найден',
+    'permManageOrders': 'Заказы',
+    'permManageOrdersDesc': 'Управление клиентами и заказами',
+    'noPermissionTitle': 'Нет доступа',
+    'noPermissionDesc': 'У вас нет доступа к этому разделу',
+    'quantityLabel': 'Количество',
+
     'devicesTitle': 'Устройства',
     'devicesMenuDesc': 'Активные сессии',
     'devicesEmptyTitle': 'Нет устройств',
@@ -2503,7 +3002,8 @@ class S {
     'planFeatureEmployeesUnlimited': 'Безлимит сотрудников',
     'buy': 'Купить',
     'purchaseConfirmTitle': 'Подтвердите покупку',
-    'purchaseConfirmMsg': 'Тариф {plan} будет приобретён за {price}. Продолжить?',
+    'purchaseConfirmMsg':
+        'Тариф {plan} будет приобретён за {price}. Продолжить?',
     'purchaseSuccess': 'Тариф активирован',
     'insufficientBalanceTitle': 'Недостаточно средств',
     'insufficientBalanceMsg': 'Пополните баланс для оплаты',
@@ -2537,9 +3037,12 @@ class S {
     'statusFailed': 'Ошибка',
     'statusCancelled': 'Отменено',
     'limitReachedTitle': 'Лимит достигнут',
-    'limitReachedProducts': 'Лимит товаров достигнут. Перейдите на более высокий тариф.',
-    'limitReachedShops': 'Лимит бизнес-аккаунтов достигнут. Перейдите на более высокий тариф.',
-    'limitReachedEmployees': 'Лимит сотрудников достигнут. Перейдите на более высокий тариф.',
+    'limitReachedProducts':
+        'Лимит товаров достигнут. Перейдите на более высокий тариф.',
+    'limitReachedShops':
+        'Лимит бизнес-аккаунтов достигнут. Перейдите на более высокий тариф.',
+    'limitReachedEmployees':
+        'Лимит сотрудников достигнут. Перейдите на более высокий тариф.',
     'viewPlans': 'Смотреть тарифы',
     'billingMonthly': 'Месяц',
     'billingYearly': 'Год',
@@ -2571,7 +3074,8 @@ class S {
     'shopUpdateSuccess': 'Бизнес обновлён',
     'shopDeleteButton': 'Удалить бизнес',
     'shopDeleteTitle': 'Удалить бизнес',
-    'shopDeleteMessage': 'Удалить бизнес «{name}»? Это действие нельзя отменить.',
+    'shopDeleteMessage':
+        'Удалить бизнес «{name}»? Это действие нельзя отменить.',
     'shopDeleteSuccess': 'Бизнес удалён',
     'manage': 'Управление',
     'todayProfit': 'Прибыль за сегодня',
@@ -2618,7 +3122,8 @@ class S {
     'statistics': 'Статистика',
     'orders': 'Заказы',
     'ordersComingSoon': 'Скоро',
-    'ordersComingSoonDesc': 'Раздел заказов находится в разработке.\nСкоро будет готов!',
+    'ordersComingSoonDesc':
+        'Раздел заказов находится в разработке.\nСкоро будет готов!',
     'charts': 'Графики',
     'chartsScreenTitle': 'Подробные графики',
     'chartRevenue': 'Распределение доходов',
@@ -2689,8 +3194,7 @@ class S {
     'total': 'Итого',
     'settings': 'Настройки',
     'breadTypes': 'Типы продукции',
-    'breadTypesDesc':
-        'Виды товаров или услуг — цена для каждой позиции',
+    'breadTypesDesc': 'Виды товаров или услуг — цена для каждой позиции',
     'products': 'Продукты',
     'productsDesc': 'Мука, вода, соль, дрожжи, масло...',
     'recipes': 'Рецепты',
@@ -2756,8 +3260,7 @@ class S {
         'Сколько единиц продукции получается из 1 партии?',
     'recipeIngredientsSectionTitle': 'Количество сырья на одну партию',
     'recipeOutputLabelDynamic': 'Сколько продукции с 1 {unit}?',
-    'recipeIngredientsSectionTitleDynamic':
-        'Количество сырья на 1 {unit}',
+    'recipeIngredientsSectionTitleDynamic': 'Количество сырья на 1 {unit}',
     'recipeIngredientsSectionSubtitleDynamic':
         'Укажите, сколько каждого сырья идёт на 1 {unit}.',
     'recipeIngredientsSectionSubtitle':
@@ -2786,10 +3289,8 @@ class S {
     'recipeDeleteConfirmTitle': 'Удалить рецепт?',
     'recipeDeleteConfirmBody':
         'Рецепт «{name}» будет удалён. Это действие нельзя отменить.',
-    'recipeCardTooltipOutput':
-        'Количество продукции за одну партию.',
-    'recipeCardTooltipBatchCost':
-        'Себестоимость сырья на одну партию (всего).',
+    'recipeCardTooltipOutput': 'Количество продукции за одну партию.',
+    'recipeCardTooltipBatchCost': 'Себестоимость сырья на одну партию (всего).',
     'recipeCardTooltipUnitCost':
         'Себестоимость единицы продукции (всего ÷ выпуск).',
     'productionDetailTitle': 'Партия подробно',
@@ -2857,8 +3358,7 @@ class S {
     'returnProfitInfoTitle': 'Прибыль и учёт',
     'returnProfitInfoBody':
         'После записи возврата обновятся дневные продажи, выручка и прибыль (главная и отчёты) — так отражается реальное финансовое положение.',
-    'returnProfitInfoShort':
-        'Учёт возврата важен для корректной прибыли.',
+    'returnProfitInfoShort': 'Учёт возврата важен для корректной прибыли.',
     'returnProductionLabel': 'Партия (выпуск)',
     'returnNoProductionForCategory':
         'За сегодня нет выпуска по этому типу. Сначала запишите выпуск.',
@@ -2938,7 +3438,8 @@ class S {
     'disabled': 'Выключено',
     'language': 'Язык',
     'aboutApp': 'О приложении',
-    'aboutAppDescription': 'TAQSEEM — приложение для точного расчёта себестоимости, прибыли и расходов малого и среднего производственного бизнеса.',
+    'aboutAppDescription':
+        'TAQSEEM — приложение для точного расчёта себестоимости, прибыли и расходов малого и среднего производственного бизнеса.',
     'developer': 'Разработчик',
     'website': 'Сайт',
     'support': 'Поддержка',
@@ -2959,7 +3460,8 @@ class S {
     'changePhoto': 'Изменить фото',
     'aboutTagline': 'Управляйте бизнесом одним взглядом',
     'aboutWhyTitle': 'Почему TAQSEEM?',
-    'aboutWhyBody': 'TAQSEEM — современная система управления для малого и среднего производственного бизнеса. Видите ежедневное производство, расходы, возвраты и чистую прибыль в одном месте, в реальном времени.',
+    'aboutWhyBody':
+        'TAQSEEM — современная система управления для малого и среднего производственного бизнеса. Видите ежедневное производство, расходы, возвраты и чистую прибыль в одном месте, в реальном времени.',
     'aboutFeaturesTitle': 'Основные возможности',
     'featProductionTitle': 'Учёт производства',
     'featProductionDesc': 'Контроль ежедневного объёма и себестоимости.',
@@ -2974,7 +3476,8 @@ class S {
     'featRecipesTitle': 'Рецепты',
     'featRecipesDesc': 'Автоматический расчёт себестоимости ингредиентов.',
     'featMultiLangTitle': 'Мультиязычность',
-    'featMultiLangDesc': 'Приложение на 7 языках: узбекский, русский, казахский и др.',
+    'featMultiLangDesc':
+        'Приложение на 7 языках: узбекский, русский, казахский и др.',
     'featDarkModeTitle': 'Тёмная / светлая тема',
     'featDarkModeDesc': 'Удобные ночной и дневной режимы.',
     'aboutContactTitle': 'Свяжитесь с нами',
@@ -3015,10 +3518,12 @@ class S {
     'deleteAccountDesc': 'Полное удаление вашего аккаунта',
     'deleteAccountConfirm': 'Удалить навсегда',
     'deleteAccountTitle': 'Удалить аккаунт?',
-    'deleteAccountWarning': 'При удалении аккаунта все ваши магазины, отчёты, рецепты и данные будут безвозвратно удалены. Действие отменить нельзя.',
+    'deleteAccountWarning':
+        'При удалении аккаунта все ваши магазины, отчёты, рецепты и данные будут безвозвратно удалены. Действие отменить нельзя.',
     'deleteAccountContinue': 'Продолжить',
     'deleteAccountFinalTitle': 'Окончательное подтверждение',
-    'deleteAccountFinalWarning': 'Это последний шаг. После нажатия аккаунт и все ваши данные будут немедленно удалены.',
+    'deleteAccountFinalWarning':
+        'Это последний шаг. После нажатия аккаунт и все ваши данные будут немедленно удалены.',
     'deleteAccountProcessing': 'Удаление аккаунта...',
     'deleteAccountSuccess': 'Аккаунт успешно удалён.',
     'deleteAccountFailed': 'Не удалось удалить аккаунт.',
@@ -3042,14 +3547,18 @@ class S {
     'logoutConfirm': 'Вы хотите выйти из системы?',
     'madeInUzbekistan': 'Сделано в Узбекистане',
     'topUpComingSoonTitle': 'Скоро будет доступно',
-    'topUpComingSoonDesc': 'Раздел пополнения баланса находится в разработке. Скоро вы сможете полноценно пользоваться приложением.',
+    'topUpComingSoonDesc':
+        'Раздел пополнения баланса находится в разработке. Скоро вы сможете полноценно пользоваться приложением.',
     'goBack': 'Вернуться назад',
     'onboardingTitle1': 'Для любого бизнеса',
-    'onboardingDesc1': 'Пекарня, шашлычная, самсахана, кондитерская, фастфуд — управляйте из одного места',
+    'onboardingDesc1':
+        'Пекарня, шашлычная, самсахана, кондитерская, фастфуд — управляйте из одного места',
     'onboardingTitle2': 'Себестоимость и прибыль',
-    'onboardingDesc2': 'Точно рассчитайте себестоимость каждого продукта и узнайте реальную прибыль',
+    'onboardingDesc2':
+        'Точно рассчитайте себестоимость каждого продукта и узнайте реальную прибыль',
     'onboardingTitle3': 'Бизнес под контролем',
-    'onboardingDesc3': 'Отслеживайте продажи, расходы и производство в реальном времени',
+    'onboardingDesc3':
+        'Отслеживайте продажи, расходы и производство в реальном времени',
     'skip': 'Пропустить',
     'next': 'Далее',
     'getStarted': 'Начать',
@@ -3103,28 +3612,34 @@ class S {
     'telegramConnecting': 'Подключение...',
     'telegramConnectingHint': 'Открываем Telegram',
     'telegramWaitingTitle': 'Ожидание Telegram',
-    'telegramWaitingHint': 'Отправьте номер телефона в Telegram и нажмите кнопку возврата в приложение',
+    'telegramWaitingHint':
+        'Отправьте номер телефона в Telegram и нажмите кнопку возврата в приложение',
     'telegramOpenAgain': 'Открыть Telegram снова',
     'telegramRetry': 'Попробовать снова',
     'telegramBackToLogin': 'Вернуться к входу',
     'telegramSessionExpired': 'Время истекло. Попробуйте снова.',
     'tgConnectTitle': 'Подключить Telegram',
-    'tgConnectSubtitle': 'Подключите аккаунт, чтобы получать уведомления через Telegram',
+    'tgConnectSubtitle':
+        'Подключите аккаунт, чтобы получать уведомления через Telegram',
     'tgConnectStep1': 'Откроется Telegram и наш бот',
     'tgConnectStep2': 'Нажмите «Start» в Telegram',
     'tgConnectStep3': 'Ваш аккаунт подключится автоматически',
     'tgConnectOpen': 'Открыть Telegram',
     'tgConnectWaitingTitle': 'Подтвердите в Telegram',
-    'tgConnectWaitingHint': 'Нажмите «Start» в Telegram. После подключения вы вернётесь автоматически.',
+    'tgConnectWaitingHint':
+        'Нажмите «Start» в Telegram. После подключения вы вернётесь автоматически.',
     'tgConnectSuccessTitle': 'Telegram подключён!',
-    'tgConnectSuccessHint': 'Теперь вы будете получать важные уведомления в Telegram.',
+    'tgConnectSuccessHint':
+        'Теперь вы будете получать важные уведомления в Telegram.',
     'tgConnectErrorTitle': 'Не удалось подключить',
-    'tgConnectErrorHint': 'Возможно, этот аккаунт Telegram уже привязан к другому пользователю. Попробуйте снова.',
+    'tgConnectErrorHint':
+        'Возможно, этот аккаунт Telegram уже привязан к другому пользователю. Попробуйте снова.',
     'loginInfoPrefix': 'Если у вас нет аккаунта, ',
     'loginInfoAction': 'Создайте аккаунт',
     'loginInfoSuffix': '',
     'tapMapToSelect': 'Нажмите на карту, чтобы выбрать местоположение',
-    'locationPermDenied': 'Доступ к местоположению запрещён. Откройте настройки.',
+    'locationPermDenied':
+        'Доступ к местоположению запрещён. Откройте настройки.',
     'locationError': 'Не удалось определить местоположение',
     'tutorialStep1Title': 'Добавьте продукт',
     'tutorialStep1Desc': 'Введите тип производимого продукта',
@@ -3136,21 +3651,24 @@ class S {
     'tutorialSkip': 'Пропустить',
     'tutorialStep4Title': 'Запишите расход',
     'tutorialStep4Desc': 'Введите сколько продуктов выпущено сегодня',
-    'tutorialGoSetup':    'Нажмите кнопку настройки',
+    'tutorialGoSetup': 'Нажмите кнопку настройки',
     'tutorialGoSetupSub': 'Настройте продукты, сырьё и расчёты',
-    'tutorialTapAdd':     'Нажмите кнопку добавить',
+    'tutorialTapAdd': 'Нажмите кнопку добавить',
     'tutorialProductIncomeTitle': 'Приход продукта',
-    'tutorialProductIncomeDesc':  'Запишите сегодняшний выпуск продукции через эту кнопку',
-    'tutorialOpenCardTitle':      'Откройте раздел',
-    'tutorialOpenCardDesc':       'Нажмите на эту карточку, чтобы войти в настройки',
-    'tutorialSettingsHintTitle':   'Сначала настройте',
-    'tutorialSettingsHintMessage': 'Добавьте продукты и сырьё — приложение само посчитает себестоимость и прибыль.',
+    'tutorialProductIncomeDesc':
+        'Запишите сегодняшний выпуск продукции через эту кнопку',
+    'tutorialOpenCardTitle': 'Откройте раздел',
+    'tutorialOpenCardDesc': 'Нажмите на эту карточку, чтобы войти в настройки',
+    'tutorialSettingsHintTitle': 'Сначала настройте',
+    'tutorialSettingsHintMessage':
+        'Добавьте продукты и сырьё — приложение само посчитает себестоимость и прибыль.',
     'createBusiness': 'Создать бизнес',
     'businessTypeStep': 'Категория',
     'businessDetailsStep': 'Информация',
     'businessLocationStep': 'Локация',
     'selectBusinessType': 'Выберите тип бизнеса',
-    'selectBusinessTypeDesc': 'Выберите подходящую категорию — интерфейс адаптируется',
+    'selectBusinessTypeDesc':
+        'Выберите подходящую категорию — интерфейс адаптируется',
     'businessDetailsTitle': 'О бизнесе',
     'businessDetailsDesc': 'Введите основные данные вашего бизнеса',
     'businessName': 'Название бизнеса',
@@ -3158,29 +3676,28 @@ class S {
     'description': 'Описание',
     'address': 'Адрес',
     'businessLocationTitle': 'Местоположение',
-    'businessLocationDesc': 'Сохраните GPS-координаты или введите адрес вручную',
+    'businessLocationDesc':
+        'Сохраните GPS-координаты или введите адрес вручную',
     'useGpsLocation': 'Определить по GPS',
     'fetchingLocation': 'Определение местоположения...',
     'locationSaved': 'Местоположение сохранено',
     'orManualAddress': 'или введите вручную',
     'addressHint': 'Например: г. Ташкент, ул. Амира Темура, 1',
-    'locationOptionalNote': 'Местоположение необязательно. Можно добавить позже.',
+    'locationOptionalNote':
+        'Местоположение необязательно. Можно добавить позже.',
     'businessCreated': 'Бизнес создан! 🎉',
     'businessCreatedDesc': '{name} успешно создан.',
     'startWorking': 'Начать работу',
     'fieldRequired': 'Это поле обязательно',
     'continueWizard': 'Продолжить',
-    'customBusinessTypeInfo':
-        'Укажите тип бизнеса — мы это учтём',
+    'customBusinessTypeInfo': 'Укажите тип бизнеса — мы это учтём',
     'customBusinessTypeHint': 'Например: Выпечка, Лимонады...',
     'businessNameHint': 'Например: Центральная пекарня',
     'businessNameRequired': 'Введите название бизнеса',
     'businessNameMinLength': 'Минимум 2 символа',
     'selectCurrency': 'Валюта',
-    'selectCurrencyDesc':
-        'Валюта для отчётов и цен',
-    'gpsAutoDetectSubtitle':
-        'Автоматически определить текущее местоположение',
+    'selectCurrencyDesc': 'Валюта для отчётов и цен',
+    'gpsAutoDetectSubtitle': 'Автоматически определить текущее местоположение',
     'orDivider': 'или',
     'manualAddressLabel': 'Введите адрес вручную',
     'createBusinessSubmit': 'Создать бизнес',
@@ -3207,14 +3724,16 @@ class S {
     'employeeConfirmBtn': 'Подтвердить',
     'employeeCreatedMsg': 'Сотрудник успешно добавлен',
     'employeeRemoveTitle': 'Удалить сотрудника',
-    'employeeRemoveConfirm': 'Этот сотрудник не сможет войти в бизнес. Продолжить?',
+    'employeeRemoveConfirm':
+        'Этот сотрудник не сможет войти в бизнес. Продолжить?',
     'employeeRemovedMsg': 'Сотрудник удалён',
     'employeePermsTitle': 'Права доступа',
     'employeePermsDesc': 'Выберите, какими разделами может управлять сотрудник',
     'employeePermsSaved': 'Права сохранены',
     'employeeSaveBtn': 'Сохранить',
     'employeePaidConfirmTitle': 'Платное место сотрудника',
-    'employeePaidConfirmMsg': 'Бесплатный лимит исчерпан. За этого сотрудника с баланса будет списано {price} (в месяц).',
+    'employeePaidConfirmMsg':
+        'Бесплатный лимит исчерпан. За этого сотрудника с баланса будет списано {price} (в месяц).',
     'employeeContinueBtn': 'Продолжить',
     'permViewReports': 'Отчёты',
     'permManageProducts': 'Продукты',
@@ -3222,9 +3741,115 @@ class S {
     'permManageProduction': 'Производство',
     'permManageExpenses': 'Расходы',
     'permManageSales': 'Продажи / Возврат',
+    'languageSelectTitle': 'Выберите язык',
+    'languageSelectSubtitle':
+        '7 языков — английский, узбекский (латиница и кириллица), русский, казахский, киргизский и турецкий',
+    'onboardingContinue': 'Продолжить',
+    'authErrorGoogleNoToken':
+        'Не удалось войти через Google. Попробуйте снова.',
+    'authErrorAppleNoToken': 'Не удалось войти через Apple. Попробуйте снова.',
+    'authErrorGoogleUnsupported':
+        'Вход через Google не поддерживается на этом устройстве.',
   };
 
   static const _kk = {
+    'ordersNewTitle': 'Жаңа тапсырыс',
+    'ordersEditTitle': 'Тапсырысты өңдеу',
+    'ordersDetailTitle': 'Тапсырыс',
+    'ordersTabToday': 'Бүгін',
+    'ordersTabTomorrow': 'Ертең',
+    'ordersTabAll': 'Барлығы',
+    'ordersFilterAll': 'Барлығы',
+    'ordersStatusActive': 'Белсенді',
+    'ordersStatusDelivered': 'Табысталды',
+    'ordersStatusCancelled': 'Бас тартылған',
+    'ordersEmpty': 'Тапсырыстар жоқ',
+    'ordersEmptyDesc':
+        'Алғашқы тапсырысты жасаңыз — клиент пен өнімдерді енгізіңіз',
+    'ordersPaid': 'Төленді',
+    'ordersUnpaid': 'Төленбеген',
+    'ordersPartiallyPaid': 'Аванс {paid} · Қалдық {remaining}',
+    'ordersDeliverAction': 'Табысталды',
+    'ordersDeliverTitle': 'Тапсырысты табыстау',
+    'ordersRemainingLabel': 'Қалдық',
+    'ordersPaymentNowLabel': 'Қазір алынған төлем',
+    'ordersFillAll': 'Барлығын',
+    'ordersPayLater': 'Кейін төлейді',
+    'ordersPayLaterHint': 'Төлемсіз табысталады — қалдығы кейін төленеді',
+    'ordersDeliverConfirm': 'Табысталды',
+    'ordersDelivered': 'Тапсырыс табысталды',
+    'ordersSelectCustomerRequired': 'Клиентті таңдаңыз',
+    'ordersPaymentAdded': 'Төлем қосылды',
+    'ordersDeliveredAt': 'Табысталған уақыты',
+    'ordersAddPayment': 'Төлем қосу',
+    'ordersPaymentAmountLabel': 'Төлем сомасы',
+    'ordersPaymentDateLabel': 'Төлем уақыты',
+    'ordersPaymentNoteLabel': 'Түсініктеме',
+    'ordersPaymentExceeds': 'Төлем қалдықтан аспауы керек',
+    'ordersPaymentsTitle': 'Төлемдер',
+    'ordersNoPayments': 'Әзірге төлем жоқ',
+    'ordersItemsTitle': 'Өнімдер',
+    'ordersProductLabel': 'Өнім',
+    'ordersAddItem': 'Өнім қосу',
+    'ordersNoProducts': 'Алдымен Баптау бөлімінен өнім қосыңыз',
+    'ordersUnitPriceLabel': 'Бірлік бағасы',
+    'ordersCustomerTitle': 'Клиент',
+    'ordersExistingCustomer': 'Бар клиент',
+    'ordersNewCustomer': 'Жаңа клиент',
+    'ordersSelectCustomer': 'Клиентті таңдаңыз',
+    'ordersSearchCustomer': 'Аты немесе телефон...',
+    'ordersNoCustomers': 'Клиент табылмады',
+    'ordersCustomerNameLabel': 'Аты',
+    'ordersDeliveryTitle': 'Табыстау',
+    'ordersDeliveryDateLabel': 'Күні',
+    'ordersDeliveryTimeLabel': 'Уақыты',
+    'ordersOtherDate': 'Басқа күн',
+    'ordersAdvanceLabel': 'Аванс (алдын ала төлем)',
+    'ordersAdvanceExceeds': 'Аванс жалпы сомадан аспауы керек',
+    'ordersRemainingAfterAdvance': 'Табыстауда қалады',
+    'ordersTotalBelowPaid':
+        'Жалпы сома төленген сомадан ({paid}) аз болмауы керек',
+    'ordersNoteLabel': 'Түсініктеме',
+    'ordersNotePlaceholder': 'Мысалы: тойға, таңертеңге дайын болсын',
+    'ordersCreated': 'Тапсырыс жасалды',
+    'ordersUpdated': 'Тапсырыс жаңартылды',
+    'ordersCancelOrder': 'Бас тарту',
+    'ordersCancelTitle': 'Тапсырыстан бас тартасыз ба?',
+    'ordersCancelDescription':
+        'Тапсырыс бас тартылған күйге өтеді және оны қайта белсендіру мүмкін емес.',
+    'ordersCancelledToast': 'Тапсырыстан бас тартылды',
+    'ordersDeleteDescription':
+        'Тапсырыс біржола жойылады. Бұл әрекетті кері қайтару мүмкін емес.',
+    'ordersDeletedToast': 'Тапсырыс жойылды',
+    'ordersNotFound': 'Тапсырыс табылмады',
+    'ordersSummaryPaid': 'Төленді',
+    'ordersNotActiveEdit': 'Тек белсенді тапсырысты өңдеуге болады',
+    'ordersCreate': 'Jańa tapsyrys',
+    'ordersTotalLabel': 'Jami',
+    'ordersLoadMore': 'Kóbirek júkteu',
+    'customersTitle': 'Клиенттер',
+    'customersNewTitle': 'Жаңа клиент',
+    'customersEditTitle': 'Клиентті өңдеу',
+    'customersDetailTitle': 'Клиент',
+    'customersEmpty': 'Клиенттер жоқ',
+    'customersEmptyDesc': 'Алғашқы клиентіңізді қосыңыз',
+    'customersCreated': 'Клиент қосылды',
+    'customersUpdated': 'Клиент жаңартылды',
+    'customersDeleted': 'Клиент жойылды',
+    'customersDeleteTitle': 'Клиент жойылсын ба?',
+    'customersDeleteConfirm': 'Клиент толығымен жойылады. Жалғастырасиз бе?',
+    'customersNoteLabel': 'Ескертпе',
+    'customersNameLabel': 'Аты',
+    'customersOrdersHistory': 'Тапсырыс тарихы',
+    'customersSearchHint': 'Аты немесе телефон бойынша іздеу',
+    'customersCreateOrder': 'Тапсырыстар жасау',
+    'customersNotFound': 'Клиент табылмады',
+    'permManageOrders': 'Тапсырыстар',
+    'permManageOrdersDesc': 'Клиенттер мен тапсырыстарды басқару',
+    'noPermissionTitle': 'Рұқсат жоқ',
+    'noPermissionDesc': 'Бұл бөлімге рұқсат жоқ',
+    'quantityLabel': 'San',
+
     'devicesTitle': 'Құрылғылар',
     'devicesMenuDesc': 'Белсенді сессиялар',
     'devicesEmptyTitle': 'Құрылғылар жоқ',
@@ -3268,7 +3893,8 @@ class S {
     'planFeatureEmployeesUnlimited': 'Шексіз қызметкер',
     'buy': 'Сатып алу',
     'purchaseConfirmTitle': 'Сатып алуды растаңыз',
-    'purchaseConfirmMsg': '{plan} тарифі {price} бағасына сатып алынады. Жалғастырамыз ба?',
+    'purchaseConfirmMsg':
+        '{plan} тарифі {price} бағасына сатып алынады. Жалғастырамыз ба?',
     'purchaseSuccess': 'Тариф белсендірілді',
     'insufficientBalanceTitle': 'Қаражат жеткіліксіз',
     'insufficientBalanceMsg': 'Төлем үшін балансты толтырыңыз',
@@ -3291,7 +3917,8 @@ class S {
     'txnSeat': 'Қызметкер орны',
     'topUpAmount': 'Сома (UZS)',
     'topUpRequest': 'Толтыру сұрауы',
-    'topUpPendingMsg': 'Сұрауыңыз қабылданды. Расталғаннан кейін баланс жаңарады.',
+    'topUpPendingMsg':
+        'Сұрауыңыз қабылданды. Расталғаннан кейін баланс жаңарады.',
     'topUpHint': 'Толтыруды әкімші растайды',
     'noOrders': 'Тапсырыстар жоқ',
     'noOrdersDesc': 'Сатып алу тарихыңыз осында көрінеді',
@@ -3303,8 +3930,10 @@ class S {
     'statusCancelled': 'Бас тартылды',
     'limitReachedTitle': 'Шек толды',
     'limitReachedProducts': 'Өнім шегіне жеттіңіз. Жоғары тарифке өтіңіз.',
-    'limitReachedShops': 'Бизнес-аккаунт шегіне жеттіңіз. Жоғары тарифке өтіңіз.',
-    'limitReachedEmployees': 'Қызметкер шегіне жеттіңіз. Жоғары тарифке өтіңіз.',
+    'limitReachedShops':
+        'Бизнес-аккаунт шегіне жеттіңіз. Жоғары тарифке өтіңіз.',
+    'limitReachedEmployees':
+        'Қызметкер шегіне жеттіңіз. Жоғары тарифке өтіңіз.',
     'viewPlans': 'Тарифтерді көру',
     'billingMonthly': 'Айлық',
     'billingYearly': 'Жылдық',
@@ -3326,7 +3955,8 @@ class S {
     'selectBusiness': 'Бизнес таңдаңыз',
     'selectBusinessSubtitle': 'Басқарғыңыз келген бизнесті таңдаңыз',
     'noBusiness': 'Бизнес жоқ',
-    'createFirstBusiness': 'Алғашқы бизнесіңізді жасаңыз\nжәне басқаруды бастаңыз',
+    'createFirstBusiness':
+        'Алғашқы бизнесіңізді жасаңыз\nжәне басқаруды бастаңыз',
     'addBusiness': 'Жаңа бизнес қосу',
     'shopSettingsTitle': 'Бизнес баптаулары',
     'shopNameLabel': 'Бизнес атауы',
@@ -3336,7 +3966,8 @@ class S {
     'shopUpdateSuccess': 'Бизнес жаңартылды',
     'shopDeleteButton': 'Бизнесті жою',
     'shopDeleteTitle': 'Бизнесті жою',
-    'shopDeleteMessage': '«{name}» бизнесін жоюды қалайсыз ба? Бұл әрекетті қайтару мүмкін емес.',
+    'shopDeleteMessage':
+        '«{name}» бизнесін жоюды қалайсыз ба? Бұл әрекетті қайтару мүмкін емес.',
     'shopDeleteSuccess': 'Бизнес жойылды',
     'manage': 'Басқару',
     'todayProfit': 'Бүгінгі пайда',
@@ -3383,7 +4014,8 @@ class S {
     'statistics': 'Статистика',
     'orders': 'Тапсырыстар',
     'ordersComingSoon': 'Жақында',
-    'ordersComingSoonDesc': 'Тапсырыстар бөлімі әзірленуде.\nЖақын арада дайын болады!',
+    'ordersComingSoonDesc':
+        'Тапсырыстар бөлімі әзірленуде.\nЖақын арада дайын болады!',
     'charts': 'Графиктер',
     'chartsScreenTitle': 'Толық графиктер',
     'chartRevenue': 'Табыс бөлінісі',
@@ -3454,8 +4086,7 @@ class S {
     'total': 'Барлығы',
     'settings': 'Баптаулар',
     'breadTypes': 'Өнім түрлері',
-    'breadTypesDesc':
-        'Сататын өнім немесе қызмет түрлері — әрқайсысына баға',
+    'breadTypesDesc': 'Сататын өнім немесе қызмет түрлері — әрқайсысына баға',
     'products': 'Өнімдер',
     'productsDesc': 'Ұн, су, тұз, ашытқы, май...',
     'recipes': 'Рецепттер',
@@ -3517,12 +4148,10 @@ class S {
     'recipeOutputLabel': 'Өнім саны',
     'recipeOutputHint': 'Мысалы: 100',
     'recipeOutputSectionTitle': 'Өнім саны',
-    'recipeOutputSectionHelper':
-        '1 партиядан неше өнім шығады?',
+    'recipeOutputSectionHelper': '1 партиядан неше өнім шығады?',
     'recipeIngredientsSectionTitle': 'Бір партияға шикізат мөлшері',
     'recipeOutputLabelDynamic': '1 {unit}тан қанша өнім шығады?',
-    'recipeIngredientsSectionTitleDynamic':
-        '1 {unit} үшін шикізат мөлшері',
+    'recipeIngredientsSectionTitleDynamic': '1 {unit} үшін шикізат мөлшері',
     'recipeIngredientsSectionSubtitleDynamic':
         '1 {unit}ға қанша шикізат кететінін көрсетіңіз.',
     'recipeIngredientsSectionSubtitle':
@@ -3537,8 +4166,7 @@ class S {
     'recipeValidationBatch': 'Партия бірлігін таңдаңыз',
     'recipeValidationOutput': 'Шығу санын енгізіңіз',
     'recipeValidationIngredients': 'Кемінде бір шикізат қосыңыз',
-    'recipeValidationDuplicateIngredient':
-        'Бір ингредиент екі рет қосылған',
+    'recipeValidationDuplicateIngredient': 'Бір ингредиент екі рет қосылған',
     'recipeSaveSuccess': 'Рецепт сақталды',
     'recipeRecipeBatchLine': '1 {unit} → {qty} дана',
     'recipeBack': 'Артқа',
@@ -3551,8 +4179,7 @@ class S {
     'recipeDeleteConfirmTitle': 'Рецептті жою?',
     'recipeDeleteConfirmBody':
         '«{name}» рецепті жойылады. Бұл әрекетті болдырмауға болмайды.',
-    'recipeCardTooltipOutput':
-        'Бір партиядан шығатын өнім саны.',
+    'recipeCardTooltipOutput': 'Бір партиядан шығатын өнім саны.',
     'recipeCardTooltipBatchCost':
         'Бір партияға шикізаттың өзіндік құны (жалпы).',
     'recipeCardTooltipUnitCost':
@@ -3592,8 +4219,7 @@ class S {
     'productionOutStep2': 'Топтам',
     'productionOutStep3': 'Қорытынды',
     'productionOutStep1Title': 'Қай өнім?',
-    'productionOutStep1Subtitle':
-        'Есептеуге байланған өнім түрін таңдаңыз.',
+    'productionOutStep1Subtitle': 'Есептеуге байланған өнім түрін таңдаңыз.',
     'productionOutCategoryLabel': 'Өнім түрі',
     'productionOutCategoryHint': 'Таңдаңыз',
     'productionOutNoRecipeWarning':
@@ -3703,7 +4329,8 @@ class S {
     'disabled': 'Өшірілген',
     'language': 'Тіл',
     'aboutApp': 'Қолданба туралы',
-    'aboutAppDescription': 'TAQSEEM — шағын және орта өндірістік бизнестердің өзіндік құнын, пайдасын және шығындарын дәл есептеу қолданбасы.',
+    'aboutAppDescription':
+        'TAQSEEM — шағын және орта өндірістік бизнестердің өзіндік құнын, пайдасын және шығындарын дәл есептеу қолданбасы.',
     'developer': 'Әзірлеуші',
     'website': 'Веб-сайт',
     'support': 'Қолдау',
@@ -3724,7 +4351,8 @@ class S {
     'changePhoto': 'Суретті өзгерту',
     'aboutTagline': 'Бизнесіңізді бір қарауда басқарыңыз',
     'aboutWhyTitle': 'Неге TAQSEEM?',
-    'aboutWhyBody': 'TAQSEEM — шағын және орта өндірістік бизнеске арналған заманауи басқару жүйесі. Күнделікті өндіріс, шығын, қайтарымдар мен таза пайданы бір жерде, нақты уақытта көріңіз.',
+    'aboutWhyBody':
+        'TAQSEEM — шағын және орта өндірістік бизнеске арналған заманауи басқару жүйесі. Күнделікті өндіріс, шығын, қайтарымдар мен таза пайданы бір жерде, нақты уақытта көріңіз.',
     'aboutFeaturesTitle': 'Негізгі мүмкіндіктер',
     'featProductionTitle': 'Өндіріс есебі',
     'featProductionDesc': 'Күнделікті көлем мен өзіндік құн бақылауы.',
@@ -3780,10 +4408,12 @@ class S {
     'deleteAccountDesc': 'Аккаунтыңызды толығымен жою',
     'deleteAccountConfirm': 'Біржола жою',
     'deleteAccountTitle': 'Аккаунтты жоясыз ба?',
-    'deleteAccountWarning': 'Аккаунтыңыз жойылса, барлық дүкендеріңіз, есептеріңіз, рецепттеріңіз және деректеріңіз мүлдем жойылады. Бұл әрекетті қайтару мүмкін емес.',
+    'deleteAccountWarning':
+        'Аккаунтыңыз жойылса, барлық дүкендеріңіз, есептеріңіз, рецепттеріңіз және деректеріңіз мүлдем жойылады. Бұл әрекетті қайтару мүмкін емес.',
     'deleteAccountContinue': 'Жалғастыру',
     'deleteAccountFinalTitle': 'Соңғы растау',
-    'deleteAccountFinalWarning': 'Бұл соңғы мүмкіндік. Түймені басқан соң аккаунт пен барлық деректер бірден жойылады.',
+    'deleteAccountFinalWarning':
+        'Бұл соңғы мүмкіндік. Түймені басқан соң аккаунт пен барлық деректер бірден жойылады.',
     'deleteAccountProcessing': 'Аккаунт жойылуда...',
     'deleteAccountSuccess': 'Аккаунт сәтті жойылды.',
     'deleteAccountFailed': 'Аккаунтты жою сәтсіз аяқталды.',
@@ -3807,14 +4437,18 @@ class S {
     'logoutConfirm': 'Жүйеден шығғыңыз келе ме?',
     'madeInUzbekistan': 'Өзбекстанда жасалған',
     'topUpComingSoonTitle': 'Жақын арада іске қосылады',
-    'topUpComingSoonDesc': 'Балансты толтыру бөлімі әзірлену үстінде. Жақын арада қолданбаны толық пайдалана аласыз.',
+    'topUpComingSoonDesc':
+        'Балансты толтыру бөлімі әзірлену үстінде. Жақын арада қолданбаны толық пайдалана аласыз.',
     'goBack': 'Артқа қайту',
     'onboardingTitle1': 'Кез келген бизнес үшін',
-    'onboardingDesc1': 'Наубайхана, шашлықхана, самсахана, кондитерлік, фастфуд — барлығын бір жерден басқарыңыз',
+    'onboardingDesc1':
+        'Наубайхана, шашлықхана, самсахана, кондитерлік, фастфуд — барлығын бір жерден басқарыңыз',
     'onboardingTitle2': 'Өзіндік құн және пайда есебі',
-    'onboardingDesc2': 'Әр өнімнің өзіндік құнын дәл есептеп, нақты пайданы біліңіз',
+    'onboardingDesc2':
+        'Әр өнімнің өзіндік құнын дәл есептеп, нақты пайданы біліңіз',
     'onboardingTitle3': 'Бизнесіңіз бақылауда',
-    'onboardingDesc3': 'Сатылым, шығын және өндірісті нақты уақытта қадағалаңыз',
+    'onboardingDesc3':
+        'Сатылым, шығын және өндірісті нақты уақытта қадағалаңыз',
     'skip': 'Өткізіп жіберу',
     'next': 'Келесі',
     'getStarted': 'Бастау',
@@ -3868,23 +4502,28 @@ class S {
     'telegramConnecting': 'Қосылуда...',
     'telegramConnectingHint': 'Telegram ашылуда',
     'telegramWaitingTitle': 'Telegram күтілуде',
-    'telegramWaitingHint': 'Telegram-да телефон нөміріңізді жіберіп, қолданбаға қайту батырмасын басыңыз',
+    'telegramWaitingHint':
+        'Telegram-да телефон нөміріңізді жіберіп, қолданбаға қайту батырмасын басыңыз',
     'telegramOpenAgain': 'Telegram-ды қайта ашу',
     'telegramRetry': 'Қайталап көру',
     'telegramBackToLogin': 'Кіруге қайту',
     'telegramSessionExpired': 'Уақыт бітті. Қайталап көріңіз.',
     'tgConnectTitle': 'Telegram-ды қосу',
-    'tgConnectSubtitle': 'Telegram арқылы хабарландыруларды алу үшін аккаунтыңызды қосыңыз',
+    'tgConnectSubtitle':
+        'Telegram арқылы хабарландыруларды алу үшін аккаунтыңызды қосыңыз',
     'tgConnectStep1': 'Telegram және ботымыз ашылады',
     'tgConnectStep2': 'Telegram-да «Start» түймесін басыңыз',
     'tgConnectStep3': 'Аккаунтыңыз автоматты қосылады',
     'tgConnectOpen': 'Telegram-ды ашу',
     'tgConnectWaitingTitle': 'Telegram-да растаңыз',
-    'tgConnectWaitingHint': 'Telegram-да «Start» түймесін басыңыз. Қосылғаннан кейін автоматты ораласыз.',
+    'tgConnectWaitingHint':
+        'Telegram-да «Start» түймесін басыңыз. Қосылғаннан кейін автоматты ораласыз.',
     'tgConnectSuccessTitle': 'Telegram қосылды!',
-    'tgConnectSuccessHint': 'Енді маңызды хабарландыруларды Telegram арқылы аласыз.',
+    'tgConnectSuccessHint':
+        'Енді маңызды хабарландыруларды Telegram арқылы аласыз.',
     'tgConnectErrorTitle': 'Қосу мүмкін болмады',
-    'tgConnectErrorHint': 'Бұл Telegram аккаунты басқа пайдаланушыға байланған болуы мүмкін. Қайталап көріңіз.',
+    'tgConnectErrorHint':
+        'Бұл Telegram аккаунты басқа пайдаланушыға байланған болуы мүмкін. Қайталап көріңіз.',
     'loginInfoPrefix': 'Бұрын аккаунт жасамаған болсаңыз ',
     'loginInfoAction': 'Аккаунт Жасаңыз',
     'loginInfoSuffix': ' деп басыңыз',
@@ -3901,15 +4540,17 @@ class S {
     'tutorialSkip': 'Өткізіп жіберу',
     'tutorialStep4Title': 'Шығымды жазыңыз',
     'tutorialStep4Desc': 'Бүгін қанша өнім шыққанын енгізіңіз',
-    'tutorialGoSetup':    'Баптау түймесін басыңыз',
+    'tutorialGoSetup': 'Баптау түймесін басыңыз',
     'tutorialGoSetupSub': 'Өнімдер, шикізат және есептеуді баптаңыз',
-    'tutorialTapAdd':     'Қосу түймесін басыңыз',
+    'tutorialTapAdd': 'Қосу түймесін басыңыз',
     'tutorialProductIncomeTitle': 'Өнім кірісі',
-    'tutorialProductIncomeDesc':  'Бүгінгі өнім шығарылымын осы түйме арқылы тіркеңіз',
-    'tutorialOpenCardTitle':      'Бөлімге өтіңіз',
-    'tutorialOpenCardDesc':       'Осы картаны басып, тиісті параметрге кіріңіз',
-    'tutorialSettingsHintTitle':   'Алдымен баптаңыз',
-    'tutorialSettingsHintMessage': 'Өнімдер мен шикізатты қосыңыз — қолданба өзіндік құн мен пайданы өзі есептейді.',
+    'tutorialProductIncomeDesc':
+        'Бүгінгі өнім шығарылымын осы түйме арқылы тіркеңіз',
+    'tutorialOpenCardTitle': 'Бөлімге өтіңіз',
+    'tutorialOpenCardDesc': 'Осы картаны басып, тиісті параметрге кіріңіз',
+    'tutorialSettingsHintTitle': 'Алдымен баптаңыз',
+    'tutorialSettingsHintMessage':
+        'Өнімдер мен шикізатты қосыңыз — қолданба өзіндік құн мен пайданы өзі есептейді.',
     'createBusiness': 'Бизнес жасау',
     'businessTypeStep': 'Санат',
     'businessDetailsStep': 'Деректер',
@@ -3923,7 +4564,8 @@ class S {
     'description': 'Сипаттама',
     'address': 'Мекенжай',
     'businessLocationTitle': 'Орналасу',
-    'businessLocationDesc': 'GPS арқылы орнын сақтаңыз немесе мекенжайды қолмен енгізіңіз',
+    'businessLocationDesc':
+        'GPS арқылы орнын сақтаңыз немесе мекенжайды қолмен енгізіңіз',
     'useGpsLocation': 'GPS арқылы анықтау',
     'fetchingLocation': 'Орналасу анықталуда...',
     'locationSaved': 'Орналасу сақталды',
@@ -3935,17 +4577,14 @@ class S {
     'startWorking': 'Жұмысты бастау',
     'fieldRequired': 'Бұл өріс міндетті',
     'continueWizard': 'Жалғастыру',
-    'customBusinessTypeInfo':
-        'Бизнес түріңізді жазыңыз — біз ескереміз',
+    'customBusinessTypeInfo': 'Бизнес түріңізді жазыңыз — біз ескереміз',
     'customBusinessTypeHint': 'Мысалы: Пісірімдер, Лимонад...',
     'businessNameHint': 'Мысалы: Орталық наубайхана',
     'businessNameRequired': 'Бизнес атауын енгізіңіз',
     'businessNameMinLength': 'Кемінде 2 таңба',
     'selectCurrency': 'Валюта',
-    'selectCurrencyDesc':
-        'Есептер мен бағалар үшін валюта',
-    'gpsAutoDetectSubtitle':
-        'Ағымдағы орныңызды автоматты анықтау',
+    'selectCurrencyDesc': 'Есептер мен бағалар үшін валюта',
+    'gpsAutoDetectSubtitle': 'Ағымдағы орныңызды автоматты анықтау',
     'orDivider': 'немесе',
     'manualAddressLabel': 'Мекенжайды қолмен енгізіңіз',
     'createBusinessSubmit': 'Бизнес жасау',
@@ -3972,14 +4611,16 @@ class S {
     'employeeConfirmBtn': 'Растау',
     'employeeCreatedMsg': 'Қызметкер сәтті қосылды',
     'employeeRemoveTitle': 'Қызметкерді шығару',
-    'employeeRemoveConfirm': 'Бұл қызметкер бизнеске кіре алмайды. Жалғастырамыз ба?',
+    'employeeRemoveConfirm':
+        'Бұл қызметкер бизнеске кіре алмайды. Жалғастырамыз ба?',
     'employeeRemovedMsg': 'Қызметкер шығарылды',
     'employeePermsTitle': 'Рұқсаттар',
     'employeePermsDesc': 'Қызметкер қай бөлімдерді басқара алатынын таңдаңыз',
     'employeePermsSaved': 'Рұқсаттар сақталды',
     'employeeSaveBtn': 'Сақтау',
     'employeePaidConfirmTitle': 'Ақылы қызметкер орны',
-    'employeePaidConfirmMsg': 'Тегін лимит бітті. Бұл қызметкер үшін баланстан {price} (айына) алынады.',
+    'employeePaidConfirmMsg':
+        'Тегін лимит бітті. Бұл қызметкер үшін баланстан {price} (айына) алынады.',
     'employeeContinueBtn': 'Жалғастыру',
     'permViewReports': 'Есептер',
     'permManageProducts': 'Өнімдер',
@@ -3987,9 +4628,116 @@ class S {
     'permManageProduction': 'Өндіріс',
     'permManageExpenses': 'Шығындар',
     'permManageSales': 'Сату / Қайтару',
+    'languageSelectTitle': 'Тілді таңдаңыз',
+    'languageSelectSubtitle':
+        '7 тіл — ағылшын, өзбек (латын және кириллица), орыс, қазах, қырғыз және түрік',
+    'onboardingContinue': 'Жалғастыру',
+    'authErrorGoogleNoToken':
+        'Google арқылы кіру сәтсіз аяқталды. Қайта көріңіз.',
+    'authErrorAppleNoToken':
+        'Apple арқылы кіру сәтсіз аяқталды. Қайта көріңіз.',
+    'authErrorGoogleUnsupported':
+        'Бұл құрылғыда Google арқылы кіру қолдау көрсетілмейді.',
   };
 
   static const _ky = {
+    'ordersNewTitle': 'Жаңы заказ',
+    'ordersEditTitle': 'Заказды оңдоо',
+    'ordersDetailTitle': 'Заказ',
+    'ordersTabToday': 'Бүгүн',
+    'ordersTabTomorrow': 'Эртең',
+    'ordersTabAll': 'Баары',
+    'ordersFilterAll': 'Баары',
+    'ordersStatusActive': 'Активдүү',
+    'ordersStatusDelivered': 'Тапшырылды',
+    'ordersStatusCancelled': 'Жокко чыгарылган',
+    'ordersEmpty': 'Заказдар жок',
+    'ordersEmptyDesc':
+        'Биринчи заказды түзүңүз — кардарды жана продуктуларды киргизиңиз',
+    'ordersPaid': 'Төлөндү',
+    'ordersUnpaid': 'Төлөнгөн жок',
+    'ordersPartiallyPaid': 'Аванс {paid} · Калдык {remaining}',
+    'ordersDeliverAction': 'Тапшырылды',
+    'ordersDeliverTitle': 'Заказды тапшыруу',
+    'ordersRemainingLabel': 'Калдык',
+    'ordersPaymentNowLabel': 'Азыр алынган төлөм',
+    'ordersFillAll': 'Баарын',
+    'ordersPayLater': 'Кийин төлөйт',
+    'ordersPayLaterHint': 'Төлөмсүз тапшырылат — калдыгы кийин төлөнөт',
+    'ordersDeliverConfirm': 'Тапшырылды',
+    'ordersDelivered': 'Заказ тапшырылды',
+    'ordersSelectCustomerRequired': 'Кардарды тандаңыз',
+    'ordersPaymentAdded': 'Төлөм кошулду',
+    'ordersDeliveredAt': 'Тапшырылган убакыт',
+    'ordersAddPayment': 'Төлөм кошуу',
+    'ordersPaymentAmountLabel': 'Төлөм суммасы',
+    'ordersPaymentDateLabel': 'Төлөм убактысы',
+    'ordersPaymentNoteLabel': 'Эскертүү',
+    'ordersPaymentExceeds': 'Төлөм калдыктан ашпашы керек',
+    'ordersPaymentsTitle': 'Төлөмдөр',
+    'ordersNoPayments': 'Азырынча төлөм жок',
+    'ordersItemsTitle': 'Продуктулар',
+    'ordersProductLabel': 'Продукт',
+    'ordersAddItem': 'Продукт кошуу',
+    'ordersNoProducts': 'Адегенде Жөндөө бөлүмүнөн продукт кошуңуз',
+    'ordersUnitPriceLabel': 'Бирдик баасы',
+    'ordersCustomerTitle': 'Кардар',
+    'ordersExistingCustomer': 'Учурдагы кардар',
+    'ordersNewCustomer': 'Жаңы кардар',
+    'ordersSelectCustomer': 'Кардарды тандаңыз',
+    'ordersSearchCustomer': 'Аты же телефон...',
+    'ordersNoCustomers': 'Кардар табылган жок',
+    'ordersCustomerNameLabel': 'Аты',
+    'ordersDeliveryTitle': 'Тапшыруу',
+    'ordersDeliveryDateLabel': 'Дата',
+    'ordersDeliveryTimeLabel': 'Убакыт',
+    'ordersOtherDate': 'Башка дата',
+    'ordersAdvanceLabel': 'Аванс (алдын ала төлөм)',
+    'ordersAdvanceExceeds': 'Аванс жалпы суммадан ашпашы керек',
+    'ordersRemainingAfterAdvance': 'Тапшырууда калат',
+    'ordersTotalBelowPaid':
+        'Жалпы сумма төлөнгөн суммадан ({paid}) аз болбошу керек',
+    'ordersNoteLabel': 'Эскертүү',
+    'ordersNotePlaceholder': 'Мисалы: тойго, эртең мененкиге даяр болсун',
+    'ordersCreated': 'Заказ түзүлдү',
+    'ordersUpdated': 'Заказ жаңыланды',
+    'ordersCancelOrder': 'Жокко чыгаруу',
+    'ordersCancelTitle': 'Заказ жокко чыгарылсынбы?',
+    'ordersCancelDescription':
+        'Заказ жокко чыгарылган абалга өтөт жана аны кайра активдештирүү мүмкүн эмес.',
+    'ordersCancelledToast': 'Заказ жокко чыгарылды',
+    'ordersDeleteDescription':
+        'Заказ биротоло өчүрүлөт. Бул аракетти артка кайтаруу мүмкүн эмес.',
+    'ordersDeletedToast': 'Заказ өчүрүлдү',
+    'ordersNotFound': 'Заказ табылган жок',
+    'ordersSummaryPaid': 'Төлөндү',
+    'ordersNotActiveEdit': 'Активдүү заказды гана оңдоого болот',
+    'ordersCreate': 'Jańy zakaz',
+    'ordersTotalLabel': 'Jami',
+    'ordersLoadMore': 'Köbürök jüktoo',
+    'customersTitle': 'Кардарлар',
+    'customersNewTitle': 'Жаңы кардар',
+    'customersEditTitle': 'Кардарды түзөтүү',
+    'customersDetailTitle': 'Кардар',
+    'customersEmpty': 'Кардарлар жок',
+    'customersEmptyDesc': 'Биринчи кардараңызды кошу',
+    'customersCreated': 'Кардар кошулду',
+    'customersUpdated': 'Кардар жаңыланды',
+    'customersDeleted': 'Кардар өчүрүлдү',
+    'customersDeleteTitle': 'Кардар өчүрүлсүнбү?',
+    'customersDeleteConfirm': 'Кардар толук өчүрүлөт. Улантасызбы?',
+    'customersNoteLabel': 'Эскертүү',
+    'customersNameLabel': 'Аты',
+    'customersOrdersHistory': 'Заказдар тарыхы',
+    'customersSearchHint': 'Аты же телефон боюнча издөө',
+    'customersCreateOrder': 'Заказдар түзүү',
+    'customersNotFound': 'Кардар табылган жок',
+    'permManageOrders': 'Заказдар',
+    'permManageOrdersDesc': 'Кардарлар менен Заказдар башкаруу',
+    'noPermissionTitle': 'Уруксат жок',
+    'noPermissionDesc': 'Бул бөлүмгө уруксат берилген эмес',
+    'quantityLabel': 'Sany',
+
     'devicesTitle': 'Түзмөктөр',
     'devicesMenuDesc': 'Активдүү сессиялар',
     'devicesEmptyTitle': 'Түзмөктөр жок',
@@ -4033,7 +4781,8 @@ class S {
     'planFeatureEmployeesUnlimited': 'Чексиз кызматкер',
     'buy': 'Сатып алуу',
     'purchaseConfirmTitle': 'Сатып алууну ырастаңыз',
-    'purchaseConfirmMsg': '{plan} тарифи {price} баасына сатып алынат. Улантабызбы?',
+    'purchaseConfirmMsg':
+        '{plan} тарифи {price} баасына сатып алынат. Улантабызбы?',
     'purchaseSuccess': 'Тариф иштетилди',
     'insufficientBalanceTitle': 'Каражат жетишсиз',
     'insufficientBalanceMsg': 'Төлөм үчүн балансты толтуруңуз',
@@ -4056,7 +4805,8 @@ class S {
     'txnSeat': 'Кызматкер орду',
     'topUpAmount': 'Сумма (UZS)',
     'topUpRequest': 'Толтуруу сурамы',
-    'topUpPendingMsg': 'Сурамыңыз кабыл алынды. Ырасталгандан кийин баланс жаңырат.',
+    'topUpPendingMsg':
+        'Сурамыңыз кабыл алынды. Ырасталгандан кийин баланс жаңырат.',
     'topUpHint': 'Толтурууну администратор ырастайт',
     'noOrders': 'Заказдар жок',
     'noOrdersDesc': 'Сатып алуу тарыхыңыз бул жерде көрүнөт',
@@ -4068,8 +4818,10 @@ class S {
     'statusCancelled': 'Жокко чыгарылды',
     'limitReachedTitle': 'Лимит толду',
     'limitReachedProducts': 'Продукт чегине жеттиңиз. Жогорку тарифке өтүңүз.',
-    'limitReachedShops': 'Бизнес-аккаунт чегине жеттиңиз. Жогорку тарифке өтүңүз.',
-    'limitReachedEmployees': 'Кызматкер чегине жеттиңиз. Жогорку тарифке өтүңүз.',
+    'limitReachedShops':
+        'Бизнес-аккаунт чегине жеттиңиз. Жогорку тарифке өтүңүз.',
+    'limitReachedEmployees':
+        'Кызматкер чегине жеттиңиз. Жогорку тарифке өтүңүз.',
     'viewPlans': 'Тарифтерди көрүү',
     'billingMonthly': 'Айлык',
     'billingYearly': 'Жылдык',
@@ -4091,7 +4843,8 @@ class S {
     'selectBusiness': 'Бизнес тандаңыз',
     'selectBusinessSubtitle': 'Башкаргыңыз келген бизнести тандаңыз',
     'noBusiness': 'Азырынча бизнес жок',
-    'createFirstBusiness': 'Биринчи бизнесиңизди жасаңыз\nжана башкарууну баштаңыз',
+    'createFirstBusiness':
+        'Биринчи бизнесиңизди жасаңыз\nжана башкарууну баштаңыз',
     'addBusiness': 'Жаңы бизнес кошуу',
     'shopSettingsTitle': 'Бизнес жөндөөлөрү',
     'shopNameLabel': 'Бизнес аталышы',
@@ -4101,7 +4854,8 @@ class S {
     'shopUpdateSuccess': 'Бизнес жаңыланды',
     'shopDeleteButton': 'Бизнести жок кылуу',
     'shopDeleteTitle': 'Бизнести жок кылуу',
-    'shopDeleteMessage': '«{name}» бизнесин жок кылгыңыз келеби? Бул аракетти кайтаруу мүмкүн эмес.',
+    'shopDeleteMessage':
+        '«{name}» бизнесин жок кылгыңыз келеби? Бул аракетти кайтаруу мүмкүн эмес.',
     'shopDeleteSuccess': 'Бизнес жок кылынды',
     'manage': 'Башкаруу',
     'todayProfit': 'Бүгүнкү пайда',
@@ -4148,7 +4902,8 @@ class S {
     'statistics': 'Статистика',
     'orders': 'Буйрутмалар',
     'ordersComingSoon': 'Жакында',
-    'ordersComingSoonDesc': 'Буйрутмалар бөлүмү иштелүүдө.\nЖакын арада даяр болот!',
+    'ordersComingSoonDesc':
+        'Буйрутмалар бөлүмү иштелүүдө.\nЖакын арада даяр болот!',
     'charts': 'Графиктер',
     'chartsScreenTitle': 'Толук графиктер',
     'chartRevenue': 'Киреше бөлүнүшү',
@@ -4219,8 +4974,7 @@ class S {
     'total': 'Бардыгы',
     'settings': 'Жөндөөлөр',
     'breadTypes': 'Өнүм түрлөрү',
-    'breadTypesDesc':
-        'Сатылган өнүм же кызмат түрлөрү — ар бирине баа',
+    'breadTypesDesc': 'Сатылган өнүм же кызмат түрлөрү — ар бирине баа',
     'products': 'Продукттар',
     'productsDesc': 'Ун, суу, туз, ачыткы, май...',
     'recipes': 'Рецепттер',
@@ -4282,12 +5036,10 @@ class S {
     'recipeOutputLabel': 'Өнүм саны',
     'recipeOutputHint': 'Мисалы: 100',
     'recipeOutputSectionTitle': 'Өнүм саны',
-    'recipeOutputSectionHelper':
-        '1 партиядан канча өнүм чыгат?',
+    'recipeOutputSectionHelper': '1 партиядан канча өнүм чыгат?',
     'recipeIngredientsSectionTitle': 'Бир партия үчүн чийки зат өлчөмү',
     'recipeOutputLabelDynamic': '1 {unit}тан канча өнүм чыгат?',
-    'recipeIngredientsSectionTitleDynamic':
-        '1 {unit} үчүн чийки зат өлчөмү',
+    'recipeIngredientsSectionTitleDynamic': '1 {unit} үчүн чийки зат өлчөмү',
     'recipeIngredientsSectionSubtitleDynamic':
         '1 {unit}га канча чийки зат кетерин көрсөтүңүз.',
     'recipeIngredientsSectionSubtitle':
@@ -4316,8 +5068,7 @@ class S {
     'recipeDeleteConfirmTitle': 'Рецептти өчүрүү?',
     'recipeDeleteConfirmBody':
         '«{name}» рецепти өчүрүлөт. Бул аракетти кайтаруу мүмкүн эмес.',
-    'recipeCardTooltipOutput':
-        'Бир партиядан чыккан өнүм саны.',
+    'recipeCardTooltipOutput': 'Бир партиядан чыккан өнүм саны.',
     'recipeCardTooltipBatchCost':
         'Бир партия үчүн чийки заттын өзүнүн баасы (жалпы).',
     'recipeCardTooltipUnitCost':
@@ -4334,8 +5085,7 @@ class S {
     'productionDetailQtyTotal': 'Жалпы көлөм',
     'productionDetailGrams': '{g} г',
     'productionDetailPricePerUnit': 'Бирдик баасы',
-    'productionDetailNoIngredients':
-        'Рецепт ингредиенттери жок же жүктөлбөдү.',
+    'productionDetailNoIngredients': 'Рецепт ингредиенттери жок же жүктөлбөдү.',
     'productionDetailReturnToday': 'Бүгүнкү кайтаруу (бул түр боюнча)',
     'productionDetailEdit': 'Оңдоо',
     'productionDetailEditSheetTitle': 'Партия жана кайтаруулар',
@@ -4357,8 +5107,7 @@ class S {
     'productionOutStep2': 'Топтом',
     'productionOutStep3': 'Жыйынтык',
     'productionOutStep1Title': 'Кайсы өнүм?',
-    'productionOutStep1Subtitle':
-        'Эсептөөгө байланган өнүм түрүн тандаңыз.',
+    'productionOutStep1Subtitle': 'Эсептөөгө байланган өнүм түрүн тандаңыз.',
     'productionOutCategoryLabel': 'Өнүм түрү',
     'productionOutCategoryHint': 'Тандаңыз',
     'productionOutNoRecipeWarning':
@@ -4468,7 +5217,8 @@ class S {
     'disabled': 'Өчүрүлгөн',
     'language': 'Тил',
     'aboutApp': 'Тиркеме жөнүндө',
-    'aboutAppDescription': 'TAQSEEM — чакан жана орто өндүрүш бизнестеринин өздүк наркын, пайдасын жана чыгымдарын так эсептөө тиркемеси.',
+    'aboutAppDescription':
+        'TAQSEEM — чакан жана орто өндүрүш бизнестеринин өздүк наркын, пайдасын жана чыгымдарын так эсептөө тиркемеси.',
     'developer': 'Иштеп чыгуучу',
     'website': 'Веб-сайт',
     'support': 'Колдоо',
@@ -4489,7 +5239,8 @@ class S {
     'changePhoto': 'Сүрөттү өзгөртүү',
     'aboutTagline': 'Бизнесиңизди бир караштан башкарыңыз',
     'aboutWhyTitle': 'Эмне үчүн TAQSEEM?',
-    'aboutWhyBody': 'TAQSEEM — чакан жана орто өндүрүш бизнеси үчүн заманбап башкаруу тутуму. Күнүмдүк өндүрүш, чыгашалар, кайтарымдар жана таза кирешени бир жерден реалдуу убакытта көрүңүз.',
+    'aboutWhyBody':
+        'TAQSEEM — чакан жана орто өндүрүш бизнеси үчүн заманбап башкаруу тутуму. Күнүмдүк өндүрүш, чыгашалар, кайтарымдар жана таза кирешени бир жерден реалдуу убакытта көрүңүз.',
     'aboutFeaturesTitle': 'Негизги мүмкүнчүлүктөр',
     'featProductionTitle': 'Өндүрүш эсеби',
     'featProductionDesc': 'Күнүмдүк көлөм жана өздүк нарк көзөмөлү.',
@@ -4545,10 +5296,12 @@ class S {
     'deleteAccountDesc': 'Аккаунтуңузду толугу менен жок кылуу',
     'deleteAccountConfirm': 'Биротоло жок кылуу',
     'deleteAccountTitle': 'Аккаунтту жок кыласызбы?',
-    'deleteAccountWarning': 'Аккаунтуңуз жок кылынса, бардык дүкөндөрүңүз, эсептериңиз, рецепттериңиз жана маалыматтарыңыз толугу менен жок кылынат. Бул аракетти кайтарууга мүмкүн эмес.',
+    'deleteAccountWarning':
+        'Аккаунтуңуз жок кылынса, бардык дүкөндөрүңүз, эсептериңиз, рецепттериңиз жана маалыматтарыңыз толугу менен жок кылынат. Бул аракетти кайтарууга мүмкүн эмес.',
     'deleteAccountContinue': 'Улантуу',
     'deleteAccountFinalTitle': 'Акыркы ырастоо',
-    'deleteAccountFinalWarning': 'Бул акыркы мүмкүнчүлүк. Баскычты бассаңыз аккаунт жана бардык маалыматтар дароо жок кылынат.',
+    'deleteAccountFinalWarning':
+        'Бул акыркы мүмкүнчүлүк. Баскычты бассаңыз аккаунт жана бардык маалыматтар дароо жок кылынат.',
     'deleteAccountProcessing': 'Аккаунт жок кылынып жатат...',
     'deleteAccountSuccess': 'Аккаунт ийгиликтүү жок кылынды.',
     'deleteAccountFailed': 'Аккаунтту жок кылууда ката кетти.',
@@ -4572,14 +5325,18 @@ class S {
     'logoutConfirm': 'Системадан чыккыңыз келеби?',
     'madeInUzbekistan': 'Өзбекстанда жасалган',
     'topUpComingSoonTitle': 'Жакында иштей баштайт',
-    'topUpComingSoonDesc': 'Балансты толтуруу бөлүмү иштеп чыгууда. Жакында тиркемеден толук пайдалана аласыз.',
+    'topUpComingSoonDesc':
+        'Балансты толтуруу бөлүмү иштеп чыгууда. Жакында тиркемеден толук пайдалана аласыз.',
     'goBack': 'Артка кайтуу',
     'onboardingTitle1': 'Каалаган бизнес үчүн',
-    'onboardingDesc1': 'Нан цехи, шашлыкхана, самсахана, кондитердик, фастфуд — баарын бир жерден башкарыңыз',
+    'onboardingDesc1':
+        'Нан цехи, шашлыкхана, самсахана, кондитердик, фастфуд — баарын бир жерден башкарыңыз',
     'onboardingTitle2': 'Баа жана пайда эсеби',
-    'onboardingDesc2': 'Ар бир продуктун өздүк баасын так эсептеп, чыныгы пайданы билиңиз',
+    'onboardingDesc2':
+        'Ар бир продуктун өздүк баасын так эсептеп, чыныгы пайданы билиңиз',
     'onboardingTitle3': 'Бизнесиңиз көзөмөлдө',
-    'onboardingDesc3': 'Сатуу, чыгым жана өндүрүштү реалдуу убакытта көзөмөлдөңүз',
+    'onboardingDesc3':
+        'Сатуу, чыгым жана өндүрүштү реалдуу убакытта көзөмөлдөңүз',
     'skip': 'Өткөрүп жиберүү',
     'next': 'Кийинки',
     'getStarted': 'Баштоо',
@@ -4633,28 +5390,34 @@ class S {
     'telegramConnecting': 'Туташууда...',
     'telegramConnectingHint': 'Telegram ачылууда',
     'telegramWaitingTitle': 'Telegram күтүлүүдө',
-    'telegramWaitingHint': 'Telegram-да телефон номериңизди жөнөтүп, колдонмого кайтуу баскычын басыңыз',
+    'telegramWaitingHint':
+        'Telegram-да телефон номериңизди жөнөтүп, колдонмого кайтуу баскычын басыңыз',
     'telegramOpenAgain': 'Telegram-ды кайра ачуу',
     'telegramRetry': 'Кайра аракет кылуу',
     'telegramBackToLogin': 'Кирүүгө кайтуу',
     'telegramSessionExpired': 'Убакыт бүттү. Кайра аракет кылыңыз.',
     'tgConnectTitle': 'Telegram кошуу',
-    'tgConnectSubtitle': 'Telegram аркылуу билдирүүлөрдү алуу үчүн аккаунтуңузду кошуңуз',
+    'tgConnectSubtitle':
+        'Telegram аркылуу билдирүүлөрдү алуу үчүн аккаунтуңузду кошуңуз',
     'tgConnectStep1': 'Telegram жана ботубуз ачылат',
     'tgConnectStep2': 'Telegram-да «Start» баскычын басыңыз',
     'tgConnectStep3': 'Аккаунтуңуз автоматтык кошулат',
     'tgConnectOpen': 'Telegram ачуу',
     'tgConnectWaitingTitle': 'Telegram-да ырастаңыз',
-    'tgConnectWaitingHint': 'Telegram-да «Start» баскычын басыңыз. Кошулгандан кийин автоматтык кайтасыз.',
+    'tgConnectWaitingHint':
+        'Telegram-да «Start» баскычын басыңыз. Кошулгандан кийин автоматтык кайтасыз.',
     'tgConnectSuccessTitle': 'Telegram кошулду!',
-    'tgConnectSuccessHint': 'Эми маанилүү билдирүүлөрдү Telegram аркылуу аласыз.',
+    'tgConnectSuccessHint':
+        'Эми маанилүү билдирүүлөрдү Telegram аркылуу аласыз.',
     'tgConnectErrorTitle': 'Кошулган жок',
-    'tgConnectErrorHint': 'Бул Telegram аккаунту башка колдонуучуга байланган болушу мүмкүн. Кайра аракет кылыңыз.',
+    'tgConnectErrorHint':
+        'Бул Telegram аккаунту башка колдонуучуга байланган болушу мүмкүн. Кайра аракет кылыңыз.',
     'loginInfoPrefix': 'Мурда аккаунт жасабаган болсоңуз ',
     'loginInfoAction': 'Аккаунт Жасаңыз',
     'loginInfoSuffix': ' деп басыңыз',
     'tapMapToSelect': 'Жайгашуу тандоо үчүн картага басыңыз',
-    'locationPermDenied': 'Жайгашууга уруксат берилген эмес. Жөндөөлөргө өтүңүз.',
+    'locationPermDenied':
+        'Жайгашууга уруксат берилген эмес. Жөндөөлөргө өтүңүз.',
     'locationError': 'Жайгашууну аныктоодо ката чыкты',
     'tutorialStep1Title': 'Продукт кошуңуз',
     'tutorialStep1Desc': 'Өндүрүлүүчү продукт түрүн киргизиңиз',
@@ -4666,15 +5429,17 @@ class S {
     'tutorialSkip': 'Өткөрүп жибер',
     'tutorialStep4Title': 'Чыгымды жазыңыз',
     'tutorialStep4Desc': 'Бүгүн канча продукт чыкканын киргизиңиз',
-    'tutorialGoSetup':    'Жөндөөлөр баскычын басыңыз',
+    'tutorialGoSetup': 'Жөндөөлөр баскычын басыңыз',
     'tutorialGoSetupSub': 'Продукт, чийки зат жана эсепти жөндөңүз',
-    'tutorialTapAdd':     'Кошуу баскычын басыңыз',
+    'tutorialTapAdd': 'Кошуу баскычын басыңыз',
     'tutorialProductIncomeTitle': 'Продукт кирими',
-    'tutorialProductIncomeDesc':  'Бүгүнкү продукт чыгарылышын ушул баскыч аркылуу каттаңыз',
-    'tutorialOpenCardTitle':      'Бөлүмгө өтүңүз',
-    'tutorialOpenCardDesc':       'Бул картаны басып, тиешелүү жөндөөгө кириңиз',
-    'tutorialSettingsHintTitle':   'Адегенде жөндөңүз',
-    'tutorialSettingsHintMessage': 'Продукт жана чийки затты кошуңуз — тиркеме өздүк нарк жана кирешени өзү эсептейт.',
+    'tutorialProductIncomeDesc':
+        'Бүгүнкү продукт чыгарылышын ушул баскыч аркылуу каттаңыз',
+    'tutorialOpenCardTitle': 'Бөлүмгө өтүңүз',
+    'tutorialOpenCardDesc': 'Бул картаны басып, тиешелүү жөндөөгө кириңиз',
+    'tutorialSettingsHintTitle': 'Адегенде жөндөңүз',
+    'tutorialSettingsHintMessage':
+        'Продукт жана чийки затты кошуңуз — тиркеме өздүк нарк жана кирешени өзү эсептейт.',
     'createBusiness': 'Бизнес түзүү',
     'businessTypeStep': 'Категория',
     'businessDetailsStep': 'Маалыматтар',
@@ -4688,7 +5453,8 @@ class S {
     'description': 'Сыпаттама',
     'address': 'Дарек',
     'businessLocationTitle': 'Жайгашуу',
-    'businessLocationDesc': 'GPS аркылуу жайгашуун сактаңыз же даректи кол менен киргизиңиз',
+    'businessLocationDesc':
+        'GPS аркылуу жайгашуун сактаңыз же даректи кол менен киргизиңиз',
     'useGpsLocation': 'GPS аркылуу аныктоо',
     'fetchingLocation': 'Жайгашуу аныкталууда...',
     'locationSaved': 'Жайгашуу сакталды',
@@ -4700,17 +5466,14 @@ class S {
     'startWorking': 'Иштеп баштоо',
     'fieldRequired': 'Бул талаа милдеттүү',
     'continueWizard': 'Улантуу',
-    'customBusinessTypeInfo':
-        'Бизнес түрүңүздү жазыңыз — биз эске алабыз',
+    'customBusinessTypeInfo': 'Бизнес түрүңүздү жазыңыз — биз эске алабыз',
     'customBusinessTypeHint': 'Мисалы: Пишириктер, Лимонад...',
     'businessNameHint': 'Мисалы: Борбордук наан цехи',
     'businessNameRequired': 'Бизнес атын киргизиңиз',
     'businessNameMinLength': 'Эң аз 2 символ',
     'selectCurrency': 'Валюта',
-    'selectCurrencyDesc':
-        'Отчёттор жана баалар үчүн валюта',
-    'gpsAutoDetectSubtitle':
-        'Учурдагы жайгашуунузду автоматтык аныктоо',
+    'selectCurrencyDesc': 'Отчёттор жана баалар үчүн валюта',
+    'gpsAutoDetectSubtitle': 'Учурдагы жайгашуунузду автоматтык аныктоо',
     'orDivider': 'же',
     'manualAddressLabel': 'Даректи кол менен киргизиңиз',
     'createBusinessSubmit': 'Бизнес түзүү',
@@ -4722,7 +5485,8 @@ class S {
     'employeePhoneLabel': 'Телефон номери',
     'employeePasswordLabel': 'Сырсөз',
     'employeesEmptyTitle': 'Азырынча кызматкер жок',
-    'employeesEmptyDesc': 'Биринчи кызматкериңизди кошуп, уруксаттарын жөндөңүз',
+    'employeesEmptyDesc':
+        'Биринчи кызматкериңизди кошуп, уруксаттарын жөндөңүз',
     'employeePaidBadge': 'Акылуу орун',
     'employeeSeatActive': 'Активдүү',
     'employeeSeatPastDue': 'Төлөм керек',
@@ -4744,7 +5508,8 @@ class S {
     'employeePermsSaved': 'Уруксаттар сакталды',
     'employeeSaveBtn': 'Сактоо',
     'employeePaidConfirmTitle': 'Акылуу кызматкер орду',
-    'employeePaidConfirmMsg': 'Акысыз лимит бүттү. Бул кызматкер үчүн баланстан {price} (айына) алынат.',
+    'employeePaidConfirmMsg':
+        'Акысыз лимит бүттү. Бул кызматкер үчүн баланстан {price} (айына) алынат.',
     'employeeContinueBtn': 'Улантуу',
     'permViewReports': 'Отчеттор',
     'permManageProducts': 'Азыктар',
@@ -4752,9 +5517,115 @@ class S {
     'permManageProduction': 'Өндүрүш',
     'permManageExpenses': 'Чыгымдар',
     'permManageSales': 'Сатуу / Кайтаруу',
+    'languageSelectTitle': 'Тилди тандаңыз',
+    'languageSelectSubtitle':
+        '7 тил — англис, орус, кыргыз, өзбек (latin жана kirill), казак жана турок',
+    'onboardingContinue': 'Улантуу',
+    'authErrorGoogleNoToken':
+        'Google аркылуу кирүү ишке ашпады. Кайра аракет кылыңыз.',
+    'authErrorAppleNoToken':
+        'Apple аркылуу кирүү ишке ашпады. Кайра аракет кылыңыз.',
+    'authErrorGoogleUnsupported':
+        'Бул түзмөктө Google аркылуу кирүү колдоого алынбайт.',
   };
 
   static const _tr = {
+    'ordersNewTitle': 'Yeni sipariş',
+    'ordersEditTitle': 'Siparişi düzenle',
+    'ordersDetailTitle': 'Sipariş',
+    'ordersTabToday': 'Bugün',
+    'ordersTabTomorrow': 'Yarın',
+    'ordersTabAll': 'Tümü',
+    'ordersFilterAll': 'Tümü',
+    'ordersStatusActive': 'Aktif',
+    'ordersStatusDelivered': 'Teslim edildi',
+    'ordersStatusCancelled': 'İptal edildi',
+    'ordersEmpty': 'Sipariş yok',
+    'ordersEmptyDesc': 'İlk siparişi oluşturun — müşteri ve ürünleri girin',
+    'ordersPaid': 'Ödendi',
+    'ordersUnpaid': 'Ödenmedi',
+    'ordersPartiallyPaid': 'Kapora {paid} · Kalan {remaining}',
+    'ordersDeliverAction': 'Teslim edildi',
+    'ordersDeliverTitle': 'Siparişi teslim et',
+    'ordersRemainingLabel': 'Kalan',
+    'ordersPaymentNowLabel': 'Şimdi alınan ödeme',
+    'ordersFillAll': 'Tamamı',
+    'ordersPayLater': 'Sonra ödeyecek',
+    'ordersPayLaterHint': 'Ödemesiz teslim edilir — kalan daha sonra ödenir',
+    'ordersDeliverConfirm': 'Teslim edildi',
+    'ordersDelivered': 'Sipariş teslim edildi',
+    'ordersSelectCustomerRequired': 'Müşteri seçin',
+    'ordersPaymentAdded': 'Ödeme eklendi',
+    'ordersDeliveredAt': 'Teslim zamanı',
+    'ordersAddPayment': 'Ödeme ekle',
+    'ordersPaymentAmountLabel': 'Ödeme tutarı',
+    'ordersPaymentDateLabel': 'Ödeme zamanı',
+    'ordersPaymentNoteLabel': 'Not',
+    'ordersPaymentExceeds': 'Ödeme kalan tutarı aşmamalı',
+    'ordersPaymentsTitle': 'Ödemeler',
+    'ordersNoPayments': 'Henüz ödeme yok',
+    'ordersItemsTitle': 'Ürünler',
+    'ordersProductLabel': 'Ürün',
+    'ordersAddItem': 'Ürün ekle',
+    'ordersNoProducts': 'Önce Kurulum bölümünden ürün ekleyin',
+    'ordersUnitPriceLabel': 'Birim fiyat',
+    'ordersCustomerTitle': 'Müşteri',
+    'ordersExistingCustomer': 'Mevcut müşteri',
+    'ordersNewCustomer': 'Yeni müşteri',
+    'ordersSelectCustomer': 'Müşteri seçin',
+    'ordersSearchCustomer': 'İsim veya telefon...',
+    'ordersNoCustomers': 'Müşteri bulunamadı',
+    'ordersCustomerNameLabel': 'İsim',
+    'ordersDeliveryTitle': 'Teslimat',
+    'ordersDeliveryDateLabel': 'Tarih',
+    'ordersDeliveryTimeLabel': 'Saat',
+    'ordersOtherDate': 'Başka tarih',
+    'ordersAdvanceLabel': 'Kapora (ön ödeme)',
+    'ordersAdvanceExceeds': 'Kapora toplam tutarı aşmamalı',
+    'ordersRemainingAfterAdvance': 'Teslimde kalan',
+    'ordersTotalBelowPaid': 'Toplam tutar, ödenmiş tutardan ({paid}) az olamaz',
+    'ordersNoteLabel': 'Not',
+    'ordersNotePlaceholder': 'Örn: düğün için, sabaha hazır olsun',
+    'ordersCreated': 'Sipariş oluşturuldu',
+    'ordersUpdated': 'Sipariş güncellendi',
+    'ordersCancelOrder': 'İptal et',
+    'ordersCancelTitle': 'Sipariş iptal edilsin mi?',
+    'ordersCancelDescription':
+        'Sipariş iptal edildi durumuna geçer ve yeniden etkinleştirilemez.',
+    'ordersCancelledToast': 'Sipariş iptal edildi',
+    'ordersDeleteDescription':
+        'Sipariş kalıcı olarak silinir. Bu işlem geri alınamaz.',
+    'ordersDeletedToast': 'Sipariş silindi',
+    'ordersNotFound': 'Sipariş bulunamadı',
+    'ordersSummaryPaid': 'Ödenen',
+    'ordersNotActiveEdit': 'Yalnızca aktif siparişler düzenlenebilir',
+    'ordersCreate': 'Yeni sipariş',
+    'ordersTotalLabel': 'Toplam',
+    'ordersLoadMore': 'Daha fazla yükle',
+    'customersTitle': 'Müşteriler',
+    'customersNewTitle': 'Yeni müşteri',
+    'customersEditTitle': 'Müşteriyi düzenle',
+    'customersDetailTitle': 'Müşteri',
+    'customersEmpty': 'Müşteri yok',
+    'customersEmptyDesc': 'İlk müşterinizi ekleyin',
+    'customersCreated': 'Müşteri eklendi',
+    'customersUpdated': 'Müşteri güncellendi',
+    'customersDeleted': 'Müşteri silindi',
+    'customersDeleteTitle': 'Müşteri silinsin mi?',
+    'customersDeleteConfirm':
+        'Müşteri kalıcı olarak silinecek. Devam edilsin mi?',
+    'customersNoteLabel': 'Not',
+    'customersNameLabel': 'İsim',
+    'customersOrdersHistory': 'Sipariş geçmişi',
+    'customersSearchHint': 'İsim veya telefona göre ara',
+    'customersCreateOrder': 'Sipariş oluştur',
+    'customersNotFound': 'Müşteri bulunamadı',
+    'permManageOrders': 'Siparişler',
+    'permManageOrdersDesc': 'Müşteri ve sipariş yönetimi',
+    'noPermissionTitle': 'Yetki yok',
+    'noPermissionDesc': 'Bu bölüme erişim izniniz yok',
+    'quantityLabel': 'Miktar',
+
     'devicesTitle': 'Cihazlar',
     'devicesMenuDesc': 'Aktif oturumlar',
     'devicesEmptyTitle': 'Cihaz yok',
@@ -4798,7 +5669,8 @@ class S {
     'planFeatureEmployeesUnlimited': 'Sınırsız çalışan',
     'buy': 'Satın al',
     'purchaseConfirmTitle': 'Satın almayı onaylayın',
-    'purchaseConfirmMsg': '{plan} paketi {price} karşılığında alınacak. Devam edelim mi?',
+    'purchaseConfirmMsg':
+        '{plan} paketi {price} karşılığında alınacak. Devam edelim mi?',
     'purchaseSuccess': 'Paket etkinleştirildi',
     'insufficientBalanceTitle': 'Bakiye yetersiz',
     'insufficientBalanceMsg': 'Ödeme için bakiyenizi yükleyin',
@@ -4821,7 +5693,8 @@ class S {
     'txnSeat': 'Çalışan koltuğu',
     'topUpAmount': 'Tutar (UZS)',
     'topUpRequest': 'Yükleme talebi',
-    'topUpPendingMsg': 'Talebiniz alındı. Onaylandıktan sonra bakiye güncellenecek.',
+    'topUpPendingMsg':
+        'Talebiniz alındı. Onaylandıktan sonra bakiye güncellenecek.',
     'topUpHint': 'Yükleme yönetici tarafından onaylanır',
     'noOrders': 'Sipariş yok',
     'noOrdersDesc': 'Satın alma geçmişiniz burada görünecek',
@@ -4832,9 +5705,12 @@ class S {
     'statusFailed': 'Hata',
     'statusCancelled': 'İptal edildi',
     'limitReachedTitle': 'Limit doldu',
-    'limitReachedProducts': 'Ürün limitine ulaşıldı. Daha yüksek bir pakete geçin.',
-    'limitReachedShops': 'İşletme hesabı limitine ulaşıldı. Daha yüksek bir pakete geçin.',
-    'limitReachedEmployees': 'Çalışan limitine ulaşıldı. Daha yüksek bir pakete geçin.',
+    'limitReachedProducts':
+        'Ürün limitine ulaşıldı. Daha yüksek bir pakete geçin.',
+    'limitReachedShops':
+        'İşletme hesabı limitine ulaşıldı. Daha yüksek bir pakete geçin.',
+    'limitReachedEmployees':
+        'Çalışan limitine ulaşıldı. Daha yüksek bir pakete geçin.',
     'viewPlans': 'Paketleri gör',
     'billingMonthly': 'Aylık',
     'billingYearly': 'Yıllık',
@@ -4866,7 +5742,8 @@ class S {
     'shopUpdateSuccess': 'İşletme güncellendi',
     'shopDeleteButton': 'İşletmeyi sil',
     'shopDeleteTitle': 'İşletmeyi sil',
-    'shopDeleteMessage': '«{name}» işletmesini silmek istiyor musunuz? Bu işlem geri alınamaz.',
+    'shopDeleteMessage':
+        '«{name}» işletmesini silmek istiyor musunuz? Bu işlem geri alınamaz.',
     'shopDeleteSuccess': 'İşletme silindi',
     'manage': 'Yönet',
     'todayProfit': 'Bugünkü kâr',
@@ -4913,7 +5790,8 @@ class S {
     'statistics': 'İstatistik',
     'orders': 'Siparişler',
     'ordersComingSoon': 'Yakında',
-    'ordersComingSoonDesc': 'Siparişler bölümü geliştiriliyor.\nYakında hazır olacak!',
+    'ordersComingSoonDesc':
+        'Siparişler bölümü geliştiriliyor.\nYakında hazır olacak!',
     'charts': 'Grafikler',
     'chartsScreenTitle': 'Detaylı grafikler',
     'chartRevenue': 'Gelir dağılımı',
@@ -4984,8 +5862,7 @@ class S {
     'total': 'Toplam',
     'settings': 'Ayarlar',
     'breadTypes': 'Ürün türleri',
-    'breadTypesDesc':
-        'Satılan ürün veya hizmet türleri — her biri için fiyat',
+    'breadTypesDesc': 'Satılan ürün veya hizmet türleri — her biri için fiyat',
     'products': 'Ürünler',
     'productsDesc': 'Un, su, tuz, maya, yağ...',
     'recipes': 'Tarifler',
@@ -5001,8 +5878,7 @@ class S {
         'Örneğin: şiş, köfte, rulo... Her kalem için ayrı fiyat.',
     'settingsTypesDesc_restaurant':
         'Örneğin: yemekler, garnitürler, içecekler... Menüye göre düzenleyin.',
-    'settingsIngredientsDesc_default':
-        'Malzemeleri fiyat ve birimle girin.',
+    'settingsIngredientsDesc_default': 'Malzemeleri fiyat ve birimle girin.',
     'settingsIngredientsDesc_bakery':
         'Un, su, tuz, maya, yağ — her biri için fiyat ve birim.',
     'settingsIngredientsDesc_grill':
@@ -5011,8 +5887,7 @@ class S {
         'Ürün ve malzemeler — depo ve maliyetle bağlayın.',
     'settingsRecipesDesc_default':
         'Tarifler ve maliyet — her ürün için marj ve kâr.',
-    'settingsRecipesDesc_bakery':
-        'Her ürün için oran ve maliyet — kâr net.',
+    'settingsRecipesDesc_bakery': 'Her ürün için oran ve maliyet — kâr net.',
     'settingsRecipesDesc_grill':
         'Her yemek için gram ve maliyet — fiyat ve kâr.',
     'settingsRecipesDesc_restaurant':
@@ -5047,12 +5922,10 @@ class S {
     'recipeOutputLabel': 'Ürün adedi',
     'recipeOutputHint': 'Örn: 100',
     'recipeOutputSectionTitle': 'Ürün adedi',
-    'recipeOutputSectionHelper':
-        '1 partiden kaç ürün çıkar?',
+    'recipeOutputSectionHelper': '1 partiden kaç ürün çıkar?',
     'recipeIngredientsSectionTitle': '1 parti için hammadde miktarı',
     'recipeOutputLabelDynamic': '1 {unit}dan ne kadar ürün çıkar?',
-    'recipeIngredientsSectionTitleDynamic':
-        '1 {unit} için hammadde miktarı',
+    'recipeIngredientsSectionTitleDynamic': '1 {unit} için hammadde miktarı',
     'recipeIngredientsSectionSubtitleDynamic':
         '1 {unit} için gereken her hammadde miktarını girin.',
     'recipeIngredientsSectionSubtitle':
@@ -5061,14 +5934,12 @@ class S {
     'recipeCreateNewIngredientDivider': 'VEYA',
     'recipeCreateNewIngredient': 'Yeni hammadde oluştur',
     'recipeCreateNewIngredientShort': 'Yeni',
-    'recipeCreateNewIngredientHint':
-        'Listede yoksa doğrudan buradan ekleyin',
+    'recipeCreateNewIngredientHint': 'Listede yoksa doğrudan buradan ekleyin',
     'recipeValidationSelectProduct': 'Ürün türünü seçin',
     'recipeValidationBatch': 'Parti birimini seçin',
     'recipeValidationOutput': 'Çıkış miktarını girin',
     'recipeValidationIngredients': 'En az bir hammadde ekleyin',
-    'recipeValidationDuplicateIngredient':
-        'Aynı malzeme iki kez eklenmiş',
+    'recipeValidationDuplicateIngredient': 'Aynı malzeme iki kez eklenmiş',
     'recipeSaveSuccess': 'Tarif kaydedildi',
     'recipeRecipeBatchLine': '1 {unit} → {qty} adet',
     'recipeBack': 'Geri',
@@ -5081,12 +5952,9 @@ class S {
     'recipeDeleteConfirmTitle': 'Tarif silinsin mi?',
     'recipeDeleteConfirmBody':
         '«{name}» tarifi silinecek. Bu işlem geri alınamaz.',
-    'recipeCardTooltipOutput':
-        'Tek partide çıkan ürün adedi.',
-    'recipeCardTooltipBatchCost':
-        'Tek parti için hammadde maliyeti (toplam).',
-    'recipeCardTooltipUnitCost':
-        'Birim ürün maliyeti (toplam ÷ çıkış).',
+    'recipeCardTooltipOutput': 'Tek partide çıkan ürün adedi.',
+    'recipeCardTooltipBatchCost': 'Tek parti için hammadde maliyeti (toplam).',
+    'recipeCardTooltipUnitCost': 'Birim ürün maliyeti (toplam ÷ çıkış).',
     'productionDetailTitle': 'Parti detayı',
     'productionDetailSummary': 'Bugün kapanan parti',
     'productionDetailBatch': 'Parti sayısı',
@@ -5099,8 +5967,7 @@ class S {
     'productionDetailQtyTotal': 'Toplam miktar',
     'productionDetailGrams': '{g} g',
     'productionDetailPricePerUnit': 'Birim fiyat',
-    'productionDetailNoIngredients':
-        'Reçete malzemeleri yok veya yüklenemedi.',
+    'productionDetailNoIngredients': 'Reçete malzemeleri yok veya yüklenemedi.',
     'productionDetailReturnToday': 'Bugünkü iade (bu tür için)',
     'productionDetailEdit': 'Düzenle',
     'productionDetailEditSheetTitle': 'Parti ve iadeler',
@@ -5122,8 +5989,7 @@ class S {
     'productionOutStep2': 'Toplam',
     'productionOutStep3': 'Onay',
     'productionOutStep1Title': 'Hangi ürün?',
-    'productionOutStep1Subtitle':
-        'Hesaplamaya bağlı ürün türünü seçin.',
+    'productionOutStep1Subtitle': 'Hesaplamaya bağlı ürün türünü seçin.',
     'productionOutCategoryLabel': 'Ürün türü',
     'productionOutCategoryHint': 'Seçin',
     'productionOutNoRecipeWarning':
@@ -5233,7 +6099,8 @@ class S {
     'disabled': 'Kapalı',
     'language': 'Dil',
     'aboutApp': 'Uygulama hakkında',
-    'aboutAppDescription': 'TAQSEEM — küçük ve orta ölçekli üretim işletmeleri için maliyet, kâr ve giderleri doğru hesaplama uygulaması.',
+    'aboutAppDescription':
+        'TAQSEEM — küçük ve orta ölçekli üretim işletmeleri için maliyet, kâr ve giderleri doğru hesaplama uygulaması.',
     'developer': 'Geliştirici',
     'website': 'Web sitesi',
     'support': 'Destek',
@@ -5254,7 +6121,8 @@ class S {
     'changePhoto': 'Fotoğrafı değiştir',
     'aboutTagline': 'İşinizi tek bakışta yönetin',
     'aboutWhyTitle': 'Neden TAQSEEM?',
-    'aboutWhyBody': 'TAQSEEM — küçük ve orta ölçekli üretim işletmeleri için modern yönetim sistemi. Günlük üretim, gider, iadeler ve net kârı tek yerde, gerçek zamanlı görün.',
+    'aboutWhyBody':
+        'TAQSEEM — küçük ve orta ölçekli üretim işletmeleri için modern yönetim sistemi. Günlük üretim, gider, iadeler ve net kârı tek yerde, gerçek zamanlı görün.',
     'aboutFeaturesTitle': 'Temel özellikler',
     'featProductionTitle': 'Üretim takibi',
     'featProductionDesc': 'Günlük üretim miktarı ve maliyet kontrolü.',
@@ -5310,10 +6178,12 @@ class S {
     'deleteAccountDesc': 'Hesabınızı kalıcı olarak silin',
     'deleteAccountConfirm': 'Kalıcı olarak sil',
     'deleteAccountTitle': 'Hesabınızı silmek istiyor musunuz?',
-    'deleteAccountWarning': 'Hesabınızı silerseniz tüm mağazalarınız, raporlarınız, tarifleriniz ve verileriniz kalıcı olarak silinir. Bu işlem geri alınamaz.',
+    'deleteAccountWarning':
+        'Hesabınızı silerseniz tüm mağazalarınız, raporlarınız, tarifleriniz ve verileriniz kalıcı olarak silinir. Bu işlem geri alınamaz.',
     'deleteAccountContinue': 'Devam et',
     'deleteAccountFinalTitle': 'Son onay',
-    'deleteAccountFinalWarning': 'Bu son şans. Düğmeye basarsanız hesabınız ve tüm verileriniz hemen silinir.',
+    'deleteAccountFinalWarning':
+        'Bu son şans. Düğmeye basarsanız hesabınız ve tüm verileriniz hemen silinir.',
     'deleteAccountProcessing': 'Hesap siliniyor...',
     'deleteAccountSuccess': 'Hesabınız başarıyla silindi.',
     'deleteAccountFailed': 'Hesap silinemedi.',
@@ -5337,12 +6207,15 @@ class S {
     'logoutConfirm': 'Sistemden çıkmak istiyor musunuz?',
     'madeInUzbekistan': "Özbekistan'da üretildi",
     'topUpComingSoonTitle': 'Yakında kullanıma açılacak',
-    'topUpComingSoonDesc': 'Bakiye yükleme bölümü üzerinde çalışılmaktadır. Yakında uygulamayı tam olarak kullanabileceksiniz.',
+    'topUpComingSoonDesc':
+        'Bakiye yükleme bölümü üzerinde çalışılmaktadır. Yakında uygulamayı tam olarak kullanabileceksiniz.',
     'goBack': 'Geri dön',
     'onboardingTitle1': 'Her işletme için',
-    'onboardingDesc1': 'Fırın, mangal evi, börekçi, pastane, fast food — hepsini tek yerden yönetin',
+    'onboardingDesc1':
+        'Fırın, mangal evi, börekçi, pastane, fast food — hepsini tek yerden yönetin',
     'onboardingTitle2': 'Maliyet ve kâr hesabı',
-    'onboardingDesc2': 'Her ürünün maliyetini doğru hesaplayın ve gerçek kârınızı öğrenin',
+    'onboardingDesc2':
+        'Her ürünün maliyetini doğru hesaplayın ve gerçek kârınızı öğrenin',
     'onboardingTitle3': 'İşletmeniz kontrol altında',
     'onboardingDesc3': 'Satış, gider ve üretimi gerçek zamanlı takip edin',
     'skip': 'Atla',
@@ -5398,23 +6271,28 @@ class S {
     'telegramConnecting': 'Bağlanıyor...',
     'telegramConnectingHint': 'Telegram açılıyor',
     'telegramWaitingTitle': 'Telegram bekleniyor',
-    'telegramWaitingHint': "Telegram'da telefon numaranızı gönderin ve uygulamaya dönüş düğmesine basın",
+    'telegramWaitingHint':
+        "Telegram'da telefon numaranızı gönderin ve uygulamaya dönüş düğmesine basın",
     'telegramOpenAgain': "Telegram'ı tekrar aç",
     'telegramRetry': 'Tekrar dene',
     'telegramBackToLogin': 'Girişe dön',
     'telegramSessionExpired': 'Süre doldu. Tekrar deneyin.',
     'tgConnectTitle': "Telegram'ı bağla",
-    'tgConnectSubtitle': 'Telegram üzerinden bildirim almak için hesabınızı bağlayın',
+    'tgConnectSubtitle':
+        'Telegram üzerinden bildirim almak için hesabınızı bağlayın',
     'tgConnectStep1': 'Telegram ve botumuz açılır',
     'tgConnectStep2': "Telegram'da «Start» düğmesine basın",
     'tgConnectStep3': 'Hesabınız otomatik bağlanır',
     'tgConnectOpen': "Telegram'ı aç",
     'tgConnectWaitingTitle': "Telegram'da onaylayın",
-    'tgConnectWaitingHint': "Telegram'da «Start» düğmesine basın. Bağlandıktan sonra otomatik döneceksiniz.",
+    'tgConnectWaitingHint':
+        "Telegram'da «Start» düğmesine basın. Bağlandıktan sonra otomatik döneceksiniz.",
     'tgConnectSuccessTitle': 'Telegram bağlandı!',
-    'tgConnectSuccessHint': 'Artık önemli bildirimleri Telegram üzerinden alacaksınız.',
+    'tgConnectSuccessHint':
+        'Artık önemli bildirimleri Telegram üzerinden alacaksınız.',
     'tgConnectErrorTitle': 'Bağlanamadı',
-    'tgConnectErrorHint': 'Bu Telegram hesabı başka bir kullanıcıya bağlı olabilir. Tekrar deneyin.',
+    'tgConnectErrorHint':
+        'Bu Telegram hesabı başka bir kullanıcıya bağlı olabilir. Tekrar deneyin.',
     'loginInfoPrefix': 'Daha önce hesap oluşturmadıysanız ',
     'loginInfoAction': 'Hesap Oluşturun',
     'loginInfoSuffix': "'a tıklayın",
@@ -5431,21 +6309,23 @@ class S {
     'tutorialSkip': 'Atla',
     'tutorialStep4Title': 'Çıkışı kaydedin',
     'tutorialStep4Desc': 'Bugün kaç ürün çıktığını girin',
-    'tutorialGoSetup':    'Ayarlar düğmesine basın',
+    'tutorialGoSetup': 'Ayarlar düğmesine basın',
     'tutorialGoSetupSub': 'Ürünler, hammadde ve hesaplamayı ayarlayın',
-    'tutorialTapAdd':     'Ekle düğmesine basın',
+    'tutorialTapAdd': 'Ekle düğmesine basın',
     'tutorialProductIncomeTitle': 'Ürün girişi',
-    'tutorialProductIncomeDesc':  'Bugünkü ürün çıkışını bu düğme ile kaydedin',
-    'tutorialOpenCardTitle':      'Bölüme gidin',
-    'tutorialOpenCardDesc':       'Bu kartaya basarak ilgili ayara girin',
-    'tutorialSettingsHintTitle':   'Önce ayarlayın',
-    'tutorialSettingsHintMessage': 'Ürünleri ve hammaddeleri girin — uygulama maliyet ve kârı otomatik hesaplar.',
+    'tutorialProductIncomeDesc': 'Bugünkü ürün çıkışını bu düğme ile kaydedin',
+    'tutorialOpenCardTitle': 'Bölüme gidin',
+    'tutorialOpenCardDesc': 'Bu kartaya basarak ilgili ayara girin',
+    'tutorialSettingsHintTitle': 'Önce ayarlayın',
+    'tutorialSettingsHintMessage':
+        'Ürünleri ve hammaddeleri girin — uygulama maliyet ve kârı otomatik hesaplar.',
     'createBusiness': 'İşletme oluştur',
     'businessTypeStep': 'Kategori',
     'businessDetailsStep': 'Bilgiler',
     'businessLocationStep': 'Konum',
     'selectBusinessType': 'İşletme türü seçin',
-    'selectBusinessTypeDesc': 'Size uygun kategoriyi seçin — uygulama buna göre uyarlanır',
+    'selectBusinessTypeDesc':
+        'Size uygun kategoriyi seçin — uygulama buna göre uyarlanır',
     'businessDetailsTitle': 'İşletme hakkında',
     'businessDetailsDesc': 'İşletmenizin temel bilgilerini girin',
     'businessName': 'İşletme adı',
@@ -5465,17 +6345,14 @@ class S {
     'startWorking': 'Çalışmaya başla',
     'fieldRequired': 'Bu alan zorunludur',
     'continueWizard': 'Devam et',
-    'customBusinessTypeInfo':
-        'İşletme türünüzü yazın — dikkate alırız',
+    'customBusinessTypeInfo': 'İşletme türünüzü yazın — dikkate alırız',
     'customBusinessTypeHint': 'Örneğin: Hamur işleri, Limonata...',
     'businessNameHint': 'Örneğin: Merkez Fırın',
     'businessNameRequired': 'İşletme adını girin',
     'businessNameMinLength': 'En az 2 karakter',
     'selectCurrency': 'Para birimi',
-    'selectCurrencyDesc':
-        'Raporlar ve fiyatlar için para birimi',
-    'gpsAutoDetectSubtitle':
-        'Mevcut konumunuzu otomatik belirle',
+    'selectCurrencyDesc': 'Raporlar ve fiyatlar için para birimi',
+    'gpsAutoDetectSubtitle': 'Mevcut konumunuzu otomatik belirle',
     'orDivider': 'veya',
     'manualAddressLabel': 'Adresi elle girin',
     'createBusinessSubmit': 'İşletmeyi oluştur',
@@ -5502,14 +6379,16 @@ class S {
     'employeeConfirmBtn': 'Onayla',
     'employeeCreatedMsg': 'Çalışan başarıyla eklendi',
     'employeeRemoveTitle': 'Çalışanı çıkar',
-    'employeeRemoveConfirm': 'Bu çalışan işletmeye giriş yapamayacak. Devam edelim mi?',
+    'employeeRemoveConfirm':
+        'Bu çalışan işletmeye giriş yapamayacak. Devam edelim mi?',
     'employeeRemovedMsg': 'Çalışan çıkarıldı',
     'employeePermsTitle': 'Yetkiler',
     'employeePermsDesc': 'Çalışanın hangi bölümleri yönetebileceğini seçin',
     'employeePermsSaved': 'Yetkiler kaydedildi',
     'employeeSaveBtn': 'Kaydet',
     'employeePaidConfirmTitle': 'Ücretli çalışan koltuğu',
-    'employeePaidConfirmMsg': 'Ücretsiz limit doldu. Bu çalışan için bakiyeden {price} (aylık) düşülecek.',
+    'employeePaidConfirmMsg':
+        'Ücretsiz limit doldu. Bu çalışan için bakiyeden {price} (aylık) düşülecek.',
     'employeeContinueBtn': 'Devam et',
     'permViewReports': 'Raporlar',
     'permManageProducts': 'Ürünler',
@@ -5517,5 +6396,12 @@ class S {
     'permManageProduction': 'Üretim',
     'permManageExpenses': 'Giderler',
     'permManageSales': 'Satış / İade',
+    'languageSelectTitle': 'Dil seçin',
+    'languageSelectSubtitle':
+        '7 dil — İngilizce, Özbekçe (Latin ve Kiril), Rusça, Kazakça, Kırgızca ve Türkçe',
+    'onboardingContinue': 'Devam et',
+    'authErrorGoogleNoToken': 'Google ile giriş başarısız. Tekrar deneyin.',
+    'authErrorAppleNoToken': 'Apple ile giriş başarısız. Tekrar deneyin.',
+    'authErrorGoogleUnsupported': 'Bu cihazda Google ile giriş desteklenmiyor.',
   };
 }

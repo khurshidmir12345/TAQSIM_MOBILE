@@ -36,17 +36,32 @@ class EmployeesNotifier extends AsyncNotifier<List<EmployeeModel>> {
     required String phone,
     required String password,
   }) {
-    return _repo.startInvite(_shopId, name: name, phone: phone, password: password);
+    return _repo.startInvite(
+      _shopId,
+      name: name,
+      phone: phone,
+      password: password,
+    );
   }
 
-  Future<EmployeeModel> confirm({required String phone, required String code}) async {
+  Future<EmployeeModel> confirm({
+    required String phone,
+    required String code,
+  }) async {
     final employee = await _repo.confirm(_shopId, phone: phone, code: code);
     await refresh();
     return employee;
   }
 
-  Future<EmployeeModel> updatePermissions(String employeeId, List<String> permissions) async {
-    final updated = await _repo.updatePermissions(_shopId, employeeId, permissions);
+  Future<EmployeeModel> updatePermissions(
+    String employeeId,
+    List<String> permissions,
+  ) async {
+    final updated = await _repo.updatePermissions(
+      _shopId,
+      employeeId,
+      permissions,
+    );
     await refresh();
     return updated;
   }
@@ -58,7 +73,9 @@ class EmployeesNotifier extends AsyncNotifier<List<EmployeeModel>> {
 }
 
 final employeesProvider =
-    AsyncNotifierProvider<EmployeesNotifier, List<EmployeeModel>>(EmployeesNotifier.new);
+    AsyncNotifierProvider<EmployeesNotifier, List<EmployeeModel>>(
+      EmployeesNotifier.new,
+    );
 
 /// App ichidagi barcha modul ruxsatlari (UI toggle uchun tartibda).
 const kShopPermissions = <String>[
@@ -68,4 +85,5 @@ const kShopPermissions = <String>[
   'manage_production',
   'manage_expenses',
   'manage_sales',
+  'manage_orders',
 ];
