@@ -11,11 +11,16 @@ abstract final class AppConstants {
 
   /// Release build definessiz yig'ilganda dev API'ga ulansinmi.
   ///
-  /// **Doim `false` bo'lishi kerak.** `true` qilinsa, App Store / TestFlight
-  /// uchun yig'ilgan definessiz Archive ham dev serverga ulanib ketadi.
-  /// Dev bilan sinash uchun `--dart-define-from-file=config/dev.json`
-  /// ishlating (yoki `scripts/build-dev-*.sh`), bu bayroqni emas.
-  static const bool defaultToDev = false;
+  /// ⚠️ **HOZIR `true` — VAQTINCHA, bildirishnomalarni TestFlight'da sinash
+  /// uchun.** Bildirishnoma backend'i faqat dev serverda turibdi.
+  ///
+  /// **App Store'ga chiqarishdan oldin `false` ga qaytarilishi SHART.**
+  /// Aks holda do'kondagi ilova dev serverga ulanib qoladi — 2026-08-04 da
+  /// aynan shu bo'lgan edi.
+  ///
+  /// Tekshirish oson: `true` bo'lganda ilovada **DEV banneri** ko'rinadi.
+  /// Banner ko'rinsa — App Store'ga yubormang.
+  static const bool defaultToDev = true;
 
   // Aniq override (ixtiyoriy): flutter run --dart-define=API_BASE_URL=...
   static const String _overrideBaseUrl = String.fromEnvironment('API_BASE_URL');
@@ -23,7 +28,8 @@ abstract final class AppConstants {
   /// Compile-time env: `--dart-define=APP_ENV=dev|prod` (see config/*.json).
   static const String _appEnv = String.fromEnvironment('APP_ENV');
 
-  /// Definessiz: release → **prod**, debug/profile → dev.
+  /// Definessiz: [defaultToDev] `true` bo'lgani uchun **hamma rejimda dev**.
+  /// `false` ga qaytarilsa: release → prod, debug/profile → dev.
   /// Defines bilan: [APP_ENV] yoki [API_BASE_URL] aniq ustun turadi.
   static String get baseUrl {
     if (_overrideBaseUrl.isNotEmpty) return _overrideBaseUrl;

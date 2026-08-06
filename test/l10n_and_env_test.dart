@@ -119,7 +119,7 @@ void main() {
       );
     });
 
-    test('definessiz: debug → dev, release → prod', () {
+    test('debug/profile har doim dev', () {
       expect(
         AppEnvironment.resolveIsDev(
           appEnv: '',
@@ -129,21 +129,44 @@ void main() {
         isTrue,
         reason: 'debug/profile default dev bo‘lishi kerak',
       );
+    });
+
+    /// Xavfsizlik qo‘riqchisi.
+    ///
+    /// `defaultToDev = true` bo‘lganda definessiz release build dev serverga
+    /// ulanadi — bu TestFlight sinovi uchun ataylab qilinadi. Shunday paytda
+    /// **DEV banneri ko‘rinishi shart**, aks holda bunday build App Store'ga
+    /// sezilmasdan chiqib ketishi mumkin (2026-08-04 da shunday bo‘lgan).
+    ///
+    /// `false` ga qaytarilganda esa release prod'ga ulanishi tekshiriladi.
+    test('definessiz release: bayroqqa mos va DEV holati ko‘rinadigan', () {
+      final releaseIsDev = AppEnvironment.resolveIsDev(
+        appEnv: '',
+        apiBaseUrl: '',
+        releaseMode: true,
+      );
+
       expect(
-        AppEnvironment.resolveIsDev(
-          appEnv: '',
-          apiBaseUrl: '',
-          releaseMode: true,
-        ),
-        isFalse,
-        reason: 'App Store uchun definessiz Archive prod‘ga ulanishi shart',
+        releaseIsDev,
+        AppConstants.defaultToDev,
+        reason: AppConstants.defaultToDev
+            ? 'defaultToDev=true — release dev deb belgilanishi va DEV banneri '
+                'ko‘rinishi shart'
+            : 'defaultToDev=false — definessiz Archive prod‘ga ulanishi shart',
       );
     });
 
-    /// Regressiya qo‘riqchisi: bu bayroq `true` qolib ketsa, definessiz
-    /// Archive dev serverga ulanadi va shu holda App Store'ga chiqib ketadi.
-    test('defaultToDev doim false', () {
-      expect(AppConstants.defaultToDev, isFalse);
+    test('aniq APP_ENV bayroqdan ustun turadi', () {
+      // Sinov bayrog‘i qanday bo‘lishidan qat‘i nazar, config/prod.json
+      // bilan yig‘ilgan build doim prod bo‘ladi.
+      expect(
+        AppEnvironment.resolveIsDev(
+          appEnv: 'prod',
+          apiBaseUrl: AppConstants.prodBaseUrl,
+          releaseMode: true,
+        ),
+        isFalse,
+      );
     });
 
     test('configurationError detects conflicting dev/prod signals', () {

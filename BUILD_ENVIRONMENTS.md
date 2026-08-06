@@ -13,25 +13,40 @@ Taqseem mobile uses compile-time `--dart-define-from-file` config. Dev builds ma
 
 ## Defaults (no define file)
 
-- **Debug / profile** → dev API, DEV banner shown
-- **Release / Xcode Archive** → **prod API**, no DEV banner
+> ⚠️ **TEMPORARY: `AppConstants.defaultToDev` is currently `true`.**
+> Every build — including a define-less Archive — points at **dev**
+> (`api.dev.taqseem.uz`). This is deliberate: the push-notification backend
+> only exists on dev while it is being tested via TestFlight.
+>
+> **Set it back to `false` before the next App Store submission.**
 
-So a plain release build is safe to ship:
+Current behaviour while the flag is `true`:
 
-```bash
-flutter build ios --release          # → api.taqseem.uz
-flutter build apk --release          # → api.taqseem.uz
-# Xcode → Product → Archive          # → api.taqseem.uz
-```
+| Build | API | DEV banner |
+|-------|-----|-----------|
+| Debug / profile | dev | shown |
+| Release / Archive | **dev** | **shown** |
+| `config/prod.json` (`build-prod-*.sh`) | prod | hidden |
 
-To test against dev you must ask for it explicitly — with `config/dev.json` or
-`scripts/build-dev-*.sh`. Dev builds may go to internal TestFlight, but must
-never be submitted as the production App Store release.
+Once the flag is set back to `false`:
 
-> **Never set `AppConstants.defaultToDev = true`.** It makes a define-less
-> Archive point at the dev server, which is easy to submit to the App Store by
-> accident. The test `defaultToDev doim false` in
-> `test/l10n_and_env_test.dart` guards this — do not delete it.
+| Build | API | DEV banner |
+|-------|-----|-----------|
+| Debug / profile | dev | shown |
+| Release / Archive | **prod** | hidden |
+
+**How to tell what you are about to ship:** open the app. If the **DEV banner**
+is visible, the build talks to dev — do not submit it to the App Store. An
+explicit `config/prod.json` build always overrides the flag, so
+`./scripts/build-prod-ios.sh` is safe to ship at any time.
+
+Dev builds may go to internal TestFlight, but must never be submitted as the
+production App Store release.
+
+> The test `definessiz release: bayroqqa mos va DEV holati ko‘rinadigan` in
+> `test/l10n_and_env_test.dart` guards the safety property: whenever a
+> define-less release build points at dev, it must also be flagged as dev so
+> the banner appears. Do not delete it.
 
 ## Scripts
 
