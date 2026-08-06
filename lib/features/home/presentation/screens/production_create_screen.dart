@@ -73,7 +73,7 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
   String _batchUnitLabel(RecipeModel r, BuildContext context) {
     final mu = r.measurementUnit;
     if (mu == null) return '';
-    return mu.localizedName(_localeTag(context));
+    return mu.batchShortLabel(_localeTag(context));
   }
 
   String _moneySuffix(WidgetRef ref, S s) {
@@ -459,7 +459,8 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
   ) {
     final r = _matchedRecipe!;
     final unitLabel = _batchUnitLabel(r, context);
-    final unitCode = r.measurementUnit?.batchDisplayLabel ?? '';
+    final unitCode =
+        r.measurementUnit?.batchShortLabel(_localeTag(context)) ?? '';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -659,7 +660,9 @@ class _ProductionCreateScreenState extends ConsumerState<ProductionCreateScreen>
                         return _SummaryCell(
                           label: batchLbl.isNotEmpty
                               ? batchLbl
-                              : (r.measurementUnit?.batchDisplayLabel ?? '·'),
+                              : (r.measurementUnit
+                                      ?.batchShortLabel(_localeTag(context)) ??
+                                  '·'),
                           value: _fmtNum(context, _batchCount),
                         );
                       },

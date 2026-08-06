@@ -35,7 +35,8 @@ class OrderCreateScreen extends ConsumerWidget {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(s.ordersCreated)));
-              context.go('/orders/${order.id}');
+              // `go` emas — stack saqlanib, detail sahifada ortga qaytish ishlaydi.
+              context.pushReplacement('/orders/${order.id}');
             } on ApiException catch (e) {
               if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(

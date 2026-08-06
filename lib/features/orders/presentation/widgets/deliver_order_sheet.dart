@@ -45,6 +45,10 @@ class _DeliverOrderSheetState extends ConsumerState<_DeliverOrderSheet> {
 
   double get _remaining => roundMoney(parseAmount(widget.order.remainingAmount));
 
+  /// Butun son bo'lsa ".0"siz yoziladi (masalan, 500000).
+  String _editable(double v) =>
+      v % 1 == 0 ? v.toInt().toString() : v.toString();
+
   String _fmt(num v) {
     final l = Localizations.localeOf(context);
     final tag = localeTagFrom(l.languageCode, l.countryCode);
@@ -52,6 +56,7 @@ class _DeliverOrderSheetState extends ConsumerState<_DeliverOrderSheet> {
   }
 
   Future<void> _submit({required bool payLater}) async {
+    FocusScope.of(context).unfocus();
     final remaining = _remaining;
     final parsed = payLater
         ? 0.0
@@ -75,6 +80,7 @@ class _DeliverOrderSheetState extends ConsumerState<_DeliverOrderSheet> {
         ..showSnackBar(SnackBar(content: Text(s.ordersDelivered)));
       Navigator.pop(context, true);
     } on ApiException catch (e) {
+      if (!mounted) return;
       setState(() => _error = ordersUserErrorMessage(e, s));
     }
   }
@@ -86,54 +92,79 @@ class _DeliverOrderSheetState extends ConsumerState<_DeliverOrderSheet> {
     final remaining = _remaining;
     final busy = ref.watch(orderMutationsProvider);
 
-    return Padding(
+    // Scroll ichida — klaviatura ochilganda ham tugmalar ko'rinadi.
+    return SingleChildScrollView(
       padding: EdgeInsets.only(
-        left: AppSpacing.lg,
-        right: AppSpacing.lg,
-        top: AppSpacing.lg,
-        bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.lg,
+        left: AppSpacing.md,
+        right: AppSpacing.md,
+        top: AppSpacing.md,
+        bottom: MediaQuery.viewInsetsOf(context).bottom + AppSpacing.md,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            s.ordersDeliverTitle,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            '${s.ordersRemainingLabel}: ${_fmt(remaining)}',
-            style: Theme.of(context).textTheme.bodyLarge,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  s.ordersDeliverTitle,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: cs.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${s.ordersRemainingLabel}: ${_fmt(remaining)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: cs.error,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField(
-            label: s.ordersPaymentNowLabel,
+            hint: s.ordersPaymentNowLabel,
             controller: _amountCtl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.done,
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
             ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
+            prefixIcon: const Icon(Icons.payments_outlined, size: 20),
+            suffixIcon: TextButton(
               onPressed: busy
                   ? null
                   : () {
                       HapticFeedback.selectionClick();
-                      _amountCtl.text = remaining.toString();
+                      setState(() => _amountCtl.text = _editable(remaining));
                     },
-              child: Text(s.ordersFillAll),
+              child: Text(
+                s.ordersFillAll,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
           if (_error != null) ...[
-            Text(_error!, style: TextStyle(color: cs.error)),
             const SizedBox(height: AppSpacing.sm),
+            Text(_error!, style: TextStyle(color: cs.error, fontSize: 13)),
           ],
+          const SizedBox(height: AppSpacing.md),
           AppButton(
             label: s.ordersDeliverConfirm,
             isLoading: busy,

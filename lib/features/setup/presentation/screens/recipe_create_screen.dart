@@ -178,11 +178,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   /// chalg'ituvchi bo'lgani uchun bu yerda tozalaymiz. Foydalanuvchi faqat
   /// asosiy nomni ko'radi.
   String _batchUnitDisplayName(MeasurementUnitModel u) {
-    final raw = u.localizedName(_currentLocaleCode());
-    final cleaned =
-        raw.replaceAll(RegExp(r'\s*\([^)]*\)'), '').trim();
-    if (cleaned.isNotEmpty) return cleaned;
-    return u.batchDisplayLabel;
+    return u.batchShortLabel(_currentLocaleCode());
   }
 
   /// Jumla ichida ishlatiladigan kichik harfli variant

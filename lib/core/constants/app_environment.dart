@@ -62,7 +62,7 @@ abstract final class AppEnvironment {
     if (apiBaseUrl.isNotEmpty) {
       return apiBaseUrl == AppConstants.devBaseUrl;
     }
-    return !releaseMode;
+    return AppConstants.defaultToDev || !releaseMode;
   }
 
   /// `true` for dev API / debug defaults / explicit `APP_ENV=dev`.

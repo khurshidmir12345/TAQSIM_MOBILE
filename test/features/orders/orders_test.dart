@@ -180,7 +180,8 @@ void main() {
 
     test('customDate removed from filters', () {
       const filters = OrderListFilters();
-      expect(filters.dateTab, OrderDateTab.today);
+      // Default — "Hammasi": ro'yxat dastlab barcha zakazlarni ko'rsatadi.
+      expect(filters.dateTab, OrderDateTab.all);
     });
   });
 

@@ -75,7 +75,9 @@ void main() {
     });
 
     test('ky customersEmptyDesc is customer-specific full Cyrillic copy', () {
-      const expected = 'Биринчи кардараңызды кошу';
+      // Egalik qo‘shimchasi kyrgyz unli uyg‘unligi bo‘yicha -ыңыз, va bo‘sh
+      // holat matni buyruq shaklida bo‘ladi (кошу → кошуңуз).
+      const expected = 'Биринчи кардарыңызды кошуңуз';
       final ky = S.allLocaleMaps['ky']!;
 
       expect(ky['customersEmptyDesc'], expected);

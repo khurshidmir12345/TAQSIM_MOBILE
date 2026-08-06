@@ -183,7 +183,7 @@ class CustomerOrderModel {
 
 class OrderListFilters {
   const OrderListFilters({
-    this.dateTab = OrderDateTab.today,
+    this.dateTab = OrderDateTab.all,
     this.status,
     this.customerId,
   });

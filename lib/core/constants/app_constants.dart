@@ -9,19 +9,27 @@ abstract final class AppConstants {
   static const String _prodBaseUrl = prodBaseUrl;
   static const String _devBaseUrl = devBaseUrl;
 
+  /// Release build definessiz yig'ilganda dev API'ga ulansinmi.
+  ///
+  /// **Doim `false` bo'lishi kerak.** `true` qilinsa, App Store / TestFlight
+  /// uchun yig'ilgan definessiz Archive ham dev serverga ulanib ketadi.
+  /// Dev bilan sinash uchun `--dart-define-from-file=config/dev.json`
+  /// ishlating (yoki `scripts/build-dev-*.sh`), bu bayroqni emas.
+  static const bool defaultToDev = false;
+
   // Aniq override (ixtiyoriy): flutter run --dart-define=API_BASE_URL=...
   static const String _overrideBaseUrl = String.fromEnvironment('API_BASE_URL');
 
   /// Compile-time env: `--dart-define=APP_ENV=dev|prod` (see config/*.json).
   static const String _appEnv = String.fromEnvironment('APP_ENV');
 
-  /// Default (no defines): debug/profile → dev, release → production.
-  /// With defines: [APP_ENV] or [API_BASE_URL] override explicitly.
+  /// Definessiz: release → **prod**, debug/profile → dev.
+  /// Defines bilan: [APP_ENV] yoki [API_BASE_URL] aniq ustun turadi.
   static String get baseUrl {
     if (_overrideBaseUrl.isNotEmpty) return _overrideBaseUrl;
     if (_appEnv == 'dev') return _devBaseUrl;
     if (_appEnv == 'prod') return _prodBaseUrl;
-    return kReleaseMode ? _prodBaseUrl : _devBaseUrl;
+    return defaultToDev || !kReleaseMode ? _devBaseUrl : _prodBaseUrl;
   }
 
   // ─── Google Sign-In ──────────────────────────────────────────────────────

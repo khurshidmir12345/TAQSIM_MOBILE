@@ -123,7 +123,8 @@ class _ProductionDetailScreenState extends ConsumerState<ProductionDetailScreen>
     final ingredients = recipe?.ingredients ?? [];
     final batchCount = _production.batchCount;
     final name = _production.breadCategory?.name ?? recipe?.productDisplayName ?? s.unknown;
-    final unitCode = recipe?.measurementUnit?.batchDisplayLabel ?? '';
+    final unitCode =
+        recipe?.measurementUnit?.batchShortLabel(_localeTag(context)) ?? '';
 
     final bread = _production.breadProduced.toDouble();
     final cost = _production.ingredientCost;

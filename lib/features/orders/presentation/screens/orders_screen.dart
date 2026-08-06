@@ -86,18 +86,24 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+    final cs = Theme.of(context).colorScheme;
     final pad = Responsive.horizontalPadding(context);
     final state = ref.watch(orderListProvider);
 
     return ManageOrdersGuard(
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: _openCreate,
+          tooltip: s.ordersCreate,
+          child: const Icon(Icons.add_rounded, size: 28),
+        ),
         body: SafeArea(
           bottom: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(pad, 12, pad, 4),
+                padding: EdgeInsets.fromLTRB(pad, 12, pad - 8, 4),
                 child: Row(
                   children: [
                     Expanded(
@@ -107,49 +113,43 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
-                    TextButton.icon(
+                    IconButton(
                       onPressed: _openCustomers,
-                      icon: const Icon(Icons.people_outline),
-                      label: Text(s.customersTitle),
+                      tooltip: s.customersTitle,
+                      style: IconButton.styleFrom(
+                        backgroundColor: cs.primary.withValues(alpha: 0.08),
+                        foregroundColor: cs.primary,
+                      ),
+                      icon: const Icon(Icons.people_alt_outlined, size: 22),
                     ),
                   ],
                 ),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: pad),
-                child: FilledButton.icon(
-                  onPressed: _openCreate,
-                  icon: const Icon(Icons.add),
-                  label: Text(s.ordersCreate),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: pad),
-                child: Row(
-                  children: [
-                    for (final tab in OrderDateTab.values)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(
-                          label: Text(switch (tab) {
-                            OrderDateTab.today => s.ordersTabToday,
-                            OrderDateTab.tomorrow => s.ordersTabTomorrow,
-                            OrderDateTab.all => s.ordersTabAll,
-                          }),
-                          selected: state.filters.dateTab == tab,
-                          onSelected: (_) {
-                            HapticFeedback.selectionClick();
-                            ref
-                                .read(orderListProvider.notifier)
-                                .setFilters(
-                                  state.filters.copyWith(dateTab: tab),
-                                );
-                          },
+                child: _SegmentedTabs(
+                  // Hammasi — birinchi.
+                  tabs: const [
+                    OrderDateTab.all,
+                    OrderDateTab.today,
+                    OrderDateTab.tomorrow,
+                  ],
+                  labelOf: (tab) => switch (tab) {
+                    OrderDateTab.today => s.ordersTabToday,
+                    OrderDateTab.tomorrow => s.ordersTabTomorrow,
+                    OrderDateTab.all => s.ordersTabAll,
+                  },
+                  selected: state.filters.dateTab,
+                  // Bugun/Ertagaga o'tilganda yashirin status filtri qolib
+                  // ketmasligi uchun tozalaymiz.
+                  onChanged: (tab) => ref
+                      .read(orderListProvider.notifier)
+                      .setFilters(
+                        state.filters.copyWith(
+                          dateTab: tab,
+                          clearStatus: tab != OrderDateTab.all,
                         ),
                       ),
-                  ],
                 ),
               ),
               if (state.filters.dateTab == OrderDateTab.all) ...[
@@ -159,7 +159,7 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
                   padding: EdgeInsets.symmetric(horizontal: pad),
                   child: Row(
                     children: [
-                      _StatusChip(
+                      _FilterChip(
                         label: s.ordersFilterAll,
                         selected: state.filters.status == null,
                         onTap: () => ref
@@ -168,44 +168,22 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
                               state.filters.copyWith(clearStatus: true),
                             ),
                       ),
-                      _StatusChip(
-                        label: s.ordersStatusActive,
-                        selected:
-                            state.filters.status == CustomerOrderStatus.active,
-                        onTap: () => ref
-                            .read(orderListProvider.notifier)
-                            .setFilters(
-                              state.filters.copyWith(
-                                status: CustomerOrderStatus.active,
+                      for (final status in CustomerOrderStatus.values)
+                        _FilterChip(
+                          label: switch (status) {
+                            CustomerOrderStatus.active => s.ordersStatusActive,
+                            CustomerOrderStatus.delivered =>
+                              s.ordersStatusDelivered,
+                            CustomerOrderStatus.cancelled =>
+                              s.ordersStatusCancelled,
+                          },
+                          selected: state.filters.status == status,
+                          onTap: () => ref
+                              .read(orderListProvider.notifier)
+                              .setFilters(
+                                state.filters.copyWith(status: status),
                               ),
-                            ),
-                      ),
-                      _StatusChip(
-                        label: s.ordersStatusDelivered,
-                        selected:
-                            state.filters.status ==
-                            CustomerOrderStatus.delivered,
-                        onTap: () => ref
-                            .read(orderListProvider.notifier)
-                            .setFilters(
-                              state.filters.copyWith(
-                                status: CustomerOrderStatus.delivered,
-                              ),
-                            ),
-                      ),
-                      _StatusChip(
-                        label: s.ordersStatusCancelled,
-                        selected:
-                            state.filters.status ==
-                            CustomerOrderStatus.cancelled,
-                        onTap: () => ref
-                            .read(orderListProvider.notifier)
-                            .setFilters(
-                              state.filters.copyWith(
-                                status: CustomerOrderStatus.cancelled,
-                              ),
-                            ),
-                      ),
+                        ),
                     ],
                   ),
                 ),
@@ -235,7 +213,7 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: EdgeInsets.all(pad),
-        children: const [SkeletonLoader(itemCount: 3, itemHeight: 120)],
+        children: const [SkeletonLoader(itemHeight: 82)],
       );
     }
 
@@ -272,9 +250,10 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
     return ListView.separated(
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(pad, 0, pad, 24),
+      // Pastdagi bo'shliq FAB kartani to'sib qo'ymasligi uchun.
+      padding: EdgeInsets.fromLTRB(pad, 0, pad, 96),
       itemCount: state.items.length + (state.isLoadingMore ? 1 : 0),
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         if (index >= state.items.length) {
           return const Padding(
@@ -297,8 +276,83 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
+/// Sana tanlovi — iOS uslubidagi segmented control.
+/// Pastdagi status chip'laridan vizual farq qiladi.
+class _SegmentedTabs extends StatelessWidget {
+  const _SegmentedTabs({
+    required this.tabs,
+    required this.labelOf,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final List<OrderDateTab> tabs;
+  final String Function(OrderDateTab tab) labelOf;
+  final OrderDateTab selected;
+  final ValueChanged<OrderDateTab> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      height: 40,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: cs.onSurface.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          for (final tab in tabs)
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  if (tab == selected) return;
+                  HapticFeedback.selectionClick();
+                  onChanged(tab);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: tab == selected ? cs.surface : Colors.transparent,
+                    borderRadius: BorderRadius.circular(9),
+                    boxShadow: tab == selected
+                        ? [
+                            BoxShadow(
+                              color: cs.shadow.withValues(alpha: 0.08),
+                              blurRadius: 6,
+                              offset: const Offset(0, 1),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Text(
+                    labelOf(tab),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: tab == selected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: tab == selected
+                          ? cs.primary
+                          : cs.onSurface.withValues(alpha: 0.55),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Ixcham filter chip — standart ChoiceChip'dan zichroq.
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
     required this.label,
     required this.selected,
     required this.onTap,
@@ -310,15 +364,35 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.only(right: 8),
-      child: ChoiceChip(
-        label: Text(label),
-        selected: selected,
-        onSelected: (_) {
-          HapticFeedback.selectionClick();
-          onTap();
-        },
+      child: Material(
+        color: selected
+            ? cs.primary
+            : cs.onSurface.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onTap();
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected
+                    ? cs.onPrimary
+                    : cs.onSurface.withValues(alpha: 0.65),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

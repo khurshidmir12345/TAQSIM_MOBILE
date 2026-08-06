@@ -7,6 +7,8 @@ import '../../../../core/api/api_exceptions.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
+import '../../../../core/utils/expense_api_locale.dart';
+import '../../../../core/utils/expense_category_label.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
@@ -830,7 +832,7 @@ class _ProductRows extends StatelessWidget {
   }
 }
 
-class _ExpenseInner extends StatelessWidget {
+class _ExpenseInner extends ConsumerWidget {
   const _ExpenseInner({
     required this.report,
     required this.fmt,
@@ -844,14 +846,23 @@ class _ExpenseInner extends StatelessWidget {
   final ColorScheme cs;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final by = report.expenses.byCategory;
+    // `by_category` kalitlari xom (`ish_haqi` yoki UUID) — nomga aylantiramiz.
+    final locale = expenseApiLocale(context);
+    final names = ref.watch(expenseCategoryNamesProvider(locale)).value;
     return Column(
       children: [
         _row(context, s.internalIngredients,
             fmt(report.expenses.ingredientCost)),
         _row(context, s.external, fmt(report.expenses.external)),
-        ...by.entries.map((e) => _row(context, e.key, fmt(e.value))),
+        ...by.entries.map(
+          (e) => _row(
+            context,
+            expenseCategoryLabel(e.key, locale: locale, customNames: names),
+            fmt(e.value),
+          ),
+        ),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 6),
           child: Divider(height: 1),

@@ -16,6 +16,7 @@ import '../../domain/providers/customer_provider.dart';
 import '../../domain/providers/order_provider.dart';
 import '../../domain/utils/money_utils.dart';
 import '../../domain/utils/orders_api_utils.dart';
+import '../widgets/initials_avatar.dart';
 import '../widgets/manage_orders_guard.dart';
 import '../widgets/order_card.dart';
 
@@ -68,6 +69,21 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
     if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
+  Future<void> _edit(CustomerModel customer) async {
+    final shopId = ref.read(shopProvider).selected?.id;
+    if (shopId == null) return;
+    await context.push('/customer-edit', extra: customer);
+    if (mounted) {
+      ref
+          .read(
+            customerDetailProvider(
+              (shopId: shopId, customerId: widget.customerId),
+            ).notifier,
+          )
+          .refresh();
+    }
+  }
+
   Future<void> _delete(CustomerModel customer) async {
     final s = S.of(context);
     final ok = await ConfirmDialog.show(
@@ -83,21 +99,23 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
           .read(orderMutationsProvider.notifier)
           .deleteCustomer(customer.id);
       if (deleted && mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(s.customersDeleted)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(s.customersDeleted)));
         context.pop();
       }
     } on ApiException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ordersUserErrorMessage(e, s))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ordersUserErrorMessage(e, s))));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
+    final cs = Theme.of(context).colorScheme;
     final shopId = ref.watch(shopProvider.select((s) => s.selected?.id));
 
     if (shopId == null) {
@@ -120,35 +138,45 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
         appBar: AppBar(
           title: Text(s.customersDetailTitle),
           actions: [
-            IconButton(
-              onPressed: detail.value == null || mutationsBusy
-                  ? null
-                  : () async {
-                      final customer = detail.value;
-                      if (customer == null) return;
-                      await context.push('/customer-edit', extra: customer);
-                      if (mounted) {
-                        ref
-                            .read(customerDetailProvider(detailKey).notifier)
-                            .refresh();
-                      }
-                    },
-              icon: const Icon(Icons.edit_outlined),
-            ),
+            if (detail.value != null) ...[
+              IconButton(
+                onPressed: mutationsBusy
+                    ? null
+                    : () => _edit(detail.value!),
+                tooltip: s.customersEditTitle,
+                icon: const Icon(Icons.edit_outlined, size: 22),
+              ),
+              IconButton(
+                onPressed: mutationsBusy
+                    ? null
+                    : () => _delete(detail.value!),
+                tooltip: s.delete,
+                icon: Icon(Icons.delete_outline, size: 22, color: cs.error),
+              ),
+            ],
           ],
         ),
         floatingActionButton: detail.maybeWhen(
           data: (customer) => customer == null
               ? null
-              : FloatingActionButton.extended(
+              : FloatingActionButton(
                   onPressed: mutationsBusy
                       ? null
-                      : () {
+                      : () async {
                           HapticFeedback.selectionClick();
-                          context.push('/order-create', extra: customer);
+                          await context.push('/order-create', extra: customer);
+                          if (context.mounted) {
+                            ref
+                                .read(
+                                  customerOrderHistoryProvider(
+                                    historyKey,
+                                  ).notifier,
+                                )
+                                .refresh();
+                          }
                         },
-                  icon: const Icon(Icons.add),
-                  label: Text(s.customersCreateOrder),
+                  tooltip: s.customersCreateOrder,
+                  child: const Icon(Icons.add_rounded, size: 28),
                 ),
           orElse: () => null,
         ),
@@ -182,45 +210,40 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
               },
               child: ListView(
                 controller: _scrollController,
-                padding: const EdgeInsets.all(AppSpacing.lg),
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.sm,
+                  AppSpacing.md,
+                  96,
+                ),
                 children: [
-                  Text(
-                    customer.name,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+                  _CustomerHeaderCard(
+                    customer: customer,
+                    onCall: _callPhone,
                   ),
-                  if (customer.phone != null) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    TextButton.icon(
-                      onPressed: () => _callPhone(customer.phone!),
-                      icon: const Icon(Icons.phone_outlined),
-                      label: Text(customer.phone!),
-                    ),
-                  ],
-                  if (customer.note != null && customer.note!.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(customer.note!),
-                  ],
-                  TextButton(
-                    onPressed: mutationsBusy ? null : () => _delete(customer),
-                    child: Text(
-                      s.delete,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+                  const SizedBox(height: AppSpacing.lg),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.history_rounded,
+                        size: 18,
+                        color: cs.primary,
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      Text(
+                        s.customersOrdersHistory,
+                        style: Theme.of(context).textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ],
                   ),
-                  const Divider(height: 32),
-                  Text(
-                    s.customersOrdersHistory,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: AppSpacing.sm + 2),
                   if (history.isLoading && history.items.isEmpty)
-                    const Center(child: CircularProgressIndicator())
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
                   else if (history.error != null && history.items.isEmpty)
                     history.errorForbidden
                         ? EmptyStateWidget(
@@ -234,13 +257,22 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
                                 : s.snackbarErrorGeneric,
                             onRetry: () => ref
                                 .read(
-                                  customerOrderHistoryProvider(historyKey)
-                                      .notifier,
+                                  customerOrderHistoryProvider(
+                                    historyKey,
+                                  ).notifier,
                                 )
                                 .refresh(),
                           )
                   else if (history.items.isEmpty)
-                    Text(s.ordersEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        s.ordersEmpty,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    )
                   else ...[
                     for (final order in history.items) ...[
                       OrderCard(
@@ -251,9 +283,20 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
                           localeTag: _localeTag(context),
                         ),
                         showDate: true,
-                        onTap: () => context.push('/orders/${order.id}'),
+                        onTap: () async {
+                          await context.push('/orders/${order.id}');
+                          if (context.mounted) {
+                            ref
+                                .read(
+                                  customerOrderHistoryProvider(
+                                    historyKey,
+                                  ).notifier,
+                                )
+                                .refresh();
+                          }
+                        },
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                     ],
                     if (history.isLoadingMore)
                       const Padding(
@@ -261,14 +304,18 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
                         child: Center(child: CircularProgressIndicator()),
                       )
                     else if (history.hasMore)
-                      OutlinedButton(
-                        onPressed: () => ref
-                            .read(
-                              customerOrderHistoryProvider(historyKey)
-                                  .notifier,
-                            )
-                            .loadMore(),
-                        child: Text(s.ordersLoadMore),
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => ref
+                              .read(
+                                customerOrderHistoryProvider(
+                                  historyKey,
+                                ).notifier,
+                              )
+                              .loadMore(),
+                          icon: const Icon(Icons.expand_more_rounded, size: 18),
+                          label: Text(s.ordersLoadMore),
+                        ),
                       ),
                   ],
                 ],
@@ -276,6 +323,99 @@ class _CustomerDetailScreenState extends ConsumerState<CustomerDetailScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class _CustomerHeaderCard extends StatelessWidget {
+  const _CustomerHeaderCard({required this.customer, required this.onCall});
+
+  final CustomerModel customer;
+  final Future<void> Function(String phone) onCall;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final phone = customer.phone;
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              InitialsAvatar(name: customer.name, size: 52),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      customer.name,
+                      style: tt.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (phone != null && phone.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        phone,
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.55),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (phone != null && phone.isNotEmpty)
+                IconButton(
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    onCall(phone);
+                  },
+                  tooltip: phone,
+                  style: IconButton.styleFrom(
+                    backgroundColor: cs.primary.withValues(alpha: 0.08),
+                    foregroundColor: cs.primary,
+                  ),
+                  icon: const Icon(Icons.phone_outlined, size: 20),
+                ),
+            ],
+          ),
+          if (customer.note != null && customer.note!.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm + 4),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.notes_outlined,
+                  size: 16,
+                  color: cs.onSurface.withValues(alpha: 0.45),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    customer.note!,
+                    style: tt.bodySmall?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.65),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }

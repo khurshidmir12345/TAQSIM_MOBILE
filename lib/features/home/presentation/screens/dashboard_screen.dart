@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/shop_permissions.dart';
@@ -175,10 +176,6 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
             setupBtnKey: _setupBtnKey,
             onShopTap: _openShopManager,
             onSetupTap: () => context.push('/setup'),
-            onProfileTap: () {
-              HapticFeedback.selectionClick();
-              context.push('/profile');
-            },
           ),
           Expanded(
             child: RefreshIndicator(
@@ -275,7 +272,6 @@ class _DashboardHeader extends StatelessWidget {
   final GlobalKey setupBtnKey;
   final VoidCallback onShopTap;
   final VoidCallback onSetupTap;
-  final VoidCallback onProfileTap;
 
   const _DashboardHeader({
     required this.shop,
@@ -283,7 +279,6 @@ class _DashboardHeader extends StatelessWidget {
     required this.setupBtnKey,
     required this.onShopTap,
     required this.onSetupTap,
-    required this.onProfileTap,
   });
 
   @override
@@ -300,67 +295,77 @@ class _DashboardHeader extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(pad, 12, pad, 16),
         child: Row(
           children: [
-            _ShopMenuButton(onTap: onShopTap),
-            const SizedBox(width: 8),
-            _ShopBadge(bizColor: bizColor, onTap: onShopTap),
-            const SizedBox(width: 10),
+            // Bitta bosiladigan blok: do'kon belgisi + nomi + manzil.
             Expanded(
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: onShopTap,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 2,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
                       children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: cs.onSurface,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.25,
-                            height: 1.15,
+                        _ShopBadge(bizColor: bizColor),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: cs.onSurface,
+                                        fontSize: 17.5,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.4,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 5),
+                                  // Bosilsa boshqa biznesga o'tish mumkinligiga ishora.
+                                  Icon(
+                                    SolarIconsOutline.altArrowDown,
+                                    size: 15,
+                                    color: cs.onSurface.withValues(alpha: 0.4),
+                                  ),
+                                ],
+                              ),
+                              if (addr != null && addr.isNotEmpty) ...[
+                                const SizedBox(height: 3),
+                                Text(
+                                  addr,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: cs.onSurface.withValues(alpha: 0.5),
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.2,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                        if (addr != null && addr.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            addr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: cs.onSurface.withValues(alpha: 0.55),
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w500,
-                              height: 1.2,
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             _TealIconBtn(
               key: setupBtnKey,
-              icon: Icons.tune_rounded,
+              icon: SolarIconsOutline.tuning_2,
               onTap: onSetupTap,
-            ),
-            const SizedBox(width: 6),
-            _TealIconBtn(
-              icon: Icons.person_outline_rounded,
-              onTap: onProfileTap,
             ),
           ],
         ),
@@ -369,69 +374,27 @@ class _DashboardHeader extends StatelessWidget {
   }
 }
 
-/// Chap chetda joylashgan zamonaviy "hamburger" tugma. Tapped → do'kon
-/// tanlash/qo'shish ekraniga olib o'tadi (boshqa do'konlar ham bo'lishi mumkin).
-class _ShopMenuButton extends StatelessWidget {
-  const _ShopMenuButton({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Material(
-      color: cs.surfaceContainerHighest.withValues(
-        alpha: isDark ? 0.6 : 0.85,
-      ),
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: SizedBox(
-          width: 44,
-          height: 44,
-          child: Icon(
-            Icons.menu_rounded,
-            color: cs.onSurface,
-            size: 24,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Do'konni bildiruvchi storefront ikoni — biznes turining rangi bilan
-/// nozik tortilgan. Tapped → do'kon menyusi.
+/// Do'konni bildiruvchi belgi — biznes turining rangi bilan nozik tortilgan.
 class _ShopBadge extends StatelessWidget {
-  const _ShopBadge({required this.bizColor, required this.onTap});
+  const _ShopBadge({required this.bizColor});
 
   final Color bizColor;
-  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bg = bizColor.withValues(alpha: isDark ? 0.22 : 0.13);
+    final bg = bizColor.withValues(alpha: isDark ? 0.22 : 0.12);
     final fg = isDark ? Color.lerp(bizColor, Colors.white, 0.25)! : bizColor;
 
-    return Material(
-      color: bg,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
+    return Container(
+      width: 44,
+      height: 44,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: bg,
         borderRadius: BorderRadius.circular(14),
-        child: SizedBox(
-          width: 44,
-          height: 44,
-          child: Icon(
-            Icons.storefront_rounded,
-            color: fg,
-            size: 22,
-          ),
-        ),
       ),
+      child: Icon(SolarIconsBold.shop_2, color: fg, size: 21),
     );
   }
 }

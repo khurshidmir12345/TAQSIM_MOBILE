@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
+import '../../../../core/utils/expense_api_locale.dart';
+import '../../../../core/utils/expense_category_label.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
@@ -511,7 +513,7 @@ class _ProductBarChart extends StatelessWidget {
   }
 }
 
-class _ExpensePieChart extends StatelessWidget {
+class _ExpensePieChart extends ConsumerWidget {
   const _ExpensePieChart({
     required this.report,
     required this.full,
@@ -534,10 +536,14 @@ class _ExpensePieChart extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final expenses = report.expenses;
     final entries = <_ExpenseEntry>[];
+
+    // `by_category` kalitlari xom (`ish_haqi` yoki UUID) — nomga aylantiramiz.
+    final locale = expenseApiLocale(context);
+    final names = ref.watch(expenseCategoryNamesProvider(locale)).value;
 
     if (expenses.ingredientCost > 0) {
       entries.add(_ExpenseEntry(s.internalIngredients, expenses.ingredientCost));
@@ -546,7 +552,14 @@ class _ExpensePieChart extends StatelessWidget {
       entries.add(_ExpenseEntry(s.external, expenses.external));
     }
     for (final e in expenses.byCategory.entries) {
-      if (e.value > 0) entries.add(_ExpenseEntry(e.key, e.value));
+      if (e.value > 0) {
+        entries.add(
+          _ExpenseEntry(
+            expenseCategoryLabel(e.key, locale: locale, customNames: names),
+            e.value,
+          ),
+        );
+      }
     }
 
     if (entries.isEmpty) return const SizedBox.shrink();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 import '../../../../core/constants/shop_permissions.dart';
 import '../../../../core/l10n/translations.dart';
@@ -12,6 +13,7 @@ import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../../home/presentation/screens/expenses_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
+import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../setup/domain/providers/setup_provider.dart';
 import '../../../statistics/presentation/screens/report_screen.dart';
 
@@ -77,7 +79,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
   }
 
   /// Joriy ruxsatlarga qarab ko'rinadigan tablar ro'yxati.
-  /// Home hammaga; Statistics -> view_reports; Expenses -> manage_expenses.
+  /// Home va Profil hammaga; qolganlari — mos ruxsat bo'lsa.
   List<ShellTab> _visibleTabs(Set<String> perms) {
     final isOwner = ref.read(isOwnerProvider);
     return [
@@ -88,6 +90,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
         ShellTab.statistics,
       if (isOwner || perms.contains(ShopPermissions.manageOrders))
         ShellTab.orders,
+      ShellTab.profile,
     ];
   }
 
@@ -116,6 +119,8 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
         break;
       case ShellTab.orders:
         _ordersKey.currentState?.refresh();
+      case ShellTab.profile:
+        break;
     }
   }
 
@@ -163,6 +168,8 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
         return const ReportScreen();
       case ShellTab.orders:
         return OrdersScreen(key: _ordersKey);
+      case ShellTab.profile:
+        return const ProfileScreen();
     }
   }
 
@@ -173,27 +180,33 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
     switch (tab) {
       case ShellTab.home:
         return (
-          icon: Icons.home_outlined,
-          activeIcon: Icons.home_rounded,
+          icon: SolarIconsOutline.homeSmile,
+          activeIcon: SolarIconsBold.homeSmile,
           label: s.home,
         );
       case ShellTab.expenses:
         return (
-          icon: Icons.point_of_sale_outlined,
-          activeIcon: Icons.point_of_sale_rounded,
+          icon: SolarIconsOutline.walletMoney,
+          activeIcon: SolarIconsBold.walletMoney,
           label: s.cashbox,
         );
       case ShellTab.statistics:
         return (
-          icon: Icons.bar_chart_outlined,
-          activeIcon: Icons.bar_chart_rounded,
+          icon: SolarIconsOutline.chartSquare,
+          activeIcon: SolarIconsBold.chartSquare,
           label: s.statistics,
         );
       case ShellTab.orders:
         return (
-          icon: Icons.receipt_long_outlined,
-          activeIcon: Icons.receipt_long_rounded,
+          icon: SolarIconsOutline.clipboardList,
+          activeIcon: SolarIconsBold.clipboardList,
           label: s.orders,
+        );
+      case ShellTab.profile:
+        return (
+          icon: SolarIconsOutline.userCircle,
+          activeIcon: SolarIconsBold.userCircle,
+          label: s.profileTab,
         );
     }
   }
@@ -252,32 +265,18 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              child: tabs.length > 4
-                  ? SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          for (var i = 0; i < tabs.length; i++)
-                            _NavItem(
-                              meta: _navMeta(tabs[i], s),
-                              isActive: currentIndex == i,
-                              onTap: () => _onTabTap(tabs, i),
-                              compact: true,
-                            ),
-                        ],
+              child: Row(
+                children: [
+                  for (var i = 0; i < tabs.length; i++)
+                    Expanded(
+                      child: _NavItem(
+                        meta: _navMeta(tabs[i], s),
+                        isActive: currentIndex == i,
+                        onTap: () => _onTabTap(tabs, i),
                       ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        for (var i = 0; i < tabs.length; i++)
-                          _NavItem(
-                            meta: _navMeta(tabs[i], s),
-                            isActive: currentIndex == i,
-                            onTap: () => _onTabTap(tabs, i),
-                          ),
-                      ],
                     ),
+                ],
+              ),
             ),
           ),
         ),
@@ -290,29 +289,25 @@ class _NavItem extends StatelessWidget {
   final ({IconData icon, IconData activeIcon, String label}) meta;
   final bool isActive;
   final VoidCallback onTap;
-  final bool compact;
 
   const _NavItem({
     required this.meta,
     required this.isActive,
     required this.onTap,
-    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final color = isActive ? cs.primary : cs.onSurface.withValues(alpha: 0.38);
+    final color = isActive ? cs.primary : cs.onSurface.withValues(alpha: 0.4);
 
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(
-          horizontal: compact ? 12 : 16,
-          vertical: 8,
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.symmetric(vertical: 7),
         decoration: BoxDecoration(
           color: isActive
               ? cs.primary.withValues(alpha: 0.1)
@@ -324,14 +319,16 @@ class _NavItem extends StatelessWidget {
           children: [
             Icon(
               isActive ? meta.activeIcon : meta.icon,
-              size: 24,
+              size: 23,
               color: color,
             ),
             const SizedBox(height: 3),
             Text(
               meta.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10.5,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 color: color,
               ),

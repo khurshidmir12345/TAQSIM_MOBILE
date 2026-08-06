@@ -121,7 +121,8 @@ class _ReturnCreateScreenState extends ConsumerState<ReturnCreateScreen> {
   }
 
   String _productionLine(BuildContext context, ProductionModel p, S s) {
-    final unit = p.recipe?.measurementUnit?.batchDisplayLabel ?? '';
+    final unit =
+        p.recipe?.measurementUnit?.batchShortLabel(_localeTag(context)) ?? '';
     final b = _fmtBatch(context, p.batchCount);
     return '$b $unit · ${p.breadProduced} ${s.pcs}';
   }

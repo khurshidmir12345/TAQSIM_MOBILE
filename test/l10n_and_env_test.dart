@@ -116,7 +116,7 @@ void main() {
       );
     });
 
-    test('resolveIsDev defaults debug to dev and release to prod', () {
+    test('definessiz: debug → dev, release → prod', () {
       expect(
         AppEnvironment.resolveIsDev(
           appEnv: '',
@@ -124,6 +124,7 @@ void main() {
           releaseMode: false,
         ),
         isTrue,
+        reason: 'debug/profile default dev bo‘lishi kerak',
       );
       expect(
         AppEnvironment.resolveIsDev(
@@ -132,7 +133,14 @@ void main() {
           releaseMode: true,
         ),
         isFalse,
+        reason: 'App Store uchun definessiz Archive prod‘ga ulanishi shart',
       );
+    });
+
+    /// Regressiya qo‘riqchisi: bu bayroq `true` qolib ketsa, definessiz
+    /// Archive dev serverga ulanadi va shu holda App Store'ga chiqib ketadi.
+    test('defaultToDev doim false', () {
+      expect(AppConstants.defaultToDev, isFalse);
     });
 
     test('configurationError detects conflicting dev/prod signals', () {

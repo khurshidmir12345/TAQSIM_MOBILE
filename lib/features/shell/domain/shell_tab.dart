@@ -1,2 +1,2 @@
 /// Pastki navigatsiya tab identifikatorlari.
-enum ShellTab { home, expenses, statistics, orders }
+enum ShellTab { home, expenses, statistics, orders, profile }

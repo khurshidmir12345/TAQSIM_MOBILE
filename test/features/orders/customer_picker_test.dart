@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:taqseem/core/l10n/translations.dart';
 import 'package:taqseem/features/auth/domain/models/shop_model.dart';
 import 'package:taqseem/features/auth/domain/providers/shop_provider.dart';
 import 'package:taqseem/features/orders/data/orders_repository.dart';
@@ -226,7 +227,7 @@ void main() {
       await _waitForAsync(tester);
       expect(paginatedCalls, 1);
 
-      await tester.tap(find.byType(ChoiceChip).at(1));
+      await tester.tap(find.text(S.forTest('uz').ordersNewCustomer));
       await tester.pump();
 
       expect(paginatedCalls, 1);

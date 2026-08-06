@@ -116,3 +116,20 @@ class DailyReportNotifier extends Notifier<DailyReportState> {
 
 final dailyReportProvider =
     NotifierProvider<DailyReportNotifier, DailyReportState>(DailyReportNotifier.new);
+
+/// Xarajat kategoriyalari: `id → nom` (tizim kodlari va foydalanuvchi UUID'lari).
+///
+/// Hisobot API'si `expenses.by_category` ni xom kalit bilan qaytaradi, shuning
+/// uchun hisobot va grafik ekranlari kalitni shu jadval orqali nomga
+/// aylantiradi (`expenseCategoryLabel`).
+final expenseCategoryNamesProvider =
+    FutureProvider.family<Map<String, String>, String>((ref, locale) async {
+  final shop = ref.watch(shopProvider).selected;
+  if (shop == null) return const <String, String>{};
+
+  final list = await ref
+      .read(dailyRepositoryProvider)
+      .fetchExpenseCategories(shop.id, locale: locale);
+
+  return {for (final c in list) c.id: c.name};
+});
