@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../notifications/domain/providers/notification_provider.dart';
 import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/theme/theme_provider.dart';
@@ -93,6 +94,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     iconBg: AppColors.info.withValues(alpha: 0.1),
                     iconColor: AppColors.info,
                     onTap: () => context.push('/profile-info'),
+                  ),
+                  // Bildirishnomalar — o'qilmaganlar soni belgi bilan.
+                  _MenuItem(
+                    icon: Icons.notifications_none_rounded,
+                    title: s.notificationsTitle,
+                    subtitle: s.notificationsMenuDesc,
+                    iconBg: cs.primary.withValues(alpha: 0.1),
+                    iconColor: cs.primary,
+                    badgeCount:
+                        ref.watch(unreadNotificationsProvider).value ?? 0,
+                    onTap: () => context.push('/notifications'),
                   ),
                   // Qurilmalar (multi-device) — har bir foydalanuvchiga ko'rinadi.
                   _MenuItem(
@@ -992,6 +1004,9 @@ class _MenuItem extends StatelessWidget {
   final Color iconColor;
   final Color? titleColor;
   final bool showChevron;
+
+  /// O'qilmagan bildirishnomalar soni — 0 bo'lsa belgi ko'rsatilmaydi.
+  final int badgeCount;
   final VoidCallback onTap;
 
   const _MenuItem({
@@ -1003,6 +1018,7 @@ class _MenuItem extends StatelessWidget {
     required this.onTap,
     this.titleColor,
     this.showChevron = true,
+    this.badgeCount = 0,
   });
 
   @override
@@ -1043,6 +1059,24 @@ class _MenuItem extends StatelessWidget {
                   ],
                 ),
               ),
+              if (badgeCount > 0)
+                Container(
+                  margin: const EdgeInsets.only(right: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: cs.primary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    badgeCount > 99 ? '99+' : '$badgeCount',
+                    style: TextStyle(
+                      color: cs.onPrimary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
               if (showChevron)
                 Icon(Icons.chevron_right_rounded,
                     size: 20, color: cs.onSurface.withValues(alpha: 0.2)),

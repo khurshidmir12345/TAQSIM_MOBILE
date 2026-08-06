@@ -1,13 +1,17 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'core/api/api_client.dart';
 import 'core/api/device_info.dart';
 import 'core/l10n/app_locale.dart';
 import 'core/providers/deep_link_provider.dart';
+import 'core/push/push_service.dart';
 import 'core/router/app_router.dart';
+import 'features/notifications/domain/providers/push_sync_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'core/constants/app_constants.dart';
@@ -26,6 +30,16 @@ void main() async {
   await initializeDateFormatting('en');
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // Firebase konfiguratsiyasi native fayllardan olinadi
+  // (google-services.json / GoogleService-Info.plist).
+  // Push sozlanmagan bo'lsa ham ilova ishlashda davom etsin.
+  try {
+    await Firebase.initializeApp();
+    await PushService.init();
+  } catch (e) {
+    debugPrint('[push] Firebase ishga tushmadi: $e');
+  }
 
   // Multi-device sessiya uchun qurilma metama'lumotini barcha so'rovlarga ulaymiz.
   await DeviceInfo.attachToClient(ApiClient());
@@ -46,6 +60,12 @@ class _TaqseemAppState extends ConsumerState<TaqseemApp> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(deepLinkHandlerProvider).start();
+      ref.read(pushSyncProvider).start();
+
+      // Bildirishnoma bosilganda ro'yxat ekraniga o'tamiz.
+      PushService.onOpened = () {
+        rootNavigatorKey.currentContext?.push('/notifications');
+      };
     });
   }
 

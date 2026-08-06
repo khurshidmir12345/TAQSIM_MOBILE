@@ -866,6 +866,25 @@ class S {
   String get goBack => _t('goBack');
 
   // ─── Devices (multi-device) ───
+  String get notificationsTitle => _t('notificationsTitle');
+  String get notificationsMenuDesc => _t('notificationsMenuDesc');
+  String get notificationsEmptyTitle => _t('notificationsEmptyTitle');
+  String get notificationsEmptyDesc => _t('notificationsEmptyDesc');
+  String get notificationsMarkAllRead => _t('notificationsMarkAllRead');
+  String get notificationsAllRead => _t('notificationsAllRead');
+  String get notificationsDeleted => _t('notificationsDeleted');
+  String get notificationsSettings => _t('notificationsSettings');
+  String get notifPrefAll => _t('notifPrefAll');
+  String get notifPrefAllDesc => _t('notifPrefAllDesc');
+  String get notifPrefDailyGreeting => _t('notifPrefDailyGreeting');
+  String get notifPrefDailyGreetingDesc => _t('notifPrefDailyGreetingDesc');
+  String get notifPrefOrderReminder => _t('notifPrefOrderReminder');
+  String get notifPrefOrderReminderDesc => _t('notifPrefOrderReminderDesc');
+  String get notifPrefEmployeeAdded => _t('notifPrefEmployeeAdded');
+  String get notifPrefEmployeeAddedDesc => _t('notifPrefEmployeeAddedDesc');
+  String get notifPrefSystem => _t('notifPrefSystem');
+  String get notifPrefSystemDesc => _t('notifPrefSystemDesc');
+  String get notifPrefsNote => _t('notifPrefsNote');
   String get devicesTitle => _t('devicesTitle');
   String get devicesMenuDesc => _t('devicesMenuDesc');
   String get devicesEmptyTitle => _t('devicesEmptyTitle');
@@ -1068,6 +1087,25 @@ class S {
   };
 
   static const _uz = {
+    'notificationsTitle': "Bildirishnomalar",
+    'notificationsMenuDesc': "Xabarlar va eslatmalar",
+    'notificationsEmptyTitle': "Bildirishnoma yo'q",
+    'notificationsEmptyDesc': "Yangi xabarlar shu yerda ko'rinadi",
+    'notificationsMarkAllRead': "Hammasini o'qilgan deb belgilash",
+    'notificationsAllRead': "Hammasi o'qilgan deb belgilandi",
+    'notificationsDeleted': "Bildirishnoma o'chirildi",
+    'notificationsSettings': "Bildirishnoma sozlamalari",
+    'notifPrefAll': "Barcha bildirishnomalar",
+    'notifPrefAllDesc': "O'chirilsa telefonga hech qanday push kelmaydi",
+    'notifPrefDailyGreeting': "Kunlik tilak",
+    'notifPrefDailyGreetingDesc': "Har kuni ertalabki xabar",
+    'notifPrefOrderReminder': "Zakaz eslatmalari",
+    'notifPrefOrderReminderDesc': "Bugungi va ertangi zakazlar haqida",
+    'notifPrefEmployeeAdded': "Xodim qo'shilishi",
+    'notifPrefEmployeeAddedDesc': "Biznesga yangi xodim qo'shilganda",
+    'notifPrefSystem': "Tizim xabarlari",
+    'notifPrefSystemDesc': "Hisobingizga oid muhim xabarlar",
+    'notifPrefsNote': "Sozlama faqat telefonga keladigan push'ni boshqaradi. Xabarlar ro'yxatda baribir saqlanadi.",
     'ordersNewTitle': 'Yangi zakaz',
     'ordersEditTitle': 'Zakazni tahrirlash',
     'ordersDetailTitle': 'Zakaz',
@@ -1971,6 +2009,25 @@ class S {
   };
 
   static const _uzCyrl = {
+    'notificationsTitle': "Билдиришномалар",
+    'notificationsMenuDesc': "Хабарлар ва эслатмалар",
+    'notificationsEmptyTitle': "Билдиришнома йўқ",
+    'notificationsEmptyDesc': "Янги хабарлар шу ерда кўринади",
+    'notificationsMarkAllRead': "Ҳаммасини ўқилган деб белгилаш",
+    'notificationsAllRead': "Ҳаммаси ўқилган деб белгиланди",
+    'notificationsDeleted': "Билдиришнома ўчирилди",
+    'notificationsSettings': "Билдиришнома созламалари",
+    'notifPrefAll': "Барча билдиришномалар",
+    'notifPrefAllDesc': "Ўчирилса телефонга ҳеч қандай push келмайди",
+    'notifPrefDailyGreeting': "Кунлик тилак",
+    'notifPrefDailyGreetingDesc': "Ҳар куни эрталабки хабар",
+    'notifPrefOrderReminder': "Заказ эслатмалари",
+    'notifPrefOrderReminderDesc': "Бугунги ва эртанги заказлар ҳақида",
+    'notifPrefEmployeeAdded': "Ходим қўшилиши",
+    'notifPrefEmployeeAddedDesc': "Бизнесга янги ходим қўшилганда",
+    'notifPrefSystem': "Тизим хабарлари",
+    'notifPrefSystemDesc': "Ҳисобингизга оид муҳим хабарлар",
+    'notifPrefsNote': "Созлама фақат телефонга келадиган push'ни бошқаради. Хабарлар рўйхатда барибир сақланади.",
     'ordersNewTitle': 'Янги заказ',
     'ordersEditTitle': 'Заказни таҳрирлаш',
     'ordersDetailTitle': 'Заказ',
@@ -2862,6 +2919,25 @@ class S {
   };
 
   static const _ru = {
+    'notificationsTitle': "Уведомления",
+    'notificationsMenuDesc': "Сообщения и напоминания",
+    'notificationsEmptyTitle': "Уведомлений нет",
+    'notificationsEmptyDesc': "Новые сообщения появятся здесь",
+    'notificationsMarkAllRead': "Отметить все как прочитанные",
+    'notificationsAllRead': "Все отмечены как прочитанные",
+    'notificationsDeleted': "Уведомление удалено",
+    'notificationsSettings': "Настройки уведомлений",
+    'notifPrefAll': "Все уведомления",
+    'notifPrefAllDesc': "Если выключить, push на телефон приходить не будет",
+    'notifPrefDailyGreeting': "Ежедневное пожелание",
+    'notifPrefDailyGreetingDesc': "Утреннее сообщение каждый день",
+    'notifPrefOrderReminder': "Напоминания о заказах",
+    'notifPrefOrderReminderDesc': "О заказах на сегодня и завтра",
+    'notifPrefEmployeeAdded': "Добавление сотрудника",
+    'notifPrefEmployeeAddedDesc': "Когда в бизнес добавлен новый сотрудник",
+    'notifPrefSystem': "Системные сообщения",
+    'notifPrefSystemDesc': "Важные сообщения о вашем аккаунте",
+    'notifPrefsNote': "Настройка управляет только push на телефон. Сообщения всё равно сохраняются в списке.",
     'ordersNewTitle': 'Новый заказ',
     'ordersEditTitle': 'Редактировать заказ',
     'ordersDetailTitle': 'Заказ',
@@ -3753,6 +3829,25 @@ class S {
   };
 
   static const _kk = {
+    'notificationsTitle': "Хабарламалар",
+    'notificationsMenuDesc': "Хабарлар мен еске салулар",
+    'notificationsEmptyTitle': "Хабарлама жоқ",
+    'notificationsEmptyDesc': "Жаңа хабарлар осында көрінеді",
+    'notificationsMarkAllRead': "Барлығын оқылды деп белгілеу",
+    'notificationsAllRead': "Барлығы оқылды деп белгіленді",
+    'notificationsDeleted': "Хабарлама өшірілді",
+    'notificationsSettings': "Хабарлама параметрлері",
+    'notifPrefAll': "Барлық хабарламалар",
+    'notifPrefAllDesc': "Өшірілсе телефонға push келмейді",
+    'notifPrefDailyGreeting': "Күнделікті тілек",
+    'notifPrefDailyGreetingDesc': "Күн сайын таңғы хабар",
+    'notifPrefOrderReminder': "Тапсырыс еске салулары",
+    'notifPrefOrderReminderDesc': "Бүгінгі және ертеңгі тапсырыстар туралы",
+    'notifPrefEmployeeAdded': "Қызметкер қосу",
+    'notifPrefEmployeeAddedDesc': "Бизнеске жаңа қызметкер қосылғанда",
+    'notifPrefSystem': "Жүйелік хабарлар",
+    'notifPrefSystemDesc': "Аккаунтыңызға қатысты маңызды хабарлар",
+    'notifPrefsNote': "Параметр тек телефонға келетін push-ты басқарады. Хабарлар тізімде бәрібір сақталады.",
     'ordersNewTitle': 'Жаңа тапсырыс',
     'ordersEditTitle': 'Тапсырысты өңдеу',
     'ordersDetailTitle': 'Тапсырыс',
@@ -4641,6 +4736,25 @@ class S {
   };
 
   static const _ky = {
+    'notificationsTitle': "Билдирүүлөр",
+    'notificationsMenuDesc': "Кабарлар жана эскертүүлөр",
+    'notificationsEmptyTitle': "Билдирүү жок",
+    'notificationsEmptyDesc': "Жаңы кабарлар ушул жерде көрүнөт",
+    'notificationsMarkAllRead': "Баарын окулду деп белгилөө",
+    'notificationsAllRead': "Баары окулду деп белгиленди",
+    'notificationsDeleted': "Билдирүү өчүрүлдү",
+    'notificationsSettings': "Билдирүү жөндөөлөрү",
+    'notifPrefAll': "Бардык билдирүүлөр",
+    'notifPrefAllDesc': "Өчүрүлсө телефонго push келбейт",
+    'notifPrefDailyGreeting': "Күнүмдүк каалоо",
+    'notifPrefDailyGreetingDesc': "Күн сайын эртең мененки кабар",
+    'notifPrefOrderReminder': "Заказ эскертүүлөрү",
+    'notifPrefOrderReminderDesc': "Бүгүнкү жана эртеңки заказдар жөнүндө",
+    'notifPrefEmployeeAdded': "Кызматкер кошуу",
+    'notifPrefEmployeeAddedDesc': "Бизнеске жаңы кызматкер кошулганда",
+    'notifPrefSystem': "Тутум кабарлары",
+    'notifPrefSystemDesc': "Аккаунтуңузга тиешелүү маанилүү кабарлар",
+    'notifPrefsNote': "Жөндөө телефонго келген push'ту гана башкарат. Кабарлар тизмеде баары бир сакталат.",
     'ordersNewTitle': 'Жаңы заказ',
     'ordersEditTitle': 'Заказды оңдоо',
     'ordersDetailTitle': 'Заказ',
@@ -5530,6 +5644,25 @@ class S {
   };
 
   static const _tr = {
+    'notificationsTitle': "Bildirimler",
+    'notificationsMenuDesc': "Mesajlar ve hatırlatmalar",
+    'notificationsEmptyTitle': "Bildirim yok",
+    'notificationsEmptyDesc': "Yeni mesajlar burada görünecek",
+    'notificationsMarkAllRead': "Tümünü okundu işaretle",
+    'notificationsAllRead': "Tümü okundu olarak işaretlendi",
+    'notificationsDeleted': "Bildirim silindi",
+    'notificationsSettings': "Bildirim ayarları",
+    'notifPrefAll': "Tüm bildirimler",
+    'notifPrefAllDesc': "Kapatılırsa telefona push gelmez",
+    'notifPrefDailyGreeting': "Günlük dilek",
+    'notifPrefDailyGreetingDesc': "Her sabah gelen mesaj",
+    'notifPrefOrderReminder': "Sipariş hatırlatmaları",
+    'notifPrefOrderReminderDesc': "Bugünkü ve yarınki siparişler hakkında",
+    'notifPrefEmployeeAdded': "Personel ekleme",
+    'notifPrefEmployeeAddedDesc': "İşletmeye yeni personel eklendiğinde",
+    'notifPrefSystem': "Sistem mesajları",
+    'notifPrefSystemDesc': "Hesabınızla ilgili önemli mesajlar",
+    'notifPrefsNote': "Ayar yalnızca telefona gelen push'u kontrol eder. Mesajlar listede yine saklanır.",
     'ordersNewTitle': 'Yeni sipariş',
     'ordersEditTitle': 'Siparişi düzenle',
     'ordersDetailTitle': 'Sipariş',

@@ -6,8 +6,12 @@
 	<array>
 		<string>Default</string>
 	</array>
-	<!-- TestFlight va App Store build'lari production APNs muhitidan foydalanadi. -->
+	<!--
+	  Xcode'dan to'g'ridan-to'g'ri ishga tushirilgan build development APNs
+	  muhitiga ulanadi. Release faylida `production` turadi — qiymat
+	  provisioning profil bilan mos kelishi shart, aks holda imzolash xato beradi.
+	-->
 	<key>aps-environment</key>
-	<string>production</string>
+	<string>development</string>
 </dict>
 </plist>

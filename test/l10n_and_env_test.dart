@@ -30,7 +30,10 @@ void main() {
       );
 
       final reference = S.referenceKeys;
-      expect(reference.length, 809);
+      // Kalit qo'shilganda yangilanadi. Asosiy kafolat quyida — barcha
+      // tillarda kalit to'plami bir xil bo'lishi; bu son esa tasodifan
+      // kalit o'chib ketishini ushlaydi.
+      expect(reference.length, 828);
 
       for (final entry in maps.entries) {
         expect(

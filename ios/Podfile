@@ -1,6 +1,6 @@
 # Minimal iOS — Flutter 3.41+ va zamonaviy plaginlar uchun barqaror minimum.
 # 14.0 — App Store qabul qiladigan eng past versiya bilan uyg'un.
-platform :ios, '14.0'
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'

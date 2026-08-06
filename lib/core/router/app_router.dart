@@ -29,6 +29,8 @@ import '../../features/profile/presentation/screens/profile_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/telegram_connect_screen.dart';
 import '../../features/profile/presentation/screens/devices_screen.dart';
+import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/employees/presentation/screens/employees_screen.dart';
 import '../../features/statistics/presentation/screens/report_screen.dart';
 import '../../features/statistics/presentation/screens/charts_screen.dart';
@@ -49,8 +51,13 @@ final RouteObserver<ModalRoute<void>> appRouteObserver =
 /// Seller bu manzillarga yozsa — `/shell`ga qaytariladi.
 const Set<String> _ownerOnlyRoutes = {'/employees'};
 
+/// Push bildirishnoma bosilganda ilova ichida yo'naltirish uchun kerak
+/// (o'sha paytda BuildContext qo'lda bo'lmaydi).
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/',
     observers: [appRouteObserver],
     refreshListenable: _AuthRefreshNotifier(ref),
@@ -194,6 +201,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/devices',
         builder: (context, state) => const DevicesScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/notification-settings',
+        builder: (context, state) => const NotificationSettingsScreen(),
       ),
       GoRoute(
         path: '/employees',
