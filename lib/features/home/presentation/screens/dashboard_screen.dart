@@ -114,6 +114,10 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
       firstDate: DateTime(now.year - 3),
       lastDate: now,
       locale: materialLocaleFor(appLocale),
+      // Faqat kalendar. Standart "qalamcha" rejimi oddiy matn maydoni beradi:
+      // istalgan sonni yozib bo'ladi va noto'g'ri bo'lsa "format noto'g'ri"
+      // deb xato chiqaradi. Kalendarda esa noto'g'ri sana kiritishning iloji yo'q.
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
     );
     if (picked == null) return;
 

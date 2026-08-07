@@ -80,6 +80,8 @@ class _AddPaymentSheetState extends ConsumerState<_AddPaymentSheet> {
       firstDate: DateTime(2020),
       // To'lov sanasi kelajakda bo'lishi mumkin emas.
       lastDate: DateTime.now(),
+      // Faqat kalendar — qo'lda yozish rejimida noto'g'ri format xatosi chiqadi.
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
     );
     if (date == null || !mounted) return;
     final time = await showTimePicker(

@@ -187,6 +187,8 @@ class _OrderFormState extends ConsumerState<OrderForm> {
       initialDate: _customDate,
       firstDate: todayDateOnly(),
       lastDate: todayDateOnly().add(const Duration(days: 365 * 2)),
+      // Faqat kalendar — qo'lda yozish rejimida noto'g'ri format xatosi chiqadi.
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
     );
     if (!mounted) return;
     if (picked != null) {
