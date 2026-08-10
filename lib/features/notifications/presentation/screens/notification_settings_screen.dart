@@ -45,9 +45,6 @@ class NotificationSettingsScreen extends ConsumerWidget {
           onRetry: () => ref.invalidate(notificationPreferencesProvider),
         ),
         data: (prefs) {
-          // Umumiy tugma o'chirilganda qolganlari mantiqan ta'sir qilmaydi.
-          final subEnabled = prefs.enabled;
-
           return ListView(
             padding: EdgeInsets.fromLTRB(pad, 16, pad, 32),
             children: [
@@ -55,48 +52,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 title: s.notifPrefAll,
                 subtitle: s.notifPrefAllDesc,
                 value: prefs.enabled,
-                onChanged: (v) => notifier.setValue('enabled', v),
-              ),
-              const SizedBox(height: 20),
-              Opacity(
-                opacity: subEnabled ? 1 : 0.45,
-                child: IgnorePointer(
-                  ignoring: !subEnabled,
-                  child: Column(
-                    children: [
-                      _SwitchTile(
-                        title: s.notifPrefDailyGreeting,
-                        subtitle: s.notifPrefDailyGreetingDesc,
-                        value: prefs.dailyGreeting,
-                        onChanged: (v) =>
-                            notifier.setValue('daily_greeting', v),
-                      ),
-                      const SizedBox(height: 10),
-                      _SwitchTile(
-                        title: s.notifPrefOrderReminder,
-                        subtitle: s.notifPrefOrderReminderDesc,
-                        value: prefs.orderReminder,
-                        onChanged: (v) =>
-                            notifier.setValue('order_reminder', v),
-                      ),
-                      const SizedBox(height: 10),
-                      _SwitchTile(
-                        title: s.notifPrefEmployeeAdded,
-                        subtitle: s.notifPrefEmployeeAddedDesc,
-                        value: prefs.employeeAdded,
-                        onChanged: (v) =>
-                            notifier.setValue('employee_added', v),
-                      ),
-                      const SizedBox(height: 10),
-                      _SwitchTile(
-                        title: s.notifPrefSystem,
-                        subtitle: s.notifPrefSystemDesc,
-                        value: prefs.system,
-                        onChanged: (v) => notifier.setValue('system', v),
-                      ),
-                    ],
-                  ),
-                ),
+                onChanged: notifier.setEnabled,
               ),
               const SizedBox(height: 24),
               Container(

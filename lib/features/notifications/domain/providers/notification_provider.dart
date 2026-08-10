@@ -190,24 +190,17 @@ class NotificationPreferencesNotifier
   }
 
   /// Tugmani darhol o'zgartiradi, so'ng serverga yozadi.
-  Future<void> setValue(String key, bool value) async {
+  Future<void> setEnabled(bool value) async {
     final current = state.asData?.value;
 
     if (current == null) return;
 
-    state = AsyncData(switch (key) {
-      'enabled' => current.copyWith(enabled: value),
-      'daily_greeting' => current.copyWith(dailyGreeting: value),
-      'order_reminder' => current.copyWith(orderReminder: value),
-      'employee_added' => current.copyWith(employeeAdded: value),
-      'system' => current.copyWith(system: value),
-      _ => current,
-    });
+    state = AsyncData(current.copyWith(enabled: value));
 
     try {
       final updated = await ref
           .read(notificationRepositoryProvider)
-          .updatePreferences({key: value});
+          .updatePreferences({'enabled': value});
       state = AsyncData(updated);
     } catch (_) {
       state = AsyncData(current);

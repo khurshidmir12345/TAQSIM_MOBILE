@@ -45,56 +45,23 @@ class NotificationModel {
   }
 }
 
-/// Push sozlamalari — turlar bo'yicha yoqish/o'chirish.
+/// Push sozlamasi — yagona yoqish/o'chirish tugmasi.
+///
+/// O'chirilganda kunlik tilak va zakaz eslatmalari to'xtaydi. Xodim
+/// qo'shilishi va tizim xabarlari muhim, shuning uchun ular baribir keladi —
+/// buni server hal qiladi.
 class NotificationPreferences {
-  /// Umumiy tugma — o'chirilsa hech qanday push kelmaydi.
   final bool enabled;
-  final bool dailyGreeting;
-  final bool orderReminder;
-  final bool employeeAdded;
-  final bool system;
 
-  const NotificationPreferences({
-    this.enabled = true,
-    this.dailyGreeting = true,
-    this.orderReminder = true,
-    this.employeeAdded = true,
-    this.system = true,
-  });
+  const NotificationPreferences({this.enabled = true});
 
   factory NotificationPreferences.fromJson(Map<String, dynamic> json) {
-    bool read(String key) => json[key] as bool? ?? true;
-
-    return NotificationPreferences(
-      enabled: read('enabled'),
-      dailyGreeting: read('daily_greeting'),
-      orderReminder: read('order_reminder'),
-      employeeAdded: read('employee_added'),
-      system: read('system'),
-    );
+    return NotificationPreferences(enabled: json['enabled'] as bool? ?? true);
   }
 
-  Map<String, bool> toJson() => {
-        'enabled': enabled,
-        'daily_greeting': dailyGreeting,
-        'order_reminder': orderReminder,
-        'employee_added': employeeAdded,
-        'system': system,
-      };
+  Map<String, bool> toJson() => {'enabled': enabled};
 
-  NotificationPreferences copyWith({
-    bool? enabled,
-    bool? dailyGreeting,
-    bool? orderReminder,
-    bool? employeeAdded,
-    bool? system,
-  }) {
-    return NotificationPreferences(
-      enabled: enabled ?? this.enabled,
-      dailyGreeting: dailyGreeting ?? this.dailyGreeting,
-      orderReminder: orderReminder ?? this.orderReminder,
-      employeeAdded: employeeAdded ?? this.employeeAdded,
-      system: system ?? this.system,
-    );
+  NotificationPreferences copyWith({bool? enabled}) {
+    return NotificationPreferences(enabled: enabled ?? this.enabled);
   }
 }
