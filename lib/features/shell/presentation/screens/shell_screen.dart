@@ -11,7 +11,7 @@ import '../../domain/shell_tab_provider.dart';
 import '../../domain/shell_tab_utils.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
-import '../../../home/presentation/screens/expenses_screen.dart';
+import '../../../cash/presentation/screens/cash_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../setup/domain/providers/setup_provider.dart';
@@ -26,7 +26,7 @@ class ShellScreen extends ConsumerStatefulWidget {
 
 class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
   final _dashboardKey = GlobalKey<DashboardScreenState>();
-  final _expensesKey = GlobalKey<ExpensesScreenState>();
+  final _cashKey = GlobalKey<CashScreenState>();
   final _ordersKey = GlobalKey<OrdersScreenState>();
   final _activatedTabs = <ShellTab>{ShellTab.home};
   List<ShellTab> _previousVisibleTabs = const [ShellTab.home];
@@ -114,7 +114,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
       case ShellTab.home:
         _dashboardKey.currentState?.resetToToday();
       case ShellTab.expenses:
-        _expensesKey.currentState?.refresh();
+        _cashKey.currentState?.refresh();
       case ShellTab.statistics:
         break;
       case ShellTab.orders:
@@ -163,7 +163,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
       case ShellTab.home:
         return DashboardScreen(key: _dashboardKey);
       case ShellTab.expenses:
-        return ExpensesScreen(key: _expensesKey);
+        return CashScreen(key: _cashKey);
       case ShellTab.statistics:
         return const ReportScreen();
       case ShellTab.orders:
