@@ -200,6 +200,12 @@ class S {
   String get expenseCategoriesLoadError => _t('expenseCategoriesLoadError');
 
   // ─── Kassa (yangi) ───
+  String get cashFilterTitle => _t('cashFilterTitle');
+  String get cashFilterApply => _t('cashFilterApply');
+  String get cashCategoryRename => _t('cashCategoryRename');
+  String get cashCategoryDeleteTitle => _t('cashCategoryDeleteTitle');
+  String get cashCategoryInUse => _t('cashCategoryInUse');
+  String get cashCreateIncomeSubtitle => _t('cashCreateIncomeSubtitle');
   String get cashNetResult => _t('cashNetResult');
   String get cashProfit => _t('cashProfit');
   String get cashLoss => _t('cashLoss');
@@ -1367,6 +1373,12 @@ class S {
     'home': 'Asosiy',
     'cashRegister': 'Tashqi xarajat',
     'cashbox': 'Kassa',
+    'cashFilterTitle': 'Davrni tanlang',
+    'cashFilterApply': "Qo'llash",
+    'cashCategoryRename': "Nomini o'zgartirish",
+    'cashCategoryDeleteTitle': "Kategoriya o'chirilsinmi?",
+    'cashCategoryInUse': 'Bu kategoriya yozuvlarda ishlatilgan',
+    'cashCreateIncomeSubtitle': 'Turini tanlang, summani kiriting — tez va tushunarli.',
     'cashNetResult': 'Sof natija',
     'cashProfit': 'Foyda',
     'cashLoss': 'Zarar',
@@ -2299,6 +2311,12 @@ class S {
     'home': 'Асосий',
     'cashRegister': 'Ташқи харажат',
     'cashbox': 'Касса',
+    'cashFilterTitle': 'Даврни танланг',
+    'cashFilterApply': 'Қўллаш',
+    'cashCategoryRename': 'Номини ўзгартириш',
+    'cashCategoryDeleteTitle': 'Категория ўчирилсинми?',
+    'cashCategoryInUse': 'Бу категория ёзувларда ишлатилган',
+    'cashCreateIncomeSubtitle': 'Турини танланг, суммани киритинг — тез ва тушунарли.',
     'cashNetResult': 'Соф натижа',
     'cashProfit': 'Фойда',
     'cashLoss': 'Зарар',
@@ -3221,6 +3239,12 @@ class S {
     'home': 'Главная',
     'cashRegister': 'Внешний расход',
     'cashbox': 'Касса',
+    'cashFilterTitle': 'Выберите период',
+    'cashFilterApply': 'Применить',
+    'cashCategoryRename': 'Переименовать',
+    'cashCategoryDeleteTitle': 'Удалить категорию?',
+    'cashCategoryInUse': 'Эта категория используется в записях',
+    'cashCreateIncomeSubtitle': 'Выберите тип и введите сумму — быстро и понятно.',
     'cashNetResult': 'Чистый результат',
     'cashProfit': 'Прибыль',
     'cashLoss': 'Убыток',
@@ -4143,6 +4167,12 @@ class S {
     'home': 'Басты',
     'cashRegister': 'Сыртқы шығын',
     'cashbox': 'Касса',
+    'cashFilterTitle': 'Кезеңді таңдаңыз',
+    'cashFilterApply': 'Қолдану',
+    'cashCategoryRename': 'Атын өзгерту',
+    'cashCategoryDeleteTitle': 'Санат жойылсын ба?',
+    'cashCategoryInUse': 'Бұл санат жазбаларда қолданылған',
+    'cashCreateIncomeSubtitle': 'Түрін таңдап, соманы енгізіңіз — жылдам әрі түсінікті.',
     'cashNetResult': 'Таза нәтиже',
     'cashProfit': 'Пайда',
     'cashLoss': 'Шығын',
@@ -5061,6 +5091,12 @@ class S {
     'home': 'Башкы',
     'cashRegister': 'Тышкы чыгаша',
     'cashbox': 'Касса',
+    'cashFilterTitle': 'Мезгилди тандаңыз',
+    'cashFilterApply': 'Колдонуу',
+    'cashCategoryRename': 'Атын өзгөртүү',
+    'cashCategoryDeleteTitle': 'Категория өчүрүлсүнбү?',
+    'cashCategoryInUse': 'Бул категория жазууларда колдонулган',
+    'cashCreateIncomeSubtitle': 'Түрүн тандап, сумманы киргизиңиз — тез жана түшүнүктүү.',
     'cashNetResult': 'Таза жыйынтык',
     'cashProfit': 'Пайда',
     'cashLoss': 'Зыян',
@@ -5979,6 +6015,12 @@ class S {
     'home': 'Ana sayfa',
     'cashRegister': 'Dış gider',
     'cashbox': 'Kasa',
+    'cashFilterTitle': 'Dönemi seçin',
+    'cashFilterApply': 'Uygula',
+    'cashCategoryRename': 'Yeniden adlandır',
+    'cashCategoryDeleteTitle': 'Kategori silinsin mi?',
+    'cashCategoryInUse': 'Bu kategori kayıtlarda kullanılıyor',
+    'cashCreateIncomeSubtitle': 'Türü seçin, tutarı girin — hızlı ve anlaşılır.',
     'cashNetResult': 'Net sonuç',
     'cashProfit': 'Kâr',
     'cashLoss': 'Zarar',

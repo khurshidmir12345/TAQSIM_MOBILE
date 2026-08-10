@@ -2,8 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/api/api_provider.dart';
 import '../../../auth/domain/providers/shop_provider.dart';
-import '../../../home/domain/models/expense_category_option.dart';
-import '../../../home/domain/providers/daily_provider.dart';
 import '../../data/cash_repository.dart';
 import '../models/cash_model.dart';
 
@@ -258,26 +256,80 @@ class CashNotifier extends AsyncNotifier<CashState> {
   }
 }
 
-/// Kirim turlari — bir marta yuklanib keshlanadi.
-final cashIncomeCategoriesProvider =
-    FutureProvider.autoDispose<List<CashCategoryOption>>((ref) async {
+/// Kategoriya ro'yxati so'rovi — yo'nalish, til va qidiruv bo'yicha.
+class CashCategoryQuery {
+  final CashType type;
+  final String locale;
+  final String search;
+
+  const CashCategoryQuery({
+    required this.type,
+    required this.locale,
+    this.search = '',
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      other is CashCategoryQuery &&
+      other.type == type &&
+      other.locale == locale &&
+      other.search == search;
+
+  @override
+  int get hashCode => Object.hash(type, locale, search);
+}
+
+/// Kassa kategoriyalari — kirim va chiqim uchun bir xil manba.
+final cashCategoriesProvider = FutureProvider.autoDispose
+    .family<List<CashCategory>, CashCategoryQuery>((ref, query) async {
   final shopId = ref.watch(shopProvider).selected?.id;
 
   if (shopId == null) return const [];
 
-  return ref.read(cashRepositoryProvider).incomeCategories(shopId);
+  return ref.read(cashRepositoryProvider).categories(
+        shopId,
+        type: query.type,
+        locale: query.locale,
+        search: query.search,
+      );
 });
 
+/// Kategoriya qo'shish, nomini o'zgartirish va o'chirish.
+class CashCategoryActions {
+  const CashCategoryActions(this._ref);
 
-/// Chiqim turlari — mavjud xarajat kategoriyalari (foydalanuvchi qo'shganlari
-/// bilan birga). Til bo'yicha keshlanadi.
-final cashExpenseCategoriesProvider = FutureProvider.autoDispose
-    .family<List<ExpenseCategoryOption>, String>((ref, locale) async {
-  final shopId = ref.watch(shopProvider).selected?.id;
+  final Ref _ref;
 
-  if (shopId == null) return const [];
+  String? get _shopId => _ref.read(shopProvider).selected?.id;
 
-  return ref
-      .read(dailyRepositoryProvider)
-      .fetchExpenseCategories(shopId, locale: locale);
-});
+  Future<void> create(CashType type, String name) async {
+    final shopId = _shopId;
+
+    if (shopId == null) return;
+
+    await _ref
+        .read(cashRepositoryProvider)
+        .createCategory(shopId, type: type, name: name);
+  }
+
+  Future<void> rename(String categoryId, String name) async {
+    final shopId = _shopId;
+
+    if (shopId == null) return;
+
+    await _ref
+        .read(cashRepositoryProvider)
+        .renameCategory(shopId, categoryId, name: name);
+  }
+
+  Future<void> remove(String categoryId) async {
+    final shopId = _shopId;
+
+    if (shopId == null) return;
+
+    await _ref.read(cashRepositoryProvider).deleteCategory(shopId, categoryId);
+  }
+}
+
+final cashCategoryActionsProvider =
+    Provider<CashCategoryActions>(CashCategoryActions.new);

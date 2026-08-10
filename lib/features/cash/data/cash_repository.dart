@@ -120,17 +120,79 @@ class CashRepository {
     }
   }
 
-  /// Kirim turlari — server foydalanuvchi tilida qaytaradi.
-  Future<List<CashCategoryOption>> incomeCategories(String shopId) async {
+  // ─── Kategoriyalar ────────────────────────────────────────────────────
+
+  String _categoryPath(String shopId) => '/v1/shops/$shopId/expense-categories';
+
+  /// Tanlangan yo'nalish uchun turlar: tizimniki + foydalanuvchi qo'shganlari.
+  Future<List<CashCategory>> categories(
+    String shopId, {
+    required CashType type,
+    required String locale,
+    String? search,
+  }) async {
     try {
-      final response =
-          await _apiClient.dio.get('${_path(shopId)}/income-categories');
+      final response = await _apiClient.dio.get(
+        _categoryPath(shopId),
+        queryParameters: {
+          'type': type == CashType.income ? 'income' : 'expense',
+          'locale': locale,
+          'search': ?(search?.trim().isEmpty ?? true ? null : search!.trim()),
+        },
+      );
+
       final data = response.data['data'] as Map<String, dynamic>;
       final list = data['categories'] as List<dynamic>? ?? const [];
 
       return list
-          .map((e) => CashCategoryOption.fromJson(e as Map<String, dynamic>))
+          .map((e) => CashCategory.fromJson(e as Map<String, dynamic>))
           .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  Future<CashCategory> createCategory(
+    String shopId, {
+    required CashType type,
+    required String name,
+  }) async {
+    try {
+      final response = await _apiClient.dio.post(
+        '${_categoryPath(shopId)}?type=${type == CashType.income ? 'income' : 'expense'}',
+        data: {'name': name.trim()},
+      );
+
+      final data = response.data['data'] as Map<String, dynamic>;
+
+      return CashCategory.fromJson(data['category'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  Future<CashCategory> renameCategory(
+    String shopId,
+    String categoryId, {
+    required String name,
+  }) async {
+    try {
+      final response = await _apiClient.dio.put(
+        '${_categoryPath(shopId)}/$categoryId',
+        data: {'name': name.trim()},
+      );
+
+      final data = response.data['data'] as Map<String, dynamic>;
+
+      return CashCategory.fromJson(data['category'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  Future<void> deleteCategory(String shopId, String categoryId) async {
+    try {
+      await _apiClient.dio.delete('${_categoryPath(shopId)}/$categoryId');
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }

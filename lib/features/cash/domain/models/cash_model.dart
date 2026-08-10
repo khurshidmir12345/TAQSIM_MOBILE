@@ -140,17 +140,29 @@ class CashSettings {
   }
 }
 
-/// Kirim turi (server tarjima qilib beradi).
-class CashCategoryOption {
-  final String key;
+/// Kassa kategoriyasi.
+///
+/// Tizim turlari (`isSystem`) tarjima qilinadi va tahrirlanmaydi;
+/// foydalanuvchi qo'shganlarini nomini o'zgartirish va o'chirish mumkin.
+class CashCategory {
+  final String id;
   final String name;
+  final bool isSystem;
+  final String icon;
 
-  const CashCategoryOption({required this.key, required this.name});
+  const CashCategory({
+    required this.id,
+    required this.name,
+    required this.isSystem,
+    required this.icon,
+  });
 
-  factory CashCategoryOption.fromJson(Map<String, dynamic> json) {
-    return CashCategoryOption(
-      key: json['key'] as String,
-      name: json['name'] as String? ?? json['key'] as String,
+  factory CashCategory.fromJson(Map<String, dynamic> json) {
+    return CashCategory(
+      id: json['id'] as String,
+      name: json['name'] as String? ?? '',
+      isSystem: json['is_system'] as bool? ?? false,
+      icon: json['icon'] as String? ?? 'category',
     );
   }
 }

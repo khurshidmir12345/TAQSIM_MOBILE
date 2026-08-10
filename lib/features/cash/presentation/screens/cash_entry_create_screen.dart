@@ -1,23 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/utils/expense_api_locale.dart';
-import '../../../home/domain/models/expense_category_option.dart';
+import '../../../home/presentation/widgets/expense_category_icon.dart';
 import '../../domain/models/cash_model.dart';
 import '../../domain/providers/cash_provider.dart';
 
 /// Kassaga qo'lda kirim yoki chiqim qo'shish.
 ///
-/// Bitta ekran ikkala yo'nalishga xizmat qiladi — farqi faqat rang, sarlavha
-/// va kategoriya ro'yxatida. Shu sababli foydalanuvchi bir xil oqimni
-/// o'rganadi va xato qilmaydi.
+/// Oqim xarajat qo'shishning sinalgan tartibini takrorlaydi — qidiruv,
+/// kategoriya kartochkalari, summa, izoh. Farqi faqat rangda va kategoriya
+/// ro'yxatida, shuning uchun foydalanuvchi bitta odatni o'rganadi.
 class CashEntryCreateScreen extends ConsumerStatefulWidget {
   const CashEntryCreateScreen({super.key, required this.type});
 
@@ -30,86 +29,249 @@ class CashEntryCreateScreen extends ConsumerStatefulWidget {
 
 class _CashEntryCreateScreenState extends ConsumerState<CashEntryCreateScreen> {
   final _amountCtl = TextEditingController();
-  final _descriptionCtl = TextEditingController();
-  final _amountFocus = FocusNode();
+  final _descCtl = TextEditingController();
+  final _searchCtl = TextEditingController();
 
-  String? _category;
-  DateTime _date = DateTime.now();
-  bool _saving = false;
-  String? _error;
+  String _search = '';
+  String? _selectedId;
+  bool _isSaving = false;
+  Timer? _searchDebounce;
 
   bool get _isIncome => widget.type == CashType.income;
 
   Color get _accent => _isIncome ? AppColors.income : AppColors.error;
 
   @override
-  void initState() {
-    super.initState();
-    // Summa — ekrandagi asosiy maydon, klaviatura darhol ochilsin.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _amountFocus.requestFocus();
-    });
-  }
-
-  @override
   void dispose() {
+    _searchDebounce?.cancel();
     _amountCtl.dispose();
-    _descriptionCtl.dispose();
-    _amountFocus.dispose();
+    _descCtl.dispose();
+    _searchCtl.dispose();
     super.dispose();
   }
 
-  double? get _amount {
-    final raw = _amountCtl.text.replaceAll(RegExp(r'[^0-9.]'), '');
+  CashCategoryQuery get _query => CashCategoryQuery(
+        type: widget.type,
+        locale: expenseApiLocale(context),
+        search: _search,
+      );
 
-    return raw.isEmpty ? null : double.tryParse(raw);
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 380), () {
+      if (mounted) setState(() => _search = value.trim());
+    });
   }
 
-  bool get _canSave =>
-      !_saving && (_amount ?? 0) > 0 && (_category ?? '').isNotEmpty;
+  void _reloadCategories() => ref.invalidate(cashCategoriesProvider(_query));
 
-  Future<void> _pickDate() async {
-    HapticFeedback.selectionClick();
-    final now = DateTime.now();
+  void _snack(String message, {bool isError = false}) {
+    if (!mounted) return;
 
-    final picked = await showDatePicker(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isError ? AppColors.error : null,
+      ),
+    );
+  }
+
+  // ─── Kategoriya boshqaruvi ─────────────────────────────────────────────
+
+  Future<void> _openCategorySheet([CashCategory? existing]) async {
+    final s = S.of(context);
+    final controller = TextEditingController(text: existing?.name ?? '');
+
+    final name = await showModalBottomSheet<String>(
       context: context,
-      initialDate: _date,
-      firstDate: DateTime(now.year - 2),
-      lastDate: now,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                existing == null
+                    ? s.expenseAddCategoryTitle
+                    : s.cashCategoryRename,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  hintText: s.expenseAddCategoryNameHint,
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(AppSpacing.borderRadiusLg),
+                  ),
+                ),
+                onSubmitted: (v) => Navigator.of(sheetContext).pop(v.trim()),
+              ),
+              const SizedBox(height: 14),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                onPressed: () =>
+                    Navigator.of(sheetContext).pop(controller.text.trim()),
+                child: Text(s.expenseAddCategorySave),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
 
-    if (picked != null && mounted) setState(() => _date = picked);
+    controller.dispose();
+
+    if (name == null || name.isEmpty || !mounted) return;
+
+    final actions = ref.read(cashCategoryActionsProvider);
+
+    try {
+      if (existing == null) {
+        await actions.create(widget.type, name);
+      } else {
+        await actions.rename(existing.id, name);
+      }
+
+      _reloadCategories();
+    } catch (_) {
+      if (mounted) _snack(s.snackbarErrorGeneric, isError: true);
+    }
   }
 
-  Future<void> _save() async {
-    if (!_canSave) return;
+  Future<void> _confirmDeleteCategory(CashCategory category) async {
+    final s = S.of(context);
 
-    setState(() {
-      _saving = true;
-      _error = null;
-    });
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(s.cashCategoryDeleteTitle),
+        content: Text(category.name),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(s.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(s.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await ref.read(cashCategoryActionsProvider).remove(category.id);
+
+      if (_selectedId == category.id) setState(() => _selectedId = null);
+
+      _reloadCategories();
+    } catch (_) {
+      // Ishlatilayotgan kategoriya o'chirilmaydi — server sababini aytadi.
+      if (mounted) _snack(s.cashCategoryInUse, isError: true);
+    }
+  }
+
+  /// Foydalanuvchi qo'shgan kategoriyani uzoq bosganda amallar chiqadi.
+  Future<void> _openCategoryActions(CashCategory category) async {
+    if (category.isSystem) return;
+
+    HapticFeedback.selectionClick();
+    final s = S.of(context);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit_rounded),
+              title: Text(s.cashCategoryRename),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _openCategorySheet(category);
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.delete_outline_rounded,
+                color: AppColors.error,
+              ),
+              title: Text(
+                s.delete,
+                style: const TextStyle(color: AppColors.error),
+              ),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _confirmDeleteCategory(category);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Saqlash ───────────────────────────────────────────────────────────
+
+  Future<void> _save() async {
+    final s = S.of(context);
+    final amount = double.tryParse(_amountCtl.text.trim().replaceAll(',', '.'));
+
+    if (_selectedId == null) {
+      _snack(s.expenseSelectCategory, isError: true);
+
+      return;
+    }
+
+    if (amount == null || amount <= 0) {
+      _snack(s.expenseAmountLabel, isError: true);
+
+      return;
+    }
+
+    setState(() => _isSaving = true);
 
     try {
       await ref.read(cashProvider.notifier).create(
             type: widget.type,
-            amount: _amount!,
-            category: _category!,
-            description: _descriptionCtl.text,
-            date: _date,
+            amount: amount,
+            category: _selectedId!,
+            description: _descCtl.text,
+            date: DateTime.now(),
           );
 
       if (!mounted) return;
 
       HapticFeedback.mediumImpact();
       Navigator.of(context).pop(true);
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
-      setState(() {
-        _saving = false;
-        _error = S.of(context).noInternet;
-      });
+      setState(() => _isSaving = false);
+      _snack(S.of(context).snackbarErrorGeneric, isError: true);
     }
   }
 
@@ -117,343 +279,257 @@ class _CashEntryCreateScreenState extends ConsumerState<CashEntryCreateScreen> {
   Widget build(BuildContext context) {
     final s = S.of(context);
     final cs = Theme.of(context).colorScheme;
-    final pad = Responsive.horizontalPadding(context);
+    final categories = ref.watch(cashCategoriesProvider(_query));
 
     return Scaffold(
       appBar: AppBar(
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          _isIncome ? s.cashCreateIncomeTitle : s.cashCreateExpenseTitle,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-        centerTitle: true,
-      ),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(pad, 8, pad, 24),
-        children: [
-          _AmountField(
-            controller: _amountCtl,
-            focusNode: _amountFocus,
-            accent: _accent,
-            currency: s.currency,
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 18),
-          _Label(s.expenseSelectCategory),
-          const SizedBox(height: 8),
-          _CategoryPicker(
-            isIncome: _isIncome,
-            selected: _category,
-            accent: _accent,
-            onSelected: (key) => setState(() => _category = key),
-          ),
-          const SizedBox(height: 18),
-          _Label(s.reportPickSingleDate),
-          const SizedBox(height: 8),
-          _DateField(date: _date, onTap: _pickDate),
-          const SizedBox(height: 18),
-          _Label(s.expenseDescriptionLabel),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _descriptionCtl,
-            maxLines: 2,
-            maxLength: 200,
-            textInputAction: TextInputAction.done,
-            decoration: InputDecoration(
-              hintText: s.cashDescriptionHint,
-              counterText: '',
-              filled: true,
-              fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-                borderSide: BorderSide.none,
-              ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              _isIncome ? Icons.south_west_rounded : Icons.north_east_rounded,
+              size: 20,
+              color: _accent,
             ),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(width: 8),
             Text(
-              _error!,
-              style: const TextStyle(color: AppColors.error, fontSize: 13),
+              _isIncome ? s.cashCreateIncomeTitle : s.cashCreateExpenseTitle,
             ),
           ],
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 52,
-            child: FilledButton(
-              onPressed: _canSave ? _save : null,
-              style: FilledButton.styleFrom(
-                backgroundColor: _accent,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppSpacing.borderRadiusLg),
-                ),
-              ),
-              child: _saving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(
-                      s.expenseSubmit,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Summa maydoni — ekrandagi eng muhim element, shuning uchun katta.
-class _AmountField extends StatelessWidget {
-  const _AmountField({
-    required this.controller,
-    required this.focusNode,
-    required this.accent,
-    required this.currency,
-    required this.onChanged,
-  });
-
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final Color accent;
-  final String currency;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-        border: Border.all(color: accent.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              focusNode: focusNode,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-              ],
-              onChanged: onChanged,
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.6,
-                color: accent,
-              ),
-              decoration: InputDecoration(
-                isDense: true,
-                border: InputBorder.none,
-                hintText: '0',
-                hintStyle: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  color: accent.withValues(alpha: 0.3),
-                ),
-              ),
-            ),
-          ),
-          Text(
-            currency,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: cs.onSurface.withValues(alpha: 0.45),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Kirim turlari serverdan, chiqim turlari mavjud xarajat kategoriyalaridan
-/// olinadi — foydalanuvchi o'zi qo'shgan turlar ham shu yerda chiqadi.
-class _CategoryPicker extends ConsumerWidget {
-  const _CategoryPicker({
-    required this.isIncome,
-    required this.selected,
-    required this.accent,
-    required this.onSelected,
-  });
-
-  final bool isIncome;
-  final String? selected;
-  final Color accent;
-  final ValueChanged<String> onSelected;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (isIncome) {
-      return ref.watch(cashIncomeCategoriesProvider).when(
-            loading: () => const _PickerLoading(),
-            error: (_, _) => const SizedBox.shrink(),
-            data: (list) => _Chips(
-              options: [for (final c in list) (key: c.key, name: c.name)],
-              selected: selected,
-              accent: accent,
-              onSelected: onSelected,
-            ),
-          );
-    }
-
-    return ref
-        .watch(cashExpenseCategoriesProvider(expenseApiLocale(context)))
-        .when(
-          loading: () => const _PickerLoading(),
-          error: (_, _) => const SizedBox.shrink(),
-          data: (list) => _Chips(
-            options: [
-              for (final ExpenseCategoryOption c in list)
-                (key: c.id, name: c.name)
-            ],
-            selected: selected,
-            accent: accent,
-            onSelected: onSelected,
-          ),
-        );
-  }
-}
-
-class _PickerLoading extends StatelessWidget {
-  const _PickerLoading();
-
-  @override
-  Widget build(BuildContext context) =>
-      const SizedBox(height: 48, child: AppLoading());
-}
-
-class _Chips extends StatelessWidget {
-  const _Chips({
-    required this.options,
-    required this.selected,
-    required this.accent,
-    required this.onSelected,
-  });
-
-  final List<({String key, String name})> options;
-  final String? selected;
-  final Color accent;
-  final ValueChanged<String> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final option in options)
-          GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onSelected(option.key);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-              decoration: BoxDecoration(
-                color: selected == option.key
-                    ? accent
-                    : cs.surfaceContainerHighest.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: selected == option.key
-                    ? null
-                    : Border.all(color: cs.outline.withValues(alpha: 0.12)),
-              ),
-              child: Text(
-                option.name,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: selected == option.key ? Colors.white : cs.onSurface,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _DateField extends StatelessWidget {
-  const _DateField({required this.date, required this.onTap});
-
-  final DateTime date;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final loc = Localizations.localeOf(context).toLanguageTag();
-
-    return Material(
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-      borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          child: Row(
-            children: [
-              Icon(Icons.calendar_today_rounded,
-                  size: 16, color: cs.onSurface.withValues(alpha: 0.5)),
-              const SizedBox(width: 10),
-              Text(
-                DateFormat.yMMMMd(loc).format(date),
-                style: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600),
-              ),
-              const Spacer(),
-              Icon(Icons.keyboard_arrow_down_rounded,
-                  color: cs.onSurface.withValues(alpha: 0.4)),
-            ],
-          ),
         ),
       ),
+      body: ListView(
+        padding: AppSpacing.screenPadding,
+        children: [
+          Text(
+            _isIncome ? s.cashCreateIncomeSubtitle : s.expenseCreateSubtitle,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.62),
+                  height: 1.35,
+                ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          TextField(
+            controller: _searchCtl,
+            onChanged: _onSearchChanged,
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search_rounded),
+              hintText: s.expenseCategorySearchHint,
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Text(
+                s.expenseSelectCategory,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: _openCategorySheet,
+                icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
+                label: Text(s.expenseAddCategory),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          categories.when(
+            loading: () => const Padding(
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (_, _) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Column(
+                children: [
+                  Text(
+                    s.expenseCategoriesLoadError,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.tonal(
+                    onPressed: _reloadCategories,
+                    child: Text(s.tryAgain),
+                  ),
+                ],
+              ),
+            ),
+            data: (list) => list.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      s.expenseCategoriesEmpty,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: cs.onSurface.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  )
+                : _CategoryStrip(
+                    categories: list,
+                    selectedId: _selectedId,
+                    accent: _accent,
+                    onSelect: (id) => setState(() => _selectedId = id),
+                    onLongPress: _openCategoryActions,
+                  ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          TextFormField(
+            controller: _amountCtl,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+            ],
+            decoration: InputDecoration(
+              labelText: s.expenseAmountLabel,
+              suffixText: s.currency,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextFormField(
+            controller: _descCtl,
+            maxLines: 2,
+            decoration: InputDecoration(
+              labelText: s.expenseDescriptionLabel,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          FilledButton(
+            onPressed: _isSaving ? null : _save,
+            style: FilledButton.styleFrom(
+              backgroundColor: _accent,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 52),
+            ),
+            child: _isSaving
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : Text(s.expenseSubmit),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class _Label extends StatelessWidget {
-  const _Label(this.text);
+/// Kategoriya kartochkalari. Foydalanuvchi qo'shganini uzoq bosib
+/// tahrirlash yoki o'chirish mumkin — burchagidagi belgi shuni bildiradi.
+class _CategoryStrip extends StatelessWidget {
+  const _CategoryStrip({
+    required this.categories,
+    required this.selectedId,
+    required this.accent,
+    required this.onSelect,
+    required this.onLongPress,
+  });
 
-  final String text;
+  final List<CashCategory> categories;
+  final String? selectedId;
+  final Color accent;
+  final ValueChanged<String> onSelect;
+  final ValueChanged<CashCategory> onLongPress;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: 12.5,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.2,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+    final cs = Theme.of(context).colorScheme;
+
+    return SizedBox(
+      height: 124,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: categories.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 10),
+        itemBuilder: (_, i) {
+          final category = categories[i];
+          final selected = selectedId == category.id;
+
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                onSelect(category.id);
+              },
+              onLongPress: () => onLongPress(category),
+              borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+              child: Ink(
+                width: 88,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? accent.withValues(alpha: 0.12)
+                      : cs.surfaceContainerHighest.withValues(alpha: 0.65),
+                  borderRadius:
+                      BorderRadius.circular(AppSpacing.borderRadiusLg),
+                  border: Border.all(
+                    color:
+                        selected ? accent : cs.outline.withValues(alpha: 0.25),
+                    width: selected ? 2 : 1,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          expenseCategoryIconData(category.icon),
+                          size: 28,
+                          color: selected
+                              ? accent
+                              : cs.onSurface.withValues(alpha: 0.75),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          category.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.15,
+                                    color: selected
+                                        ? accent
+                                        : cs.onSurface.withValues(alpha: 0.85),
+                                  ),
+                        ),
+                      ],
+                    ),
+                    if (!category.isSystem)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Icon(
+                          Icons.more_horiz_rounded,
+                          size: 14,
+                          color: cs.onSurface.withValues(alpha: 0.35),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
