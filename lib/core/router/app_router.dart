@@ -52,6 +52,16 @@ final RouteObserver<ModalRoute<void>> appRouteObserver =
 /// Seller bu manzillarga yozsa — `/shell`ga qaytariladi.
 const Set<String> _ownerOnlyRoutes = {'/employees'};
 
+/// Tizimga kirmagan foydalanuvchi ocha oladigan sahifalar.
+/// Bu ro'yxatda bo'lmagan manzil `/login`ga qaytariladi — shuning uchun
+/// parolni tiklash kabi yangi ochiq sahifalar shu yerga qo'shilishi shart.
+const Set<String> _authRoutes = {
+  '/login',
+  '/register',
+  '/telegram-auth',
+  '/forgot-password',
+};
+
 /// Push bildirishnoma bosilganda ilova ichida yo'naltirish uchun kerak
 /// (o'sha paytda BuildContext qo'lda bo'lmaydi).
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -68,10 +78,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isOnSplash = location == '/';
       final isOnOnboarding =
           location == '/language-selection' || location == '/onboarding';
-      final isOnAuth =
-          location == '/login' ||
-          location == '/register' ||
-          location == '/telegram-auth';
+      final isOnAuth = _authRoutes.contains(location);
 
       if (isOnOnboarding) return null;
 
