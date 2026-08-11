@@ -14,7 +14,11 @@ import '../../domain/providers/setup_provider.dart';
 import '../widgets/recipe_card.dart';
 
 class RecipesScreen extends ConsumerStatefulWidget {
-  const RecipesScreen({super.key});
+  /// Sozlamalar ekranida bo'lim sifatida ochilganda o'z AppBar'i
+  /// kerak emas — sarlavha va tanlagich yuqorida turadi.
+  const RecipesScreen({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
   ConsumerState<RecipesScreen> createState() => _RecipesScreenState();
@@ -73,10 +77,12 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
     final cs       = Theme.of(context).colorScheme;
     final s        = S.of(context);
     final Widget scaffold = Scaffold(
-      appBar: AppBar(
-        title: Text(s.recipeScreenTitle),
-        scrolledUnderElevation: 0,
-      ),
+      appBar: widget.embedded
+          ? null
+          : AppBar(
+              title: Text(s.recipeScreenTitle),
+              scrolledUnderElevation: 0,
+            ),
       body: state.isLoading
           ? const AppLoading()
           : RefreshIndicator(

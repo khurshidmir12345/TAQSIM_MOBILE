@@ -472,7 +472,7 @@ class _BalanceCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(26),
+        padding: const EdgeInsets.fromLTRB(22, 18, 22, 18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -541,7 +541,7 @@ class _BalanceCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -559,7 +559,7 @@ class _BalanceCard extends StatelessWidget {
                           fmt(foyda),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 36,
+                            fontSize: 32,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -1,
                             height: 1,
@@ -604,9 +604,9 @@ class _BalanceCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
             _BalanceProportionBar(income: netSales, expense: productCost),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
@@ -619,7 +619,7 @@ class _BalanceCard extends StatelessWidget {
                 ),
                 Container(
                   width: 1,
-                  height: 36,
+                  height: 32,
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   color: Colors.white.withValues(alpha: 0.15),
                 ),

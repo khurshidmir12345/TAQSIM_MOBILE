@@ -51,7 +51,11 @@ String _currencyCodeForId(List<CurrencyModel> currencies, String id) {
 }
 
 class BreadCategoriesScreen extends ConsumerStatefulWidget {
-  const BreadCategoriesScreen({super.key});
+  /// Sozlamalar ekranida bo'lim sifatida ochilganda o'z AppBar'i
+  /// kerak emas — sarlavha va tanlagich yuqorida turadi.
+  const BreadCategoriesScreen({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
   ConsumerState<BreadCategoriesScreen> createState() =>
@@ -102,9 +106,9 @@ class _BreadCategoriesScreenState
     final localeCode = _localeCode();
 
     final Widget scaffold = Scaffold(
-      appBar: AppBar(
-        title: Text(s.productCategoriesTitle),
-      ),
+      appBar: widget.embedded
+          ? null
+          : AppBar(title: Text(s.productCategoriesTitle)),
       body: state.isLoading
           ? const AppLoading()
           : state.items.isEmpty

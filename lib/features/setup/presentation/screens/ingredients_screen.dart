@@ -12,7 +12,11 @@ import '../../domain/providers/setup_provider.dart';
 import '../widgets/ingredient_form_sheet.dart';
 
 class IngredientsScreen extends ConsumerStatefulWidget {
-  const IngredientsScreen({super.key});
+  /// Sozlamalar ekranida bo'lim sifatida ochilganda o'z AppBar'i
+  /// kerak emas — sarlavha va tanlagich yuqorida turadi.
+  const IngredientsScreen({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
   ConsumerState<IngredientsScreen> createState() => _IngredientsScreenState();
@@ -44,9 +48,9 @@ class _IngredientsScreenState extends ConsumerState<IngredientsScreen> {
     final fallbackCur = _currencySuffix(s);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.settingsCardIngredientsTitle),
-      ),
+      appBar: widget.embedded
+          ? null
+          : AppBar(title: Text(s.settingsCardIngredientsTitle)),
       body: state.isLoading
           ? const AppLoading()
           : state.items.isEmpty
