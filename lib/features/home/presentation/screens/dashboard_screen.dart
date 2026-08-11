@@ -19,13 +19,9 @@ import '../../../tutorial/domain/providers/shop_tutorial_provider.dart';
 import '../../../tutorial/presentation/widgets/tutorial_spotlight.dart';
 import '../../../auth/domain/models/shop_model.dart';
 import '../../domain/models/daily_report_model.dart';
-import '../../domain/models/expense_model.dart';
 import '../../domain/models/production_model.dart';
 import '../../domain/providers/daily_provider.dart';
-import '../widgets/expense_actions.dart';
 import '../widgets/production_summary_card.dart';
-
-enum _DashboardSection { output, expense }
 
 /// Qisqa sana formati. `intl` registratsiya qilmagan localelar uchun `uz`ga fallback.
 String _formatDateShort(BuildContext context, DateTime d) {
@@ -49,7 +45,6 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class DashboardScreenState extends ConsumerState<DashboardScreen>
     with WidgetsBindingObserver {
   final _setupBtnKey = GlobalKey();
-  _DashboardSection _section = _DashboardSection.output;
 
   @override
   void initState() {
@@ -228,26 +223,12 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
                     const SizedBox(height: 20),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: pad),
-                      child: _DashboardSegmented(
-                        section: _section,
-                        onChanged: (v) => setState(() => _section = v),
+                      child: _ProductionList(
+                        productions: reportState.productions,
+                        fmt: _fmt,
+                        productUnit: term.productUnit,
+                        batchCountSuffix: s.dashboardBatchUnitGeneric,
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: pad),
-                      child: _section == _DashboardSection.output
-                          ? _ProductionList(
-                              productions: reportState.productions,
-                              fmt: _fmt,
-                              productUnit: term.productUnit,
-                              batchCountSuffix: s.dashboardBatchUnitGeneric,
-                            )
-                          : _ExpenseList(
-                              expenses: reportState.expenses,
-                              fmt: _fmt,
-                              currency: s.currency,
-                            ),
                     ),
                   ],
                 ],
@@ -440,105 +421,6 @@ class _TealIconBtn extends StatelessWidget {
   }
 }
 
-class _DashboardSegmented extends StatelessWidget {
-  final _DashboardSection section;
-  final ValueChanged<_DashboardSection> onChanged;
-
-  const _DashboardSegmented({
-    required this.section,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final s = S.of(context);
-
-    return Container(
-      height: 40,
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(
-          alpha: isDark ? 0.4 : 0.7,
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.all(3),
-      child: Row(
-        children: [
-          _SegmentButton(
-            label: s.dashboardTabOutput,
-            selected: section == _DashboardSection.output,
-            onTap: () => onChanged(_DashboardSection.output),
-          ),
-          _SegmentButton(
-            label: s.dashboardTabExpense,
-            selected: section == _DashboardSection.expense,
-            onTap: () => onChanged(_DashboardSection.expense),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SegmentButton extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _SegmentButton({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            color: selected ? cs.surface : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: selected
-                  ? cs.onSurface
-                  : cs.onSurface.withValues(alpha: 0.55),
-              fontSize: 12.5,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-              letterSpacing: -0.1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _BalanceCard extends StatelessWidget {
   final DailyReportModel? report;
   final String Function(dynamic) fmt;
@@ -562,12 +444,12 @@ class _BalanceCard extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
 
     // Backend: sales.total_amount va net_sales — vozvratdan keyingi netto tushum.
-    final netSales =
-        report?.netSales ?? report?.sales.totalAmount ?? 0.0;
-    final ingredientCost = report?.expenses.ingredientCost ?? 0.0;
-    final externalExp    = report?.expenses.external ?? 0.0;
-    final totalExpenses  = report?.expenses.total ?? (ingredientCost + externalExp);
-    final foyda          = report?.profit ?? (netSales - totalExpenses);
+    final netSales = report?.netSales ?? report?.sales.totalAmount ?? 0.0;
+
+    // Asosiy sahifa faqat mahsulot hisobini yuritadi: tashqi xarajatlar
+    // (ijara, yoqilg'i va h.k.) kassaning ishi va bu yerga qo'shilmaydi.
+    final productCost = report?.expenses.ingredientCost ?? 0.0;
+    final foyda = report?.profit ?? (netSales - productCost);
 
     final dateStr = _formatDateShort(context, selectedDate);
     final isLoss     = foyda < 0;
@@ -590,7 +472,7 @@ class _BalanceCard extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(26),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -659,22 +541,44 @@ class _BalanceCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                // Summa va valyuta bitta qatorda qolishi kerak — uzun raqamda
+                // "so'm" pastga tushib ketmasin.
                 Expanded(
-                  child: Text(
-                    '${fmt(foyda)} ${s.currency}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -1,
-                      height: 1,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          fmt(foyda),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 36,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1,
+                            height: 1,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          s.currency,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
@@ -700,12 +604,9 @@ class _BalanceCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            Container(
-              height: 1,
-              color: Colors.white.withValues(alpha: 0.15),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
+            _BalanceProportionBar(income: netSales, expense: productCost),
+            const SizedBox(height: 18),
             Row(
               children: [
                 Expanded(
@@ -725,8 +626,8 @@ class _BalanceCard extends StatelessWidget {
                 Expanded(
                   child: _MiniKPI(
                     icon: Icons.arrow_downward_rounded,
-                    label: s.expense,
-                    value: fmt(totalExpenses),
+                    label: s.dashboardProductCost,
+                    value: fmt(productCost),
                     valueColor: const Color(0xFFFFCDD2),
                   ),
                 ),
@@ -734,6 +635,42 @@ class _BalanceCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Tushum va mahsulot xarajati nisbati — raqamlarni o'qimasdan ham
+/// kunning holati ko'rinsin.
+class _BalanceProportionBar extends StatelessWidget {
+  const _BalanceProportionBar({required this.income, required this.expense});
+
+  final double income;
+  final double expense;
+
+  @override
+  Widget build(BuildContext context) {
+    final total = income + expense;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: SizedBox(
+        height: 6,
+        child: total <= 0
+            // Ma'lumot yo'q — neytral chiziq, bo'sh joy qolib ketmasin.
+            ? ColoredBox(color: Colors.white.withValues(alpha: 0.18))
+            : Row(
+                children: [
+                  Expanded(
+                    flex: (income / total * 1000).round().clamp(1, 999),
+                    child: const ColoredBox(color: Color(0xFF98F4C8)),
+                  ),
+                  Expanded(
+                    flex: (expense / total * 1000).round().clamp(1, 999),
+                    child: const ColoredBox(color: Color(0xFFFFCDD2)),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -1584,7 +1521,7 @@ class _ProductionList extends StatelessWidget {
   }
 }
 
-enum _EmptyStateText { output, expense }
+enum _EmptyStateText { output }
 
 class _DashboardEmptyState extends StatelessWidget {
   final IconData icon;
@@ -1598,7 +1535,6 @@ class _DashboardEmptyState extends StatelessWidget {
     final s = S.of(context);
     final text = switch (textKey) {
       _EmptyStateText.output => s.dashboardEmptyOutput,
-      _EmptyStateText.expense => s.dashboardEmptyExpense,
     };
 
     return Container(
@@ -1624,155 +1560,6 @@ class _DashboardEmptyState extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ExpenseList extends ConsumerWidget {
-  final List<ExpenseModel> expenses;
-  final String Function(dynamic) fmt;
-  final String currency;
-
-  const _ExpenseList({
-    required this.expenses,
-    required this.fmt,
-    required this.currency,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (expenses.isEmpty) {
-      return const _DashboardEmptyState(
-        icon: Icons.payments_outlined,
-        textKey: _EmptyStateText.expense,
-      );
-    }
-
-    return Column(
-      children: [
-        for (final e in expenses)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: _DashboardExpenseCard(
-              expense: e,
-              fmt: fmt,
-              currency: currency,
-              onTap: () => showExpenseActions(
-                context,
-                ref: ref,
-                expense: e,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _DashboardExpenseCard extends StatelessWidget {
-  final ExpenseModel expense;
-  final String Function(dynamic) fmt;
-  final String currency;
-  final VoidCallback? onTap;
-
-  const _DashboardExpenseCard({
-    required this.expense,
-    required this.fmt,
-    required this.currency,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final radius = BorderRadius.circular(16);
-    final timeStr = formatTimeHm(expense.createdAt);
-
-    return Material(
-      color: cs.surface,
-      borderRadius: radius,
-      child: InkWell(
-        onTap: onTap,
-        onLongPress: onTap,
-        borderRadius: radius,
-        child: Ink(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            border: Border.all(color: cs.outline),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: const Icon(
-                  Icons.payments_rounded,
-                  color: AppColors.error,
-                  size: 19,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            expense.displayCategoryLabel,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: cs.onSurface,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              height: 1.2,
-                            ),
-                          ),
-                        ),
-                        if (timeStr != null) ...[
-                          const SizedBox(width: 8),
-                          TimeBadge(time: timeStr, compact: true),
-                        ],
-                      ],
-                    ),
-                    if (expense.description != null &&
-                        expense.description!.trim().isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        expense.description!.trim(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: cs.onSurface.withValues(alpha: 0.5),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                '${fmt(expense.amount)} $currency',
-                style: const TextStyle(
-                  color: AppColors.error,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
