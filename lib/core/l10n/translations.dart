@@ -199,6 +199,18 @@ class S {
   String get expenseCategoriesEmpty => _t('expenseCategoriesEmpty');
   String get expenseCategoriesLoadError => _t('expenseCategoriesLoadError');
 
+  // ─── Parolni tiklash ───
+  String get forgotPassword => _t('forgotPassword');
+  String get forgotPasswordTitle => _t('forgotPasswordTitle');
+  String get forgotPasswordPhoneTitle => _t('forgotPasswordPhoneTitle');
+  String get forgotPasswordPhoneSubtitle => _t('forgotPasswordPhoneSubtitle');
+  String get forgotPasswordCodeTitle => _t('forgotPasswordCodeTitle');
+  String get forgotPasswordNewTitle => _t('forgotPasswordNewTitle');
+  String get forgotPasswordNewSubtitle => _t('forgotPasswordNewSubtitle');
+  String get forgotPasswordSendCode => _t('forgotPasswordSendCode');
+  String get forgotPasswordSave => _t('forgotPasswordSave');
+  String get newPasswordHint => _t('newPasswordHint');
+
   // ─── Kassa (yangi) ───
   String get dashboardProductCost => _t('dashboardProductCost');
   String get yearly => _t('yearly');
@@ -1379,6 +1391,16 @@ class S {
     'home': 'Asosiy',
     'cashRegister': 'Tashqi xarajat',
     'cashbox': 'Kassa',
+    'forgotPassword': 'Parolni unutdingizmi?',
+    'forgotPasswordTitle': 'Parolni tiklash',
+    'forgotPasswordPhoneTitle': 'Telefon raqamingiz',
+    'forgotPasswordPhoneSubtitle': "Ro'yxatdan o'tgan raqamingizni kiriting — SMS orqali kod yuboramiz.",
+    'forgotPasswordCodeTitle': 'Tasdiqlash kodi',
+    'forgotPasswordNewTitle': 'Yangi parol',
+    'forgotPasswordNewSubtitle': "Kamida 6 ta belgidan iborat yangi parol o'ylab toping.",
+    'forgotPasswordSendCode': 'Kod yuborish',
+    'forgotPasswordSave': 'Saqlash va kirish',
+    'newPasswordHint': 'Yangi parol',
     'dashboardProductCost': 'Mahsulot xarajati',
     'yearly': 'Yillik',
     'cashFilterClear': 'Filtrni tozalash',
@@ -2323,6 +2345,16 @@ class S {
     'home': 'Асосий',
     'cashRegister': 'Ташқи харажат',
     'cashbox': 'Касса',
+    'forgotPassword': 'Паролни унутдингизми?',
+    'forgotPasswordTitle': 'Паролни тиклаш',
+    'forgotPasswordPhoneTitle': 'Телефон рақамингиз',
+    'forgotPasswordPhoneSubtitle': 'Рўйхатдан ўтган рақамингизни киритинг — SMS орқали код юборамиз.',
+    'forgotPasswordCodeTitle': 'Тасдиқлаш коди',
+    'forgotPasswordNewTitle': 'Янги парол',
+    'forgotPasswordNewSubtitle': 'Камида 6 та белгидан иборат янги парол ўйлаб топинг.',
+    'forgotPasswordSendCode': 'Код юбориш',
+    'forgotPasswordSave': 'Сақлаш ва кириш',
+    'newPasswordHint': 'Янги парол',
     'dashboardProductCost': 'Маҳсулот харажати',
     'yearly': 'Йиллик',
     'cashFilterClear': 'Фильтрни тозалаш',
@@ -3257,6 +3289,16 @@ class S {
     'home': 'Главная',
     'cashRegister': 'Внешний расход',
     'cashbox': 'Касса',
+    'forgotPassword': 'Забыли пароль?',
+    'forgotPasswordTitle': 'Восстановление пароля',
+    'forgotPasswordPhoneTitle': 'Ваш номер телефона',
+    'forgotPasswordPhoneSubtitle': 'Введите номер, на который зарегистрирован аккаунт — отправим код по SMS.',
+    'forgotPasswordCodeTitle': 'Код подтверждения',
+    'forgotPasswordNewTitle': 'Новый пароль',
+    'forgotPasswordNewSubtitle': 'Придумайте новый пароль — не короче 6 символов.',
+    'forgotPasswordSendCode': 'Отправить код',
+    'forgotPasswordSave': 'Сохранить и войти',
+    'newPasswordHint': 'Новый пароль',
     'dashboardProductCost': 'Затраты на продукцию',
     'yearly': 'Годовой',
     'cashFilterClear': 'Сбросить фильтр',
@@ -4191,6 +4233,16 @@ class S {
     'home': 'Басты',
     'cashRegister': 'Сыртқы шығын',
     'cashbox': 'Касса',
+    'forgotPassword': 'Құпия сөзді ұмыттыңыз ба?',
+    'forgotPasswordTitle': 'Құпия сөзді қалпына келтіру',
+    'forgotPasswordPhoneTitle': 'Телефон нөміріңіз',
+    'forgotPasswordPhoneSubtitle': 'Тіркелген нөміріңізді енгізіңіз — SMS арқылы код жібереміз.',
+    'forgotPasswordCodeTitle': 'Растау коды',
+    'forgotPasswordNewTitle': 'Жаңа құпия сөз',
+    'forgotPasswordNewSubtitle': 'Кемінде 6 таңбадан тұратын жаңа құпия сөз ойлап табыңыз.',
+    'forgotPasswordSendCode': 'Код жіберу',
+    'forgotPasswordSave': 'Сақтап кіру',
+    'newPasswordHint': 'Жаңа құпия сөз',
     'dashboardProductCost': 'Өнім шығыны',
     'yearly': 'Жылдық',
     'cashFilterClear': 'Сүзгіні тазалау',
@@ -5121,6 +5173,16 @@ class S {
     'home': 'Башкы',
     'cashRegister': 'Тышкы чыгаша',
     'cashbox': 'Касса',
+    'forgotPassword': 'Сырсөздү унуттуңузбу?',
+    'forgotPasswordTitle': 'Сырсөздү калыбына келтирүү',
+    'forgotPasswordPhoneTitle': 'Телефон номериңиз',
+    'forgotPasswordPhoneSubtitle': 'Катталган номериңизди киргизиңиз — SMS аркылуу код жөнөтөбүз.',
+    'forgotPasswordCodeTitle': 'Ырастоо коду',
+    'forgotPasswordNewTitle': 'Жаңы сырсөз',
+    'forgotPasswordNewSubtitle': 'Жок дегенде 6 белгиден турган жаңы сырсөз ойлоп табыңыз.',
+    'forgotPasswordSendCode': 'Код жөнөтүү',
+    'forgotPasswordSave': 'Сактап кирүү',
+    'newPasswordHint': 'Жаңы сырсөз',
     'dashboardProductCost': 'Продукция чыгымы',
     'yearly': 'Жылдык',
     'cashFilterClear': 'Чыпканы тазалоо',
@@ -6051,6 +6113,16 @@ class S {
     'home': 'Ana sayfa',
     'cashRegister': 'Dış gider',
     'cashbox': 'Kasa',
+    'forgotPassword': 'Şifrenizi mi unuttunuz?',
+    'forgotPasswordTitle': 'Şifre sıfırlama',
+    'forgotPasswordPhoneTitle': 'Telefon numaranız',
+    'forgotPasswordPhoneSubtitle': 'Kayıtlı numaranızı girin — SMS ile kod göndereceğiz.',
+    'forgotPasswordCodeTitle': 'Doğrulama kodu',
+    'forgotPasswordNewTitle': 'Yeni şifre',
+    'forgotPasswordNewSubtitle': 'En az 6 karakterden oluşan yeni bir şifre belirleyin.',
+    'forgotPasswordSendCode': 'Kod gönder',
+    'forgotPasswordSave': 'Kaydet ve gir',
+    'newPasswordHint': 'Yeni şifre',
     'dashboardProductCost': 'Ürün maliyeti',
     'yearly': 'Yıllık',
     'cashFilterClear': 'Filtreyi temizle',

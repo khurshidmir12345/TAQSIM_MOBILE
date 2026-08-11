@@ -100,6 +100,37 @@ class AuthRepository {
     }
   }
 
+  /// Parolni tiklash: SMS kodi tasdiqlanadi va yangi parol o'rnatiladi.
+  /// Server darhol token qaytaradi — foydalanuvchi qayta login qilmaydi.
+  Future<({UserModel user, String token})> resetPassword({
+    required String phone,
+    required String code,
+    required String password,
+  }) async {
+    try {
+      final response = await apiClient.dio.post(
+        '/v1/auth/reset-password',
+        data: {
+          'phone': phone,
+          'code': code,
+          'password': password,
+          'password_confirmation': password,
+        },
+      );
+
+      final data = _body(response)['data'] as Map<String, dynamic>;
+      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      final token = data['token'] as String;
+
+      await _saveToken(token);
+      apiClient.setToken(token);
+
+      return (user: user, token: token);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   /// Sign in with Apple. Apple identity token (JWT) backend tomonidan
   /// Apple JWKS bilan tekshiriladi va Sanctum token qaytariladi.
   Future<({UserModel user, String token})> signInWithApple({

@@ -167,6 +167,31 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  /// Yangi parol o'rnatiladi va foydalanuvchi darhol tizimga kiradi.
+  Future<bool> resetPassword({
+    required String phone,
+    required String code,
+    required String password,
+  }) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final result = await _repo.resetPassword(
+        phone: phone,
+        code: code,
+        password: password,
+      );
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        user: result.user,
+        isLoading: false,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
   void setAuthenticatedFromTelegram(UserModel user) {
     state = state.copyWith(
       status: AuthStatus.authenticated,

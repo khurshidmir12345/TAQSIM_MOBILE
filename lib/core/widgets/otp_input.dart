@@ -3,16 +3,26 @@ import 'package:flutter/services.dart';
 
 import '../constants/app_colors.dart';
 
+/// SMS kodini kiritish maydoni.
+///
+/// Ichkarida bitta ko'rinmas [TextField] turadi, kataklar esa faqat chizma.
+/// Avval har bir katak alohida maydon edi va ularga `LengthLimitingTextInput‑
+/// Formatter(1)` osilgan edi — telefon klaviatura ustidan taklif qilgan
+/// "1234" ni bitta belgigacha qirqib tashlardi, natijada faqat birinchi raqam
+/// tushib qolardi. Yagona maydon bilan avtomatik to'ldirish ham, nusxa
+/// ko'chirish ham, o'chirish ham to'g'ri ishlaydi.
 class OtpInput extends StatefulWidget {
   final int length;
   final ValueChanged<String> onCompleted;
   final ValueChanged<String>? onChanged;
+  final bool autofocus;
 
   const OtpInput({
     super.key,
     this.length = 4,
     required this.onCompleted,
     this.onChanged,
+    this.autofocus = true,
   });
 
   @override
@@ -20,157 +30,173 @@ class OtpInput extends StatefulWidget {
 }
 
 class OtpInputState extends State<OtpInput> {
-  late final List<TextEditingController> _controllers;
-  late final List<FocusNode> _focusNodes;
+  final _controller = TextEditingController();
+  final _focusNode = FocusNode();
+
+  String _lastReported = '';
 
   @override
   void initState() {
     super.initState();
-    _controllers = List.generate(widget.length, (_) => TextEditingController());
-    _focusNodes = List.generate(widget.length, (_) => FocusNode());
+    _controller.addListener(_onTextChanged);
   }
 
   @override
   void dispose() {
-    for (final c in _controllers) {
-      c.dispose();
-    }
-    for (final f in _focusNodes) {
-      f.dispose();
-    }
+    _controller.removeListener(_onTextChanged);
+    _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
-  String get _currentCode => _controllers.map((c) => c.text).join();
+  String get _code => _controller.text;
 
-  void _onDigitEntered(int index, String value) {
-    if (value.isEmpty) {
-      if (index > 0) {
-        _focusNodes[index - 1].requestFocus();
-      }
-      widget.onChanged?.call(_currentCode);
-      return;
-    }
+  void _onTextChanged() {
+    final code = _code;
 
-    if (value.length > 1) {
-      final digits = value.replaceAll(RegExp(r'\D'), '');
-      for (int i = 0; i < widget.length && i < digits.length; i++) {
-        _controllers[i].text = digits[i];
-      }
-      final filled = digits.length >= widget.length
-          ? widget.length - 1
-          : digits.length - 1;
-      _focusNodes[filled.clamp(0, widget.length - 1)].requestFocus();
-      setState(() {});
-      final code = _currentCode;
-      widget.onChanged?.call(code);
-      if (code.length == widget.length) widget.onCompleted(code);
-      return;
-    }
+    if (code == _lastReported) return;
 
-    _controllers[index].text = value;
-
-    if (index < widget.length - 1) {
-      _focusNodes[index + 1].requestFocus();
-    } else {
-      _focusNodes[index].unfocus();
-    }
-
-    final code = _currentCode;
+    _lastReported = code;
+    setState(() {});
     widget.onChanged?.call(code);
-    if (code.length == widget.length) widget.onCompleted(code);
+
+    if (code.length == widget.length) {
+      // Kod to'ldi — klaviatura yo'lda turmasin.
+      _focusNode.unfocus();
+      widget.onCompleted(code);
+    }
   }
 
+  /// Xato kodda tozalash uchun — tashqaridan chaqiriladi.
   void clear() {
-    for (final c in _controllers) {
-      c.clear();
-    }
-    if (_focusNodes.isNotEmpty) _focusNodes.first.requestFocus();
+    _controller.clear();
+    _lastReported = '';
+    _focusNode.requestFocus();
     setState(() {});
   }
 
+  void focus() => _focusNode.requestFocus();
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(widget.length, (i) {
-        return Padding(
-          padding: EdgeInsets.only(right: i < widget.length - 1 ? 14 : 0),
-          child: _OtpBox(
-            controller: _controllers[i],
-            focusNode: _focusNodes[i],
-            onChanged: (v) => _onDigitEntered(i, v),
+    final code = _code;
+
+    // AutofillGroup — Android'dagi avtomatik to'ldirish xizmati maydonni
+    // shu guruh ichida ko'radi.
+    return AutofillGroup(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Kataklar — bosilganda yagona maydonga fokus beradi.
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              _focusNode.requestFocus();
+            },
+            behavior: HitTestBehavior.opaque,
+            child: AnimatedBuilder(
+              animation: _focusNode,
+              builder: (context, _) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(widget.length, (i) {
+                  final filled = i < code.length;
+
+                  // Kursor keyingi bo'sh katakda turgandek ko'rinsin.
+                  final active =
+                      _focusNode.hasFocus &&
+                      (i == code.length ||
+                          (code.length == widget.length &&
+                              i == widget.length - 1));
+
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      right: i < widget.length - 1 ? 14 : 0,
+                    ),
+                    child: _OtpBox(
+                      digit: filled ? code[i] : '',
+                      active: active,
+                      filled: filled,
+                    ),
+                  );
+                }),
+              ),
+            ),
           ),
-        );
-      }),
+
+          // Haqiqiy maydon — ko'rinmaydi, lekin klaviatura va avtomatik
+          // to'ldirish shu yerga bog'lanadi.
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0,
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                autofocus: widget.autofocus,
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+                enableInteractiveSelection: false,
+                autofillHints: const [AutofillHints.oneTimeCode],
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(widget.length),
+                ],
+                showCursor: false,
+                style: const TextStyle(color: Colors.transparent),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  counterText: '',
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _OtpBox extends StatelessWidget {
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final ValueChanged<String> onChanged;
-
   const _OtpBox({
-    required this.controller,
-    required this.focusNode,
-    required this.onChanged,
+    required this.digit,
+    required this.active,
+    required this.filled,
   });
+
+  final String digit;
+  final bool active;
+  final bool filled;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return AnimatedBuilder(
-      animation: focusNode,
-      builder: (context, _) {
-        final isFocused = focusNode.hasFocus;
-        final hasValue = controller.text.isNotEmpty;
-
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 58,
-          height: 64,
-          decoration: BoxDecoration(
-            color: isFocused
-                ? AppColors.primary.withValues(alpha: 0.06)
-                : theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isFocused
-                  ? AppColors.primary
-                  : hasValue
-                      ? AppColors.primary.withValues(alpha: 0.4)
-                      : theme.colorScheme.outline.withValues(alpha: 0.3),
-              width: isFocused ? 2 : 1,
-            ),
-          ),
-          child: TextField(
-            controller: controller,
-            focusNode: focusNode,
-            onChanged: onChanged,
-            textAlign: TextAlign.center,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(1),
-            ],
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: AppColors.primary,
-            ),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              filled: false,
-              contentPadding: EdgeInsets.zero,
-              counter: SizedBox.shrink(),
-            ),
-          ),
-        );
-      },
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      width: 58,
+      height: 64,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: active
+            ? AppColors.primary.withValues(alpha: 0.06)
+            : theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: active
+              ? AppColors.primary
+              : filled
+              ? AppColors.primary.withValues(alpha: 0.4)
+              : theme.colorScheme.outline.withValues(alpha: 0.3),
+          width: active ? 2 : 1,
+        ),
+      ),
+      child: Text(
+        digit,
+        style: theme.textTheme.headlineMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+          color: AppColors.primary,
+        ),
+      ),
     );
   }
 }
