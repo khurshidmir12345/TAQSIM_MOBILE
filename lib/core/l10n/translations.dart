@@ -219,6 +219,12 @@ class S {
   String get changePhoneConfirm => _t('changePhoneConfirm');
   String get changePhoneNotice => _t('changePhoneNotice');
   String get changePhoneSuccess => _t('changePhoneSuccess');
+  String get updateAvailableTitle => _t('updateAvailableTitle');
+  String get updateAvailableMessage => _t('updateAvailableMessage');
+  String get updateNow => _t('updateNow');
+  String get updateLater => _t('updateLater');
+  String updateAvailableMessageVersion(String version) =>
+      _t('updateAvailableMessageVersion').replaceAll('{version}', version);
   String get newPasswordHint => _t('newPasswordHint');
 
   // ─── Kassa (yangi) ───
@@ -1413,6 +1419,11 @@ class S {
     'changePhoneConfirm': 'Tasdiqlash va saqlash',
     'changePhoneNotice': 'Kod tasdiqlanmaguncha eski raqamingiz o‘zgarmaydi.',
     'changePhoneSuccess': 'Telefon raqam o‘zgartirildi.',
+    'updateAvailableTitle': 'Yangilanish bor',
+    'updateAvailableMessage': 'Ilovaning yangi versiyasi chiqdi. Hozir yangilaysizmi?',
+    'updateAvailableMessageVersion': 'Ilovaning yangi versiyasi chiqdi — {version}. Hozir yangilaysizmi?',
+    'updateNow': 'Yangilash',
+    'updateLater': 'Keyinroq',
     'forgotPasswordPhoneTitle': 'Telefon raqamingiz',
     'forgotPasswordPhoneSubtitle': "Ro'yxatdan o'tgan raqamingizni kiriting — SMS orqali kod yuboramiz.",
     'forgotPasswordCodeTitle': 'Tasdiqlash kodi',
@@ -2377,6 +2388,11 @@ class S {
     'changePhoneConfirm': 'Тасдиқлаш ва сақлаш',
     'changePhoneNotice': 'Код тасдиқланмагунча эски рақамингиз ўзгармайди.',
     'changePhoneSuccess': 'Телефон рақам ўзгартирилди.',
+    'updateAvailableTitle': 'Янгиланиш бор',
+    'updateAvailableMessage': 'Илованинг янги версияси чиқди. Ҳозир янгилайсизми?',
+    'updateAvailableMessageVersion': 'Илованинг янги версияси чиқди — {version}. Ҳозир янгилайсизми?',
+    'updateNow': 'Янгилаш',
+    'updateLater': 'Кейинроқ',
     'forgotPasswordPhoneTitle': 'Телефон рақамингиз',
     'forgotPasswordPhoneSubtitle': 'Рўйхатдан ўтган рақамингизни киритинг — SMS орқали код юборамиз.',
     'forgotPasswordCodeTitle': 'Тасдиқлаш коди',
@@ -3331,6 +3347,11 @@ class S {
     'changePhoneConfirm': 'Подтвердить и сохранить',
     'changePhoneNotice': 'Пока код не подтверждён, старый номер остаётся прежним.',
     'changePhoneSuccess': 'Номер телефона изменён.',
+    'updateAvailableTitle': 'Доступно обновление',
+    'updateAvailableMessage': 'Вышла новая версия приложения. Обновить сейчас?',
+    'updateAvailableMessageVersion': 'Вышла новая версия приложения — {version}. Обновить сейчас?',
+    'updateNow': 'Обновить',
+    'updateLater': 'Позже',
     'forgotPasswordPhoneTitle': 'Ваш номер телефона',
     'forgotPasswordPhoneSubtitle': 'Введите номер, на который зарегистрирован аккаунт — отправим код по SMS.',
     'forgotPasswordCodeTitle': 'Код подтверждения',
@@ -4285,6 +4306,11 @@ class S {
     'changePhoneConfirm': 'Растау және сақтау',
     'changePhoneNotice': 'Код расталмайынша, ескі нөміріңіз өзгермейді.',
     'changePhoneSuccess': 'Телефон нөмірі өзгертілді.',
+    'updateAvailableTitle': 'Жаңарту бар',
+    'updateAvailableMessage': 'Қолданбаның жаңа нұсқасы шықты. Қазір жаңартасыз ба?',
+    'updateAvailableMessageVersion': 'Қолданбаның жаңа нұсқасы шықты — {version}. Қазір жаңартасыз ба?',
+    'updateNow': 'Жаңарту',
+    'updateLater': 'Кейінірек',
     'forgotPasswordPhoneTitle': 'Телефон нөміріңіз',
     'forgotPasswordPhoneSubtitle': 'Тіркелген нөміріңізді енгізіңіз — SMS арқылы код жібереміз.',
     'forgotPasswordCodeTitle': 'Растау коды',
@@ -5235,6 +5261,11 @@ class S {
     'changePhoneConfirm': 'Ырастоо жана сактоо',
     'changePhoneNotice': 'Код ырасталмайынча, эски номериңиз өзгөрбөйт.',
     'changePhoneSuccess': 'Телефон номери өзгөртүлдү.',
+    'updateAvailableTitle': 'Жаңыртуу бар',
+    'updateAvailableMessage': 'Колдонмонун жаңы версиясы чыкты. Азыр жаңыртасызбы?',
+    'updateAvailableMessageVersion': 'Колдонмонун жаңы версиясы чыкты — {version}. Азыр жаңыртасызбы?',
+    'updateNow': 'Жаңыртуу',
+    'updateLater': 'Кийинчерээк',
     'forgotPasswordPhoneTitle': 'Телефон номериңиз',
     'forgotPasswordPhoneSubtitle': 'Катталган номериңизди киргизиңиз — SMS аркылуу код жөнөтөбүз.',
     'forgotPasswordCodeTitle': 'Ырастоо коду',
@@ -6185,6 +6216,11 @@ class S {
     'changePhoneConfirm': 'Doğrula ve kaydet',
     'changePhoneNotice': 'Kod doğrulanana kadar eski numaranız değişmez.',
     'changePhoneSuccess': 'Telefon numarası değiştirildi.',
+    'updateAvailableTitle': 'Güncelleme var',
+    'updateAvailableMessage': 'Uygulamanın yeni sürümü çıktı. Şimdi güncellensin mi?',
+    'updateAvailableMessageVersion': 'Uygulamanın yeni sürümü çıktı — {version}. Şimdi güncellensin mi?',
+    'updateNow': 'Güncelle',
+    'updateLater': 'Daha sonra',
     'forgotPasswordPhoneTitle': 'Telefon numaranız',
     'forgotPasswordPhoneSubtitle': 'Kayıtlı numaranızı girin — SMS ile kod göndereceğiz.',
     'forgotPasswordCodeTitle': 'Doğrulama kodu',
