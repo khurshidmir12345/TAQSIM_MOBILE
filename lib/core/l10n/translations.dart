@@ -200,6 +200,11 @@ class S {
   String get expenseCategoriesLoadError => _t('expenseCategoriesLoadError');
 
   // ─── Kassa (yangi) ───
+  String get yearly => _t('yearly');
+  String get cashFilterClear => _t('cashFilterClear');
+  String get cashEntryDetail => _t('cashEntryDetail');
+  String get cashEdit => _t('cashEdit');
+  String get cashSaveChanges => _t('cashSaveChanges');
   String get cashFilterTitle => _t('cashFilterTitle');
   String get cashFilterApply => _t('cashFilterApply');
   String get cashCategoryRename => _t('cashCategoryRename');
@@ -1373,6 +1378,11 @@ class S {
     'home': 'Asosiy',
     'cashRegister': 'Tashqi xarajat',
     'cashbox': 'Kassa',
+    'yearly': 'Yillik',
+    'cashFilterClear': 'Filtrni tozalash',
+    'cashEntryDetail': 'Yozuv',
+    'cashEdit': 'Tahrirlash',
+    'cashSaveChanges': "O'zgarishlarni saqlash",
     'cashFilterTitle': 'Davrni tanlang',
     'cashFilterApply': "Qo'llash",
     'cashCategoryRename': "Nomini o'zgartirish",
@@ -2311,6 +2321,11 @@ class S {
     'home': 'Асосий',
     'cashRegister': 'Ташқи харажат',
     'cashbox': 'Касса',
+    'yearly': 'Йиллик',
+    'cashFilterClear': 'Фильтрни тозалаш',
+    'cashEntryDetail': 'Ёзув',
+    'cashEdit': 'Таҳрирлаш',
+    'cashSaveChanges': 'Ўзгаришларни сақлаш',
     'cashFilterTitle': 'Даврни танланг',
     'cashFilterApply': 'Қўллаш',
     'cashCategoryRename': 'Номини ўзгартириш',
@@ -3239,6 +3254,11 @@ class S {
     'home': 'Главная',
     'cashRegister': 'Внешний расход',
     'cashbox': 'Касса',
+    'yearly': 'Годовой',
+    'cashFilterClear': 'Сбросить фильтр',
+    'cashEntryDetail': 'Запись',
+    'cashEdit': 'Изменить',
+    'cashSaveChanges': 'Сохранить изменения',
     'cashFilterTitle': 'Выберите период',
     'cashFilterApply': 'Применить',
     'cashCategoryRename': 'Переименовать',
@@ -4167,6 +4187,11 @@ class S {
     'home': 'Басты',
     'cashRegister': 'Сыртқы шығын',
     'cashbox': 'Касса',
+    'yearly': 'Жылдық',
+    'cashFilterClear': 'Сүзгіні тазалау',
+    'cashEntryDetail': 'Жазба',
+    'cashEdit': 'Өңдеу',
+    'cashSaveChanges': 'Өзгерістерді сақтау',
     'cashFilterTitle': 'Кезеңді таңдаңыз',
     'cashFilterApply': 'Қолдану',
     'cashCategoryRename': 'Атын өзгерту',
@@ -5091,6 +5116,11 @@ class S {
     'home': 'Башкы',
     'cashRegister': 'Тышкы чыгаша',
     'cashbox': 'Касса',
+    'yearly': 'Жылдык',
+    'cashFilterClear': 'Чыпканы тазалоо',
+    'cashEntryDetail': 'Жазуу',
+    'cashEdit': 'Түзөтүү',
+    'cashSaveChanges': 'Өзгөрүүлөрдү сактоо',
     'cashFilterTitle': 'Мезгилди тандаңыз',
     'cashFilterApply': 'Колдонуу',
     'cashCategoryRename': 'Атын өзгөртүү',
@@ -6015,6 +6045,11 @@ class S {
     'home': 'Ana sayfa',
     'cashRegister': 'Dış gider',
     'cashbox': 'Kasa',
+    'yearly': 'Yıllık',
+    'cashFilterClear': 'Filtreyi temizle',
+    'cashEntryDetail': 'Kayıt',
+    'cashEdit': 'Düzenle',
+    'cashSaveChanges': 'Değişiklikleri kaydet',
     'cashFilterTitle': 'Dönemi seçin',
     'cashFilterApply': 'Uygula',
     'cashCategoryRename': 'Yeniden adlandır',

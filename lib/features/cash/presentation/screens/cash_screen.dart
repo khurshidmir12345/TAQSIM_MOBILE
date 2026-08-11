@@ -12,6 +12,7 @@ import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_retry_widget.dart';
 import '../../domain/models/cash_model.dart';
 import '../../domain/providers/cash_provider.dart';
+import '../widgets/cash_entry_sheet.dart';
 import '../widgets/cash_entry_tile.dart';
 import '../widgets/cash_settings_sheet.dart';
 import '../widgets/cash_summary_card.dart';
@@ -28,17 +29,22 @@ class CashScreen extends ConsumerStatefulWidget {
   CashScreenState createState() => CashScreenState();
 }
 
-enum _QuickPeriod { day, week, month, custom }
+enum _QuickPeriod { year, month, day, custom }
 
 class CashScreenState extends ConsumerState<CashScreen> {
   final _scrollCtl = ScrollController();
 
-  _QuickPeriod _period = _QuickPeriod.day;
+  _QuickPeriod _period = _QuickPeriod.year;
 
   @override
   void initState() {
     super.initState();
     _scrollCtl.addListener(_onScroll);
+
+    // Standart davr — yillik; provider bugungi kun bilan boshlanadi.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _applyPeriod(_QuickPeriod.year);
+    });
   }
 
   @override
@@ -76,19 +82,28 @@ class CashScreenState extends ConsumerState<CashScreen> {
     if (period == _period) return;
 
     HapticFeedback.selectionClick();
+    _applyPeriod(period);
+  }
 
+  void _applyPeriod(_QuickPeriod period) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
     final from = switch (period) {
       _QuickPeriod.day => today,
-      _QuickPeriod.week => today.subtract(const Duration(days: 6)),
       _QuickPeriod.month => today.subtract(const Duration(days: 29)),
+      _QuickPeriod.year => today.subtract(const Duration(days: 364)),
       _QuickPeriod.custom => today,
     };
 
     setState(() => _period = period);
     ref.read(cashRangeProvider.notifier).set(from, today);
+  }
+
+  /// Filtrni bekor qiladi va standart davrga qaytadi.
+  void _clearFilter() {
+    HapticFeedback.selectionClick();
+    _applyPeriod(_QuickPeriod.year);
   }
 
   Future<void> _openFilter() async {
@@ -120,55 +135,11 @@ class CashScreenState extends ConsumerState<CashScreen> {
     );
   }
 
-  Future<void> _confirmDelete(CashEntry entry) async {
-    final s = S.of(context);
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(s.cashDeleteTitle),
-        content: Text(s.cashDeleteMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(s.cancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(s.delete),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) return;
-
-    try {
-      await ref.read(cashProvider.notifier).delete(entry.id);
-    } catch (_) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).noInternet)),
-      );
-    }
-  }
-
-  /// Avtomatik yozuvni tahrirlab bo'lmaydi — sababini aytamiz.
+  /// Yozuv bosilganda tafsilot ochiladi — u yerdan tahrirlash yoki
+  /// o'chirish mumkin (avtomatik yozuvda faqat ko'rish).
   void _onEntryTap(CashEntry entry) {
-    if (!entry.isEditable) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).cashAutoEntryHint),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-
-      return;
-    }
-
-    _confirmDelete(entry);
+    HapticFeedback.selectionClick();
+    CashEntrySheet.show(context, entry, _money);
   }
 
   @override
@@ -214,9 +185,9 @@ class CashScreenState extends ConsumerState<CashScreen> {
           _PeriodTabs(
             selected: _period,
             onSelected: _selectPeriod,
-            rangeLabel: _period == _QuickPeriod.custom
-                ? _rangeLabel(range)
-                : null,
+            rangeLabel:
+                _period == _QuickPeriod.custom ? _rangeLabel(range) : null,
+            onClearFilter: _clearFilter,
           ),
           Expanded(
             // Tugmalar ro'yxat ustida suzib turadi — ekran aylantirilganda
@@ -369,16 +340,21 @@ class CashScreenState extends ConsumerState<CashScreen> {
   }
 }
 
-/// Kunlik / haftalik / oylik — bugundan orqaga sanaladi.
+/// Yillik / oylik / kunlik — bugundan orqaga sanaladi.
+///
+/// Ko'rinishi statistika bo'limidagi tanlagich bilan bir xil: foydalanuvchi
+/// ikkala ekranda bitta odatni ishlatadi.
 class _PeriodTabs extends StatelessWidget {
   const _PeriodTabs({
     required this.selected,
     required this.onSelected,
+    required this.onClearFilter,
     this.rangeLabel,
   });
 
   final _QuickPeriod selected;
   final ValueChanged<_QuickPeriod> onSelected;
+  final VoidCallback onClearFilter;
 
   /// Filtr orqali tanlangan oraliq — faqat "custom" holatda ko'rinadi.
   final String? rangeLabel;
@@ -393,30 +369,30 @@ class _PeriodTabs extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(pad, 4, pad, 10),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.55),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                _Tab(
-                  label: s.daily,
-                  active: selected == _QuickPeriod.day,
-                  onTap: () => onSelected(_QuickPeriod.day),
-                ),
-                _Tab(
-                  label: s.weekly,
-                  active: selected == _QuickPeriod.week,
-                  onTap: () => onSelected(_QuickPeriod.week),
-                ),
-                _Tab(
-                  label: s.monthly,
-                  active: selected == _QuickPeriod.month,
-                  onTap: () => onSelected(_QuickPeriod.month),
-                ),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<_QuickPeriod>(
+              segments: [
+                ButtonSegment(value: _QuickPeriod.year, label: Text(s.yearly)),
+                ButtonSegment(value: _QuickPeriod.month, label: Text(s.monthly)),
+                ButtonSegment(value: _QuickPeriod.day, label: Text(s.daily)),
               ],
+              // Filtr ishlatilganda hech biri tanlangan ko'rinmaydi.
+              selected: {
+                selected == _QuickPeriod.custom ? _QuickPeriod.year : selected,
+              },
+              onSelectionChanged: (set) => onSelected(set.first),
+              showSelectedIcon: false,
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                textStyle: WidgetStatePropertyAll(
+                  Theme.of(context)
+                      .textTheme
+                      .labelLarge
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
             ),
           ),
           if (rangeLabel != null)
@@ -425,11 +401,7 @@ class _PeriodTabs extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.event_rounded,
-                    size: 14,
-                    color: cs.primary,
-                  ),
+                  Icon(Icons.event_rounded, size: 14, color: cs.primary),
                   const SizedBox(width: 6),
                   Text(
                     rangeLabel!,
@@ -439,63 +411,26 @@ class _PeriodTabs extends StatelessWidget {
                       color: cs.primary,
                     ),
                   ),
+                  const SizedBox(width: 2),
+                  IconButton(
+                    tooltip: s.cashFilterClear,
+                    onPressed: onClearFilter,
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 30,
+                      minHeight: 30,
+                    ),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      size: 16,
+                      color: cs.primary,
+                    ),
+                  ),
                 ],
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _Tab extends StatelessWidget {
-  const _Tab({
-    required this.label,
-    required this.active,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 9),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: active ? cs.surface : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: active
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 13.5,
-              fontWeight: active ? FontWeight.w800 : FontWeight.w600,
-              color: active
-                  ? cs.onSurface
-                  : cs.onSurface.withValues(alpha: 0.55),
-            ),
-          ),
-        ),
       ),
     );
   }

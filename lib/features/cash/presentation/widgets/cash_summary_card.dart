@@ -31,7 +31,7 @@ class CashSummaryCard extends StatelessWidget {
     final accent = positive ? AppColors.income : AppColors.error;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 13),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
@@ -68,7 +68,7 @@ class CashSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 3),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -79,7 +79,7 @@ class CashSummaryCard extends StatelessWidget {
                 Text(
                   '${positive ? '+' : '−'}${money(summary.net.abs())}',
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 26,
                     fontWeight: FontWeight.w800,
                     height: 1.05,
                     letterSpacing: -0.6,
@@ -98,9 +98,9 @@ class CashSummaryCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 11),
           _ProportionBar(income: summary.income, expense: summary.expense),
-          const SizedBox(height: 14),
+          const SizedBox(height: 11),
           Row(
             children: [
               Expanded(
@@ -114,7 +114,7 @@ class CashSummaryCard extends StatelessWidget {
               ),
               Container(
                 width: 1,
-                height: 34,
+                height: 30,
                 margin: const EdgeInsets.symmetric(horizontal: 12),
                 color: cs.outline.withValues(alpha: 0.12),
               ),

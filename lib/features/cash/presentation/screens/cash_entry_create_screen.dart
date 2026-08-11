@@ -486,6 +486,9 @@ class _CategoryStrip extends StatelessWidget {
                   ),
                 ),
                 child: Stack(
+                  // Stack bolalari o'z hajmiga siqilib, chapga yopishib
+                  // qolmasin — ustun butun kenglikni egallashi kerak.
+                  fit: StackFit.expand,
                   children: [
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,

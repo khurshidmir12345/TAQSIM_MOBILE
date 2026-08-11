@@ -182,11 +182,16 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
             onSetupTap: () => context.push('/setup'),
           ),
           Expanded(
-            child: RefreshIndicator(
+            // Tugmalar ro'yxat ustida suzib turadi: foni shaffof, tagidagi
+            // ro'yxat ko'rinib turadi va aylantirilganda joyidan qimirlamaydi.
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: RefreshIndicator(
               onRefresh: () async => refresh(),
               color: cs.primary,
               child: ListView(
-                padding: EdgeInsets.fromLTRB(0, 20, 0, pad + 16),
+                padding: EdgeInsets.fromLTRB(0, 20, 0, pad + 96),
                 children: [
                   if (reportState.isLoading)
                     const Padding(
@@ -248,8 +253,16 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
                 ],
               ),
             ),
+                ),
+                Positioned(
+                  left: pad,
+                  right: pad,
+                  bottom: 12,
+                  child: _ActionBar(pad: pad),
+                ),
+              ],
+            ),
           ),
-          _ActionBar(pad: pad),
         ],
       ),
     );
@@ -1771,7 +1784,6 @@ class _ActionBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
     final s = S.of(context);
 
     // Seller faqat ruxsati bor amallarni ko'radi (owner barchasini).
@@ -1784,14 +1796,7 @@ class _ActionBar extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      padding: EdgeInsets.fromLTRB(pad, 12, pad, 16),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        border: Border(
-            top: BorderSide(color: cs.onSurface.withValues(alpha: 0.06))),
-      ),
-      child: Row(
+    return Row(
         children: [
           if (canProduce)
             Expanded(
@@ -1813,7 +1818,6 @@ class _ActionBar extends ConsumerWidget {
               ),
             ),
         ],
-      ),
     );
   }
 }
@@ -1833,7 +1837,18 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.35),
+            blurRadius: 14,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Material(
       color: color,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
@@ -1860,7 +1875,7 @@ class _ActionButton extends StatelessWidget {
           ),
         ),
       ),
+      ),
     );
   }
 }
-
