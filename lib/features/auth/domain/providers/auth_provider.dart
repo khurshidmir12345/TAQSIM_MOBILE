@@ -408,6 +408,36 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  /// Telefon almashtirish — 1-qadam: yangi raqamga kod yuboriladi.
+  Future<bool> sendPhoneChangeCode(String phone) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      await _repo.sendPhoneChangeCode(phone);
+      state = state.copyWith(isLoading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
+  /// Telefon almashtirish — 2-qadam: kod tasdiqlansagina raqam yangilanadi.
+  /// Xato bo'lsa `state.user` tegilmaydi — eski raqam o'z holida qoladi.
+  Future<bool> changePhone({
+    required String phone,
+    required String code,
+  }) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final user = await _repo.changePhone(phone: phone, code: code);
+      state = state.copyWith(isLoading: false, user: user);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return false;
+    }
+  }
+
   Future<bool> deleteAccount() async {
     state = state.copyWith(isLoading: true);
     try {

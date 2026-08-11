@@ -259,6 +259,37 @@ class AuthRepository {
     }
   }
 
+  /// Telefon raqamni almashtirish — 1-qadam: yangi raqamga kod yuboriladi.
+  /// Raqam band bo'lsa server SMS yubormasdan 422 qaytaradi.
+  Future<void> sendPhoneChangeCode(String phone) async {
+    try {
+      await apiClient.dio.post(
+        '/v1/auth/phone/send-code',
+        data: {'phone': phone},
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  /// Telefon raqamni almashtirish — 2-qadam: kod tasdiqlanadi.
+  /// Kod noto'g'ri bo'lsa xato qaytadi va eski raqam o'zgarmasdan qoladi.
+  Future<UserModel> changePhone({
+    required String phone,
+    required String code,
+  }) async {
+    try {
+      final response = await apiClient.dio.post('/v1/auth/phone', data: {
+        'phone': phone,
+        'code': code,
+      });
+      final data = _body(response)['data'] as Map<String, dynamic>;
+      return UserModel.fromJson(data['user'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   Future<void> deleteAccount() async {
     try {
       await apiClient.dio.delete('/v1/auth/account');

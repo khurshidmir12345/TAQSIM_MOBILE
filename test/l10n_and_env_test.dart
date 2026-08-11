@@ -33,7 +33,7 @@ void main() {
       // Kalit qo'shilganda yangilanadi. Asosiy kafolat quyida — barcha
       // tillarda kalit to'plami bir xil bo'lishi; bu son esa tasodifan
       // kalit o'chib ketishini ushlaydi.
-      expect(reference.length, 861);
+      expect(reference.length, 871);
 
       for (final entry in maps.entries) {
         expect(

@@ -209,6 +209,16 @@ class S {
   String get forgotPasswordNewSubtitle => _t('forgotPasswordNewSubtitle');
   String get forgotPasswordSendCode => _t('forgotPasswordSendCode');
   String get forgotPasswordSave => _t('forgotPasswordSave');
+  String get changePhoneTitle => _t('changePhoneTitle');
+  String get changePhoneAction => _t('changePhoneAction');
+  String get changePhoneCurrent => _t('changePhoneCurrent');
+  String get changePhoneNewTitle => _t('changePhoneNewTitle');
+  String get changePhoneNewSubtitle => _t('changePhoneNewSubtitle');
+  String get changePhoneCodeTitle => _t('changePhoneCodeTitle');
+  String get changePhoneSendCode => _t('changePhoneSendCode');
+  String get changePhoneConfirm => _t('changePhoneConfirm');
+  String get changePhoneNotice => _t('changePhoneNotice');
+  String get changePhoneSuccess => _t('changePhoneSuccess');
   String get newPasswordHint => _t('newPasswordHint');
 
   // ─── Kassa (yangi) ───
@@ -1393,6 +1403,16 @@ class S {
     'cashbox': 'Kassa',
     'forgotPassword': 'Parolni unutdingizmi?',
     'forgotPasswordTitle': 'Parolni tiklash',
+    'changePhoneTitle': 'Telefon raqamni o‘zgartirish',
+    'changePhoneAction': 'O‘zgartirish',
+    'changePhoneCurrent': 'Joriy raqam',
+    'changePhoneNewTitle': 'Yangi raqam',
+    'changePhoneNewSubtitle': 'Yangi raqamga tasdiqlash kodi yuboriladi.',
+    'changePhoneCodeTitle': 'Raqamni tasdiqlang',
+    'changePhoneSendCode': 'Kod yuborish',
+    'changePhoneConfirm': 'Tasdiqlash va saqlash',
+    'changePhoneNotice': 'Kod tasdiqlanmaguncha eski raqamingiz o‘zgarmaydi.',
+    'changePhoneSuccess': 'Telefon raqam o‘zgartirildi.',
     'forgotPasswordPhoneTitle': 'Telefon raqamingiz',
     'forgotPasswordPhoneSubtitle': "Ro'yxatdan o'tgan raqamingizni kiriting — SMS orqali kod yuboramiz.",
     'forgotPasswordCodeTitle': 'Tasdiqlash kodi',
@@ -2347,6 +2367,16 @@ class S {
     'cashbox': 'Касса',
     'forgotPassword': 'Паролни унутдингизми?',
     'forgotPasswordTitle': 'Паролни тиклаш',
+    'changePhoneTitle': 'Телефон рақамни ўзгартириш',
+    'changePhoneAction': 'Ўзгартириш',
+    'changePhoneCurrent': 'Жорий рақам',
+    'changePhoneNewTitle': 'Янги рақам',
+    'changePhoneNewSubtitle': 'Янги рақамга тасдиқлаш коди юборилади.',
+    'changePhoneCodeTitle': 'Рақамни тасдиқланг',
+    'changePhoneSendCode': 'Код юбориш',
+    'changePhoneConfirm': 'Тасдиқлаш ва сақлаш',
+    'changePhoneNotice': 'Код тасдиқланмагунча эски рақамингиз ўзгармайди.',
+    'changePhoneSuccess': 'Телефон рақам ўзгартирилди.',
     'forgotPasswordPhoneTitle': 'Телефон рақамингиз',
     'forgotPasswordPhoneSubtitle': 'Рўйхатдан ўтган рақамингизни киритинг — SMS орқали код юборамиз.',
     'forgotPasswordCodeTitle': 'Тасдиқлаш коди',
@@ -3291,6 +3321,16 @@ class S {
     'cashbox': 'Касса',
     'forgotPassword': 'Забыли пароль?',
     'forgotPasswordTitle': 'Восстановление пароля',
+    'changePhoneTitle': 'Изменение номера телефона',
+    'changePhoneAction': 'Изменить',
+    'changePhoneCurrent': 'Текущий номер',
+    'changePhoneNewTitle': 'Новый номер',
+    'changePhoneNewSubtitle': 'На новый номер придёт код подтверждения.',
+    'changePhoneCodeTitle': 'Подтвердите номер',
+    'changePhoneSendCode': 'Отправить код',
+    'changePhoneConfirm': 'Подтвердить и сохранить',
+    'changePhoneNotice': 'Пока код не подтверждён, старый номер остаётся прежним.',
+    'changePhoneSuccess': 'Номер телефона изменён.',
     'forgotPasswordPhoneTitle': 'Ваш номер телефона',
     'forgotPasswordPhoneSubtitle': 'Введите номер, на который зарегистрирован аккаунт — отправим код по SMS.',
     'forgotPasswordCodeTitle': 'Код подтверждения',
@@ -4235,6 +4275,16 @@ class S {
     'cashbox': 'Касса',
     'forgotPassword': 'Құпия сөзді ұмыттыңыз ба?',
     'forgotPasswordTitle': 'Құпия сөзді қалпына келтіру',
+    'changePhoneTitle': 'Телефон нөмірін өзгерту',
+    'changePhoneAction': 'Өзгерту',
+    'changePhoneCurrent': 'Ағымдағы нөмір',
+    'changePhoneNewTitle': 'Жаңа нөмір',
+    'changePhoneNewSubtitle': 'Жаңа нөмірге растау коды жіберіледі.',
+    'changePhoneCodeTitle': 'Нөмірді растаңыз',
+    'changePhoneSendCode': 'Код жіберу',
+    'changePhoneConfirm': 'Растау және сақтау',
+    'changePhoneNotice': 'Код расталмайынша, ескі нөміріңіз өзгермейді.',
+    'changePhoneSuccess': 'Телефон нөмірі өзгертілді.',
     'forgotPasswordPhoneTitle': 'Телефон нөміріңіз',
     'forgotPasswordPhoneSubtitle': 'Тіркелген нөміріңізді енгізіңіз — SMS арқылы код жібереміз.',
     'forgotPasswordCodeTitle': 'Растау коды',
@@ -5175,6 +5225,16 @@ class S {
     'cashbox': 'Касса',
     'forgotPassword': 'Сырсөздү унуттуңузбу?',
     'forgotPasswordTitle': 'Сырсөздү калыбына келтирүү',
+    'changePhoneTitle': 'Телефон номерин өзгөртүү',
+    'changePhoneAction': 'Өзгөртүү',
+    'changePhoneCurrent': 'Учурдагы номер',
+    'changePhoneNewTitle': 'Жаңы номер',
+    'changePhoneNewSubtitle': 'Жаңы номерге ырастоо коду жөнөтүлөт.',
+    'changePhoneCodeTitle': 'Номерди ырастаңыз',
+    'changePhoneSendCode': 'Код жөнөтүү',
+    'changePhoneConfirm': 'Ырастоо жана сактоо',
+    'changePhoneNotice': 'Код ырасталмайынча, эски номериңиз өзгөрбөйт.',
+    'changePhoneSuccess': 'Телефон номери өзгөртүлдү.',
     'forgotPasswordPhoneTitle': 'Телефон номериңиз',
     'forgotPasswordPhoneSubtitle': 'Катталган номериңизди киргизиңиз — SMS аркылуу код жөнөтөбүз.',
     'forgotPasswordCodeTitle': 'Ырастоо коду',
@@ -6115,6 +6175,16 @@ class S {
     'cashbox': 'Kasa',
     'forgotPassword': 'Şifrenizi mi unuttunuz?',
     'forgotPasswordTitle': 'Şifre sıfırlama',
+    'changePhoneTitle': 'Telefon numarasını değiştir',
+    'changePhoneAction': 'Değiştir',
+    'changePhoneCurrent': 'Mevcut numara',
+    'changePhoneNewTitle': 'Yeni numara',
+    'changePhoneNewSubtitle': 'Yeni numaraya doğrulama kodu gönderilecek.',
+    'changePhoneCodeTitle': 'Numarayı doğrulayın',
+    'changePhoneSendCode': 'Kod gönder',
+    'changePhoneConfirm': 'Doğrula ve kaydet',
+    'changePhoneNotice': 'Kod doğrulanana kadar eski numaranız değişmez.',
+    'changePhoneSuccess': 'Telefon numarası değiştirildi.',
     'forgotPasswordPhoneTitle': 'Telefon numaranız',
     'forgotPasswordPhoneSubtitle': 'Kayıtlı numaranızı girin — SMS ile kod göndereceğiz.',
     'forgotPasswordCodeTitle': 'Doğrulama kodu',

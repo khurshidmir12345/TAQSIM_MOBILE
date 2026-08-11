@@ -424,6 +424,15 @@ class _LoginMethodsCard extends StatelessWidget {
             value: user?.phone,
             active: hasPhone,
             readOnly: true,
+            editLabel: s.changePhoneAction,
+            // Raqam SMS bilan qayta tasdiqlanadi — shuning uchun alohida
+            // ekran, oddiy matn maydoni emas.
+            onEdit: hasPhone
+                ? () {
+                    HapticFeedback.selectionClick();
+                    context.push('/change-phone');
+                  }
+                : null,
           ),
           _Divider(cs: cs),
           _MethodRow(
@@ -475,6 +484,12 @@ class _MethodRow extends StatelessWidget {
   final VoidCallback? onConnect;
   final String? connectLabel;
 
+  /// When provided (and active), the row becomes tappable and shows a quiet
+  /// "change" pill — used by the phone row, which can be re-verified with a
+  /// new number.
+  final VoidCallback? onEdit;
+  final String? editLabel;
+
   const _MethodRow({
     required this.icon,
     required this.brandColor,
@@ -484,6 +499,8 @@ class _MethodRow extends StatelessWidget {
     required this.readOnly,
     this.onConnect,
     this.connectLabel,
+    this.onEdit,
+    this.editLabel,
   });
 
   @override
@@ -491,6 +508,7 @@ class _MethodRow extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final baseText = cs.onSurface;
     final canConnect = !active && onConnect != null;
+    final canEdit = active && onEdit != null;
 
     final labelColor = active
         ? baseText.withValues(alpha: 0.9)
@@ -548,7 +566,7 @@ class _MethodRow extends StatelessWidget {
               ],
             ),
           ),
-          if (active)
+          if (active) ...[
             Container(
               width: 8,
               height: 8,
@@ -563,24 +581,68 @@ class _MethodRow extends StatelessWidget {
                   ),
                 ],
               ),
-            )
-          else if (canConnect)
+            ),
+            if (canEdit) ...[
+              const SizedBox(width: 10),
+              _EditPill(label: editLabel ?? '', cs: cs),
+            ],
+          ] else if (canConnect)
             _ConnectPill(label: connectLabel ?? '', color: brandColor),
         ],
       ),
     );
 
-    if (canConnect) {
+    final onRowTap = canConnect ? onConnect : (canEdit ? onEdit : null);
+
+    if (onRowTap != null) {
       return Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onConnect,
+          onTap: onRowTap,
           borderRadius: BorderRadius.circular(14),
           child: content,
         ),
       );
     }
     return content;
+  }
+}
+
+/// Quiet pill shown on an active row that can still be changed.
+///
+/// Deliberately neutral (no brand color): changing a verified phone number is
+/// a rare, deliberate action — it should be findable, not inviting.
+class _EditPill extends StatelessWidget {
+  final String label;
+  final ColorScheme cs;
+  const _EditPill({required this.label, required this.cs});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = cs.onSurface.withValues(alpha: 0.55);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: cs.onSurface.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.edit_outlined, color: color, size: 13),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
