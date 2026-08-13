@@ -28,18 +28,15 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
       _ForgotPasswordScreenState();
 }
 
-enum _Step { phone, code, password }
+enum _Step { phone, code }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmController = TextEditingController();
   final _otpKey = GlobalKey<OtpInputState>();
 
   _Step _step = _Step.phone;
   String _fullPhone = '';
   String _code = '';
-  bool _obscure = true;
   bool _sending = false;
   String? _error;
 
@@ -50,16 +47,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   void initState() {
     super.initState();
     _phoneController.addListener(() => setState(() {}));
-    _passwordController.addListener(() => setState(() {}));
-    _confirmController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _timer?.cancel();
     _phoneController.dispose();
-    _passwordController.dispose();
-    _confirmController.dispose();
     super.dispose();
   }
 
@@ -112,35 +105,27 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     _startCountdown();
   }
 
-  void _onCodeCompleted(String code) {
+  /// Kod tasdiqlanishi bilan tizimga kiriladi — parol shu yerda so'ralmaydi.
+  ///
+  /// Ilgari shu joydan parol qadamiga o'tilardi va foydalanuvchi ikki marta
+  /// parol yozguncha kodning 2 daqiqasi o'tib ketardi. Endi parol ilova
+  /// ichida, shoshilmasdan qo'yiladi.
+  Future<void> _onCodeCompleted(String code) async {
+    FocusScope.of(context).unfocus();
     setState(() {
       _code = code;
       _error = null;
-      _step = _Step.password;
     });
-  }
-
-  Future<void> _submitPassword() async {
-    if (!_passwordsValid) return;
-
-    FocusScope.of(context).unfocus();
-    setState(() => _error = null);
 
     final ok = await ref
         .read(authProvider.notifier)
-        .resetPassword(
-          phone: _fullPhone,
-          code: _code,
-          password: _passwordController.text,
-        );
+        .loginWithCode(phone: _fullPhone, code: code);
 
     if (!mounted) return;
 
     if (!ok) {
-      // Kod noto'g'ri bo'lsa qayta kiritish kerak — kod qadamiga qaytamiz.
       setState(() {
         _error = ref.read(authProvider).error;
-        _step = _Step.code;
         _code = '';
       });
       _otpKey.currentState?.clear();
@@ -148,16 +133,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       return;
     }
 
-    await ref.read(shopProvider.notifier).loadShops();
-
-    if (!mounted) return;
-
-    HapticFeedback.mediumImpact();
-    final shops = ref.read(shopProvider).shops;
-
-    if (!context.mounted) return;
-
-    context.go(shops.isEmpty ? '/shop-select' : '/shell');
+    // Router `mustSetPassword` ni ko'rib parol o'rnatish ekraniga o'tkazadi.
   }
 
   void _back() {
@@ -169,17 +145,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     setState(() {
       _error = null;
-      _step = _step == _Step.password ? _Step.code : _Step.phone;
+      _step = _Step.phone;
     });
   }
 
   // ─── Tekshiruvlar ──────────────────────────────────────────────────────
 
-  static const _minPassword = 6;
-
-  bool get _passwordsValid =>
-      _passwordController.text.length >= _minPassword &&
-      _passwordController.text == _confirmController.text;
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +195,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       switch (_step) {
                         _Step.phone => s.forgotPasswordPhoneTitle,
                         _Step.code => s.forgotPasswordCodeTitle,
-                        _Step.password => s.forgotPasswordNewTitle,
                       },
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w800,
@@ -235,7 +205,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       switch (_step) {
                         _Step.phone => s.forgotPasswordPhoneSubtitle,
                         _Step.code => s.otpSentTo(_fullPhone),
-                        _Step.password => s.forgotPasswordNewSubtitle,
                       },
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
@@ -253,18 +222,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       label: switch (_step) {
                         _Step.phone => s.forgotPasswordSendCode,
                         _Step.code => s.continueWizard,
-                        _Step.password => s.forgotPasswordSave,
                       },
                       enabled: switch (_step) {
                         _Step.phone => _phoneController.text.trim().isNotEmpty,
                         _Step.code => _code.length >= 4,
-                        _Step.password => _passwordsValid,
                       },
                       isLoading: isLoading,
                       onTap: switch (_step) {
                         _Step.phone => _sendCode,
                         _Step.code => () => _onCodeCompleted(_code),
-                        _Step.password => _submitPassword,
                       },
                     ),
                     if (_step == _Step.code) ...[
@@ -299,45 +265,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           onChanged: (code) => setState(() => _code = code),
           onCompleted: _onCodeCompleted,
         ),
-      ],
-      _Step.password => [
-        TextField(
-          controller: _passwordController,
-          obscureText: _obscure,
-          autofocus: true,
-          textInputAction: TextInputAction.next,
-          decoration: InputDecoration(
-            hintText: s.newPasswordHint,
-            prefixIcon: const Icon(Icons.lock_outline_rounded),
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscure
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
-              ),
-              onPressed: () => setState(() => _obscure = !_obscure),
-            ),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        TextField(
-          controller: _confirmController,
-          obscureText: _obscure,
-          textInputAction: TextInputAction.done,
-          onSubmitted: (_) => _submitPassword(),
-          decoration: InputDecoration(
-            hintText: s.confirmPasswordHint,
-            prefixIcon: const Icon(Icons.lock_reset_rounded),
-          ),
-        ),
-        if (_confirmController.text.isNotEmpty &&
-            _passwordController.text != _confirmController.text) ...[
-          const SizedBox(height: 8),
-          Text(
-            s.passwordsNotMatch,
-            style: const TextStyle(color: AppColors.error, fontSize: 12.5),
-          ),
-        ],
       ],
     };
   }

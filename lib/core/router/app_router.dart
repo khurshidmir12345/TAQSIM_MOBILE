@@ -30,6 +30,7 @@ import '../../features/profile/presentation/screens/change_phone_screen.dart';
 import '../../features/profile/presentation/screens/profile_info_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/telegram_connect_screen.dart';
+import '../../features/profile/presentation/screens/change_password_screen.dart';
 import '../../features/profile/presentation/screens/devices_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
@@ -90,6 +91,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       if (authState.status == AuthStatus.authenticated) {
+        // SMS kodi bilan kirib, parolni hali qo'ymagan bo'lsa — avval shuni
+        // tugatadi. SMS kod qayta so'ralmaydi, u allaqachon tizimda.
+        if (authState.user?.mustSetPassword == true &&
+            location != '/change-password') {
+          return '/change-password';
+        }
+
         if (isOnSplash || isOnAuth) {
           final shopState = ref.read(shopProvider);
           // Biznes tanlangan bo'lsa — to'g'ri asosiy sahifaga (/shell).
@@ -216,6 +224,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/devices',
         builder: (context, state) => const DevicesScreen(),
+      ),
+      GoRoute(
+        path: '/change-password',
+        builder: (context, state) => const ChangePasswordScreen(),
       ),
       GoRoute(
         path: '/notifications',

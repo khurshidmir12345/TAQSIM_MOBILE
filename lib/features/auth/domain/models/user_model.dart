@@ -15,6 +15,14 @@ class UserModel {
   final String? locale;
   final String? createdAt;
 
+  /// Foydalanuvchida parol bormi. Google/Telegram orqali kirganlarda yo'q —
+  /// ularda parol o'rnatishda "eski parol" so'ralmaydi.
+  final bool hasPassword;
+
+  /// SMS kodi bilan kirgan, lekin parolni hali qo'ymagan. Shu turgan ekan
+  /// ilova har kirganda parol o'rnatish ekranini ko'rsatadi.
+  final bool mustSetPassword;
+
   const UserModel({
     required this.id,
     this.name,
@@ -29,6 +37,8 @@ class UserModel {
     this.avatarUrl,
     this.locale,
     this.createdAt,
+    this.hasPassword = true,
+    this.mustSetPassword = false,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +56,10 @@ class UserModel {
       avatarUrl: json['avatar_url'] as String?,
       locale: json['locale'] as String?,
       createdAt: json['created_at'] as String?,
+      // Eski serverlar bu maydonlarni qaytarmasligi mumkin — parol bor deb
+      // hisoblanadi, ya'ni avvalgi xatti-harakat saqlanadi.
+      hasPassword: json['has_password'] as bool? ?? true,
+      mustSetPassword: json['must_set_password'] as bool? ?? false,
     );
   }
 

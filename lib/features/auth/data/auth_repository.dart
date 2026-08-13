@@ -100,6 +100,33 @@ class AuthRepository {
     }
   }
 
+  /// SMS kodi bilan kirish — parolni unutganlar uchun.
+  ///
+  /// Parol shu yerda so'ralmaydi: kod tasdiqlanishi bilan foydalanuvchi
+  /// tizimga kiradi, parolni keyin ilova ichida shoshilmasdan qo'yadi.
+  Future<({UserModel user, String token})> loginWithCode({
+    required String phone,
+    required String code,
+  }) async {
+    try {
+      final response = await apiClient.dio.post(
+        '/v1/auth/login-with-code',
+        data: {'phone': phone, 'code': code},
+      );
+
+      final data = _body(response)['data'] as Map<String, dynamic>;
+      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      final token = data['token'] as String;
+
+      await _saveToken(token);
+      apiClient.setToken(token);
+
+      return (user: user, token: token);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   /// Parolni tiklash: SMS kodi tasdiqlanadi va yangi parol o'rnatiladi.
   /// Server darhol token qaytaradi — foydalanuvchi qayta login qilmaydi.
   Future<({UserModel user, String token})> resetPassword({
@@ -239,13 +266,18 @@ class AuthRepository {
     }
   }
 
+  /// Parolni o'rnatadi.
+  ///
+  /// [currentPassword] ixtiyoriy: parolni unutib SMS kodi bilan kirgan yoki
+  /// umuman parolsiz (Google/Telegram) foydalanuvchida eski parol bo'lmaydi.
+  /// Server ham uni shu holatlarda talab qilmaydi.
   Future<String> changePassword({
-    required String currentPassword,
+    String? currentPassword,
     required String newPassword,
   }) async {
     try {
       final response = await apiClient.dio.put('/v1/auth/password', data: {
-        'current_password': currentPassword,
+        'current_password': ?currentPassword,
         'password': newPassword,
         'password_confirmation': newPassword,
       });

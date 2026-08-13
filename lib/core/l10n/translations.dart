@@ -949,6 +949,13 @@ class S {
   String get statsTrueCostTitle => _t('statsTrueCostTitle');
   String get statsTrueCostInfoTitle => _t('statsTrueCostInfoTitle');
   String get statsTrueCostInfoBody => _t('statsTrueCostInfoBody');
+  String get changePasswordTitle => _t('changePasswordTitle');
+  String get changePasswordMenuDesc => _t('changePasswordMenuDesc');
+  String get setPasswordTitle => _t('setPasswordTitle');
+  String get setPasswordHint => _t('setPasswordHint');
+  String get currentPasswordHint => _t('currentPasswordHint');
+  String get passwordChangedSuccess => _t('passwordChangedSuccess');
+  String get passwordMinHint => _t('passwordMinHint');
   String get devicesTitle => _t('devicesTitle');
   String get devicesMenuDesc => _t('devicesMenuDesc');
   String get devicesEmptyTitle => _t('devicesEmptyTitle');
@@ -1151,6 +1158,13 @@ class S {
   };
 
   static const _uz = {
+    'changePasswordTitle': "Parolni o'zgartirish",
+    'changePasswordMenuDesc': "Kirish parolini yangilash",
+    'setPasswordTitle': "Parol o'rnatish",
+    'setPasswordHint': "Tizimga kirdingiz. Endi yangi parol o'rnating — keyingi safar shu parol bilan kirasiz.",
+    'currentPasswordHint': "Joriy parol",
+    'passwordChangedSuccess': "Parol o'zgartirildi",
+    'passwordMinHint': "Kamida 6 belgi",
     'statsChartTitle': "Oxirgi 30 kun",
     'statsIncome': "Daromad",
     'statsExpense': "Xarajat",
@@ -2132,6 +2146,13 @@ class S {
   };
 
   static const _uzCyrl = {
+    'changePasswordTitle': "Паролни ўзгартириш",
+    'changePasswordMenuDesc': "Кириш паролини янгилаш",
+    'setPasswordTitle': "Парол ўрнатиш",
+    'setPasswordHint': "Тизимга кирдингиз. Энди янги парол ўрнатинг — кейинги сафар шу парол билан кирасиз.",
+    'currentPasswordHint': "Жорий парол",
+    'passwordChangedSuccess': "Парол ўзгартирилди",
+    'passwordMinHint': "Камида 6 белги",
     'statsChartTitle': "Охирги 30 кун",
     'statsIncome': "Даромад",
     'statsExpense': "Харажат",
@@ -3101,6 +3122,13 @@ class S {
   };
 
   static const _ru = {
+    'changePasswordTitle': "Смена пароля",
+    'changePasswordMenuDesc': "Обновить пароль для входа",
+    'setPasswordTitle': "Установка пароля",
+    'setPasswordHint': "Вы вошли в систему. Теперь задайте новый пароль — в следующий раз входите с ним.",
+    'currentPasswordHint': "Текущий пароль",
+    'passwordChangedSuccess': "Пароль изменён",
+    'passwordMinHint': "Минимум 6 символов",
     'statsChartTitle': "Последние 30 дней",
     'statsIncome': "Доход",
     'statsExpense': "Расход",
@@ -4070,6 +4098,13 @@ class S {
   };
 
   static const _kk = {
+    'changePasswordTitle': "Құпия сөзді өзгерту",
+    'changePasswordMenuDesc': "Кіру құпия сөзін жаңарту",
+    'setPasswordTitle': "Құпия сөз орнату",
+    'setPasswordHint': "Жүйеге кірдіңіз. Енді жаңа құпия сөз орнатыңыз — келесі жолы сонымен кіресіз.",
+    'currentPasswordHint': "Ағымдағы құпия сөз",
+    'passwordChangedSuccess': "Құпия сөз өзгертілді",
+    'passwordMinHint': "Кемінде 6 таңба",
     'statsChartTitle': "Соңғы 30 күн",
     'statsIncome': "Табыс",
     'statsExpense': "Шығыс",
@@ -5036,6 +5071,13 @@ class S {
   };
 
   static const _ky = {
+    'changePasswordTitle': "Сырсөздү өзгөртүү",
+    'changePasswordMenuDesc': "Кирүү сырсөзүн жаңылоо",
+    'setPasswordTitle': "Сырсөз коюу",
+    'setPasswordHint': "Тутумга кирдиңиз. Эми жаңы сырсөз коюңуз — кийинки жолу ошону менен кирesiз.",
+    'currentPasswordHint': "Учурдагы сырсөз",
+    'passwordChangedSuccess': "Сырсөз өзгөртүлдү",
+    'passwordMinHint': "Эң аз дегенде 6 белги",
     'statsChartTitle': "Акыркы 30 күн",
     'statsIncome': "Киреше",
     'statsExpense': "Чыгаша",
@@ -6003,6 +6045,13 @@ class S {
   };
 
   static const _tr = {
+    'changePasswordTitle': "Şifre değiştir",
+    'changePasswordMenuDesc': "Giriş şifresini güncelle",
+    'setPasswordTitle': "Şifre belirle",
+    'setPasswordHint': "Giriş yaptınız. Şimdi yeni bir şifre belirleyin — bir dahaki sefere onunla girersiniz.",
+    'currentPasswordHint': "Mevcut şifre",
+    'passwordChangedSuccess': "Şifre değiştirildi",
+    'passwordMinHint': "En az 6 karakter",
     'statsChartTitle': "Son 30 gün",
     'statsIncome': "Gelir",
     'statsExpense': "Gider",

@@ -106,6 +106,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ref.watch(unreadNotificationsProvider).value ?? 0,
                     onTap: () => context.push('/notifications'),
                   ),
+                  // Parolni o'zgartirish / o'rnatish.
+                  _MenuItem(
+                    icon: Icons.lock_outline_rounded,
+                    title: s.changePasswordTitle,
+                    subtitle: s.changePasswordMenuDesc,
+                    iconBg: cs.primary.withValues(alpha: 0.1),
+                    iconColor: cs.primary,
+                    onTap: () => context.push('/change-password'),
+                  ),
                   // Qurilmalar (multi-device) — har bir foydalanuvchiga ko'rinadi.
                   _MenuItem(
                     icon: Icons.devices_other_rounded,

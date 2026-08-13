@@ -168,6 +168,33 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   /// Yangi parol o'rnatiladi va foydalanuvchi darhol tizimga kiradi.
+  /// SMS kodi bilan kirish — parolni unutganlar uchun.
+  ///
+  /// Kod tasdiqlanishi bilan foydalanuvchi tizimga kiradi. Parol keyin,
+  /// ilova ichida qo'yiladi (`user.mustSetPassword` shuni bildiradi).
+  Future<bool> loginWithCode({
+    required String phone,
+    required String code,
+  }) async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      final result = await _repo.loginWithCode(phone: phone, code: code);
+
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        user: result.user,
+        isLoading: false,
+      );
+
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+
+      return false;
+    }
+  }
+
   Future<bool> resetPassword({
     required String phone,
     required String code,
@@ -390,8 +417,12 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  /// Parolni o'rnatadi.
+  ///
+  /// [currentPassword] `null` bo'lishi mumkin: parolni unutib kod bilan
+  /// kirgan yoki umuman parolsiz foydalanuvchida eski parol bo'lmaydi.
   Future<bool> changePassword({
-    required String currentPassword,
+    String? currentPassword,
     required String newPassword,
   }) async {
     state = state.copyWith(isLoading: true);
@@ -400,7 +431,16 @@ class AuthNotifier extends Notifier<AuthState> {
         currentPassword: currentPassword,
         newPassword: newPassword,
       );
-      state = state.copyWith(isLoading: false);
+
+      // Server `must_set_password` belgisini tozalaydi — yangi holatni
+      // olamiz, aks holda ilova parol o'rnatish ekranini qayta ko'rsatardi.
+      final refreshed = await _repo.me();
+
+      state = state.copyWith(
+        user: refreshed,
+        isLoading: false,
+      );
+
       return true;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
