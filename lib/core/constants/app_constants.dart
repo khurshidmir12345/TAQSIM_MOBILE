@@ -11,16 +11,17 @@ abstract final class AppConstants {
 
   /// Release build definessiz yig'ilganda dev API'ga ulansinmi.
   ///
-  /// ⚠️ **HOZIR `true` — VAQTINCHA, bildirishnomalarni TestFlight'da sinash
-  /// uchun.** Bildirishnoma backend'i faqat dev serverda turibdi.
+  /// **App Store / Play Store'ga chiqadigan build'da doim `false`.** Aks holda
+  /// do'kondagi ilova dev serverga ulanib qoladi — 2026-08-04 da aynan shu
+  /// bo'lgan edi.
   ///
-  /// **App Store'ga chiqarishdan oldin `false` ga qaytarilishi SHART.**
-  /// Aks holda do'kondagi ilova dev serverga ulanib qoladi — 2026-08-04 da
-  /// aynan shu bo'lgan edi.
+  /// Sinash uchun vaqtincha `true` qilingan bo'lsa, yuborishdan oldin qaytarish
+  /// SHART. Tekshirish oson: `true` bo'lganda ilovada **DEV banneri** ko'rinadi.
+  /// Banner ko'rinsa — do'konga yubormang.
   ///
-  /// Tekshirish oson: `true` bo'lganda ilovada **DEV banneri** ko'rinadi.
-  /// Banner ko'rinsa — App Store'ga yubormang.
-  static const bool defaultToDev = true;
+  /// Dev build kerak bo'lsa buni o'zgartirmang — `--dart-define=APP_ENV=dev`
+  /// (yoki `scripts/build-dev-apk.sh`) ishlating.
+  static const bool defaultToDev = false;
 
   // Aniq override (ixtiyoriy): flutter run --dart-define=API_BASE_URL=...
   static const String _overrideBaseUrl = String.fromEnvironment('API_BASE_URL');
