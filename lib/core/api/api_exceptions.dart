@@ -43,7 +43,12 @@ class ApiException implements Exception {
         );
       case DioExceptionType.badResponse:
         final data = e.response?.data;
-        final raw = data is Map ? data['message'] : null;
+
+        // 422 da `message` doim umumiy ("Ma'lumotlar noto'g'ri"), aniq sabab
+        // esa `errors` ichida bo'ladi. Ilgari faqat `message` ko'rsatilardi va
+        // foydalanuvchi nima xato ekanini bilmasdi — masalan kod eskirganini.
+        final fieldError = _firstFieldError(data);
+        final raw = fieldError ?? (data is Map ? data['message'] : null);
         final text = raw?.toString().trim();
         final message = (text != null && text.isNotEmpty)
             ? text
@@ -65,6 +70,30 @@ class ApiException implements Exception {
           message: S.apiClientString(loc, 'apiClientUnexpected'),
         );
     }
+  }
+
+  /// Laravel validatsiya javobidagi birinchi maydon xatosi.
+  ///
+  /// Shakli: `{"errors": {"code": ["Kod noto'g'ri..."]}}`.
+  /// Topilmasa `null` — chaqiruvchi umumiy xabarga qaytadi.
+  static String? _firstFieldError(dynamic data) {
+    if (data is! Map) return null;
+
+    final errors = data['errors'];
+
+    if (errors is! Map) return null;
+
+    for (final value in errors.values) {
+      if (value is List && value.isNotEmpty) {
+        final first = value.first?.toString().trim();
+
+        if (first != null && first.isNotEmpty) return first;
+      } else if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
+
+    return null;
   }
 
   @override
