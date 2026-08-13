@@ -9,14 +9,14 @@ import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_retry_widget.dart';
+import '../../../../core/widgets/segmented_tabs.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../domain/models/statistics_model.dart';
 import '../../domain/providers/statistics_provider.dart';
 import '../widgets/stats_line_chart.dart';
 
-/// Statistika — ataylab sodda: bitta grafik, bitta summalar kartasi va
-/// mahsulotning asl tannarxi. Davr tanlagichlari yo'q, grafikning o'zi
-/// sanalarni ko'rsatadi.
+/// Statistika — ataylab sodda: davr tanlovi, bitta grafik, bitta summalar
+/// kartasi va mahsulotning asl tannarxi.
 class StatisticsScreen extends ConsumerWidget {
   const StatisticsScreen({super.key});
 
@@ -25,6 +25,7 @@ class StatisticsScreen extends ConsumerWidget {
     final s = S.of(context);
     final pad = Responsive.horizontalPadding(context);
     final async = ref.watch(statisticsProvider);
+    final period = ref.watch(statsPeriodProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -36,63 +37,92 @@ class StatisticsScreen extends ConsumerWidget {
         ),
         centerTitle: true,
       ),
-      body: async.when(
-        loading: () => const AppLoading(),
-        error: (_, _) => ErrorRetryWidget(
-          message: s.noInternet,
-          onRetry: () => ref.read(statisticsProvider.notifier).refresh(),
-        ),
-        data: (stats) {
-          if (stats.isEmpty) {
-            return RefreshIndicator(
-              onRefresh: () => ref.read(statisticsProvider.notifier).refresh(),
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(height: MediaQuery.sizeOf(context).height * 0.15),
-                  EmptyStateWidget(
-                    icon: Icons.insert_chart_outlined_rounded,
-                    title: s.noData,
-                    subtitle: s.statsEmptyDesc,
-                  ),
-                ],
-              ),
-            );
-          }
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(pad, 4, pad, 8),
+            child: SegmentedTabs<StatsPeriod>(
+              tabs: StatsPeriod.values,
+              labelOf: (p) => switch (p) {
+                StatsPeriod.all => s.periodAll,
+                StatsPeriod.month => s.monthly,
+                StatsPeriod.day => s.daily,
+              },
+              selected: period,
+              // Provider davrni kuzatadi — o'zgarsa o'zi qayta yuklaydi.
+              onChanged: ref.read(statsPeriodProvider.notifier).set,
+            ),
+          ),
+          Expanded(child: _body(context, ref, s, pad, async)),
+        ],
+      ),
+    );
+  }
 
-          final money = _MoneyFormat(context, ref);
-
+  Widget _body(
+    BuildContext context,
+    WidgetRef ref,
+    S s,
+    double pad,
+    AsyncValue<StatisticsModel> async,
+  ) {
+    return async.when(
+      loading: () => const AppLoading(),
+      error: (_, _) => ErrorRetryWidget(
+        message: s.noInternet,
+        onRetry: () => ref.read(statisticsProvider.notifier).refresh(),
+      ),
+      data: (stats) {
+        if (stats.isEmpty) {
           return RefreshIndicator(
             onRefresh: () => ref.read(statisticsProvider.notifier).refresh(),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(pad, 12, pad, 32),
               children: [
-                _Card(
-                  title: s.statsChartTitle,
-                  child: StatsLineChart(
-                    series: stats.series,
-                    incomeLabel: s.statsIncome,
-                    expenseLabel: s.statsExpense,
-                    profitLabel: s.statsProfit,
-                    moneySuffix: money.suffix,
-                  ),
+                SizedBox(height: MediaQuery.sizeOf(context).height * 0.12),
+                EmptyStateWidget(
+                  icon: Icons.insert_chart_outlined_rounded,
+                  title: s.noData,
+                  subtitle: s.statsEmptyDesc,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                _TotalsCard(totals: stats.totals, s: s, money: money),
-                if (stats.products.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  _TrueCostCard(
-                    products: stats.products,
-                    s: s,
-                    money: money,
-                  ),
-                ],
               ],
             ),
           );
-        },
-      ),
+        }
+
+        final money = _MoneyFormat(context, ref);
+
+        return RefreshIndicator(
+          onRefresh: () => ref.read(statisticsProvider.notifier).refresh(),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.fromLTRB(pad, 4, pad, 32),
+            children: [
+              _Card(
+                title: s.statsChartTitle,
+                child: StatsLineChart(
+                  series: stats.series,
+                  isMonthly: stats.isMonthly,
+                  incomeLabel: s.statsIncome,
+                  expenseLabel: s.statsExpense,
+                  profitLabel: s.statsProfit,
+                  moneySuffix: money.suffix,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _TotalsCard(totals: stats.totals, s: s, money: money),
+              if (stats.products.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                _TrueCostCard(
+                  products: stats.products,
+                  s: s,
+                  money: money,
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

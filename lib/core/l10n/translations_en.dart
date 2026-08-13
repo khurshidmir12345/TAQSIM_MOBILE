@@ -950,6 +950,7 @@ const Map<String, String> kEnTranslations = {
   'walletTitle': 'Wallet',
   'website': 'Website',
   'weekly': 'Weekly',
+  'periodAll': 'All',
   'welcomeBack': 'Welcome back!',
   'yearlyNotAvailable': 'Yearly subscriptions unavailable',
   'yearlyNotAvailableDesc': 'Yearly plans are not available yet.',

@@ -3,6 +3,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:taqseem/features/statistics/domain/models/statistics_model.dart';
 
 void main() {
+  group('granularity', () {
+    test("oylik javobda nuqtalar oy bo'yicha deb belgilanadi", () {
+      final m = StatisticsModel.fromJson(const {'granularity': 'month'});
+
+      expect(m.isMonthly, isTrue);
+    });
+
+    test('kunlik — standart holat', () {
+      expect(StatisticsModel.fromJson(const {}).isMonthly, isFalse);
+      expect(
+        StatisticsModel.fromJson(const {'granularity': 'day'}).isMonthly,
+        isFalse,
+      );
+    });
+  });
+
   group('StatisticsModel', () {
     test('serverdan kelgan javob to‘liq o‘qiladi', () {
       final m = StatisticsModel.fromJson(const {

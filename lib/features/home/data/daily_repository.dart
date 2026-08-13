@@ -364,11 +364,12 @@ class DailyRepository {
     String shopId, {
     String? from,
     String? to,
+    String? period,
   }) async {
     try {
       final res = await _apiClient.dio.get(
         '${_shopPath(shopId)}/reports/statistics',
-        queryParameters: {'from': ?from, 'to': ?to},
+        queryParameters: {'from': ?from, 'to': ?to, 'period': ?period},
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
       return StatisticsModel.fromJson(

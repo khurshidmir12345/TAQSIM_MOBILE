@@ -263,6 +263,9 @@ class S {
   // ─── Statistics ───
   String get daily => _t('daily');
   String get weekly => _t('weekly');
+
+  /// Kassa va statistika sahifalarida butun davrni qamrovchi tanlov.
+  String get periodAll => _t('periodAll');
   String get monthly => _t('monthly');
   String get loss => _t('loss');
   String get noData => _t('noData');
@@ -1557,6 +1560,7 @@ class S {
     'expenseCategoriesLoadError': 'Kategoriyalar yuklanmadi',
     'daily': 'Kunlik',
     'weekly': 'Haftalik',
+    'periodAll': 'Barchasi',
     'monthly': 'Oylik',
     'loss': 'Zarar',
     'noData': 'Ma\'lumot yo\'q',
@@ -2543,6 +2547,7 @@ class S {
     'expenseCategoriesLoadError': 'Юкланмади',
     'daily': 'Кунлик',
     'weekly': 'Ҳафталик',
+    'periodAll': 'Барчаси',
     'monthly': 'Ойлик',
     'loss': 'Зарар',
     'noData': 'Маълумот йўқ',
@@ -3520,6 +3525,7 @@ class S {
     'expenseCategoriesLoadError': 'Не удалось загрузить',
     'daily': 'Дневной',
     'weekly': 'Недельный',
+    'periodAll': 'Все',
     'monthly': 'Месячный',
     'loss': 'Убыток',
     'noData': 'Нет данных',
@@ -4497,6 +4503,7 @@ class S {
     'expenseCategoriesLoadError': 'Жүктелмеді',
     'daily': 'Күнделікті',
     'weekly': 'Апталық',
+    'periodAll': 'Барлығы',
     'monthly': 'Айлық',
     'loss': 'Шығын',
     'noData': 'Деректер жоқ',
@@ -5470,6 +5477,7 @@ class S {
     'expenseCategoriesLoadError': 'Жүктөлбөй калды',
     'daily': 'Күндүк',
     'weekly': 'Жумалык',
+    'periodAll': 'Баары',
     'monthly': 'Айлык',
     'loss': 'Зыян',
     'noData': 'Маалымат жок',
@@ -6443,6 +6451,7 @@ class S {
     'expenseCategoriesLoadError': 'Yüklenemedi',
     'daily': 'Günlük',
     'weekly': 'Haftalık',
+    'periodAll': 'Tümü',
     'monthly': 'Aylık',
     'loss': 'Zarar',
     'noData': 'Veri yok',

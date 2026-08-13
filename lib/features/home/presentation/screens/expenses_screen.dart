@@ -13,6 +13,7 @@ import '../../../../core/utils/time_format.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_retry_widget.dart';
+import '../../../../core/widgets/segmented_tabs.dart';
 import '../../../../core/widgets/time_badge.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../domain/models/daily_report_model.dart';
@@ -33,7 +34,7 @@ class ExpensesScreen extends ConsumerStatefulWidget {
   ExpensesScreenState createState() => ExpensesScreenState();
 }
 
-enum _CashPeriod { day, week, month }
+enum _CashPeriod { all, month, day }
 
 class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
   _CashPeriod _period = _CashPeriod.day;
@@ -57,12 +58,18 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
     final today = DateTime(now.year, now.month, now.day);
     return switch (_period) {
       _CashPeriod.day => (from: today, to: today),
-      _CashPeriod.week => (
-          from: today.subtract(Duration(days: today.weekday - 1)),
-          to: today,
-        ),
       _CashPeriod.month => (from: DateTime(now.year, now.month), to: today),
+      // "Barchasi" — do'kon ochilgan kundan buyon. Sana noma'lum bo'lsa
+      // ataylab uzoq o'tmish olinadi: ortiqcha oraliq natijani buzmaydi.
+      _CashPeriod.all => (from: _shopStart(), to: today),
     };
+  }
+
+  DateTime _shopStart() {
+    final raw = ref.read(shopProvider).selected?.createdAt;
+    final parsed = raw == null ? null : DateTime.tryParse(raw);
+
+    return parsed == null ? DateTime(2020) : DateTime(parsed.year, parsed.month, parsed.day);
   }
 
   String _ymd(DateTime d) => d.toIso8601String().split('T').first;
@@ -139,7 +146,6 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
 
   void _setPeriod(_CashPeriod p) {
     if (p == _period) return;
-    HapticFeedback.selectionClick();
     setState(() => _period = p);
     _load();
   }
@@ -168,11 +174,15 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(pad, 4, pad, 8),
-              child: _PeriodSelector(
-                period: _period,
+              child: SegmentedTabs<_CashPeriod>(
+                tabs: _CashPeriod.values,
+                labelOf: (p) => switch (p) {
+                  _CashPeriod.all => s.periodAll,
+                  _CashPeriod.month => s.monthly,
+                  _CashPeriod.day => s.daily,
+                },
+                selected: _period,
                 onChanged: _setPeriod,
-                cs: cs,
-                isDark: isDark,
               ),
             ),
             Expanded(
@@ -202,77 +212,6 @@ class ExpensesScreenState extends ConsumerState<ExpensesScreen> {
               icon: const Icon(Icons.add_rounded),
               label: Text(s.addExpense),
             ),
-    );
-  }
-}
-
-class _PeriodSelector extends StatelessWidget {
-  const _PeriodSelector({
-    required this.period,
-    required this.onChanged,
-    required this.cs,
-    required this.isDark,
-  });
-
-  final _CashPeriod period;
-  final ValueChanged<_CashPeriod> onChanged;
-  final ColorScheme cs;
-  final bool isDark;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final items = <(_CashPeriod, String)>[
-      (_CashPeriod.day, s.daily),
-      (_CashPeriod.week, s.weekly),
-      (_CashPeriod.month, s.monthly),
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: isDark ? 0.3 : 0.6),
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-      ),
-      child: Row(
-        children: [
-          for (final (p, label) in items)
-            Expanded(
-              child: GestureDetector(
-                onTap: () => onChanged(p),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  curve: Curves.easeOut,
-                  padding: const EdgeInsets.symmetric(vertical: 9),
-                  decoration: BoxDecoration(
-                    color: p == period ? cs.surface : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: p == period && !isDark
-                        ? [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      color: p == period
-                          ? cs.primary
-                          : cs.onSurface.withValues(alpha: 0.55),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

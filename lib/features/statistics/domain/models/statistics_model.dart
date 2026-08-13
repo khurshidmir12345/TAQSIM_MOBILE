@@ -99,14 +99,22 @@ class StatisticsModel {
   final StatTotals totals;
   final List<ProductTrueCost> products;
 
+  /// Grafik nuqtalari kunlar bo'yichami yoki oylar bo'yichami.
+  ///
+  /// Uzun oraliqda server nuqtalarni oylarga guruhlaydi — o'q yorliqlari
+  /// shunga qarab "12-avg" yoki "avgust" ko'rinishida yoziladi.
+  final bool isMonthly;
+
   const StatisticsModel({
     this.series = const [],
     this.totals = const StatTotals(),
     this.products = const [],
+    this.isMonthly = false,
   });
 
   factory StatisticsModel.fromJson(Map<String, dynamic> json) {
     return StatisticsModel(
+      isMonthly: json['granularity'] == 'month',
       series: (json['series'] as List<dynamic>? ?? const [])
           .map((e) => StatPoint.fromJson(e as Map<String, dynamic>))
           .toList(),

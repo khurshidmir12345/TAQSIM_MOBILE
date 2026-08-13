@@ -8,6 +8,7 @@ import '../../../../core/l10n/translations.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_retry_widget.dart';
+import '../../../../core/widgets/segmented_tabs.dart';
 import '../../../../core/widgets/skeleton_loader.dart';
 import '../../domain/models/customer_order_model.dart';
 import '../../domain/providers/order_provider.dart';
@@ -127,7 +128,7 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: pad),
-                child: _SegmentedTabs(
+                child: SegmentedTabs<OrderDateTab>(
                   // Hammasi — birinchi.
                   tabs: const [
                     OrderDateTab.all,
@@ -276,81 +277,6 @@ class OrdersScreenState extends ConsumerState<OrdersScreen> {
   }
 }
 
-/// Sana tanlovi — iOS uslubidagi segmented control.
-/// Pastdagi status chip'laridan vizual farq qiladi.
-class _SegmentedTabs extends StatelessWidget {
-  const _SegmentedTabs({
-    required this.tabs,
-    required this.labelOf,
-    required this.selected,
-    required this.onChanged,
-  });
-
-  final List<OrderDateTab> tabs;
-  final String Function(OrderDateTab tab) labelOf;
-  final OrderDateTab selected;
-  final ValueChanged<OrderDateTab> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      height: 40,
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: cs.onSurface.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          for (final tab in tabs)
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  if (tab == selected) return;
-                  HapticFeedback.selectionClick();
-                  onChanged(tab);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  curve: Curves.easeOut,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: tab == selected ? cs.surface : Colors.transparent,
-                    borderRadius: BorderRadius.circular(9),
-                    boxShadow: tab == selected
-                        ? [
-                            BoxShadow(
-                              color: cs.shadow.withValues(alpha: 0.08),
-                              blurRadius: 6,
-                              offset: const Offset(0, 1),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Text(
-                    labelOf(tab),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: tab == selected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: tab == selected
-                          ? cs.primary
-                          : cs.onSurface.withValues(alpha: 0.55),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Ixcham filter chip — standart ChoiceChip'dan zichroq.
 class _FilterChip extends StatelessWidget {
   const _FilterChip({
     required this.label,

@@ -33,6 +33,7 @@ class StatsLineChart extends StatelessWidget {
   const StatsLineChart({
     super.key,
     required this.series,
+    this.isMonthly = false,
     required this.incomeLabel,
     required this.expenseLabel,
     required this.profitLabel,
@@ -40,6 +41,11 @@ class StatsLineChart extends StatelessWidget {
   });
 
   final List<StatPoint> series;
+
+  /// Nuqtalar oylarga guruhlanganmi — o'q va tooltip sanalari shunga qarab
+  /// oy nomi bilan ("avgust") yoki kun bilan ("12-avg") yoziladi.
+  final bool isMonthly;
+
   final String incomeLabel;
   final String expenseLabel;
   final String profitLabel;
@@ -159,7 +165,8 @@ class StatsLineChart extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
-                          DateFormat('d MMM', locale).format(series[i].date),
+                          DateFormat(isMonthly ? 'LLL' : 'd MMM', locale)
+                              .format(series[i].date),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
@@ -202,7 +209,10 @@ class StatsLineChart extends StatelessWidget {
 
                     final i = spots.first.x.round().clamp(0, series.length - 1);
                     final day = series[i];
-                    final head = DateFormat('d MMMM', locale).format(day.date);
+                    final head = DateFormat(
+                      isMonthly ? 'LLLL yyyy' : 'd MMMM',
+                      locale,
+                    ).format(day.date);
 
                     // Sarlavha birinchi qatorga, qolgani seriya rangi bilan.
                     return [
