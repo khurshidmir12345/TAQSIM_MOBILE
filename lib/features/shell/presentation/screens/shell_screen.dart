@@ -15,7 +15,7 @@ import '../../../cash/presentation/screens/cash_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../setup/domain/providers/setup_provider.dart';
-import '../../../statistics/presentation/screens/report_screen.dart';
+import '../../../statistics/presentation/screens/statistics_screen.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
   const ShellScreen({super.key});
@@ -165,7 +165,7 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
       case ShellTab.expenses:
         return CashScreen(key: _cashKey);
       case ShellTab.statistics:
-        return const ReportScreen();
+        return const StatisticsScreen();
       case ShellTab.orders:
         return OrdersScreen(key: _ordersKey);
       case ShellTab.profile:

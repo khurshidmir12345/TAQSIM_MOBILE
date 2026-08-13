@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_exceptions.dart';
 import '../domain/models/bread_return_model.dart';
+import '../../statistics/domain/models/statistics_model.dart';
 import '../domain/models/daily_report_model.dart';
 import '../domain/models/expense_category_option.dart';
 import '../domain/models/expense_model.dart';
@@ -352,6 +353,27 @@ class DailyRepository {
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
       return DailyReportModel.fromJson(data['report'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  /// Statistika sahifasi uchun: kunlik qator, umumiy summalar va asl tannarx.
+  /// Oraliq berilmasa server oxirgi 30 kunni qaytaradi.
+  Future<StatisticsModel> getStatistics(
+    String shopId, {
+    String? from,
+    String? to,
+  }) async {
+    try {
+      final res = await _apiClient.dio.get(
+        '${_shopPath(shopId)}/reports/statistics',
+        queryParameters: {'from': ?from, 'to': ?to},
+      );
+      final data = _body(res)['data'] as Map<String, dynamic>;
+      return StatisticsModel.fromJson(
+        data['statistics'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }

@@ -938,6 +938,17 @@ class S {
   String get notifPrefAll => _t('notifPrefAll');
   String get notifPrefAllDesc => _t('notifPrefAllDesc');
   String get notifPrefsNote => _t('notifPrefsNote');
+  String get statsChartTitle => _t('statsChartTitle');
+  String get statsIncome => _t('statsIncome');
+  String get statsExpense => _t('statsExpense');
+  String get statsProfit => _t('statsProfit');
+  String get statsTotalsTitle => _t('statsTotalsTitle');
+  String get statsIngredientCost => _t('statsIngredientCost');
+  String get statsExternalExpenses => _t('statsExternalExpenses');
+  String get statsEmptyDesc => _t('statsEmptyDesc');
+  String get statsTrueCostTitle => _t('statsTrueCostTitle');
+  String get statsTrueCostInfoTitle => _t('statsTrueCostInfoTitle');
+  String get statsTrueCostInfoBody => _t('statsTrueCostInfoBody');
   String get devicesTitle => _t('devicesTitle');
   String get devicesMenuDesc => _t('devicesMenuDesc');
   String get devicesEmptyTitle => _t('devicesEmptyTitle');
@@ -1140,6 +1151,17 @@ class S {
   };
 
   static const _uz = {
+    'statsChartTitle': "Oxirgi 30 kun",
+    'statsIncome': "Daromad",
+    'statsExpense': "Xarajat",
+    'statsProfit': "Foyda",
+    'statsTotalsTitle': "Umumiy summalar",
+    'statsIngredientCost': "Xom ashyo",
+    'statsExternalExpenses': "Boshqa xarajatlar",
+    'statsEmptyDesc': "Chiqim va xarajat kiritilgach, bu yerda grafik paydo bo'ladi",
+    'statsTrueCostTitle': "Mahsulot asl tannarxi",
+    'statsTrueCostInfoTitle': "Asl tannarx nima?",
+    'statsTrueCostInfoBody': "Hisoblash sahifasidagi tannarx faqat xom ashyodan hisoblanadi. Lekin mahsulot ijara, yoqilg'i, ish haqi kabi boshqa xarajatlarni ham o'ziga oladi.\n\nAsl tannarx — xom ashyo ustiga shu xarajatlarning mahsulotga to'g'ri keladigan ulushi qo'shilgani.\n\nTaqsimlash daromad ulushi bo'yicha: ko'proq pul keltirgan mahsulot ko'proq xarajat ko'taradi. Masalan 300 000 so'm boshqa xarajat bo'lsa va somsa umumiy daromadning 2/3 qismini bergan bo'lsa, unga 200 000 so'm to'g'ri keladi.\n\nSotuv narxini shu raqamdan yuqori qo'ying — aks holda mahsulot zarar keltiradi.",
     'notificationsTitle': "Bildirishnomalar",
     'notificationsMenuDesc': "Xabarlar va eslatmalar",
     'notificationsEmptyTitle': "Bildirishnoma yo'q",
@@ -2110,6 +2132,17 @@ class S {
   };
 
   static const _uzCyrl = {
+    'statsChartTitle': "Охирги 30 кун",
+    'statsIncome': "Даромад",
+    'statsExpense': "Харажат",
+    'statsProfit': "Фойда",
+    'statsTotalsTitle': "Умумий суммалар",
+    'statsIngredientCost': "Хом ашё",
+    'statsExternalExpenses': "Бошқа харажатлар",
+    'statsEmptyDesc': "Чиқим ва харажат киритилгач, бу ерда график пайдо бўлади",
+    'statsTrueCostTitle': "Маҳсулот асл таннархи",
+    'statsTrueCostInfoTitle': "Асл таннарх нима?",
+    'statsTrueCostInfoBody': "Ҳисоблаш саҳифасидаги таннарх фақат хом ашёдан ҳисобланади. Лекин маҳсулот ижара, ёқилғи, иш ҳақи каби бошқа харажатларни ҳам ўзига олади.\n\nАсл таннарх — хом ашё устига шу харажатларнинг маҳсулотга тўғри келадиган улуши қўшилгани.\n\nТақсимлаш даромад улуши бўйича: кўпроқ пул келтирган маҳсулот кўпроқ харажат кўтаради. Масалан 300 000 сўм бошқа харажат бўлса ва сомса умумий даромаднинг 2/3 қисмини берган бўлса, унга 200 000 сўм тўғри келади.\n\nСотув нархини шу рақамдан юқори қўйинг — акс ҳолда маҳсулот зарар келтиради.",
     'notificationsTitle': "Билдиришномалар",
     'notificationsMenuDesc': "Хабарлар ва эслатмалар",
     'notificationsEmptyTitle': "Билдиришнома йўқ",
@@ -3068,6 +3101,17 @@ class S {
   };
 
   static const _ru = {
+    'statsChartTitle': "Последние 30 дней",
+    'statsIncome': "Доход",
+    'statsExpense': "Расход",
+    'statsProfit': "Прибыль",
+    'statsTotalsTitle': "Итого",
+    'statsIngredientCost': "Сырьё",
+    'statsExternalExpenses': "Прочие расходы",
+    'statsEmptyDesc': "График появится после того, как вы внесёте выпуск и расходы",
+    'statsTrueCostTitle': "Реальная себестоимость",
+    'statsTrueCostInfoTitle': "Что такое реальная себестоимость?",
+    'statsTrueCostInfoBody': "Себестоимость на странице расчёта считается только по сырью. Но продукт несёт и другие расходы — аренда, топливо, зарплата.\n\nРеальная себестоимость — это сырьё плюс доля этих расходов, приходящаяся на продукт.\n\nРаспределение по доле дохода: продукт, принёсший больше денег, несёт больше расходов. Например, если прочих расходов 300 000 сум, а самса дала 2/3 общего дохода, на неё приходится 200 000 сум.\n\nСтавьте цену продажи выше этой суммы — иначе продукт приносит убыток.",
     'notificationsTitle': "Уведомления",
     'notificationsMenuDesc': "Сообщения и напоминания",
     'notificationsEmptyTitle': "Уведомлений нет",
@@ -4026,6 +4070,17 @@ class S {
   };
 
   static const _kk = {
+    'statsChartTitle': "Соңғы 30 күн",
+    'statsIncome': "Табыс",
+    'statsExpense': "Шығыс",
+    'statsProfit': "Пайда",
+    'statsTotalsTitle': "Жиыны",
+    'statsIngredientCost': "Шикізат",
+    'statsExternalExpenses': "Басқа шығыстар",
+    'statsEmptyDesc': "Шығарылым мен шығыс енгізілгеннен кейін мұнда график шығады",
+    'statsTrueCostTitle': "Өнімнің нақты өзіндік құны",
+    'statsTrueCostInfoTitle': "Нақты өзіндік құн дегеніміз не?",
+    'statsTrueCostInfoBody': "Есептеу бетіндегі өзіндік құн тек шикізат бойынша есептеледі. Бірақ өнім жалдау, отын, жалақы сияқты басқа шығыстарды да көтереді.\n\nНақты өзіндік құн — шикізат үстіне сол шығыстардың өнімге тиесілі үлесі қосылғаны.\n\nБөлу табыс үлесі бойынша: көбірек ақша әкелген өнім көбірек шығыс көтереді. Мысалы, басқа шығыс 300 000 сом болса және самса жалпы табыстың 2/3 бөлігін берсе, оған 200 000 сом тиеді.\n\nСату бағасын осы сомадан жоғары қойыңыз — әйтпесе өнім зиян әкеледі.",
     'notificationsTitle': "Хабарламалар",
     'notificationsMenuDesc': "Хабарлар мен еске салулар",
     'notificationsEmptyTitle': "Хабарлама жоқ",
@@ -4981,6 +5036,17 @@ class S {
   };
 
   static const _ky = {
+    'statsChartTitle': "Акыркы 30 күн",
+    'statsIncome': "Киреше",
+    'statsExpense': "Чыгаша",
+    'statsProfit': "Пайда",
+    'statsTotalsTitle': "Жалпы",
+    'statsIngredientCost': "Чийки зат",
+    'statsExternalExpenses': "Башка чыгашалар",
+    'statsEmptyDesc': "Чыгарылыш жана чыгаша киргизилгенден кийин бул жерде график чыгат",
+    'statsTrueCostTitle': "Продукциянын чыныгы өздүк наркы",
+    'statsTrueCostInfoTitle': "Чыныгы өздүк нарк деген эмне?",
+    'statsTrueCostInfoBody': "Эсептөө бетиндеги өздүк нарк чийки заттан гана эсептелет. Бирок продукция ижара, күйүүчү май, эмгек акы сыяктуу башка чыгашаларды да көтөрөт.\n\nЧыныгы өздүк нарк — чийки заттын үстүнө ошол чыгашалардын продукцияга тиешелүү үлүшү кошулганы.\n\nБөлүштүрүү киреше үлүшү боюнча: көбүрөөк акча алып келген продукция көбүрөөк чыгаша көтөрөт. Мисалы, башка чыгаша 300 000 сом болсо жана самса жалпы кирешенин 2/3 бөлүгүн берсе, ага 200 000 сом туура келет.\n\nСатуу баасын ушул сумманын үстүнө коюңуз — болбосо продукция зыян алып келет.",
     'notificationsTitle': "Билдирүүлөр",
     'notificationsMenuDesc': "Кабарлар жана эскертүүлөр",
     'notificationsEmptyTitle': "Билдирүү жок",
@@ -5937,6 +6003,17 @@ class S {
   };
 
   static const _tr = {
+    'statsChartTitle': "Son 30 gün",
+    'statsIncome': "Gelir",
+    'statsExpense': "Gider",
+    'statsProfit': "Kâr",
+    'statsTotalsTitle': "Toplam",
+    'statsIngredientCost': "Hammadde",
+    'statsExternalExpenses': "Diğer giderler",
+    'statsEmptyDesc': "Üretim ve gider girildikten sonra burada grafik görünecek",
+    'statsTrueCostTitle': "Ürünün gerçek maliyeti",
+    'statsTrueCostInfoTitle': "Gerçek maliyet nedir?",
+    'statsTrueCostInfoBody': "Hesaplama sayfasındaki maliyet yalnızca hammaddeden hesaplanır. Ancak ürün kira, yakıt, maaş gibi diğer giderleri de üstlenir.\n\nGerçek maliyet — hammaddenin üzerine bu giderlerin ürüne düşen payının eklenmiş hâlidir.\n\nDağıtım gelir payına göre: daha çok para getiren ürün daha çok gider üstlenir. Örneğin diğer giderler 300 000 som ise ve samsa toplam gelirin 2/3'ünü sağladıysa, ona 200 000 som düşer.\n\nSatış fiyatını bu tutarın üzerinde tutun — aksi hâlde ürün zarar ettirir.",
     'notificationsTitle': "Bildirimler",
     'notificationsMenuDesc': "Mesajlar ve hatırlatmalar",
     'notificationsEmptyTitle': "Bildirim yok",

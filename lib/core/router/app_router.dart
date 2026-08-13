@@ -34,8 +34,6 @@ import '../../features/profile/presentation/screens/devices_screen.dart';
 import '../../features/notifications/presentation/screens/notification_settings_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/employees/presentation/screens/employees_screen.dart';
-import '../../features/statistics/presentation/screens/report_screen.dart';
-import '../../features/statistics/presentation/screens/charts_screen.dart';
 import '../../features/orders/presentation/screens/order_create_screen.dart';
 import '../../features/orders/presentation/screens/order_edit_screen.dart';
 import '../../features/orders/presentation/screens/order_detail_screen.dart';
@@ -234,14 +232,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/about-app',
         builder: (context, state) => const AboutAppScreen(),
-      ),
-      GoRoute(
-        path: '/report',
-        builder: (context, state) => const ReportScreen(),
-      ),
-      GoRoute(
-        path: '/charts',
-        builder: (context, state) => const ChartsScreen(),
       ),
       GoRoute(
         path: '/order-create',
