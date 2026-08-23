@@ -19,3 +19,19 @@ final appUpdateCheckProvider = FutureProvider<AppUpdateInfo>((ref) async {
     return const AppUpdateInfo.none();
   }
 });
+
+/// Modalka shu seansda allaqachon ko'rsatilganmi.
+///
+/// Asosiy sahifa qayta qurilishi mumkin (tab almashish, ruxsatlar yangilanishi,
+/// logout/login) — modalka esa ilovaga bir kirishda bir marta chiqishi kerak.
+class AppUpdatePromptShownNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void markShown() => state = true;
+}
+
+final appUpdatePromptShownProvider =
+    NotifierProvider<AppUpdatePromptShownNotifier, bool>(
+  AppUpdatePromptShownNotifier.new,
+);

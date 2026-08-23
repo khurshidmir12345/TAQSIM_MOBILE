@@ -9,6 +9,8 @@ import '../../../../core/router/app_router.dart';
 import '../../domain/shell_tab.dart';
 import '../../domain/shell_tab_provider.dart';
 import '../../domain/shell_tab_utils.dart';
+import '../../../app_update/presentation/app_update_prompt.dart';
+import '../../../telegram_link/presentation/telegram_link_prompt.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../../cash/presentation/screens/cash_screen.dart';
@@ -44,6 +46,25 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
       ref.read(ingredientProvider.notifier).load();
       ref.read(recipeProvider.notifier).load();
     });
+
+    // Modalkalar asosiy sahifa chizilgach chiqadi: ilova ochilishida
+    // chiqarilsa, go_router yo'naltirishi ularni bosilmasdan yopib yuboradi.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _showStartupPrompts();
+    });
+  }
+
+  /// Boshlang'ich modalkalar — ketma-ket, ustma-ust emas.
+  ///
+  /// Tartib muhim: yangilanish taklifi birinchi, chunki eski versiyada
+  /// boshqa hech narsaning ma'nosi yo'q.
+  Future<void> _showStartupPrompts() async {
+    await showAppUpdatePromptIfNeeded(context, ref);
+
+    if (!mounted) return;
+
+    await showTelegramLinkPromptIfNeeded(context, ref);
   }
 
   @override

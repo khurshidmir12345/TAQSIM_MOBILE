@@ -33,7 +33,7 @@ void main() {
       // Kalit qo'shilganda yangilanadi. Asosiy kafolat quyida — barcha
       // tillarda kalit to'plami bir xil bo'lishi; bu son esa tasodifan
       // kalit o'chib ketishini ushlaydi.
-      expect(reference.length, 895);
+      expect(reference.length, 814);
 
       for (final entry in maps.entries) {
         expect(
@@ -59,7 +59,6 @@ void main() {
       expect(en['businessDetailsStep'], 'Details');
       expect(en['cancelShort'], 'Cancel');
       expect(en['featReturnsTitle'], 'Returns');
-      expect(en['changeReceipt'], 'Change photo');
       expect(en['historyTitle'], 'History');
       expect(en['reportScreenTitle'], 'Report');
       expect(en['productionOutStep1'], 'Product');
@@ -76,7 +75,7 @@ void main() {
       expect(en['otpSentTo'], contains('{phone}'));
       expect(en['phoneExistsBody'], contains('{phone}'));
       expect(en['shopDeleteMessage'], contains('{name}'));
-      expect(en['daysLeftShort'], contains('{n}'));
+      expect(en['reportExpandProductsCount'], contains('{n}'));
       expect(
         en['productionOutStep2Subtitle'],
         allOf(contains('{unit}'), contains('{qty}'), contains('{productUnit}')),

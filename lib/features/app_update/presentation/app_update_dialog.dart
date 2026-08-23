@@ -8,7 +8,10 @@ import '../domain/models/app_update_info.dart';
 
 /// "Yangilanish bor — yangilaysizmi?" modalkasi.
 ///
-/// Majburiy emas: foydalanuvchi "Keyinroq" bosib ishini davom ettira oladi.
+/// Modalka o'z-o'zidan yopilmaydi: fon bosilsa ham, "orqaga" bosilsa ham
+/// joyida qoladi. Faqat ikkita tugmadan biri uni yopadi — "Keyinroq" yopadi,
+/// "Yangilash" do'konni ochib yopadi.
+///
 /// Modalkani butunlay o'chirish serverdagi `APP_UPDATE_ENABLED` orqali.
 class AppUpdateDialog extends StatelessWidget {
   const AppUpdateDialog({super.key, required this.info});
@@ -18,6 +21,8 @@ class AppUpdateDialog extends StatelessWidget {
   static Future<void> show(BuildContext context, AppUpdateInfo info) {
     return showDialog<void>(
       context: context,
+      // Fonni bosish modalkani yopmaydi — foydalanuvchi tanlov qilishi kerak.
+      barrierDismissible: false,
       builder: (_) => AppUpdateDialog(info: info),
     );
   }
@@ -33,7 +38,11 @@ class AppUpdateDialog extends StatelessWidget {
 
     // Do'kon ochilmasa ham modalka yopiladi — foydalanuvchi tiqilib
     // qolmasligi kerak.
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      // Do'kon ilovasi yo'q yoki manzil noto'g'ri — jim o'tamiz.
+    }
 
     if (navigator.mounted) navigator.pop();
   }
@@ -43,47 +52,51 @@ class AppUpdateDialog extends StatelessWidget {
     final s = S.of(context);
     final version = info.latestVersion;
 
-    return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-      ),
-      icon: Container(
-        width: 52,
-        height: 52,
-        decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.12),
-          shape: BoxShape.circle,
+    // Android "orqaga" tugmasi ham modalkani yopmasin.
+    return PopScope(
+      canPop: false,
+      child: AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
         ),
-        child: const Icon(
-          Icons.system_update_rounded,
-          color: AppColors.primary,
-          size: 26,
-        ),
-      ),
-      title: Text(
-        s.updateAvailableTitle,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.w800),
-      ),
-      content: Text(
-        version != null
-            ? s.updateAvailableMessageVersion(version)
-            : s.updateAvailableMessage,
-        textAlign: TextAlign.center,
-        style: const TextStyle(height: 1.4),
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(s.updateLater),
-        ),
-        if (info.storeUrl != null)
-          FilledButton(
-            onPressed: () => _openStore(context),
-            child: Text(s.updateNow),
+        icon: Container(
+          width: 52,
+          height: 52,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
           ),
-      ],
+          child: const Icon(
+            Icons.system_update_rounded,
+            color: AppColors.primary,
+            size: 26,
+          ),
+        ),
+        title: Text(
+          s.updateAvailableTitle,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.w800),
+        ),
+        content: Text(
+          version != null
+              ? s.updateAvailableMessageVersion(version)
+              : s.updateAvailableMessage,
+          textAlign: TextAlign.center,
+          style: const TextStyle(height: 1.4),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(s.updateLater),
+          ),
+          if (info.storeUrl != null)
+            FilledButton(
+              onPressed: () => _openStore(context),
+              child: Text(s.updateNow),
+            ),
+        ],
+      ),
     );
   }
 }

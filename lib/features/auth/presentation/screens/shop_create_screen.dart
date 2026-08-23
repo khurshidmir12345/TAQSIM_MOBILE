@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/l10n/translations.dart';
+import '../../../../core/widgets/feature_guard.dart';
 import '../../domain/models/business_type_model.dart';
 import '../../domain/providers/auth_provider.dart';
 
@@ -191,6 +192,15 @@ class _ShopCreateScreenState extends ConsumerState<ShopCreateScreen> {
   Widget build(BuildContext context) {
     final stepIdx = _Step.values.indexOf(_step);
     final total = _Step.values.length;
+
+    // Ikkinchi biznes hisobda yoqilmagan bo'lsa — neytral xabar.
+    // Birinchisi doim mumkin.
+    if (!ref.watch(canCreateShopProvider)) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: FeatureGuard.lockedBody(S.of(context)),
+      );
+    }
 
     return Scaffold(
       body: SafeArea(

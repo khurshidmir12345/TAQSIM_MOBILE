@@ -7,6 +7,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../../core/api/api_provider.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/shop_features.dart';
 import '../../../../core/constants/shop_permissions.dart';
 import '../../data/auth_repository.dart';
 import '../models/user_model.dart';
@@ -524,4 +525,37 @@ final currentPermissionsProvider = Provider<Set<String>>((ref) {
 final hasPermissionProvider = Provider.family<bool, String>((ref, permission) {
   if (ref.watch(isOwnerProvider)) return true;
   return ref.watch(currentPermissionsProvider).contains(permission);
+});
+
+/// Joriy do'konda hisob muddati bo'yicha ochiq bo'limlar.
+///
+/// Ro'yxat serverda hisoblanadi va do'kon **egasining** muddatiga bog'liq —
+/// xodim ham xuddi shu ro'yxatni oladi. Ruxsatdan farqli o'laroq, owner
+/// bo'lish bu yerda hech narsa bermaydi.
+final shopFeaturesProvider = Provider<Set<String>>((ref) {
+  final features = ref.watch(shopProvider.select((s) => s.selected?.features));
+  return (features ?? const <String>[]).toSet();
+});
+
+/// Bo'lim shu hisobda ochiqmi.
+///
+/// Do'kon hali yuklanmagan bo'lsa `false` qaytadi va ilova neytral xabar
+/// ko'rsatadi — bu qisqa muddatli holat, do'kon kelishi bilan tuzaladi.
+final hasFeatureProvider = Provider.family<bool, String>((ref, feature) {
+  return ref.watch(shopFeaturesProvider).contains(feature);
+});
+
+/// Yangi biznes qo'sha oladimi.
+///
+/// Birinchi biznes doim mumkin — aks holda yangi foydalanuvchi ilovani
+/// umuman boshlay olmaydi. Ikkinchisidan boshlab `multi_shop` kerak.
+///
+/// Ro'yxatdagi istalgan do'kondan o'qiladi (tanlangani emas): bu ekran
+/// ba'zan do'kon tanlanmagan holatda ochiladi.
+final canCreateShopProvider = Provider<bool>((ref) {
+  final shops = ref.watch(shopProvider.select((s) => s.shops));
+
+  if (shops.isEmpty) return true;
+
+  return shops.any((shop) => shop.features.contains(ShopFeatures.multiShop));
 });

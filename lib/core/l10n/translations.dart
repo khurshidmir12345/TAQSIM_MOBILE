@@ -623,79 +623,6 @@ class S {
   String get version => _t('version');
   String get logout => _t('logout');
   String get unknown => _t('unknown');
-  String get balance => _t('balance');
-  String get topUp => _t('topUp');
-  // ─── Subscription / Billing ─────────────────────────────────────────────
-  String get subscription => _t('subscription');
-  String get mySubscription => _t('mySubscription');
-  String get currentPlan => _t('currentPlan');
-  String get paywallTitle => _t('paywallTitle');
-  String get paywallSubtitle => _t('paywallSubtitle');
-  String get paywallBlockedTitle => _t('paywallBlockedTitle');
-  String get paywallBlockedSubtitle => _t('paywallBlockedSubtitle');
-  String get planMostPopular => _t('planMostPopular');
-  String get planPerMonth => _t('planPerMonth');
-  String get planFeatureProducts => _t('planFeatureProducts');
-  String get planFeatureProductsUnlimited => _t('planFeatureProductsUnlimited');
-  String get planFeatureShops => _t('planFeatureShops');
-  String get planFeatureShopsUnlimited => _t('planFeatureShopsUnlimited');
-  String get planFeatureEmployees => _t('planFeatureEmployees');
-  String get planFeatureEmployeesNone => _t('planFeatureEmployeesNone');
-  String get planFeatureEmployeesUnlimited =>
-      _t('planFeatureEmployeesUnlimited');
-  String get buy => _t('buy');
-  String get purchaseConfirmTitle => _t('purchaseConfirmTitle');
-  String get purchaseConfirmMsg => _t('purchaseConfirmMsg');
-  String get purchaseSuccess => _t('purchaseSuccess');
-  String get insufficientBalanceTitle => _t('insufficientBalanceTitle');
-  String get insufficientBalanceMsg => _t('insufficientBalanceMsg');
-  String get topUpNow => _t('topUpNow');
-  String get trialBadge => _t('trialBadge');
-  String get trialDaysLeft => _t('trialDaysLeft');
-  String get trialEndingSoon => _t('trialEndingSoon');
-  String get graceWarning => _t('graceWarning');
-  String get subscriptionExpired => _t('subscriptionExpired');
-  String get upgradePlan => _t('upgradePlan');
-  String get walletTitle => _t('walletTitle');
-  String get balanceHistory => _t('balanceHistory');
-  String get balanceHistoryDesc => _t('balanceHistoryDesc');
-  String get noTransactions => _t('noTransactions');
-  String get noTransactionsDesc => _t('noTransactionsDesc');
-  String get txnTopup => _t('txnTopup');
-  String get txnSubscription => _t('txnSubscription');
-  String get txnRefund => _t('txnRefund');
-  String get txnAdjustment => _t('txnAdjustment');
-  String get txnSeat => _t('txnSeat');
-  String get topUpAmount => _t('topUpAmount');
-  String get topUpRequest => _t('topUpRequest');
-  String get topUpPendingMsg => _t('topUpPendingMsg');
-  String get topUpHint => _t('topUpHint');
-  String get noOrders => _t('noOrders');
-  String get noOrdersDesc => _t('noOrdersDesc');
-  String get orderSubscription => _t('orderSubscription');
-  String get orderTopup => _t('orderTopup');
-  String get statusPaid => _t('statusPaid');
-  String get statusPending => _t('statusPending');
-  String get statusFailed => _t('statusFailed');
-  String get statusCancelled => _t('statusCancelled');
-  String get limitReachedTitle => _t('limitReachedTitle');
-  String get limitReachedProducts => _t('limitReachedProducts');
-  String get limitReachedShops => _t('limitReachedShops');
-  String get limitReachedEmployees => _t('limitReachedEmployees');
-  String get viewPlans => _t('viewPlans');
-  String get billingMonthly => _t('billingMonthly');
-  String get billingYearly => _t('billingYearly');
-  String get planPerYear => _t('planPerYear');
-  String get yearlyNotAvailable => _t('yearlyNotAvailable');
-  String get yearlyNotAvailableDesc => _t('yearlyNotAvailableDesc');
-  String get planSaveYearly => _t('planSaveYearly');
-  String get statusTrialing => _t('statusTrialing');
-  String get statusActive => _t('statusActive');
-  String get statusGraceLabel => _t('statusGraceLabel');
-  String get statusExpiredLabel => _t('statusExpiredLabel');
-  String get validUntil => _t('validUntil');
-  String get daysLeftShort => _t('daysLeftShort');
-  String get noActivePlan => _t('noActivePlan');
   // ─── Employees (Xodimlar) ───
   String get employeesTitle => _t('employeesTitle');
   String get employeesMenuDesc => _t('employeesMenuDesc');
@@ -705,13 +632,11 @@ class S {
   String get employeePasswordLabel => _t('employeePasswordLabel');
   String get employeesEmptyTitle => _t('employeesEmptyTitle');
   String get employeesEmptyDesc => _t('employeesEmptyDesc');
-  String get employeePaidBadge => _t('employeePaidBadge');
   String get employeeSeatActive => _t('employeeSeatActive');
   String get employeeSeatPastDue => _t('employeeSeatPastDue');
   String get employeeSeatRenews => _t('employeeSeatRenews');
   String get employeeFreeSlotsLeft => _t('employeeFreeSlotsLeft');
   String get employeeNoFreeSlots => _t('employeeNoFreeSlots');
-  String get employeePaidPerMonth => _t('employeePaidPerMonth');
   String get employeeFridayDiscount => _t('employeeFridayDiscount');
   String get employeeConfirmTitle => _t('employeeConfirmTitle');
   String get employeeConfirmSentTo => _t('employeeConfirmSentTo');
@@ -725,8 +650,6 @@ class S {
   String get employeePermsDesc => _t('employeePermsDesc');
   String get employeePermsSaved => _t('employeePermsSaved');
   String get employeeSaveBtn => _t('employeeSaveBtn');
-  String get employeePaidConfirmTitle => _t('employeePaidConfirmTitle');
-  String get employeePaidConfirmMsg => _t('employeePaidConfirmMsg');
   String get employeeContinueBtn => _t('employeeContinueBtn');
   String get permViewReports => _t('permViewReports');
   String get permManageProducts => _t('permManageProducts');
@@ -826,6 +749,11 @@ class S {
   String get permManageOrders => _t('permManageOrders');
   String get permManageOrdersDesc => _t('permManageOrdersDesc');
   String get noPermissionTitle => _t('noPermissionTitle');
+  String get featureNotEnabledTitle => _t('featureNotEnabledTitle');
+  String get featureNotEnabledDesc => _t('featureNotEnabledDesc');
+  String get telegramLinkPromptTitle => _t('telegramLinkPromptTitle');
+  String get telegramLinkPromptDesc => _t('telegramLinkPromptDesc');
+  String get telegramLinkPromptAction => _t('telegramLinkPromptAction');
   String get noPermissionDesc => _t('noPermissionDesc');
   String get quantityLabel => _t('quantityLabel');
 
@@ -925,8 +853,6 @@ class S {
   String get logoutDesc => _t('logoutDesc');
   String get logoutConfirm => _t('logoutConfirm');
   String get madeInUzbekistan => _t('madeInUzbekistan');
-  String get topUpComingSoonTitle => _t('topUpComingSoonTitle');
-  String get topUpComingSoonDesc => _t('topUpComingSoonDesc');
   String get goBack => _t('goBack');
 
   // ─── Devices (multi-device) ───
@@ -973,18 +899,8 @@ class S {
   String get deviceRevokedMsg => _t('deviceRevokedMsg');
   String get deviceRevokeFailed => _t('deviceRevokeFailed');
 
-  // ─── Topup (karta + chek) ───
-  String get topUpCardLabel => _t('topUpCardLabel');
-  String get topUpCardHolderLabel => _t('topUpCardHolderLabel');
   String get copyAction => _t('copyAction');
   String get copiedMsg => _t('copiedMsg');
-  String get uploadReceipt => _t('uploadReceipt');
-  String get receiptAttached => _t('receiptAttached');
-  String get changeReceipt => _t('changeReceipt');
-  String get receiptRequired => _t('receiptRequired');
-  String get topUpSubmit => _t('topUpSubmit');
-  String get topUpAmountTooSmall => _t('topUpAmountTooSmall');
-  String get topUpHowToTitle => _t('topUpHowToTitle');
 
   // ─── Onboarding ───
   String get onboardingTitle1 => _t('onboardingTitle1');
@@ -1285,6 +1201,11 @@ class S {
     'permManageOrders': 'Zakazlar',
     'permManageOrdersDesc': 'Mijozlar va zakazlarni boshqarish',
     'noPermissionTitle': 'Ruxsat yo\'q',
+    'featureNotEnabledTitle': 'Bo\'lim yoqilmagan',
+    'featureNotEnabledDesc': 'Bu bo\'lim hisobingizda hozircha yoqilmagan.',
+    'telegramLinkPromptTitle': 'Telegramni ulang',
+    'telegramLinkPromptDesc': 'Muhim xabarlarni o\'z vaqtida olishingiz va kerak bo\'lganda siz bilan bog\'lana olishimiz uchun Telegram hisobingizni ulang.',
+    'telegramLinkPromptAction': 'Ulash',
     'noPermissionDesc': 'Bu bo\'limga kirish uchun ruxsatingiz yo\'q',
     'quantityLabel': 'Miqdor',
 
@@ -1302,88 +1223,8 @@ class S {
         'Bu joriy qurilma. Chiqarsangiz, tizimdan chiqasiz.',
     'deviceRevokedMsg': 'Qurilma chiqarildi',
     'deviceRevokeFailed': 'Chiqarib bo‘lmadi',
-    'topUpCardLabel': 'Karta raqami',
-    'topUpCardHolderLabel': 'Karta egasi',
     'copyAction': 'Nusxa olish',
     'copiedMsg': 'Nusxa olindi',
-    'uploadReceipt': 'Chek rasmini yuklash',
-    'receiptAttached': 'Chek tanlandi',
-    'changeReceipt': 'Rasmni o‘zgartirish',
-    'receiptRequired': 'Chek rasmini yuklang',
-    'topUpSubmit': 'Yuborish',
-    'topUpAmountTooSmall': 'Eng kam summa — 1 000 so‘m',
-    'topUpHowToTitle': 'Qanday to‘ldiriladi?',
-    'subscription': 'Obuna',
-    'mySubscription': 'Mening tarifim',
-    'currentPlan': 'Joriy tarif',
-    'paywallTitle': 'Tarif tanlang',
-    'paywallSubtitle': 'Biznesingiz uchun mos rejani tanlang',
-    'paywallBlockedTitle': 'Obuna muddati tugadi',
-    'paywallBlockedSubtitle': 'Davom etish uchun tarif sotib oling',
-    'planMostPopular': 'Eng mashhur',
-    'planPerMonth': '/oy',
-    'planFeatureProducts': '{n} ta mahsulot',
-    'planFeatureProductsUnlimited': 'Cheksiz mahsulot',
-    'planFeatureShops': '{n} ta biznes hisob',
-    'planFeatureShopsUnlimited': 'Cheksiz biznes hisob',
-    'planFeatureEmployees': '{n} ta xodim',
-    'planFeatureEmployeesNone': 'Xodim qo\'shilmaydi',
-    'planFeatureEmployeesUnlimited': 'Cheksiz xodim',
-    'buy': 'Sotib olish',
-    'purchaseConfirmTitle': 'Xaridni tasdiqlang',
-    'purchaseConfirmMsg':
-        '{plan} tarifi {price} ga sotib olinadi. Davom etamizmi?',
-    'purchaseSuccess': 'Tarif faollashtirildi',
-    'insufficientBalanceTitle': 'Balans yetarli emas',
-    'insufficientBalanceMsg': 'To\'lov uchun balansingizni to\'ldiring',
-    'topUpNow': 'Balansni to\'ldirish',
-    'trialBadge': 'Bepul sinov',
-    'trialDaysLeft': 'Sinovga {n} kun qoldi',
-    'trialEndingSoon': 'Sinov muddati tugayapti',
-    'graceWarning': '{n} kundan keyin hisob bloklanadi',
-    'subscriptionExpired': 'Obuna muddati tugadi',
-    'upgradePlan': 'Tarifni faollashtirish',
-    'walletTitle': 'Hamyon',
-    'balanceHistory': 'Balans tarixi',
-    'balanceHistoryDesc': 'Kirim va chiqimlar tarixi',
-    'noTransactions': 'Tranzaksiyalar yo\'q',
-    'noTransactionsDesc': 'Balans harakatlari shu yerda ko\'rinadi',
-    'txnTopup': 'To\'ldirish',
-    'txnSubscription': 'Obuna to\'lovi',
-    'txnRefund': 'Qaytarish',
-    'txnAdjustment': 'Tuzatish',
-    'txnSeat': 'Xodim o\'rni',
-    'topUpAmount': 'Summa (UZS)',
-    'topUpRequest': 'To\'ldirish so\'rovi',
-    'topUpPendingMsg':
-        'So\'rovingiz qabul qilindi. Tasdiqlangach balans yangilanadi.',
-    'topUpHint': 'To\'ldirish admin tomonidan tasdiqlanadi',
-    'noOrders': 'Buyurtmalar yo\'q',
-    'noOrdersDesc': 'Xaridlaringiz tarixi shu yerda ko\'rinadi',
-    'orderSubscription': 'Obuna',
-    'orderTopup': 'To\'ldirish',
-    'statusPaid': 'To\'langan',
-    'statusPending': 'Kutilmoqda',
-    'statusFailed': 'Xato',
-    'statusCancelled': 'Bekor qilingan',
-    'limitReachedTitle': 'Limit to\'ldi',
-    'limitReachedProducts': 'Mahsulot limiti to\'ldi. Yuqori tarifga o\'ting.',
-    'limitReachedShops': 'Biznes hisob limiti to\'ldi. Yuqori tarifga o\'ting.',
-    'limitReachedEmployees': 'Xodim limiti to\'ldi. Yuqori tarifga o\'ting.',
-    'viewPlans': 'Tariflarni ko\'rish',
-    'billingMonthly': 'Oylik',
-    'billingYearly': 'Yillik',
-    'planPerYear': '/yil',
-    'yearlyNotAvailable': 'Yillik obunalar mavjud emas',
-    'yearlyNotAvailableDesc': 'Hozircha yillik tariflar qo\'shilmagan.',
-    'planSaveYearly': 'Tejaysiz',
-    'statusTrialing': 'Sinov muddati',
-    'statusActive': 'Faol',
-    'statusGraceLabel': 'Imtiyozli muddat',
-    'statusExpiredLabel': 'Muddati tugagan',
-    'validUntil': 'Amal qiladi',
-    'daysLeftShort': '{n} kun qoldi',
-    'noActivePlan': 'Faol tarif yo\'q',
     'hello': 'Salom',
     'defaultUser': 'Foydalanuvchi',
     'bakery': 'Biznes',
@@ -1837,8 +1678,6 @@ class S {
     'version': 'Versiya',
     'logout': 'Tizimdan chiqish',
     'unknown': 'Noma\'lum',
-    'balance': 'Asosiy Balans',
-    'topUp': 'To\'ldirish',
     'profileInfo': 'Profil ma\'lumotlari',
     'profileInfoDesc': 'Telefon, email va Telegram sozlamalari',
     'phoneNumber': 'Telefon raqam',
@@ -1940,9 +1779,6 @@ class S {
     'logoutDesc': 'Hisobingizdan chiqish',
     'logoutConfirm': 'Tizimdan chiqmoqchimisiz?',
     'madeInUzbekistan': "O'zbekistonda ishlab chiqilgan",
-    'topUpComingSoonTitle': 'Tez orada ishga tushadi',
-    'topUpComingSoonDesc':
-        "Balans to'ldirish bo'limi ustida ish olib borilmoqda. Tez orada siz ilovadan to'liq foydalana olasiz.",
     'goBack': 'Ortga qaytish',
     'onboardingTitle1': 'Har qanday biznes uchun',
     'onboardingDesc1':
@@ -2107,13 +1943,11 @@ class S {
     'employeesEmptyTitle': 'Hali xodim yo\'q',
     'employeesEmptyDesc':
         'Birinchi xodimingizni qo\'shing va ruxsatlarini sozlang',
-    'employeePaidBadge': 'Pulli o\'rin',
     'employeeSeatActive': 'Faol',
     'employeeSeatPastDue': 'To\'lov kerak',
     'employeeSeatRenews': 'Yangilanadi: {date}',
     'employeeFreeSlotsLeft': 'Bepul o\'rin: {n} ta qoldi',
     'employeeNoFreeSlots': 'Bepul o\'rinlar tugadi',
-    'employeePaidPerMonth': 'Har yangi xodim: {price}/oy',
     'employeeFridayDiscount': 'Juma chegirmasi −{percent}%',
     'employeeConfirmTitle': 'Kodni tasdiqlang',
     'employeeConfirmSentTo': '{phone} raqamiga 4 xonali kod yuborildi',
@@ -2127,9 +1961,6 @@ class S {
     'employeePermsDesc': 'Xodim qaysi bo\'limlarni boshqara olishini tanlang',
     'employeePermsSaved': 'Ruxsatlar saqlandi',
     'employeeSaveBtn': 'Saqlash',
-    'employeePaidConfirmTitle': 'Pulli xodim o\'rni',
-    'employeePaidConfirmMsg':
-        'Bepul limit tugagan. Bu xodim uchun balansdan {price} (oyiga) yechiladi.',
     'employeeContinueBtn': 'Davom etish',
     'permViewReports': 'Hisobotlar',
     'permManageProducts': 'Mahsulotlar',
@@ -2273,6 +2104,11 @@ class S {
     'permManageOrders': 'Заказлар',
     'permManageOrdersDesc': 'Мижозлар ва Заказлар бошқаруви',
     'noPermissionTitle': 'Рухсат йўқ',
+    'featureNotEnabledTitle': 'Бўлим ёқилмаган',
+    'featureNotEnabledDesc': 'Бу бўлим ҳисобингизда ҳозирча ёқилмаган.',
+    'telegramLinkPromptTitle': 'Телеграмни уланг',
+    'telegramLinkPromptDesc': 'Муҳим хабарларни ўз вақтида олишингиз ва керак бўлганда сиз билан боғлана олишимиз учун Телеграм ҳисобингизни уланг.',
+    'telegramLinkPromptAction': 'Улаш',
     'noPermissionDesc': 'Бу бўлимга рухсат берилмаган',
     'quantityLabel': 'Miqdor',
 
@@ -2290,88 +2126,8 @@ class S {
         'Бу жорий қурилма. Чиқарсангиз, тизимдан чиқасиз.',
     'deviceRevokedMsg': 'Қурилма чиқарилди',
     'deviceRevokeFailed': 'Чиқариб бўлмади',
-    'topUpCardLabel': 'Карта рақами',
-    'topUpCardHolderLabel': 'Карта эгаси',
     'copyAction': 'Нусха олиш',
     'copiedMsg': 'Нусха олинди',
-    'uploadReceipt': 'Чек расмини юклаш',
-    'receiptAttached': 'Чек танланди',
-    'changeReceipt': 'Расмни ўзгартириш',
-    'receiptRequired': 'Чек расмини юкланг',
-    'topUpSubmit': 'Юбориш',
-    'topUpAmountTooSmall': 'Энг кам сумма — 1 000 сўм',
-    'topUpHowToTitle': 'Қандай тўлдирилади?',
-    'subscription': 'Обуна',
-    'mySubscription': 'Менинг тарифим',
-    'currentPlan': 'Жорий тариф',
-    'paywallTitle': 'Тариф танланг',
-    'paywallSubtitle': 'Бизнесингиз учун мос режани танланг',
-    'paywallBlockedTitle': 'Обуна муддати тугади',
-    'paywallBlockedSubtitle': 'Давом этиш учун тариф сотиб олинг',
-    'planMostPopular': 'Энг машҳур',
-    'planPerMonth': '/ой',
-    'planFeatureProducts': '{n} та маҳсулот',
-    'planFeatureProductsUnlimited': 'Чексиз маҳсулот',
-    'planFeatureShops': '{n} та бизнес ҳисоб',
-    'planFeatureShopsUnlimited': 'Чексиз бизнес ҳисоб',
-    'planFeatureEmployees': '{n} та ходим',
-    'planFeatureEmployeesNone': 'Ходим қўшилмайди',
-    'planFeatureEmployeesUnlimited': 'Чексиз ходим',
-    'buy': 'Сотиб олиш',
-    'purchaseConfirmTitle': 'Харидни тасдиқланг',
-    'purchaseConfirmMsg':
-        '{plan} тарифи {price} га сотиб олинади. Давом этамизми?',
-    'purchaseSuccess': 'Тариф фаоллаштирилди',
-    'insufficientBalanceTitle': 'Баланс етарли эмас',
-    'insufficientBalanceMsg': 'Тўлов учун балансингизни тўлдиринг',
-    'topUpNow': 'Балансни тўлдириш',
-    'trialBadge': 'Бепул синов',
-    'trialDaysLeft': 'Синовга {n} кун қолди',
-    'trialEndingSoon': 'Синов муддати тугаяпти',
-    'graceWarning': '{n} кундан кейин ҳисоб блокланади',
-    'subscriptionExpired': 'Обуна муддати тугади',
-    'upgradePlan': 'Тарифни фаоллаштириш',
-    'walletTitle': 'Ҳамён',
-    'balanceHistory': 'Баланс тарихи',
-    'balanceHistoryDesc': 'Кирим ва чиқимлар тарихи',
-    'noTransactions': 'Транзаксиялар йўқ',
-    'noTransactionsDesc': 'Баланс ҳаракатлари шу ерда кўринади',
-    'txnTopup': 'Тўлдириш',
-    'txnSubscription': 'Обуна тўлови',
-    'txnRefund': 'Қайтариш',
-    'txnAdjustment': 'Тузатиш',
-    'txnSeat': 'Ходим ўрни',
-    'topUpAmount': 'Сумма (UZS)',
-    'topUpRequest': 'Тўлдириш сўрови',
-    'topUpPendingMsg':
-        'Сўровингиз қабул қилинди. Тасдиқлангач баланс янгиланади.',
-    'topUpHint': 'Тўлдириш админ томонидан тасдиқланади',
-    'noOrders': 'Буюртмалар йўқ',
-    'noOrdersDesc': 'Харидларингиз тарихи шу ерда кўринади',
-    'orderSubscription': 'Обуна',
-    'orderTopup': 'Тўлдириш',
-    'statusPaid': 'Тўланган',
-    'statusPending': 'Кутилмоқда',
-    'statusFailed': 'Хато',
-    'statusCancelled': 'Бекор қилинган',
-    'limitReachedTitle': 'Лимит тўлди',
-    'limitReachedProducts': 'Маҳсулот лимити тўлди. Юқори тарифга ўтинг.',
-    'limitReachedShops': 'Бизнес ҳисоб лимити тўлди. Юқори тарифга ўтинг.',
-    'limitReachedEmployees': 'Ходим лимити тўлди. Юқори тарифга ўтинг.',
-    'viewPlans': 'Тарифларни кўриш',
-    'billingMonthly': 'Ойлик',
-    'billingYearly': 'Йиллик',
-    'planPerYear': '/йил',
-    'yearlyNotAvailable': 'Йиллик обуналар мавжуд эмас',
-    'yearlyNotAvailableDesc': 'Ҳозирча йиллик тарифлар қўшилмаган.',
-    'planSaveYearly': 'Тежайсиз',
-    'statusTrialing': 'Синов муддати',
-    'statusActive': 'Фаол',
-    'statusGraceLabel': 'Имтиёзли муддат',
-    'statusExpiredLabel': 'Муддати тугаган',
-    'validUntil': 'Амал қилади',
-    'daysLeftShort': '{n} кун қолди',
-    'noActivePlan': 'Фаол тариф йўқ',
     'hello': 'Салом',
     'defaultUser': 'Фойдаланувчи',
     'bakery': 'Бизнес',
@@ -2821,8 +2577,6 @@ class S {
     'version': 'Версия',
     'logout': 'Тизимдан чиқиш',
     'unknown': 'Номаълум',
-    'balance': 'Асосий Баланс',
-    'topUp': 'Тўлдириш',
     'profileInfo': 'Профил маълумотлари',
     'profileInfoDesc': 'Телефон, эмайл ва Телеграм созламалари',
     'phoneNumber': 'Телефон рақам',
@@ -2922,9 +2676,6 @@ class S {
     'logoutDesc': 'Ҳисобингиздан чиқиш',
     'logoutConfirm': 'Тизимдан чиқмоқчимисиз?',
     'madeInUzbekistan': "Ўзбекистонда ишлаб чиқилган",
-    'topUpComingSoonTitle': 'Тез орада ишга тушади',
-    'topUpComingSoonDesc':
-        "Баланс тўлдириш бўлими устида иш олиб борилмоқда. Тез орада сиз иловадан тўлиқ фойдалана оласиз.",
     'goBack': 'Ортга қайтиш',
     'onboardingTitle1': 'Ҳар қандай бизнес учун',
     'onboardingDesc1':
@@ -3084,13 +2835,11 @@ class S {
     'employeePasswordLabel': 'Парол',
     'employeesEmptyTitle': 'Ҳали ходим йўқ',
     'employeesEmptyDesc': 'Биринчи ходимингизни қўшинг ва рухсатларини созланг',
-    'employeePaidBadge': 'Пулли ўрин',
     'employeeSeatActive': 'Фаол',
     'employeeSeatPastDue': 'Тўлов керак',
     'employeeSeatRenews': 'Янгиланади: {date}',
     'employeeFreeSlotsLeft': 'Бепул ўрин: {n} та қолди',
     'employeeNoFreeSlots': 'Бепул ўринлар тугади',
-    'employeePaidPerMonth': 'Ҳар янги ходим: {price}/ой',
     'employeeFridayDiscount': 'Жума чегирмаси −{percent}%',
     'employeeConfirmTitle': 'Кодни тасдиқланг',
     'employeeConfirmSentTo': '{phone} рақамига 4 хонали код юборилди',
@@ -3104,9 +2853,6 @@ class S {
     'employeePermsDesc': 'Ходим қайси бўлимларни бошқара олишини танланг',
     'employeePermsSaved': 'Рухсатлар сақланди',
     'employeeSaveBtn': 'Сақлаш',
-    'employeePaidConfirmTitle': 'Пулли ходим ўрни',
-    'employeePaidConfirmMsg':
-        'Бепул лимит тугаган. Бу ходим учун балансдан {price} (ойига) ечилади.',
     'employeeContinueBtn': 'Давом этиш',
     'permViewReports': 'Ҳисоботлар',
     'permManageProducts': 'Маҳсулотлар',
@@ -3250,6 +2996,11 @@ class S {
     'permManageOrders': 'Заказы',
     'permManageOrdersDesc': 'Управление клиентами и заказами',
     'noPermissionTitle': 'Нет доступа',
+    'featureNotEnabledTitle': 'Раздел не подключён',
+    'featureNotEnabledDesc': 'Этот раздел пока не подключён к вашему аккаунту.',
+    'telegramLinkPromptTitle': 'Подключите Telegram',
+    'telegramLinkPromptDesc': 'Подключите аккаунт Telegram, чтобы вовремя получать важные сообщения и чтобы мы могли связаться с вами при необходимости.',
+    'telegramLinkPromptAction': 'Подключить',
     'noPermissionDesc': 'У вас нет доступа к этому разделу',
     'quantityLabel': 'Количество',
 
@@ -3267,90 +3018,8 @@ class S {
         'Это текущее устройство. После выхода вы выйдете из системы.',
     'deviceRevokedMsg': 'Устройство отключено',
     'deviceRevokeFailed': 'Не удалось отключить',
-    'topUpCardLabel': 'Номер карты',
-    'topUpCardHolderLabel': 'Владелец карты',
     'copyAction': 'Копировать',
     'copiedMsg': 'Скопировано',
-    'uploadReceipt': 'Загрузить фото чека',
-    'receiptAttached': 'Чек выбран',
-    'changeReceipt': 'Изменить фото',
-    'receiptRequired': 'Загрузите фото чека',
-    'topUpSubmit': 'Отправить',
-    'topUpAmountTooSmall': 'Минимальная сумма — 1 000 сум',
-    'topUpHowToTitle': 'Как пополнить?',
-    'subscription': 'Подписка',
-    'mySubscription': 'Мой тариф',
-    'currentPlan': 'Текущий тариф',
-    'paywallTitle': 'Выберите тариф',
-    'paywallSubtitle': 'Подберите подходящий план для вашего бизнеса',
-    'paywallBlockedTitle': 'Срок подписки истёк',
-    'paywallBlockedSubtitle': 'Купите тариф, чтобы продолжить',
-    'planMostPopular': 'Популярный',
-    'planPerMonth': '/мес',
-    'planFeatureProducts': '{n} товаров',
-    'planFeatureProductsUnlimited': 'Безлимит товаров',
-    'planFeatureShops': '{n} бизнес-аккаунт',
-    'planFeatureShopsUnlimited': 'Безлимит бизнес-аккаунтов',
-    'planFeatureEmployees': '{n} сотрудник(ов)',
-    'planFeatureEmployeesNone': 'Без сотрудников',
-    'planFeatureEmployeesUnlimited': 'Безлимит сотрудников',
-    'buy': 'Купить',
-    'purchaseConfirmTitle': 'Подтвердите покупку',
-    'purchaseConfirmMsg':
-        'Тариф {plan} будет приобретён за {price}. Продолжить?',
-    'purchaseSuccess': 'Тариф активирован',
-    'insufficientBalanceTitle': 'Недостаточно средств',
-    'insufficientBalanceMsg': 'Пополните баланс для оплаты',
-    'topUpNow': 'Пополнить баланс',
-    'trialBadge': 'Пробный период',
-    'trialDaysLeft': 'Осталось {n} дн. пробного периода',
-    'trialEndingSoon': 'Пробный период заканчивается',
-    'graceWarning': 'Аккаунт будет заблокирован через {n} дн.',
-    'subscriptionExpired': 'Срок подписки истёк',
-    'upgradePlan': 'Активировать тариф',
-    'walletTitle': 'Кошелёк',
-    'balanceHistory': 'История баланса',
-    'balanceHistoryDesc': 'История пополнений и списаний',
-    'noTransactions': 'Нет транзакций',
-    'noTransactionsDesc': 'Движения по балансу появятся здесь',
-    'txnTopup': 'Пополнение',
-    'txnSubscription': 'Оплата подписки',
-    'txnRefund': 'Возврат',
-    'txnSeat': 'Место сотрудника',
-    'txnAdjustment': 'Корректировка',
-    'topUpAmount': 'Сумма (UZS)',
-    'topUpRequest': 'Запрос на пополнение',
-    'topUpPendingMsg': 'Запрос принят. Баланс обновится после подтверждения.',
-    'topUpHint': 'Пополнение подтверждается администратором',
-    'noOrders': 'Нет заказов',
-    'noOrdersDesc': 'История ваших покупок появится здесь',
-    'orderSubscription': 'Подписка',
-    'orderTopup': 'Пополнение',
-    'statusPaid': 'Оплачено',
-    'statusPending': 'В ожидании',
-    'statusFailed': 'Ошибка',
-    'statusCancelled': 'Отменено',
-    'limitReachedTitle': 'Лимит достигнут',
-    'limitReachedProducts':
-        'Лимит товаров достигнут. Перейдите на более высокий тариф.',
-    'limitReachedShops':
-        'Лимит бизнес-аккаунтов достигнут. Перейдите на более высокий тариф.',
-    'limitReachedEmployees':
-        'Лимит сотрудников достигнут. Перейдите на более высокий тариф.',
-    'viewPlans': 'Смотреть тарифы',
-    'billingMonthly': 'Месяц',
-    'billingYearly': 'Год',
-    'planPerYear': '/год',
-    'yearlyNotAvailable': 'Годовые подписки недоступны',
-    'yearlyNotAvailableDesc': 'Годовые тарифы пока не добавлены.',
-    'planSaveYearly': 'Выгода',
-    'statusTrialing': 'Пробный период',
-    'statusActive': 'Активна',
-    'statusGraceLabel': 'Льготный период',
-    'statusExpiredLabel': 'Истёк',
-    'validUntil': 'Действует до',
-    'daysLeftShort': 'осталось {n} дн.',
-    'noActivePlan': 'Нет активного тарифа',
     'hello': 'Привет',
     'defaultUser': 'Пользователь',
     'bakery': 'Бизнес',
@@ -3798,8 +3467,6 @@ class S {
     'version': 'Версия',
     'logout': 'Выйти из системы',
     'unknown': 'Неизвестно',
-    'balance': 'Основной Баланс',
-    'topUp': 'Пополнить',
     'profileInfo': 'Данные профиля',
     'profileInfoDesc': 'Телефон, почта и настройки Telegram',
     'phoneNumber': 'Номер телефона',
@@ -3897,9 +3564,6 @@ class S {
     'logoutDesc': 'Выйти из аккаунта',
     'logoutConfirm': 'Вы хотите выйти из системы?',
     'madeInUzbekistan': 'Сделано в Узбекистане',
-    'topUpComingSoonTitle': 'Скоро будет доступно',
-    'topUpComingSoonDesc':
-        'Раздел пополнения баланса находится в разработке. Скоро вы сможете полноценно пользоваться приложением.',
     'goBack': 'Вернуться назад',
     'onboardingTitle1': 'Для любого бизнеса',
     'onboardingDesc1':
@@ -4061,13 +3725,11 @@ class S {
     'employeePasswordLabel': 'Пароль',
     'employeesEmptyTitle': 'Сотрудников пока нет',
     'employeesEmptyDesc': 'Добавьте первого сотрудника и настройте его права',
-    'employeePaidBadge': 'Платное место',
     'employeeSeatActive': 'Активно',
     'employeeSeatPastDue': 'Требуется оплата',
     'employeeSeatRenews': 'Продление: {date}',
     'employeeFreeSlotsLeft': 'Бесплатных мест: осталось {n}',
     'employeeNoFreeSlots': 'Бесплатные места закончились',
-    'employeePaidPerMonth': 'За каждого нового сотрудника: {price}/мес',
     'employeeFridayDiscount': 'Пятничная скидка −{percent}%',
     'employeeConfirmTitle': 'Подтвердите код',
     'employeeConfirmSentTo': 'На номер {phone} отправлен 4-значный код',
@@ -4082,9 +3744,6 @@ class S {
     'employeePermsDesc': 'Выберите, какими разделами может управлять сотрудник',
     'employeePermsSaved': 'Права сохранены',
     'employeeSaveBtn': 'Сохранить',
-    'employeePaidConfirmTitle': 'Платное место сотрудника',
-    'employeePaidConfirmMsg':
-        'Бесплатный лимит исчерпан. За этого сотрудника с баланса будет списано {price} (в месяц).',
     'employeeContinueBtn': 'Продолжить',
     'permViewReports': 'Отчёты',
     'permManageProducts': 'Продукты',
@@ -4227,6 +3886,11 @@ class S {
     'permManageOrders': 'Тапсырыстар',
     'permManageOrdersDesc': 'Клиенттер мен тапсырыстарды басқару',
     'noPermissionTitle': 'Рұқсат жоқ',
+    'featureNotEnabledTitle': 'Бөлім қосылмаған',
+    'featureNotEnabledDesc': 'Бұл бөлім аккаунтыңызда әзірге қосылмаған.',
+    'telegramLinkPromptTitle': 'Telegram-ды қосыңыз',
+    'telegramLinkPromptDesc': 'Маңызды хабарламаларды уақытында алу үшін және қажет болғанда сізбен байланыса алуымыз үшін Telegram аккаунтыңызды қосыңыз.',
+    'telegramLinkPromptAction': 'Қосу',
     'noPermissionDesc': 'Бұл бөлімге рұқсат жоқ',
     'quantityLabel': 'San',
 
@@ -4244,90 +3908,8 @@ class S {
         'Бұл ағымдағы құрылғы. Шықсаңыз, жүйеден шығасыз.',
     'deviceRevokedMsg': 'Құрылғы шығарылды',
     'deviceRevokeFailed': 'Шығару мүмкін болмады',
-    'topUpCardLabel': 'Карта нөмірі',
-    'topUpCardHolderLabel': 'Карта иесі',
     'copyAction': 'Көшіру',
     'copiedMsg': 'Көшірілді',
-    'uploadReceipt': 'Чек суретін жүктеу',
-    'receiptAttached': 'Чек таңдалды',
-    'changeReceipt': 'Суретті өзгерту',
-    'receiptRequired': 'Чек суретін жүктеңіз',
-    'topUpSubmit': 'Жіберу',
-    'topUpAmountTooSmall': 'Ең аз сома — 1 000 сом',
-    'topUpHowToTitle': 'Қалай толтырылады?',
-    'subscription': 'Жазылым',
-    'mySubscription': 'Менің тарифім',
-    'currentPlan': 'Ағымдағы тариф',
-    'paywallTitle': 'Тариф таңдаңыз',
-    'paywallSubtitle': 'Бизнесіңізге сәйкес жоспарды таңдаңыз',
-    'paywallBlockedTitle': 'Жазылым мерзімі аяқталды',
-    'paywallBlockedSubtitle': 'Жалғастыру үшін тариф сатып алыңыз',
-    'planMostPopular': 'Танымал',
-    'planPerMonth': '/ай',
-    'planFeatureProducts': '{n} өнім',
-    'planFeatureProductsUnlimited': 'Шексіз өнім',
-    'planFeatureShops': '{n} бизнес-аккаунт',
-    'planFeatureShopsUnlimited': 'Шексіз бизнес-аккаунт',
-    'planFeatureEmployees': '{n} қызметкер',
-    'planFeatureEmployeesNone': 'Қызметкерсіз',
-    'planFeatureEmployeesUnlimited': 'Шексіз қызметкер',
-    'buy': 'Сатып алу',
-    'purchaseConfirmTitle': 'Сатып алуды растаңыз',
-    'purchaseConfirmMsg':
-        '{plan} тарифі {price} бағасына сатып алынады. Жалғастырамыз ба?',
-    'purchaseSuccess': 'Тариф белсендірілді',
-    'insufficientBalanceTitle': 'Қаражат жеткіліксіз',
-    'insufficientBalanceMsg': 'Төлем үшін балансты толтырыңыз',
-    'topUpNow': 'Балансты толтыру',
-    'trialBadge': 'Тегін сынақ',
-    'trialDaysLeft': 'Сынаққа {n} күн қалды',
-    'trialEndingSoon': 'Сынақ мерзімі аяқталып барады',
-    'graceWarning': '{n} күннен кейін аккаунт бұғатталады',
-    'subscriptionExpired': 'Жазылым мерзімі аяқталды',
-    'upgradePlan': 'Тарифті белсендіру',
-    'walletTitle': 'Әмиян',
-    'balanceHistory': 'Баланс тарихы',
-    'balanceHistoryDesc': 'Кірістер мен шығыстар тарихы',
-    'noTransactions': 'Транзакциялар жоқ',
-    'noTransactionsDesc': 'Баланс қозғалысы осында көрінеді',
-    'txnTopup': 'Толтыру',
-    'txnSubscription': 'Жазылым төлемі',
-    'txnRefund': 'Қайтару',
-    'txnAdjustment': 'Түзету',
-    'txnSeat': 'Қызметкер орны',
-    'topUpAmount': 'Сома (UZS)',
-    'topUpRequest': 'Толтыру сұрауы',
-    'topUpPendingMsg':
-        'Сұрауыңыз қабылданды. Расталғаннан кейін баланс жаңарады.',
-    'topUpHint': 'Толтыруды әкімші растайды',
-    'noOrders': 'Тапсырыстар жоқ',
-    'noOrdersDesc': 'Сатып алу тарихыңыз осында көрінеді',
-    'orderSubscription': 'Жазылым',
-    'orderTopup': 'Толтыру',
-    'statusPaid': 'Төленді',
-    'statusPending': 'Күтілуде',
-    'statusFailed': 'Қате',
-    'statusCancelled': 'Бас тартылды',
-    'limitReachedTitle': 'Шек толды',
-    'limitReachedProducts': 'Өнім шегіне жеттіңіз. Жоғары тарифке өтіңіз.',
-    'limitReachedShops':
-        'Бизнес-аккаунт шегіне жеттіңіз. Жоғары тарифке өтіңіз.',
-    'limitReachedEmployees':
-        'Қызметкер шегіне жеттіңіз. Жоғары тарифке өтіңіз.',
-    'viewPlans': 'Тарифтерді көру',
-    'billingMonthly': 'Айлық',
-    'billingYearly': 'Жылдық',
-    'planPerYear': '/жыл',
-    'yearlyNotAvailable': 'Жылдық жазылымдар қолжетімсіз',
-    'yearlyNotAvailableDesc': 'Жылдық тарифтер әзірге қосылмаған.',
-    'planSaveYearly': 'Үнемдейсіз',
-    'statusTrialing': 'Сынақ мерзімі',
-    'statusActive': 'Белсенді',
-    'statusGraceLabel': 'Жеңілдік мерзімі',
-    'statusExpiredLabel': 'Мерзімі бітті',
-    'validUntil': 'Қолданылады',
-    'daysLeftShort': '{n} күн қалды',
-    'noActivePlan': 'Белсенді тариф жоқ',
     'hello': 'Сәлем',
     'defaultUser': 'Пайдаланушы',
     'bakery': 'Бизнес',
@@ -4775,8 +4357,6 @@ class S {
     'version': 'Нұсқа',
     'logout': 'Жүйеден шығу',
     'unknown': 'Белгісіз',
-    'balance': 'Негізгі Баланс',
-    'topUp': 'Толтыру',
     'profileInfo': 'Профиль деректері',
     'profileInfoDesc': 'Телефон, пошта және Телеграм баптаулары',
     'phoneNumber': 'Телефон нөмірі',
@@ -4873,9 +4453,6 @@ class S {
     'logoutDesc': 'Аккаунттан шығу',
     'logoutConfirm': 'Жүйеден шыққыңыз келе ме?',
     'madeInUzbekistan': 'Өзбекстанда жасалған',
-    'topUpComingSoonTitle': 'Жақын арада іске қосылады',
-    'topUpComingSoonDesc':
-        'Балансты толтыру бөлімі әзірлену үстінде. Жақын арада қолданбаны толық пайдалана аласыз.',
     'goBack': 'Артқа қайту',
     'onboardingTitle1': 'Кез келген бизнес үшін',
     'onboardingDesc1':
@@ -5034,13 +4611,11 @@ class S {
     'employeePasswordLabel': 'Құпия сөз',
     'employeesEmptyTitle': 'Әзірге қызметкер жоқ',
     'employeesEmptyDesc': 'Алғашқы қызметкеріңізді қосып, рұқсаттарын баптаңыз',
-    'employeePaidBadge': 'Ақылы орын',
     'employeeSeatActive': 'Белсенді',
     'employeeSeatPastDue': 'Төлем қажет',
     'employeeSeatRenews': 'Жаңарады: {date}',
     'employeeFreeSlotsLeft': 'Тегін орын: {n} қалды',
     'employeeNoFreeSlots': 'Тегін орындар бітті',
-    'employeePaidPerMonth': 'Әр жаңа қызметкер: {price}/ай',
     'employeeFridayDiscount': 'Жұма жеңілдігі −{percent}%',
     'employeeConfirmTitle': 'Кодты растаңыз',
     'employeeConfirmSentTo': '{phone} нөміріне 4 таңбалы код жіберілді',
@@ -5055,9 +4630,6 @@ class S {
     'employeePermsDesc': 'Қызметкер қай бөлімдерді басқара алатынын таңдаңыз',
     'employeePermsSaved': 'Рұқсаттар сақталды',
     'employeeSaveBtn': 'Сақтау',
-    'employeePaidConfirmTitle': 'Ақылы қызметкер орны',
-    'employeePaidConfirmMsg':
-        'Тегін лимит бітті. Бұл қызметкер үшін баланстан {price} (айына) алынады.',
     'employeeContinueBtn': 'Жалғастыру',
     'permViewReports': 'Есептер',
     'permManageProducts': 'Өнімдер',
@@ -5201,6 +4773,11 @@ class S {
     'permManageOrders': 'Заказдар',
     'permManageOrdersDesc': 'Кардарлар менен Заказдар башкаруу',
     'noPermissionTitle': 'Уруксат жок',
+    'featureNotEnabledTitle': 'Бөлүм күйгүзүлгөн эмес',
+    'featureNotEnabledDesc': 'Бул бөлүм аккаунтуңузда азырынча күйгүзүлгөн эмес.',
+    'telegramLinkPromptTitle': 'Telegram\'ды туташтырыңыз',
+    'telegramLinkPromptDesc': 'Маанилүү билдирүүлөрдү өз убагында алуу үчүн жана керек болгондо сиз менен байланыша алуубуз үчүн Telegram аккаунтуңузду туташтырыңыз.',
+    'telegramLinkPromptAction': 'Туташтыруу',
     'noPermissionDesc': 'Бул бөлүмгө уруксат берилген эмес',
     'quantityLabel': 'Sany',
 
@@ -5218,90 +4795,8 @@ class S {
         'Бул учурдагы түзмөк. Чыксаңыз, системадан чыгасыз.',
     'deviceRevokedMsg': 'Түзмөк чыгарылды',
     'deviceRevokeFailed': 'Чыгаруу мүмкүн болбоду',
-    'topUpCardLabel': 'Карта номери',
-    'topUpCardHolderLabel': 'Карта ээси',
     'copyAction': 'Көчүрүү',
     'copiedMsg': 'Көчүрүлдү',
-    'uploadReceipt': 'Чек сүрөтүн жүктөө',
-    'receiptAttached': 'Чек тандалды',
-    'changeReceipt': 'Сүрөттү өзгөртүү',
-    'receiptRequired': 'Чек сүрөтүн жүктөңүз',
-    'topUpSubmit': 'Жөнөтүү',
-    'topUpAmountTooSmall': 'Эң аз сумма — 1 000 сом',
-    'topUpHowToTitle': 'Кантип толтурулат?',
-    'subscription': 'Жазылуу',
-    'mySubscription': 'Менин тарифим',
-    'currentPlan': 'Учурдагы тариф',
-    'paywallTitle': 'Тариф тандаңыз',
-    'paywallSubtitle': 'Бизнесиңизге ылайыктуу планды тандаңыз',
-    'paywallBlockedTitle': 'Жазылуу мөөнөтү бүттү',
-    'paywallBlockedSubtitle': 'Улантуу үчүн тариф сатып алыңыз',
-    'planMostPopular': 'Популярдуу',
-    'planPerMonth': '/ай',
-    'planFeatureProducts': '{n} продукт',
-    'planFeatureProductsUnlimited': 'Чексиз продукт',
-    'planFeatureShops': '{n} бизнес-аккаунт',
-    'planFeatureShopsUnlimited': 'Чексиз бизнес-аккаунт',
-    'planFeatureEmployees': '{n} кызматкер',
-    'planFeatureEmployeesNone': 'Кызматкерсиз',
-    'planFeatureEmployeesUnlimited': 'Чексиз кызматкер',
-    'buy': 'Сатып алуу',
-    'purchaseConfirmTitle': 'Сатып алууну ырастаңыз',
-    'purchaseConfirmMsg':
-        '{plan} тарифи {price} баасына сатып алынат. Улантабызбы?',
-    'purchaseSuccess': 'Тариф иштетилди',
-    'insufficientBalanceTitle': 'Каражат жетишсиз',
-    'insufficientBalanceMsg': 'Төлөм үчүн балансты толтуруңуз',
-    'topUpNow': 'Балансты толтуруу',
-    'trialBadge': 'Акысыз сыноо',
-    'trialDaysLeft': 'Сыноого {n} күн калды',
-    'trialEndingSoon': 'Сыноо мөөнөтү бүтүп баратат',
-    'graceWarning': '{n} күндөн кийин аккаунт бөгөттөлөт',
-    'subscriptionExpired': 'Жазылуу мөөнөтү бүттү',
-    'upgradePlan': 'Тарифти иштетүү',
-    'walletTitle': 'Капчык',
-    'balanceHistory': 'Баланс тарыхы',
-    'balanceHistoryDesc': 'Кирешелер менен чыгашалар тарыхы',
-    'noTransactions': 'Транзакциялар жок',
-    'noTransactionsDesc': 'Баланс кыймылы бул жерде көрүнөт',
-    'txnTopup': 'Толтуруу',
-    'txnSubscription': 'Жазылуу төлөмү',
-    'txnRefund': 'Кайтаруу',
-    'txnAdjustment': 'Оңдоо',
-    'txnSeat': 'Кызматкер орду',
-    'topUpAmount': 'Сумма (UZS)',
-    'topUpRequest': 'Толтуруу сурамы',
-    'topUpPendingMsg':
-        'Сурамыңыз кабыл алынды. Ырасталгандан кийин баланс жаңырат.',
-    'topUpHint': 'Толтурууну администратор ырастайт',
-    'noOrders': 'Заказдар жок',
-    'noOrdersDesc': 'Сатып алуу тарыхыңыз бул жерде көрүнөт',
-    'orderSubscription': 'Жазылуу',
-    'orderTopup': 'Толтуруу',
-    'statusPaid': 'Төлөндү',
-    'statusPending': 'Күтүлүүдө',
-    'statusFailed': 'Ката',
-    'statusCancelled': 'Жокко чыгарылды',
-    'limitReachedTitle': 'Лимит толду',
-    'limitReachedProducts': 'Продукт чегине жеттиңиз. Жогорку тарифке өтүңүз.',
-    'limitReachedShops':
-        'Бизнес-аккаунт чегине жеттиңиз. Жогорку тарифке өтүңүз.',
-    'limitReachedEmployees':
-        'Кызматкер чегине жеттиңиз. Жогорку тарифке өтүңүз.',
-    'viewPlans': 'Тарифтерди көрүү',
-    'billingMonthly': 'Айлык',
-    'billingYearly': 'Жылдык',
-    'planPerYear': '/жыл',
-    'yearlyNotAvailable': 'Жылдык жазылуулар жок',
-    'yearlyNotAvailableDesc': 'Жылдык тарифтер азырынча кошулган эмес.',
-    'planSaveYearly': 'Үнөмдөйсүз',
-    'statusTrialing': 'Сыноо мөөнөтү',
-    'statusActive': 'Активдүү',
-    'statusGraceLabel': 'Жеңилдик мөөнөтү',
-    'statusExpiredLabel': 'Мөөнөтү бүттү',
-    'validUntil': 'Жарактуу',
-    'daysLeftShort': '{n} күн калды',
-    'noActivePlan': 'Активдүү тариф жок',
     'hello': 'Салам',
     'defaultUser': 'Колдонуучу',
     'bakery': 'Бизнес',
@@ -5749,8 +5244,6 @@ class S {
     'version': 'Версия',
     'logout': 'Тутумдан чыгуу',
     'unknown': 'Белгисиз',
-    'balance': 'Негизги Баланс',
-    'topUp': 'Толтуруу',
     'profileInfo': 'Профиль маалыматы',
     'profileInfoDesc': 'Телефон, почта жана Телеграм жөндөөлөрү',
     'phoneNumber': 'Телефон номери',
@@ -5847,9 +5340,6 @@ class S {
     'logoutDesc': 'Аккаунттан чыгуу',
     'logoutConfirm': 'Системадан чыккыңыз келеби?',
     'madeInUzbekistan': 'Өзбекстанда жасалган',
-    'topUpComingSoonTitle': 'Жакында иштей баштайт',
-    'topUpComingSoonDesc':
-        'Балансты толтуруу бөлүмү иштеп чыгууда. Жакында тиркемеден толук пайдалана аласыз.',
     'goBack': 'Артка кайтуу',
     'onboardingTitle1': 'Каалаган бизнес үчүн',
     'onboardingDesc1':
@@ -6010,13 +5500,11 @@ class S {
     'employeesEmptyTitle': 'Азырынча кызматкер жок',
     'employeesEmptyDesc':
         'Биринчи кызматкериңизди кошуп, уруксаттарын жөндөңүз',
-    'employeePaidBadge': 'Акылуу орун',
     'employeeSeatActive': 'Активдүү',
     'employeeSeatPastDue': 'Төлөм керек',
     'employeeSeatRenews': 'Жаңыланат: {date}',
     'employeeFreeSlotsLeft': 'Акысыз орун: {n} калды',
     'employeeNoFreeSlots': 'Акысыз орундар бүттү',
-    'employeePaidPerMonth': 'Ар бир жаңы кызматкер: {price}/ай',
     'employeeFridayDiscount': 'Жума арзандатуусу −{percent}%',
     'employeeConfirmTitle': 'Кодду ырастаңыз',
     'employeeConfirmSentTo': '{phone} номерине 4 орундуу код жөнөтүлдү',
@@ -6030,9 +5518,6 @@ class S {
     'employeePermsDesc': 'Кызматкер кайсы бөлүмдөрдү башкара аларын тандаңыз',
     'employeePermsSaved': 'Уруксаттар сакталды',
     'employeeSaveBtn': 'Сактоо',
-    'employeePaidConfirmTitle': 'Акылуу кызматкер орду',
-    'employeePaidConfirmMsg':
-        'Акысыз лимит бүттү. Бул кызматкер үчүн баланстан {price} (айына) алынат.',
     'employeeContinueBtn': 'Улантуу',
     'permViewReports': 'Отчеттор',
     'permManageProducts': 'Азыктар',
@@ -6175,6 +5660,11 @@ class S {
     'permManageOrders': 'Siparişler',
     'permManageOrdersDesc': 'Müşteri ve sipariş yönetimi',
     'noPermissionTitle': 'Yetki yok',
+    'featureNotEnabledTitle': 'Bölüm etkin değil',
+    'featureNotEnabledDesc': 'Bu bölüm hesabınızda henüz etkin değil.',
+    'telegramLinkPromptTitle': 'Telegram\'ı bağlayın',
+    'telegramLinkPromptDesc': 'Önemli mesajları zamanında almanız ve gerektiğinde sizinle iletişime geçebilmemiz için Telegram hesabınızı bağlayın.',
+    'telegramLinkPromptAction': 'Bağla',
     'noPermissionDesc': 'Bu bölüme erişim izniniz yok',
     'quantityLabel': 'Miktar',
 
@@ -6192,91 +5682,8 @@ class S {
         'Bu geçerli cihaz. Çıkarırsanız oturumunuz kapanır.',
     'deviceRevokedMsg': 'Cihaz çıkarıldı',
     'deviceRevokeFailed': 'Çıkarılamadı',
-    'topUpCardLabel': 'Kart numarası',
-    'topUpCardHolderLabel': 'Kart sahibi',
     'copyAction': 'Kopyala',
     'copiedMsg': 'Kopyalandı',
-    'uploadReceipt': 'Dekont fotoğrafı yükle',
-    'receiptAttached': 'Dekont seçildi',
-    'changeReceipt': 'Fotoğrafı değiştir',
-    'receiptRequired': 'Dekont fotoğrafı yükleyin',
-    'topUpSubmit': 'Gönder',
-    'topUpAmountTooSmall': 'En az tutar — 1 000 so‘m',
-    'topUpHowToTitle': 'Nasıl yüklenir?',
-    'subscription': 'Abonelik',
-    'mySubscription': 'Paketim',
-    'currentPlan': 'Mevcut paket',
-    'paywallTitle': 'Paket seçin',
-    'paywallSubtitle': 'İşletmeniz için uygun planı seçin',
-    'paywallBlockedTitle': 'Abonelik süresi doldu',
-    'paywallBlockedSubtitle': 'Devam etmek için bir paket satın alın',
-    'planMostPopular': 'En popüler',
-    'planPerMonth': '/ay',
-    'planFeatureProducts': '{n} ürün',
-    'planFeatureProductsUnlimited': 'Sınırsız ürün',
-    'planFeatureShops': '{n} işletme hesabı',
-    'planFeatureShopsUnlimited': 'Sınırsız işletme hesabı',
-    'planFeatureEmployees': '{n} çalışan',
-    'planFeatureEmployeesNone': 'Çalışan yok',
-    'planFeatureEmployeesUnlimited': 'Sınırsız çalışan',
-    'buy': 'Satın al',
-    'purchaseConfirmTitle': 'Satın almayı onaylayın',
-    'purchaseConfirmMsg':
-        '{plan} paketi {price} karşılığında alınacak. Devam edelim mi?',
-    'purchaseSuccess': 'Paket etkinleştirildi',
-    'insufficientBalanceTitle': 'Bakiye yetersiz',
-    'insufficientBalanceMsg': 'Ödeme için bakiyenizi yükleyin',
-    'topUpNow': 'Bakiye yükle',
-    'trialBadge': 'Ücretsiz deneme',
-    'trialDaysLeft': 'Denemeye {n} gün kaldı',
-    'trialEndingSoon': 'Deneme süresi bitiyor',
-    'graceWarning': '{n} gün sonra hesap engellenecek',
-    'subscriptionExpired': 'Abonelik süresi doldu',
-    'upgradePlan': 'Paketi etkinleştir',
-    'walletTitle': 'Cüzdan',
-    'balanceHistory': 'Bakiye geçmişi',
-    'balanceHistoryDesc': 'Gelir ve gider geçmişi',
-    'noTransactions': 'İşlem yok',
-    'noTransactionsDesc': 'Bakiye hareketleri burada görünecek',
-    'txnTopup': 'Yükleme',
-    'txnSubscription': 'Abonelik ödemesi',
-    'txnRefund': 'İade',
-    'txnAdjustment': 'Düzeltme',
-    'txnSeat': 'Çalışan koltuğu',
-    'topUpAmount': 'Tutar (UZS)',
-    'topUpRequest': 'Yükleme talebi',
-    'topUpPendingMsg':
-        'Talebiniz alındı. Onaylandıktan sonra bakiye güncellenecek.',
-    'topUpHint': 'Yükleme yönetici tarafından onaylanır',
-    'noOrders': 'Sipariş yok',
-    'noOrdersDesc': 'Satın alma geçmişiniz burada görünecek',
-    'orderSubscription': 'Abonelik',
-    'orderTopup': 'Yükleme',
-    'statusPaid': 'Ödendi',
-    'statusPending': 'Beklemede',
-    'statusFailed': 'Hata',
-    'statusCancelled': 'İptal edildi',
-    'limitReachedTitle': 'Limit doldu',
-    'limitReachedProducts':
-        'Ürün limitine ulaşıldı. Daha yüksek bir pakete geçin.',
-    'limitReachedShops':
-        'İşletme hesabı limitine ulaşıldı. Daha yüksek bir pakete geçin.',
-    'limitReachedEmployees':
-        'Çalışan limitine ulaşıldı. Daha yüksek bir pakete geçin.',
-    'viewPlans': 'Paketleri gör',
-    'billingMonthly': 'Aylık',
-    'billingYearly': 'Yıllık',
-    'planPerYear': '/yıl',
-    'yearlyNotAvailable': 'Yıllık abonelikler mevcut değil',
-    'yearlyNotAvailableDesc': 'Yıllık planlar henüz eklenmedi.',
-    'planSaveYearly': 'Tasarruf',
-    'statusTrialing': 'Deneme süresi',
-    'statusActive': 'Aktif',
-    'statusGraceLabel': 'Ek süre',
-    'statusExpiredLabel': 'Süresi doldu',
-    'validUntil': 'Geçerli',
-    'daysLeftShort': '{n} gün kaldı',
-    'noActivePlan': 'Aktif plan yok',
     'hello': 'Merhaba',
     'defaultUser': 'Kullanıcı',
     'bakery': 'İşletme',
@@ -6717,8 +6124,6 @@ class S {
     'version': 'Sürüm',
     'logout': 'Çıkış yap',
     'unknown': 'Bilinmiyor',
-    'balance': 'Ana Bakiye',
-    'topUp': 'Yükle',
     'profileInfo': 'Profil bilgileri',
     'profileInfoDesc': 'Telefon, e-posta ve Telegram ayarları',
     'phoneNumber': 'Telefon numarası',
@@ -6815,9 +6220,6 @@ class S {
     'logoutDesc': 'Hesabınızdan çıkın',
     'logoutConfirm': 'Sistemden çıkmak istiyor musunuz?',
     'madeInUzbekistan': "Özbekistan'da üretildi",
-    'topUpComingSoonTitle': 'Yakında kullanıma açılacak',
-    'topUpComingSoonDesc':
-        'Bakiye yükleme bölümü üzerinde çalışılmaktadır. Yakında uygulamayı tam olarak kullanabileceksiniz.',
     'goBack': 'Geri dön',
     'onboardingTitle1': 'Her işletme için',
     'onboardingDesc1':
@@ -6974,13 +6376,11 @@ class S {
     'employeePasswordLabel': 'Şifre',
     'employeesEmptyTitle': 'Henüz çalışan yok',
     'employeesEmptyDesc': 'İlk çalışanınızı ekleyin ve yetkilerini ayarlayın',
-    'employeePaidBadge': 'Ücretli koltuk',
     'employeeSeatActive': 'Aktif',
     'employeeSeatPastDue': 'Ödeme gerekli',
     'employeeSeatRenews': 'Yenileniyor: {date}',
     'employeeFreeSlotsLeft': 'Ücretsiz koltuk: {n} kaldı',
     'employeeNoFreeSlots': 'Ücretsiz koltuklar bitti',
-    'employeePaidPerMonth': 'Her yeni çalışan: {price}/ay',
     'employeeFridayDiscount': 'Cuma indirimi −{percent}%',
     'employeeConfirmTitle': 'Kodu onaylayın',
     'employeeConfirmSentTo': '{phone} numarasına 4 haneli kod gönderildi',
@@ -6995,9 +6395,6 @@ class S {
     'employeePermsDesc': 'Çalışanın hangi bölümleri yönetebileceğini seçin',
     'employeePermsSaved': 'Yetkiler kaydedildi',
     'employeeSaveBtn': 'Kaydet',
-    'employeePaidConfirmTitle': 'Ücretli çalışan koltuğu',
-    'employeePaidConfirmMsg':
-        'Ücretsiz limit doldu. Bu çalışan için bakiyeden {price} (aylık) düşülecek.',
     'employeeContinueBtn': 'Devam et',
     'permViewReports': 'Raporlar',
     'permManageProducts': 'Ürünler',

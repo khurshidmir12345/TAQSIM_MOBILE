@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/shop_features.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/app_loading.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_retry_widget.dart';
+import '../../../../core/widgets/feature_guard.dart';
 import '../../../../core/widgets/segmented_tabs.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../domain/models/statistics_model.dart';
@@ -20,6 +22,18 @@ import '../widgets/stats_line_chart.dart';
 class StatisticsScreen extends ConsumerWidget {
   const StatisticsScreen({super.key});
 
+  PreferredSizeWidget _appBar(S s) {
+    return AppBar(
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      title: Text(
+        s.reportScreenTitle,
+        style: const TextStyle(fontWeight: FontWeight.w700),
+      ),
+      centerTitle: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = S.of(context);
@@ -27,16 +41,17 @@ class StatisticsScreen extends ConsumerWidget {
     final async = ref.watch(statisticsProvider);
     final period = ref.watch(statsPeriodProvider);
 
+    // Bo'lim hisobda yoqilmagan bo'lsa — neytral xabar. Tab pastki
+    // menyuda o'z joyida qoladi, faqat ichi almashadi.
+    if (!ref.watch(hasFeatureProvider(ShopFeatures.reports))) {
+      return Scaffold(
+        appBar: _appBar(s),
+        body: FeatureGuard.lockedBody(s),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        title: Text(
-          s.reportScreenTitle,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
-        centerTitle: true,
-      ),
+      appBar: _appBar(s),
       body: Column(
         children: [
           Padding(

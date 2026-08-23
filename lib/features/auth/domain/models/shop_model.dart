@@ -28,6 +28,15 @@ class ShopModel {
 
   /// Joriy foydalanuvchining shu do'kondagi ruxsatlari (owner -> barchasi).
   final List<String> permissions;
+
+  /// Hisob muddati bo'yicha ochiq bo'limlar: `reports`, `orders`,
+  /// `employees`, `multi_shop`.
+  ///
+  /// `permissions` roldan (egasi/xodim) kelib chiqadi, bu esa hisob
+  /// muddatidan — ikkalasi mustaqil va ikkalasi ham talab qilinadi.
+  /// Ro'yxat egasining hisobidan hisoblanadi, shuning uchun xodim ham
+  /// xuddi shu ro'yxatni oladi.
+  final List<String> features;
   final String? createdAt;
   final String? businessTypeId;
   final BusinessTypeModel? businessType;
@@ -47,6 +56,7 @@ class ShopModel {
     this.isActive = true,
     this.userType,
     this.permissions = const [],
+    this.features = const [],
     this.createdAt,
     this.businessTypeId,
     this.businessType,
@@ -74,6 +84,10 @@ class ShopModel {
       isActive:       json['is_active'] as bool? ?? true,
       userType:       json['user_type'] as String?,
       permissions:    (json['permissions'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      features:       (json['features'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],

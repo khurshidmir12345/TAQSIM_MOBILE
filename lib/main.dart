@@ -11,8 +11,6 @@ import 'core/l10n/app_locale.dart';
 import 'core/providers/deep_link_provider.dart';
 import 'core/push/push_service.dart';
 import 'core/router/app_router.dart';
-import 'features/app_update/domain/app_update_provider.dart';
-import 'features/app_update/presentation/app_update_dialog.dart';
 import 'features/notifications/domain/providers/push_sync_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
@@ -63,32 +61,12 @@ class _TaqseemAppState extends ConsumerState<TaqseemApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(deepLinkHandlerProvider).start();
       ref.read(pushSyncProvider).start();
-      _checkForUpdate();
 
       // Bildirishnoma bosilganda ro'yxat ekraniga o'tamiz.
       PushService.onOpened = () {
         rootNavigatorKey.currentContext?.push('/notifications');
       };
     });
-  }
-
-  /// Ilova ochilganda bir marta versiya tekshiriladi.
-  ///
-  /// Tekshiruv login'gacha ham ishlaydi. Xato bo'lsa jim o'tib ketiladi —
-  /// modalka tufayli ilova ochilmay qolmasin.
-  Future<void> _checkForUpdate() async {
-    final info = await ref.read(appUpdateCheckProvider.future);
-
-    if (!info.updateAvailable) return;
-
-    // Splash o'z yo'nalishini tugatgach chiqsin — aks holda modalka
-    // almashayotgan ekran ostida qolib ketishi mumkin.
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-
-    final context = rootNavigatorKey.currentContext;
-    if (context == null || !context.mounted) return;
-
-    await AppUpdateDialog.show(context, info);
   }
 
   @override

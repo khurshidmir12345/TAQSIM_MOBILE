@@ -4,7 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/shop_features.dart';
 import '../../../../core/l10n/translations.dart';
+import '../../../auth/domain/providers/auth_provider.dart';
+import '../../../../core/widgets/feature_guard.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../domain/models/employee_model.dart';
 import '../../domain/providers/employee_provider.dart';
@@ -23,7 +26,11 @@ class _EmployeesScreenState extends ConsumerState<EmployeesScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      if (mounted) ref.read(employeesProvider.notifier).refresh();
+      if (!mounted) return;
+      // Bo'lim yoqilmagan bo'lsa so'rov yubormaymiz — server 403 qaytaradi
+      // va ro'yxat xato holatida qolib ketardi.
+      if (!ref.read(hasFeatureProvider(ShopFeatures.employees))) return;
+      ref.read(employeesProvider.notifier).refresh();
     });
   }
 
@@ -42,11 +49,21 @@ class _EmployeesScreenState extends ConsumerState<EmployeesScreen> {
     final s = S.of(context);
     final state = ref.watch(employeesProvider);
 
+    final appBar = AppBar(
+      title: Text(s.employeesTitle,
+          style: const TextStyle(fontWeight: FontWeight.w700)),
+      centerTitle: true,
+    );
+
+    if (!ref.watch(hasFeatureProvider(ShopFeatures.employees))) {
+      return Scaffold(
+        appBar: appBar,
+        body: FeatureGuard.lockedBody(s),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.employeesTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
-        centerTitle: true,
-      ),
+      appBar: appBar,
       floatingActionButton: state.maybeWhen(
         data: (_) => FloatingActionButton.extended(
           onPressed: _openAdd,
