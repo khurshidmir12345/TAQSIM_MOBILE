@@ -7,10 +7,10 @@ import '../../../../core/constants/shop_permissions.dart';
 import '../../../../core/l10n/translations.dart';
 import '../../../../core/router/app_router.dart';
 import '../../domain/shell_tab.dart';
+import '../../domain/startup_prompt_provider.dart';
+import '../widgets/startup_prompt_overlay.dart';
 import '../../domain/shell_tab_provider.dart';
 import '../../domain/shell_tab_utils.dart';
-import '../../../app_update/presentation/app_update_prompt.dart';
-import '../../../telegram_link/presentation/telegram_link_prompt.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
 import '../../../cash/presentation/screens/cash_screen.dart';
@@ -47,24 +47,13 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
       ref.read(recipeProvider.notifier).load();
     });
 
-    // Modalkalar asosiy sahifa chizilgach chiqadi: ilova ochilishida
-    // chiqarilsa, go_router yo'naltirishi ularni bosilmasdan yopib yuboradi.
+    // Taklif oynasi asosiy sahifa chizilgach hal qilinadi. Oynaning o'zi
+    // shu ekran ichida chiziladi (`StartupPromptOverlay`), shuning uchun
+    // sahifa almashishi uni yopib yubora olmaydi.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _showStartupPrompts();
+      ref.read(startupPromptProvider.notifier).resolve();
     });
-  }
-
-  /// Boshlang'ich modalkalar — ketma-ket, ustma-ust emas.
-  ///
-  /// Tartib muhim: yangilanish taklifi birinchi, chunki eski versiyada
-  /// boshqa hech narsaning ma'nosi yo'q.
-  Future<void> _showStartupPrompts() async {
-    await showAppUpdatePromptIfNeeded(context, ref);
-
-    if (!mounted) return;
-
-    await showTelegramLinkPromptIfNeeded(context, ref);
   }
 
   @override
@@ -146,6 +135,18 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
   }
 
   Future<void> _handleSystemBack(S s, List<ShellTab> tabs) async {
+    final prompt = ref.read(startupPromptProvider);
+
+    // Taklif oynasi ochiq: yangilanish taklifi faqat tugma orqali yopiladi,
+    // Telegram taklifi esa majburiy emas — "orqaga" uni yopadi.
+    if (prompt.isVisible) {
+      if (prompt.prompt == StartupPrompt.telegramLink) {
+        ref.read(startupPromptProvider.notifier).dismiss();
+      }
+
+      return;
+    }
+
     final index = _clampIndex(ref.read(shellTabIndexProvider), tabs.length);
 
     if (tabs[index] != ShellTab.home) {
@@ -234,7 +235,6 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final s = S.of(context);
     final perms = ref.watch(currentPermissionsProvider);
     final tabs = _visibleTabs(perms);
@@ -252,10 +252,10 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
       });
     }
     _previousVisibleTabs = tabs;
-    if (_selectedTabIdentity == null ||
-        !tabs.contains(_selectedTabIdentity)) {
-      _selectedTabIdentity =
-          reconciledIndex < tabs.length ? tabs[reconciledIndex] : ShellTab.home;
+    if (_selectedTabIdentity == null || !tabs.contains(_selectedTabIdentity)) {
+      _selectedTabIdentity = reconciledIndex < tabs.length
+          ? tabs[reconciledIndex]
+          : ShellTab.home;
     }
     final currentIndex = reconciledIndex;
 
@@ -271,33 +271,50 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
         if (didPop) return;
         _handleSystemBack(s, tabs);
       },
-      child: Scaffold(
-        body: IndexedStack(
-          index: currentIndex,
-          children: [for (final tab in tabs) _buildTab(tab)],
-        ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: cs.surface,
-            border: Border(
-              top: BorderSide(color: cs.onSurface.withValues(alpha: 0.06)),
-            ),
+      child: Stack(
+        children: [
+          _buildScaffold(context, s, tabs, currentIndex),
+          // Taklif oynasi eng ustida — pastki menyu ham berkiladi.
+          const StartupPromptOverlay(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScaffold(
+    BuildContext context,
+    S s,
+    List<ShellTab> tabs,
+    int currentIndex,
+  ) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      body: IndexedStack(
+        index: currentIndex,
+        children: [for (final tab in tabs) _buildTab(tab)],
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: cs.surface,
+          border: Border(
+            top: BorderSide(color: cs.onSurface.withValues(alpha: 0.06)),
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-              child: Row(
-                children: [
-                  for (var i = 0; i < tabs.length; i++)
-                    Expanded(
-                      child: _NavItem(
-                        meta: _navMeta(tabs[i], s),
-                        isActive: currentIndex == i,
-                        onTap: () => _onTabTap(tabs, i),
-                      ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+            child: Row(
+              children: [
+                for (var i = 0; i < tabs.length; i++)
+                  Expanded(
+                    child: _NavItem(
+                      meta: _navMeta(tabs[i], s),
+                      isActive: currentIndex == i,
+                      onTap: () => _onTabTap(tabs, i),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ),

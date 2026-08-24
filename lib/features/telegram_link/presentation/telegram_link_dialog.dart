@@ -4,26 +4,23 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/l10n/translations.dart';
 
-/// "Telegramni ulang" modalkasi.
+/// "Telegramni ulang" kartasi.
 ///
 /// Maqsadi — aloqa kanali: bildirishnomalar va qo'llab-quvvatlash Telegram
-/// orqali boradi. Modalka ataylab shu haqda gapiradi, boshqa hech narsa
+/// orqali boradi. Karta ataylab shu haqda gapiradi, boshqa hech narsa
 /// haqida emas.
 ///
-/// Foydalanuvchi "Keyinroq" bosib ishini davom ettira oladi — bu majburiy
-/// qadam emas.
+/// `AppUpdateDialog` kabi Navigator route emas — asosiy sahifa ichida
+/// chiziladi.
 class TelegramLinkDialog extends StatelessWidget {
-  const TelegramLinkDialog({super.key});
+  const TelegramLinkDialog({
+    super.key,
+    required this.onConnect,
+    required this.onLater,
+  });
 
-  /// `true` — foydalanuvchi ulashni tanladi.
-  static Future<bool> show(BuildContext context) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (_) => const TelegramLinkDialog(),
-    );
-
-    return result ?? false;
-  }
+  final VoidCallback onConnect;
+  final VoidCallback onLater;
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +55,9 @@ class TelegramLinkDialog extends StatelessWidget {
       ),
       actionsAlignment: MainAxisAlignment.center,
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(s.updateLater),
-        ),
+        TextButton(onPressed: onLater, child: Text(s.updateLater)),
         FilledButton(
-          onPressed: () => Navigator.of(context).pop(true),
+          onPressed: onConnect,
           child: Text(s.telegramLinkPromptAction),
         ),
       ],
