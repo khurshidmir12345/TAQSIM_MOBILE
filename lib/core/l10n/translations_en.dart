@@ -946,8 +946,8 @@ const Map<String, String> kEnTranslations = {
   'outletValidationItems': 'Enter a quantity for at least one product',
   'outletValidationAmount': 'Enter the amount',
   'outletPaidExceeds': 'Cash cannot exceed the total',
-  'cashSettingTrackOutlets': 'Outlet payments',
-  'cashSettingTrackOutletsDesc': 'When an outlet pays, an “Payment from outlet” income is written to the cash book',
+  'cashSettingTrackOutlets': 'Outlet ledger',
+  'cashSettingTrackOutletsDesc': 'Products on credit are written as an expense, outlet payments as income',
   'dashboardOutletCredit': 'Outlet credit',
   'outletEdgeHint': 'Sections',
 };

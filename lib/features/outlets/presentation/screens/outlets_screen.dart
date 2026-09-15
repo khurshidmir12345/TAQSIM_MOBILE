@@ -82,13 +82,13 @@ class _OutletsScreenState extends ConsumerState<OutletsScreen> {
                           ),
                           const Spacer(),
                           Text(
-                            '${outletMoney(context, totalOwed.abs())} $cur',
+                            '${totalOwed > 0 ? '−' : '+'}${outletMoney(context, totalOwed.abs())} $cur',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
                               color: totalOwed > 0
-                                  ? AppColors.warning
-                                  : AppColors.info,
+                                  ? AppColors.error
+                                  : AppColors.success,
                             ),
                           ),
                         ],
@@ -186,8 +186,7 @@ class _OutletCard extends StatelessWidget {
               const SizedBox(width: 10),
               OutletBalanceChip(
                 totals: outlet.totals,
-                amountText:
-                    '${outletMoney(context, outlet.totals.balance.abs())} $currency',
+                amountText: outletMoney(context, outlet.totals.balance.abs()),
               ),
             ],
           ),

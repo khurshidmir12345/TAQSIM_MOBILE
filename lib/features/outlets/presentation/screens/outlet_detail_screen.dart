@@ -147,71 +147,32 @@ class _OutletDetailScreenState extends ConsumerState<OutletDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: 0,
-        title: outlet == null
-            ? const SizedBox.shrink()
-            : Row(
-                children: [
-                  OutletAvatar(
-                    name: outlet.name,
-                    imageUrl: outlet.imageUrl,
-                    size: 34,
-                    radius: 10,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      outlet.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
+        title: Text(
+          outlet?.name ?? '',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        scrolledUnderElevation: 0,
         actions: [
-          if (outlet != null)
-            PopupMenuButton<String>(
-              onSelected: (v) async {
-                if (v == 'edit') {
-                  final updated = await context.push<OutletModel>(
-                    '/outlets/${outlet.id}/edit',
-                    extra: outlet,
-                  );
-                  if (updated != null) _notifier.load();
-                } else if (v == 'delete') {
-                  _deleteOutlet(outlet);
-                }
+          if (outlet != null) ...[
+            IconButton(
+              tooltip: s.outletEdit,
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: () async {
+                final updated = await context.push<OutletModel>(
+                  '/outlets/${outlet.id}/edit',
+                  extra: outlet,
+                );
+                if (updated != null) _notifier.load();
               },
-              itemBuilder: (_) => [
-                PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit_outlined, size: 18),
-                      const SizedBox(width: 10),
-                      Text(s.outletEdit),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.delete_outline_rounded,
-                        size: 18,
-                        color: AppColors.error,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        s.delete,
-                        style: const TextStyle(color: AppColors.error),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ),
+            IconButton(
+              tooltip: s.delete,
+              icon: const Icon(Icons.delete_outline_rounded),
+              onPressed: () => _deleteOutlet(outlet),
+            ),
+            const SizedBox(width: 4),
+          ],
         ],
       ),
       body: outlet == null
@@ -220,193 +181,35 @@ class _OutletDetailScreenState extends ConsumerState<OutletDetailScreen> {
               onRefresh: _notifier.load,
               color: cs.primary,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
-                  _SummaryCard(outlet: outlet, currency: cur),
-                  if (outlet.phones.isNotEmpty ||
-                      (outlet.address?.isNotEmpty ?? false)) ...[
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        if (outlet.address?.isNotEmpty ?? false)
-                          _InfoChip(
-                            icon: Icons.place_outlined,
-                            label: outlet.address!,
-                          ),
-                        for (final p in outlet.phones)
-                          _InfoChip(
-                            icon: Icons.call_outlined,
-                            label: p,
-                            onTap: () => _call(p),
-                          ),
-                      ],
-                    ),
-                  ],
+                  _HeaderCard(outlet: outlet, currency: cur, onCall: _call),
                   const SizedBox(height: 14),
-                  // ── Sana filtri ──
-                  Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => _pickRange(st),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 9,
-                            ),
-                            decoration: BoxDecoration(
-                              color: st.isFiltered
-                                  ? AppColors.primary.withValues(alpha: 0.1)
-                                  : cs.surfaceContainerHighest.withValues(
-                                      alpha: 0.5,
-                                    ),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: st.isFiltered
-                                    ? AppColors.primary
-                                    : cs.outline.withValues(alpha: 0.12),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_month_rounded,
-                                  size: 16,
-                                  color: st.isFiltered
-                                      ? AppColors.primary
-                                      : cs.onSurface.withValues(alpha: 0.6),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    st.isFiltered
-                                        ? '${outletDateLabelOf(context, st.from!)} — ${outletDateLabelOf(context, st.to!)}'
-                                        : s.outletFilterAll,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                      color: st.isFiltered
-                                          ? AppColors.primary
-                                          : cs.onSurface,
-                                    ),
-                                  ),
-                                ),
-                                if (st.isFiltered)
-                                  GestureDetector(
-                                    onTap: () => _notifier.setRange(null, null),
-                                    child: const Icon(
-                                      Icons.close_rounded,
-                                      size: 16,
-                                      color: AppColors.primary,
-                                    ),
-                                  )
-                                else
-                                  Icon(
-                                    Icons.keyboard_arrow_down_rounded,
-                                    size: 18,
-                                    color: cs.onSurface.withValues(alpha: 0.5),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  _RangeBar(
+                    state: st,
+                    onPick: () => _pickRange(st),
+                    onClear: () => _notifier.setRange(null, null),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 6),
                   if (st.isLoading && st.entries.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(32),
                       child: AppLoading(),
                     )
                   else if (st.entries.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.receipt_long_outlined,
-                            size: 40,
-                            color: cs.onSurface.withValues(alpha: 0.25),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            s.outletLedgerEmpty,
-                            style: TextStyle(
-                              color: cs.onSurface.withValues(alpha: 0.5),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                    _LedgerEmpty(text: s.outletLedgerEmpty)
                   else
-                    ..._buildLedger(context, s, cs, st.entries, cur),
+                    ..._buildLedger(context, cs, st.entries),
                 ],
               ),
             ),
       bottomNavigationBar: outlet == null
           ? null
-          : Container(
-              decoration: BoxDecoration(
-                color: cs.surface,
-                border: Border(
-                  top: BorderSide(color: cs.outline.withValues(alpha: 0.1)),
-                ),
-              ),
-              child: SafeArea(
-                top: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: FilledButton.icon(
-                          onPressed: () => _addEntry(OutletEntryType.delivery),
-                          icon: const Icon(
-                            Icons.local_shipping_outlined,
-                            size: 18,
-                          ),
-                          label: Text(s.outletActionDeliver),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 4,
-                        child: _TonalButton(
-                          icon: Icons.undo_rounded,
-                          label: s.outletActionReturn,
-                          color: AppColors.warning,
-                          onTap: () => _addEntry(OutletEntryType.returned),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 4,
-                        child: _TonalButton(
-                          icon: Icons.payments_outlined,
-                          label: s.outletActionPay,
-                          color: AppColors.success,
-                          onTap: () => _addEntry(OutletEntryType.payment),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+          : _ActionDock(
+              onDeliver: () => _addEntry(OutletEntryType.delivery),
+              onReturn: () => _addEntry(OutletEntryType.returned),
+              onPay: () => _addEntry(OutletEntryType.payment),
             ),
     );
   }
@@ -414,10 +217,8 @@ class _OutletDetailScreenState extends ConsumerState<OutletDetailScreen> {
   /// Sana bo'yicha guruhlab chizadi.
   List<Widget> _buildLedger(
     BuildContext context,
-    S s,
     ColorScheme cs,
     List<OutletEntryModel> entries,
-    String cur,
   ) {
     final out = <Widget>[];
     String? lastDate;
@@ -426,7 +227,7 @@ class _OutletDetailScreenState extends ConsumerState<OutletDetailScreen> {
         lastDate = e.date;
         out.add(
           Padding(
-            padding: const EdgeInsets.fromLTRB(4, 8, 4, 6),
+            padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
             child: Text(
               outletDateLabel(context, e.date),
               style: TextStyle(
@@ -442,11 +243,7 @@ class _OutletDetailScreenState extends ConsumerState<OutletDetailScreen> {
       out.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: _EntryTile(
-            entry: e,
-            currency: cur,
-            onDelete: () => _deleteEntry(e),
-          ),
+          child: _EntryTile(entry: e, onDelete: () => _deleteEntry(e)),
         ),
       );
     }
@@ -454,67 +251,39 @@ class _OutletDetailScreenState extends ConsumerState<OutletDetailScreen> {
   }
 }
 
-class _SummaryCard extends ConsumerWidget {
-  const _SummaryCard({required this.outlet, required this.currency});
+// ─── Sarlavha kartasi ───────────────────────────────────────────────────
+
+/// Oq karta: do'kon, aloqa, qoldiq (ishora va rang bilan), uch ko'rsatkich.
+class _HeaderCard extends StatelessWidget {
+  const _HeaderCard({
+    required this.outlet,
+    required this.currency,
+    required this.onCall,
+  });
 
   final OutletModel outlet;
   final String currency;
+  final ValueChanged<String> onCall;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final s = S.of(context);
-    final t = outlet.totals;
-    final (_, label) = outletBalanceStyle(s, t);
+    final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    Widget cell(String title, double v, IconData icon) => Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 12, color: Colors.white70),
-              const SizedBox(width: 4),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 3),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              outletMoney(context, v),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    final t = outlet.totals;
+    final (color, label, sign) = outletBalanceStyle(context, s, t);
+    final address = outlet.address?.trim() ?? '';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isDark ? AppColors.cardGradientDark : AppColors.cardGradient,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: cs.surface,
         borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.1),
-            blurRadius: 18,
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+            blurRadius: 16,
             offset: const Offset(0, 6),
           ),
         ],
@@ -524,33 +293,100 @@ class _SummaryCard extends ConsumerWidget {
         children: [
           Row(
             children: [
+              OutletAvatar(
+                name: outlet.name,
+                imageUrl: outlet.imageUrl,
+                size: 52,
+                radius: 16,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      outlet.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    if (address.isNotEmpty) ...[
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.place_outlined,
+                            size: 13,
+                            color: cs.onSurface.withValues(alpha: 0.45),
+                          ),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              address,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                color: cs.onSurface.withValues(alpha: 0.55),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (outlet.phones.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final p in outlet.phones)
+                  _PhonePill(phone: p, onTap: () => onCall(p)),
+              ],
+            ),
+          ],
+          const SizedBox(height: 14),
+          Divider(height: 1, color: cs.outline.withValues(alpha: 0.12)),
+          const SizedBox(height: 14),
+          Row(
+            children: [
               Text(
                 s.outletBalance,
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
+                  color: cs.onSurface.withValues(alpha: 0.55),
                 ),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
+                  color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
+                    color: color,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
@@ -559,39 +395,55 @@ class _SummaryCard extends ConsumerWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  outletMoney(context, t.balance.abs()),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 30,
+                  '$sign${outletMoney(context, t.balance.abs())}',
+                  style: TextStyle(
+                    fontSize: 32,
                     fontWeight: FontWeight.w800,
                     height: 1.1,
+                    letterSpacing: -0.5,
+                    color: color,
                   ),
                 ),
                 const SizedBox(width: 6),
                 Text(
                   currency,
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
+                    color: cs.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 14),
-          Container(height: 1, color: Colors.white.withValues(alpha: 0.18)),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              cell(
-                s.outletDelivered,
-                t.delivered,
-                Icons.local_shipping_outlined,
-              ),
-              cell(s.outletReturned, t.returned, Icons.undo_rounded),
-              cell(s.outletPaid, t.paid, Icons.payments_outlined),
-            ],
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                _StatCell(
+                  label: s.outletDelivered,
+                  value: outletMoney(context, t.delivered),
+                  color: AppColors.primary,
+                ),
+                _StatDivider(cs: cs),
+                _StatCell(
+                  label: s.outletReturned,
+                  value: outletMoney(context, t.returned),
+                  color: AppColors.warning,
+                ),
+                _StatDivider(cs: cs),
+                _StatCell(
+                  label: s.outletPaid,
+                  value: outletMoney(context, t.paid),
+                  color: AppColors.success,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -599,48 +451,106 @@ class _SummaryCard extends ConsumerWidget {
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.icon, required this.label, this.onTap});
+class _StatCell extends StatelessWidget {
+  const _StatCell({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
-  final IconData icon;
   final String label;
-  final VoidCallback? onTap;
+  final String value;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    return Expanded(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 5),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface.withValues(alpha: 0.55),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w800,
+                color: cs.onSurface,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatDivider extends StatelessWidget {
+  const _StatDivider({required this.cs});
+
+  final ColorScheme cs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 28,
+      color: cs.outline.withValues(alpha: 0.15),
+    );
+  }
+}
+
+class _PhonePill extends StatelessWidget {
+  const _PhonePill({required this.phone, required this.onTap});
+
+  final String phone;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
     return Material(
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+      color: AppColors.primary.withValues(alpha: 0.08),
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(10),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 14,
-                color: onTap != null
-                    ? AppColors.primary
-                    : cs.onSurface.withValues(alpha: 0.6),
+              const Icon(
+                Icons.call_rounded,
+                size: 13,
+                color: AppColors.primary,
               ),
               const SizedBox(width: 6),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 240),
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: onTap != null
-                        ? AppColors.primary
-                        : cs.onSurface.withValues(alpha: 0.75),
-                  ),
+              Text(
+                phone,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -651,44 +561,225 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-class _TonalButton extends StatelessWidget {
-  const _TonalButton({
+// ─── Sana filtri ─────────────────────────────────────────────────────────
+
+class _RangeBar extends StatelessWidget {
+  const _RangeBar({
+    required this.state,
+    required this.onPick,
+    required this.onClear,
+  });
+
+  final OutletLedgerState state;
+  final VoidCallback onPick;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final active = state.isFiltered;
+    final text = active
+        ? '${outletDateLabelOf(context, state.from!)} — ${outletDateLabelOf(context, state.to!)}'
+        : s.outletFilterAll;
+
+    return Material(
+      color: active
+          ? AppColors.primary.withValues(alpha: 0.08)
+          : cs.surfaceContainerHighest.withValues(alpha: 0.45),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onPick,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 9, 8, 9),
+          child: Row(
+            children: [
+              Icon(
+                Icons.calendar_month_rounded,
+                size: 16,
+                color: active
+                    ? AppColors.primary
+                    : cs.onSurface.withValues(alpha: 0.55),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: active ? AppColors.primary : cs.onSurface,
+                  ),
+                ),
+              ),
+              if (active)
+                IconButton(
+                  onPressed: onClear,
+                  icon: const Icon(Icons.close_rounded, size: 16),
+                  color: AppColors.primary,
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 28,
+                    height: 28,
+                  ),
+                  padding: EdgeInsets.zero,
+                )
+              else
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18,
+                  color: cs.onSurface.withValues(alpha: 0.5),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LedgerEmpty extends StatelessWidget {
+  const _LedgerEmpty({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 36),
+      child: Column(
+        children: [
+          Icon(
+            Icons.receipt_long_outlined,
+            size: 40,
+            color: cs.onSurface.withValues(alpha: 0.22),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            text,
+            style: TextStyle(
+              color: cs.onSurface.withValues(alpha: 0.5),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Pastki amallar ──────────────────────────────────────────────────────
+
+/// Uchta bir xil o'lchamli amal: ikonka ustida, yorliq ostida. Asosiysi
+/// (Berish) to'ldirilgan, qolgan ikkisi yumshoq fonda.
+class _ActionDock extends StatelessWidget {
+  const _ActionDock({
+    required this.onDeliver,
+    required this.onReturn,
+    required this.onPay,
+  });
+
+  final VoidCallback onDeliver;
+  final VoidCallback onReturn;
+  final VoidCallback onPay;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        border: Border(
+          top: BorderSide(color: cs.outline.withValues(alpha: 0.1)),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: _DockButton(
+                  icon: Icons.local_shipping_outlined,
+                  label: s.outletActionDeliver,
+                  color: AppColors.primary,
+                  filled: true,
+                  onTap: onDeliver,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _DockButton(
+                  icon: Icons.undo_rounded,
+                  label: s.outletActionReturn,
+                  color: AppColors.warning,
+                  onTap: onReturn,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _DockButton(
+                  icon: Icons.payments_outlined,
+                  label: s.outletActionPay,
+                  color: AppColors.success,
+                  onTap: onPay,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DockButton extends StatelessWidget {
+  const _DockButton({
     required this.icon,
     required this.label,
     required this.color,
     required this.onTap,
+    this.filled = false,
   });
 
   final IconData icon;
   final String label;
   final Color color;
   final VoidCallback onTap;
+  final bool filled;
 
   @override
   Widget build(BuildContext context) {
+    final fg = filled ? Colors.white : color;
     return Material(
-      color: color.withValues(alpha: 0.12),
-      borderRadius: BorderRadius.circular(14),
+      color: filled ? color : color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-          child: Row(
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          height: 58,
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18, color: color),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 13.5,
-                  ),
+              Icon(icon, size: 21, color: fg),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.1,
+                  color: fg,
                 ),
               ),
             ],
@@ -699,16 +790,13 @@ class _TonalButton extends StatelessWidget {
   }
 }
 
-/// Daftar qatori: tur ikonkasi, mahsulotlar, summa; uzoq bosib o'chirish.
+// ─── Daftar qatori ───────────────────────────────────────────────────────
+
+/// Tur ikonkasi, mahsulotlar, summa. Uzoq bosib o'chiriladi.
 class _EntryTile extends StatelessWidget {
-  const _EntryTile({
-    required this.entry,
-    required this.currency,
-    required this.onDelete,
-  });
+  const _EntryTile({required this.entry, required this.onDelete});
 
   final OutletEntryModel entry;
-  final String currency;
   final VoidCallback onDelete;
 
   @override
@@ -717,24 +805,21 @@ class _EntryTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final e = entry;
 
-    final (title, color, icon, sign) = switch (e.type) {
+    final (title, color, icon) = switch (e.type) {
       OutletEntryType.delivery => (
         s.outletEntryDelivery,
         AppColors.primary,
         Icons.local_shipping_outlined,
-        '+',
       ),
       OutletEntryType.returned => (
         s.outletEntryReturn,
         AppColors.warning,
         Icons.undo_rounded,
-        '−',
       ),
       OutletEntryType.payment => (
         e.isCashOnDelivery ? s.outletEntryCashOnDelivery : s.outletEntryPayment,
         AppColors.success,
         Icons.payments_outlined,
-        '−',
       ),
     };
 
@@ -750,13 +835,12 @@ class _EntryTile extends StatelessWidget {
         onLongPress: onDelete,
         borderRadius: BorderRadius.circular(14),
         child: Ink(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          padding: const EdgeInsets.fromLTRB(12, 10, 14, 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 36,
@@ -798,7 +882,7 @@ class _EntryTile extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '$sign${outletMoney(context, e.amount)}',
+                outletMoney(context, e.amount),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,

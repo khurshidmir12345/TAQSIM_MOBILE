@@ -143,7 +143,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Qoldiq'), findsOneWidget);
-    expect(find.text('130,000'), findsOneWidget);
+    expect(find.text('−130,000'), findsOneWidget);
     expect(find.text('Mahsulot berildi'), findsOneWidget);
     expect(find.text('Berishda naqd'), findsOneWidget);
     expect(find.text('Mahsulot qaytdi'), findsOneWidget);
