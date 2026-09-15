@@ -375,6 +375,30 @@ class S {
   String get recipeValidationIngredients => _t('recipeValidationIngredients');
   String get recipeValidationDuplicateIngredient =>
       _t('recipeValidationDuplicateIngredient');
+
+  // ─── Retsept: hisob turi, maxsus birlik, tarkib qo‘riqchilari ───
+  String get recipeStepMode => _t('recipeStepMode');
+  String get recipeModeQuestion => _t('recipeModeQuestion');
+  String get recipeModeSingleTitle => _t('recipeModeSingleTitle');
+  String get recipeModeSingleSubtitle => _t('recipeModeSingleSubtitle');
+  String get recipeModeSetTitle => _t('recipeModeSetTitle');
+  String get recipeModeSetSubtitle => _t('recipeModeSetSubtitle');
+  String get recipeSetPickTitle => _t('recipeSetPickTitle');
+  String get recipeCustomUnitAdd => _t('recipeCustomUnitAdd');
+  String get recipeCustomUnitTitle => _t('recipeCustomUnitTitle');
+  String get recipeCustomUnitSubtitle => _t('recipeCustomUnitSubtitle');
+  String get recipeCustomUnitNameHint => _t('recipeCustomUnitNameHint');
+  String get recipeCustomUnitSaved => _t('recipeCustomUnitSaved');
+  String get recipeCustomUnitDeleteTitle => _t('recipeCustomUnitDeleteTitle');
+  String recipeCustomUnitDeleteBody(String name) =>
+      _t('recipeCustomUnitDeleteBody').replaceAll('{name}', name);
+  String get recipeIngredientTapHint => _t('recipeIngredientTapHint');
+  String get recipeValidationQuantityMissing => _t('recipeValidationQuantityMissing');
+  String get recipeSingleIngredientTitle => _t('recipeSingleIngredientTitle');
+  String get recipeSingleIngredientBody => _t('recipeSingleIngredientBody');
+  String get recipeSingleIngredientAddMore => _t('recipeSingleIngredientAddMore');
+  String get recipeSingleIngredientSaveAnyway => _t('recipeSingleIngredientSaveAnyway');
+  String get recipeSingleUnitMissing => _t('recipeSingleUnitMissing');
   String get recipeSaveSuccess => _t('recipeSaveSuccess');
   String recipeRecipeBatchLine(String unit, String qty) => _t(
     'recipeRecipeBatchLine',
@@ -1474,6 +1498,27 @@ class S {
     'recipeStepProduct': 'Mahsulot',
     'recipeStepBatch': 'Partiya',
     'recipeStepIngredients': 'Tarkib',
+    'recipeStepMode': 'Hisob turi',
+    'recipeModeQuestion': 'Bu mahsulot uchun hisob qanday?',
+    'recipeModeSingleTitle': 'Bir dona',
+    'recipeModeSingleSubtitle': '1 dona mahsulot tarkibi',
+    'recipeModeSetTitle': 'To‘plam',
+    'recipeModeSetSubtitle': 'Qop, blok, qozon...',
+    'recipeSetPickTitle': 'Qaysi to‘plam siz uchun ma’qul?',
+    'recipeCustomUnitAdd': 'O‘zim',
+    'recipeCustomUnitTitle': 'O‘z partiya birligingiz',
+    'recipeCustomUnitSubtitle': 'Stiker tanlang va nom bering — faqat sizga ko‘rinadi',
+    'recipeCustomUnitNameHint': 'Masalan: Laganda, Tandir',
+    'recipeCustomUnitSaved': 'Birlik qo‘shildi',
+    'recipeCustomUnitDeleteTitle': 'Birlikni o‘chirish',
+    'recipeCustomUnitDeleteBody': '«{name}» birligi o‘chirilsinmi?',
+    'recipeIngredientTapHint': 'Xom ashyoni bosing — ro‘yxatga qo‘shiladi',
+    'recipeValidationQuantityMissing': 'Har bir xom ashyo miqdorini kiriting',
+    'recipeSingleIngredientTitle': 'Faqat 1 ta xom ashyo',
+    'recipeSingleIngredientBody': 'Odatda mahsulot tarkibida bir nechta xom ashyo bo‘ladi. Qolganlarini ham qo‘shasizmi?',
+    'recipeSingleIngredientAddMore': 'Yana qo‘shish',
+    'recipeSingleIngredientSaveAnyway': 'Shunday saqlash',
+    'recipeSingleUnitMissing': 'Bir dona hisobi uchun «Dona» birligi topilmadi',
     'recipeSelectProductTitle': 'Qaysi mahsulot uchun?',
     'recipeSelectProductSubtitle':
         'Bitta tur tanlang — har bir tur uchun bitta retsept bo‘ladi.',
@@ -2376,6 +2421,27 @@ class S {
     'recipeStepProduct': 'Маҳсулот',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Таркиб',
+    'recipeStepMode': 'Ҳисоб тури',
+    'recipeModeQuestion': 'Бу маҳсулот учун ҳисоб қандай?',
+    'recipeModeSingleTitle': 'Бир дона',
+    'recipeModeSingleSubtitle': '1 дона маҳсулот таркиби',
+    'recipeModeSetTitle': 'Тўплам',
+    'recipeModeSetSubtitle': 'Қоп, блок, қозон...',
+    'recipeSetPickTitle': 'Қайси тўплам сиз учун маъқул?',
+    'recipeCustomUnitAdd': 'Ўзим',
+    'recipeCustomUnitTitle': 'Ўз партия бирлигингиз',
+    'recipeCustomUnitSubtitle': 'Стикер танланг ва ном беринг — фақат сизга кўринади',
+    'recipeCustomUnitNameHint': 'Масалан: Лаганда, Тандир',
+    'recipeCustomUnitSaved': 'Бирлик қўшилди',
+    'recipeCustomUnitDeleteTitle': 'Бирликни ўчириш',
+    'recipeCustomUnitDeleteBody': '«{name}» бирлиги ўчирилсинми?',
+    'recipeIngredientTapHint': 'Хом ашёни босинг — рўйхатга қўшилади',
+    'recipeValidationQuantityMissing': 'Ҳар бир хом ашё миқдорини киритинг',
+    'recipeSingleIngredientTitle': 'Фақат 1 та хом ашё',
+    'recipeSingleIngredientBody': 'Одатда маҳсулот таркибида бир нечта хом ашё бўлади. Қолганларини ҳам қўшасизми?',
+    'recipeSingleIngredientAddMore': 'Яна қўшиш',
+    'recipeSingleIngredientSaveAnyway': 'Шундай сақлаш',
+    'recipeSingleUnitMissing': 'Бир дона ҳисоби учун «Дона» бирлиги топилмади',
     'recipeSelectProductTitle': 'Қайси маҳсулот учун?',
     'recipeSelectProductSubtitle':
         'Битта тур танланг — ҳар бир тур учун бита рецепт бўлади.',
@@ -3266,6 +3332,27 @@ class S {
     'recipeStepProduct': 'Продукция',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Состав',
+    'recipeStepMode': 'Тип расчёта',
+    'recipeModeQuestion': 'Как считать этот продукт?',
+    'recipeModeSingleTitle': 'Одна штука',
+    'recipeModeSingleSubtitle': 'Состав на 1 штуку',
+    'recipeModeSetTitle': 'Партия',
+    'recipeModeSetSubtitle': 'Мешок, блок, казан...',
+    'recipeSetPickTitle': 'Какая партия вам подходит?',
+    'recipeCustomUnitAdd': 'Своя',
+    'recipeCustomUnitTitle': 'Своя единица партии',
+    'recipeCustomUnitSubtitle': 'Выберите стикер и название — видно только вам',
+    'recipeCustomUnitNameHint': 'Например: Ляган, Тандыр',
+    'recipeCustomUnitSaved': 'Единица добавлена',
+    'recipeCustomUnitDeleteTitle': 'Удалить единицу',
+    'recipeCustomUnitDeleteBody': 'Удалить единицу «{name}»?',
+    'recipeIngredientTapHint': 'Нажмите на сырьё — оно добавится в список',
+    'recipeValidationQuantityMissing': 'Укажите количество для каждого сырья',
+    'recipeSingleIngredientTitle': 'Только 1 сырьё',
+    'recipeSingleIngredientBody': 'Обычно в составе продукта несколько видов сырья. Добавить остальные?',
+    'recipeSingleIngredientAddMore': 'Добавить ещё',
+    'recipeSingleIngredientSaveAnyway': 'Сохранить так',
+    'recipeSingleUnitMissing': 'Единица «Штука» для расчёта не найдена',
     'recipeSelectProductTitle': 'Для какого продукта?',
     'recipeSelectProductSubtitle':
         'Выберите один тип — для каждого типа один рецепт.',
@@ -4157,6 +4244,27 @@ class S {
     'recipeStepProduct': 'Өнім',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Құрам',
+    'recipeStepMode': 'Есеп түрі',
+    'recipeModeQuestion': 'Бұл өнімді қалай есептейміз?',
+    'recipeModeSingleTitle': 'Бір дана',
+    'recipeModeSingleSubtitle': '1 дана өнім құрамы',
+    'recipeModeSetTitle': 'Партия',
+    'recipeModeSetSubtitle': 'Қап, блок, қазан...',
+    'recipeSetPickTitle': 'Сізге қай партия ыңғайлы?',
+    'recipeCustomUnitAdd': 'Өзім',
+    'recipeCustomUnitTitle': 'Өз партия бірлігіңіз',
+    'recipeCustomUnitSubtitle': 'Стикер таңдап, атау беріңіз — тек сізге көрінеді',
+    'recipeCustomUnitNameHint': 'Мысалы: Табақ, Тандыр',
+    'recipeCustomUnitSaved': 'Бірлік қосылды',
+    'recipeCustomUnitDeleteTitle': 'Бірлікті өшіру',
+    'recipeCustomUnitDeleteBody': '«{name}» бірлігі өшірілсін бе?',
+    'recipeIngredientTapHint': 'Шикізатты басыңыз — тізімге қосылады',
+    'recipeValidationQuantityMissing': 'Әр шикізаттың мөлшерін енгізіңіз',
+    'recipeSingleIngredientTitle': 'Тек 1 шикізат',
+    'recipeSingleIngredientBody': 'Әдетте өнім құрамында бірнеше шикізат болады. Қалғандарын да қосасыз ба?',
+    'recipeSingleIngredientAddMore': 'Тағы қосу',
+    'recipeSingleIngredientSaveAnyway': 'Осылай сақтау',
+    'recipeSingleUnitMissing': 'Бір дана есебі үшін «Дана» бірлігі табылмады',
     'recipeSelectProductTitle': 'Қай өнім үшін?',
     'recipeSelectProductSubtitle':
         'Бір түрді таңдаңыз — әр түр үшін бір рецепт.',
@@ -5044,6 +5152,27 @@ class S {
     'recipeStepProduct': 'Өнүм',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Курамы',
+    'recipeStepMode': 'Эсеп түрү',
+    'recipeModeQuestion': 'Бул продуктту кантип эсептейбиз?',
+    'recipeModeSingleTitle': 'Бир даана',
+    'recipeModeSingleSubtitle': '1 даана продукт курамы',
+    'recipeModeSetTitle': 'Партия',
+    'recipeModeSetSubtitle': 'Кап, блок, казан...',
+    'recipeSetPickTitle': 'Сизге кайсы партия ыңгайлуу?',
+    'recipeCustomUnitAdd': 'Өзүм',
+    'recipeCustomUnitTitle': 'Өз партия бирдигиңиз',
+    'recipeCustomUnitSubtitle': 'Стикер тандап, ат бериңиз — сизге гана көрүнөт',
+    'recipeCustomUnitNameHint': 'Мисалы: Табак, Тандыр',
+    'recipeCustomUnitSaved': 'Бирдик кошулду',
+    'recipeCustomUnitDeleteTitle': 'Бирдикти өчүрүү',
+    'recipeCustomUnitDeleteBody': '«{name}» бирдиги өчүрүлсүнбү?',
+    'recipeIngredientTapHint': 'Чийки затты басыңыз — тизмеге кошулат',
+    'recipeValidationQuantityMissing': 'Ар бир чийки заттын өлчөмүн киргизиңиз',
+    'recipeSingleIngredientTitle': 'Бир гана чийки зат',
+    'recipeSingleIngredientBody': 'Адатта продукттун курамында бир нече чийки зат болот. Калгандарын да кошосузбу?',
+    'recipeSingleIngredientAddMore': 'Дагы кошуу',
+    'recipeSingleIngredientSaveAnyway': 'Ушундай сактоо',
+    'recipeSingleUnitMissing': 'Бир даана эсеби үчүн «Даана» бирдиги табылган жок',
     'recipeSelectProductTitle': 'Кайсы өнүм үчүн?',
     'recipeSelectProductSubtitle':
         'Бир түрдү тандаңыз — ар бир түр үчүн бир рецепт.',
@@ -5928,6 +6057,27 @@ class S {
     'recipeStepProduct': 'Ürün',
     'recipeStepBatch': 'Parti',
     'recipeStepIngredients': 'İçerik',
+    'recipeStepMode': 'Hesap türü',
+    'recipeModeQuestion': 'Bu ürün nasıl hesaplansın?',
+    'recipeModeSingleTitle': 'Tek parça',
+    'recipeModeSingleSubtitle': '1 parça ürünün içeriği',
+    'recipeModeSetTitle': 'Parti',
+    'recipeModeSetSubtitle': 'Çuval, blok, kazan...',
+    'recipeSetPickTitle': 'Hangi parti size uygun?',
+    'recipeCustomUnitAdd': 'Kendim',
+    'recipeCustomUnitTitle': 'Kendi parti biriminiz',
+    'recipeCustomUnitSubtitle': 'Bir çıkartma seçip ad verin — yalnızca siz görürsünüz',
+    'recipeCustomUnitNameHint': 'Örneğin: Tepsi, Tandır',
+    'recipeCustomUnitSaved': 'Birim eklendi',
+    'recipeCustomUnitDeleteTitle': 'Birimi sil',
+    'recipeCustomUnitDeleteBody': '«{name}» birimi silinsin mi?',
+    'recipeIngredientTapHint': 'Hammaddeye dokunun — listeye eklenir',
+    'recipeValidationQuantityMissing': 'Her hammadde için miktar girin',
+    'recipeSingleIngredientTitle': 'Yalnızca 1 hammadde',
+    'recipeSingleIngredientBody': 'Genellikle bir üründe birden fazla hammadde bulunur. Diğerlerini de ekleyelim mi?',
+    'recipeSingleIngredientAddMore': 'Daha ekle',
+    'recipeSingleIngredientSaveAnyway': 'Böyle kaydet',
+    'recipeSingleUnitMissing': 'Tek parça hesabı için «Adet» birimi bulunamadı',
     'recipeSelectProductTitle': 'Hangi ürün için?',
     'recipeSelectProductSubtitle':
         'Tek tür seçin — her tür için bir tarif olur.',

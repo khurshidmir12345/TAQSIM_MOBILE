@@ -11,6 +11,9 @@ class MeasurementUnitModel {
   final Map<String, String?> examples;
   final int sortOrder;
 
+  /// Do'konning o'zi qo'shgan partiya birligi (faqat shu do'konga ko'rinadi).
+  final bool isCustom;
+
   const MeasurementUnitModel({
     required this.id,
     required this.type,
@@ -21,6 +24,7 @@ class MeasurementUnitModel {
     required this.names,
     required this.examples,
     required this.sortOrder,
+    this.isCustom = false,
   });
 
   factory MeasurementUnitModel.fromJson(Map<String, dynamic> json) {
@@ -37,15 +41,14 @@ class MeasurementUnitModel {
       names: namesJson.map(
         (k, v) => MapEntry(k, v == null ? '' : v.toString()),
       ),
-      examples: examplesJson.map(
-        (k, v) => MapEntry(k, v?.toString()),
-      ),
+      examples: examplesJson.map((k, v) => MapEntry(k, v?.toString())),
       sortOrder: (json['sort_order'] as num?)?.toInt() ?? 0,
+      isCustom: json['is_custom'] == true,
     );
   }
 
   bool get isIngredient => type == 'ingredient';
-  bool get isBatch      => type == 'batch';
+  bool get isBatch => type == 'batch';
 
   /// Kartochka / chiqimda qisqa ko‘rinish: API bergan lokalizatsiyalangan
   /// nomdan partiya izohi olib tashlanadi (`Dona (partiya)` → `Dona`,

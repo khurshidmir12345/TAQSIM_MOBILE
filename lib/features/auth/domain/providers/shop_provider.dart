@@ -15,11 +15,10 @@ final shopRepositoryProvider = Provider<ShopRepository>((ref) {
 /// Fetches available business types (cached with AsyncNotifier).
 final businessTypesProvider =
     AsyncNotifierProvider<_BusinessTypesNotifier, List<BusinessTypeModel>>(
-  _BusinessTypesNotifier.new,
-);
+      _BusinessTypesNotifier.new,
+    );
 
-class _BusinessTypesNotifier
-    extends AsyncNotifier<List<BusinessTypeModel>> {
+class _BusinessTypesNotifier extends AsyncNotifier<List<BusinessTypeModel>> {
   @override
   Future<List<BusinessTypeModel>> build() {
     return ref.read(shopRepositoryProvider).getBusinessTypes();
@@ -37,8 +36,8 @@ class _BusinessTypesNotifier
 
 final currenciesProvider =
     AsyncNotifierProvider<_CurrenciesNotifier, List<CurrencyModel>>(
-  _CurrenciesNotifier.new,
-);
+      _CurrenciesNotifier.new,
+    );
 
 class _CurrenciesNotifier extends AsyncNotifier<List<CurrencyModel>> {
   @override
@@ -48,10 +47,11 @@ class _CurrenciesNotifier extends AsyncNotifier<List<CurrencyModel>> {
 }
 
 /// Xom ashyo uchun faqat kg, l, m, ta (backend filtri).
-final ingredientMeasurementUnitsProvider = AsyncNotifierProvider<
-    _IngredientMeasurementUnitsNotifier, List<MeasurementUnitModel>>(
-  _IngredientMeasurementUnitsNotifier.new,
-);
+final ingredientMeasurementUnitsProvider =
+    AsyncNotifierProvider<
+      _IngredientMeasurementUnitsNotifier,
+      List<MeasurementUnitModel>
+    >(_IngredientMeasurementUnitsNotifier.new);
 
 class _IngredientMeasurementUnitsNotifier
     extends AsyncNotifier<List<MeasurementUnitModel>> {
@@ -62,10 +62,11 @@ class _IngredientMeasurementUnitsNotifier
 }
 
 /// Mahsulotlar uchun faqat ta, kg, l, m (backend filtri).
-final productMeasurementUnitsProvider = AsyncNotifierProvider<
-    _ProductMeasurementUnitsNotifier, List<MeasurementUnitModel>>(
-  _ProductMeasurementUnitsNotifier.new,
-);
+final productMeasurementUnitsProvider =
+    AsyncNotifierProvider<
+      _ProductMeasurementUnitsNotifier,
+      List<MeasurementUnitModel>
+    >(_ProductMeasurementUnitsNotifier.new);
 
 class _ProductMeasurementUnitsNotifier
     extends AsyncNotifier<List<MeasurementUnitModel>> {
@@ -75,26 +76,59 @@ class _ProductMeasurementUnitsNotifier
   }
 }
 
-/// Retsept partiya birliklari (carousel) — `/v1/measurement-units/batch`.
-final recipeBatchUnitsProvider = AsyncNotifierProvider<
-    _RecipeBatchUnitsNotifier, List<MeasurementUnitModel>>(
-  _RecipeBatchUnitsNotifier.new,
-);
+/// Retsept partiya birliklari (carousel).
+///
+/// Do'kon tanlangan bo'lsa `/v1/shops/{shop}/measurement-units/batch` —
+/// tizim birliklari + do'konning o'zi qo'shganlari. Do'kon almashsa
+/// avtomatik qayta yuklanadi.
+final recipeBatchUnitsProvider =
+    AsyncNotifierProvider<RecipeBatchUnitsNotifier, List<MeasurementUnitModel>>(
+      RecipeBatchUnitsNotifier.new,
+    );
 
-class _RecipeBatchUnitsNotifier
+class RecipeBatchUnitsNotifier
     extends AsyncNotifier<List<MeasurementUnitModel>> {
   @override
   Future<List<MeasurementUnitModel>> build() {
-    return ref.read(shopRepositoryProvider).getBatchMeasurementUnits();
+    final shopId = ref.watch(shopProvider.select((s) => s.selected?.id));
+    final repo = ref.read(shopRepositoryProvider);
+    if (shopId == null) return repo.getBatchMeasurementUnits();
+    return repo.getShopBatchUnits(shopId);
+  }
+
+  /// Yangi maxsus birlik yaratadi va ro'yxatga qo'shadi.
+  /// Xatolikda [ApiException] otadi — chaqiruvchi xabarni ko'rsatadi.
+  Future<MeasurementUnitModel> addCustom({
+    required String name,
+    required String icon,
+  }) async {
+    final shopId = ref.read(shopProvider).selected!.id;
+    final unit = await ref
+        .read(shopRepositoryProvider)
+        .createCustomBatchUnit(shopId, name: name, icon: icon);
+    final current = state.value ?? const <MeasurementUnitModel>[];
+    state = AsyncData([...current, unit]);
+    return unit;
+  }
+
+  /// Maxsus birlikni o'chiradi (retseptda ishlatilgan bo'lsa backend rad etadi).
+  Future<void> removeCustom(String unitId) async {
+    final shopId = ref.read(shopProvider).selected!.id;
+    await ref
+        .read(shopRepositoryProvider)
+        .deleteCustomBatchUnit(shopId, unitId);
+    final current = state.value ?? const <MeasurementUnitModel>[];
+    state = AsyncData(current.where((u) => u.id != unitId).toList());
   }
 }
 
 // ─── Measurement Units ────────────────────────────────────────────────────────
 
 final measurementUnitsProvider =
-    AsyncNotifierProvider<_MeasurementUnitsNotifier, List<MeasurementUnitModel>>(
-  _MeasurementUnitsNotifier.new,
-);
+    AsyncNotifierProvider<
+      _MeasurementUnitsNotifier,
+      List<MeasurementUnitModel>
+    >(_MeasurementUnitsNotifier.new);
 
 class _MeasurementUnitsNotifier
     extends AsyncNotifier<List<MeasurementUnitModel>> {
@@ -105,8 +139,9 @@ class _MeasurementUnitsNotifier
 }
 
 extension MeasurementUnitsExt on List<MeasurementUnitModel> {
-  List<MeasurementUnitModel> get ingredients => where((u) => u.isIngredient).toList();
-  List<MeasurementUnitModel> get batches      => where((u) => u.isBatch).toList();
+  List<MeasurementUnitModel> get ingredients =>
+      where((u) => u.isIngredient).toList();
+  List<MeasurementUnitModel> get batches => where((u) => u.isBatch).toList();
 }
 
 // ─── Shop State ───────────────────────────────────────────────────────────────
@@ -126,7 +161,7 @@ class ShopState {
   final bool loadedOnce;
 
   const ShopState({
-    this.shops    = const [],
+    this.shops = const [],
     this.selected,
     this.isLoading = false,
     this.error,
@@ -141,10 +176,10 @@ class ShopState {
     bool? loadedOnce,
   }) {
     return ShopState(
-      shops:      shops      ?? this.shops,
-      selected:   selected   ?? this.selected,
-      isLoading:  isLoading  ?? this.isLoading,
-      error:      error,
+      shops: shops ?? this.shops,
+      selected: selected ?? this.selected,
+      isLoading: isLoading ?? this.isLoading,
+      error: error,
       loadedOnce: loadedOnce ?? this.loadedOnce,
     );
   }
@@ -214,7 +249,7 @@ class ShopNotifier extends Notifier<ShopState> {
     required String name,
     String? customBusinessTypeName,
     List<String> ingredientUnitIds = const [],
-    List<String> batchUnitIds      = const [],
+    List<String> batchUnitIds = const [],
     String? description,
     String? address,
     String? phone,
@@ -222,23 +257,20 @@ class ShopNotifier extends Notifier<ShopState> {
     double? longitude,
   }) async {
     final shop = await _repo.createShop(
-      businessTypeId:          businessTypeId,
-      currencyId:              currencyId,
-      name:                    name,
-      customBusinessTypeName:  customBusinessTypeName,
-      ingredientUnitIds:       ingredientUnitIds,
-      batchUnitIds:            batchUnitIds,
-      description:             description,
-      address:                 address,
-      phone:                   phone,
-      latitude:                latitude,
-      longitude:               longitude,
+      businessTypeId: businessTypeId,
+      currencyId: currencyId,
+      name: name,
+      customBusinessTypeName: customBusinessTypeName,
+      ingredientUnitIds: ingredientUnitIds,
+      batchUnitIds: batchUnitIds,
+      description: description,
+      address: address,
+      phone: phone,
+      latitude: latitude,
+      longitude: longitude,
     );
     final newList = [...state.shops, shop];
-    state = state.copyWith(
-      shops: newList,
-      selected: shop,
-    );
+    state = state.copyWith(shops: newList, selected: shop);
     await _persistSelectedId(shop.id);
   }
 
@@ -292,4 +324,6 @@ class ShopNotifier extends Notifier<ShopState> {
   }
 }
 
-final shopProvider = NotifierProvider<ShopNotifier, ShopState>(ShopNotifier.new);
+final shopProvider = NotifierProvider<ShopNotifier, ShopState>(
+  ShopNotifier.new,
+);

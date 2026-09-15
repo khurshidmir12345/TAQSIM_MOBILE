@@ -11,21 +11,20 @@ abstract final class AppConstants {
 
   /// Release build definessiz yig'ilganda dev API'ga ulansinmi.
   ///
-  /// Hozir `false`: definessiz release build **prod** API'ga ulanadi —
-  /// do'konga chiqadigan holat.
+  /// Hozir `true`: `flutter build apk` ni definessiz ishlatganda ham dev
+  /// serverga ulanadi — yangi versiyani sinash uchun shunday qulay.
   ///
-  /// ⚠️ **App Store / Play Store'ga build yuborishdan OLDIN doim `false`
-  /// bo'lishi shart.** Aks holda do'kondagi ilova dev serverga ulanib
-  /// qoladi — 2026-08-04 da aynan shu bo'lgan edi.
+  /// ⚠️ **App Store / Play Store'ga build yuborishdan OLDIN `false` qiling.**
+  /// Aks holda do'kondagi ilova dev serverga ulanib qoladi — 2026-08-04 da
+  /// aynan shu bo'lgan edi.
   ///
-  /// Sinash uchun vaqtincha `true` qilingan bo'lsa, yuborishdan oldin
-  /// qaytarish SHART. Tekshirish oson: `true` bo'lganda ilovada **DEV
-  /// banneri** ko'rinadi. Banner ko'rinsa — do'konga yubormang.
+  /// Tekshirish oson: `true` bo'lganda ilovada **DEV banneri** ko'rinadi.
+  /// Banner ko'rinsa — do'konga yubormang.
   ///
-  /// Dev build kerak bo'lsa bu bayroqqa tegmasdan ham olish mumkin:
-  /// `scripts/build-dev-apk.sh` (yoki `--dart-define=APP_ENV=dev`) —
+  /// Prod build kerak bo'lsa bu bayroqqa tegmasdan ham olish mumkin:
+  /// `scripts/build-prod-apk.sh` (yoki `--dart-define=APP_ENV=prod`) —
   /// aniq define bayroqdan doim ustun turadi.
-  static const bool defaultToDev = false;
+  static const bool defaultToDev = true;
 
   // Aniq override (ixtiyoriy): flutter run --dart-define=API_BASE_URL=...
   static const String _overrideBaseUrl = String.fromEnvironment('API_BASE_URL');

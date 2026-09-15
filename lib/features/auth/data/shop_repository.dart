@@ -55,8 +55,7 @@ class ShopRepository {
 
   Future<List<MeasurementUnitModel>> getBatchMeasurementUnits() async {
     try {
-      final response =
-          await _apiClient.dio.get('/v1/measurement-units/batch');
+      final response = await _apiClient.dio.get('/v1/measurement-units/batch');
       final body = _body(response);
       final list = body['data'] as List;
       return list
@@ -67,10 +66,57 @@ class ShopRepository {
     }
   }
 
+  /// Retsept partiya birliklari — tizimdagilar + do'konning o'zi qo'shganlari.
+  Future<List<MeasurementUnitModel>> getShopBatchUnits(String shopId) async {
+    try {
+      final response = await _apiClient.dio.get(
+        '/v1/shops/$shopId/measurement-units/batch',
+      );
+      final body = _body(response);
+      final list = body['data'] as List;
+      return list
+          .map((e) => MeasurementUnitModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  /// Do'kon uchun maxsus partiya birligi (nom + stiker).
+  Future<MeasurementUnitModel> createCustomBatchUnit(
+    String shopId, {
+    required String name,
+    required String icon,
+  }) async {
+    try {
+      final response = await _apiClient.dio.post(
+        '/v1/shops/$shopId/measurement-units',
+        data: {'name': name, 'icon': icon},
+      );
+      final body = _body(response);
+      return MeasurementUnitModel.fromJson(
+        body['data'] as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  Future<void> deleteCustomBatchUnit(String shopId, String unitId) async {
+    try {
+      await _apiClient.dio.delete(
+        '/v1/shops/$shopId/measurement-units/$unitId',
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   Future<List<MeasurementUnitModel>> getIngredientMeasurementUnits() async {
     try {
-      final response =
-          await _apiClient.dio.get('/v1/measurement-units/ingredient');
+      final response = await _apiClient.dio.get(
+        '/v1/measurement-units/ingredient',
+      );
       final body = _body(response);
       final list = body['data'] as List;
       return list
@@ -84,8 +130,9 @@ class ShopRepository {
   /// Mahsulotlar uchun 4 ta o'lchov birligi: Dona, Kilogram, Litr, Metr.
   Future<List<MeasurementUnitModel>> getProductMeasurementUnits() async {
     try {
-      final response =
-          await _apiClient.dio.get('/v1/measurement-units/product');
+      final response = await _apiClient.dio.get(
+        '/v1/measurement-units/product',
+      );
       final body = _body(response);
       final list = body['data'] as List;
       return list
@@ -96,9 +143,7 @@ class ShopRepository {
     }
   }
 
-  Future<List<MeasurementUnitModel>> getMeasurementUnits({
-    String? type,
-  }) async {
+  Future<List<MeasurementUnitModel>> getMeasurementUnits({String? type}) async {
     try {
       final response = await _apiClient.dio.get(
         '/v1/measurement-units',
@@ -135,7 +180,7 @@ class ShopRepository {
     required String name,
     String? customBusinessTypeName,
     List<String> ingredientUnitIds = const [],
-    List<String> batchUnitIds      = const [],
+    List<String> batchUnitIds = const [],
     String? description,
     String? address,
     String? phone,
@@ -143,19 +188,23 @@ class ShopRepository {
     double? longitude,
   }) async {
     try {
-      final response = await _apiClient.dio.post('/v1/shops', data: {
-        'business_type_id':           businessTypeId,
-        'currency_id': ?currencyId,
-        'name':                       name,
-        'custom_business_type_name': ?customBusinessTypeName,
-        if (ingredientUnitIds.isNotEmpty) 'ingredient_unit_ids': ingredientUnitIds,
-        if (batchUnitIds.isNotEmpty)      'batch_unit_ids':      batchUnitIds,
-        'description': ?description,
-        'address': ?address,
-        'phone': ?phone,
-        'latitude': ?latitude,
-        'longitude': ?longitude,
-      });
+      final response = await _apiClient.dio.post(
+        '/v1/shops',
+        data: {
+          'business_type_id': businessTypeId,
+          'currency_id': ?currencyId,
+          'name': name,
+          'custom_business_type_name': ?customBusinessTypeName,
+          if (ingredientUnitIds.isNotEmpty)
+            'ingredient_unit_ids': ingredientUnitIds,
+          if (batchUnitIds.isNotEmpty) 'batch_unit_ids': batchUnitIds,
+          'description': ?description,
+          'address': ?address,
+          'phone': ?phone,
+          'latitude': ?latitude,
+          'longitude': ?longitude,
+        },
+      );
       final data = _body(response)['data'] as Map<String, dynamic>;
       return ShopModel.fromJson(data['shop'] as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -172,13 +221,16 @@ class ShopRepository {
     double? longitude,
   }) async {
     try {
-      final response = await _apiClient.dio.put('/v1/shops/$shopId', data: {
-        'name': ?name,
-        'address': ?address,
-        'phone': ?phone,
-        'latitude': ?latitude,
-        'longitude': ?longitude,
-      });
+      final response = await _apiClient.dio.put(
+        '/v1/shops/$shopId',
+        data: {
+          'name': ?name,
+          'address': ?address,
+          'phone': ?phone,
+          'latitude': ?latitude,
+          'longitude': ?longitude,
+        },
+      );
       final data = _body(response)['data'] as Map<String, dynamic>;
       return ShopModel.fromJson(data['shop'] as Map<String, dynamic>);
     } on DioException catch (e) {

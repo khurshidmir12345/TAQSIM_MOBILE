@@ -15,8 +15,8 @@ Taqseem mobile uses compile-time `--dart-define-from-file` config. Dev builds ma
 
 > ⚠️ **TEMPORARY: `AppConstants.defaultToDev` is currently `true`.**
 > Every build — including a define-less Archive — points at **dev**
-> (`api.dev.taqseem.uz`). This is deliberate: the push-notification backend
-> only exists on dev while it is being tested via TestFlight.
+> (`api.dev.taqseem.uz`). This is deliberate: the next release (custom batch
+> units, new calculation flow) is being tested against the dev backend.
 >
 > **Set it back to `false` before the next App Store submission.**
 
