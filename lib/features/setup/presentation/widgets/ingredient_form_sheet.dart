@@ -81,8 +81,9 @@ class _IngredientFormSheet extends ConsumerStatefulWidget {
 }
 
 class _IngredientFormSheetState extends ConsumerState<_IngredientFormSheet> {
-  late final TextEditingController _nameCtl =
-      TextEditingController(text: widget.editing?.name ?? '');
+  late final TextEditingController _nameCtl = TextEditingController(
+    text: widget.editing?.name ?? '',
+  );
   late final TextEditingController _priceCtl = TextEditingController(
     text: widget.editing != null
         ? _formatEditablePrice(widget.editing!.pricePerUnit)
@@ -114,9 +115,7 @@ class _IngredientFormSheetState extends ConsumerState<_IngredientFormSheet> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           s.ingredientPriceInfoTitle,
           style: theme.textTheme.titleLarge?.copyWith(
@@ -158,19 +157,15 @@ class _IngredientFormSheetState extends ConsumerState<_IngredientFormSheet> {
         padding: EdgeInsets.all(40),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text('$e'),
-      ),
+      error: (e, _) =>
+          Padding(padding: const EdgeInsets.all(24), child: Text('$e')),
       data: (units) => curAsync.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(40),
           child: Center(child: CircularProgressIndicator()),
         ),
-        error: (e, _) => Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text('$e'),
-        ),
+        error: (e, _) =>
+            Padding(padding: const EdgeInsets.all(24), child: Text('$e')),
         data: (currencies) {
           if (units.isEmpty || currencies.isEmpty) {
             return Padding(
@@ -202,8 +197,7 @@ class _IngredientFormSheetState extends ConsumerState<_IngredientFormSheet> {
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
             boxShadow: [
               BoxShadow(
                 color: sheetShadow,
@@ -285,9 +279,7 @@ class _IngredientFormBodyState extends ConsumerState<_IngredientFormBody> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(
-          color: cs.outline.withValues(alpha: 0.18),
-        ),
+        borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.18)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -296,10 +288,7 @@ class _IngredientFormBodyState extends ConsumerState<_IngredientFormBody> {
           width: 1.5,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
 
@@ -323,27 +312,31 @@ class _IngredientFormBodyState extends ConsumerState<_IngredientFormBody> {
     navigator.pop(true);
 
     final ok = editing == null
-        ? await ref.read(ingredientProvider.notifier).create(
-              name: name,
-              measurementUnitId: _selectedMeasurementUnitId,
-              pricePerUnit: price,
-              currencyId: _selectedCurrencyId,
-            )
-        : await ref.read(ingredientProvider.notifier).update(
-              id: editing.id,
-              name: name,
-              measurementUnitId: _selectedMeasurementUnitId,
-              pricePerUnit: price,
-              currencyId: _selectedCurrencyId,
-            );
+        ? await ref
+              .read(ingredientProvider.notifier)
+              .create(
+                name: name,
+                measurementUnitId: _selectedMeasurementUnitId,
+                pricePerUnit: price,
+                currencyId: _selectedCurrencyId,
+              )
+        : await ref
+              .read(ingredientProvider.notifier)
+              .update(
+                id: editing.id,
+                name: name,
+                measurementUnitId: _selectedMeasurementUnitId,
+                pricePerUnit: price,
+                currencyId: _selectedCurrencyId,
+              );
 
     messenger.showSnackBar(
       SnackBar(
         content: Text(
           ok
               ? (editing == null
-                  ? s.snackbarIngredientAdded(name)
-                  : s.snackbarIngredientUpdated(name))
+                    ? s.snackbarIngredientAdded(name)
+                    : s.snackbarIngredientUpdated(name))
               : s.snackbarErrorGeneric,
         ),
         behavior: SnackBarBehavior.floating,
@@ -409,8 +402,7 @@ class _IngredientFormBodyState extends ConsumerState<_IngredientFormBody> {
                             fontSize: 12,
                             height: 1.35,
                             letterSpacing: 0.1,
-                            color:
-                                cs.onSurfaceVariant.withValues(alpha: 0.62),
+                            color: cs.onSurfaceVariant.withValues(alpha: 0.62),
                           ),
                         ),
                       ],
@@ -487,8 +479,9 @@ class _IngredientFormBodyState extends ConsumerState<_IngredientFormBody> {
                           _selectedMeasurementUnitId = u.id;
                         });
                       },
-                      selectedColor:
-                          cs.primaryContainer.withValues(alpha: 0.85),
+                      selectedColor: cs.primaryContainer.withValues(
+                        alpha: 0.85,
+                      ),
                       checkmarkColor: cs.onPrimaryContainer,
                       side: BorderSide(
                         color: u.id == _selectedMeasurementUnitId
@@ -522,60 +515,53 @@ class _IngredientFormBodyState extends ConsumerState<_IngredientFormBody> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  decoration: _fieldDeco(
-                    cs,
-                    priceLabel,
-                    s.sellingPriceHint,
-                  ).copyWith(
-                    suffixIconConstraints: const BoxConstraints(
-                      minWidth: 52,
-                      minHeight: 24,
-                      maxHeight: 40,
-                    ),
-                    suffixIcon: PopupMenuButton<String>(
-                      tooltip: s.currencyPickerLabel,
-                      padding: EdgeInsets.zero,
-                      initialValue: _selectedCurrencyId,
-                      onSelected: (v) =>
-                          setState(() => _selectedCurrencyId = v),
-                      itemBuilder: (context) => widget.currencies
-                          .map(
-                            (c) => PopupMenuItem<String>(
-                              value: c.id,
-                              child: Text(c.displayLabel),
-                            ),
-                          )
-                          .toList(),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          right: 12,
-                          left: 4,
+                  decoration: _fieldDeco(cs, priceLabel, s.sellingPriceHint)
+                      .copyWith(
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 52,
+                          minHeight: 24,
+                          maxHeight: 40,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _currencyCodeForId(
-                                widget.currencies,
-                                _selectedCurrencyId,
-                              ),
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.2,
-                                color: cs.onSurface
-                                    .withValues(alpha: 0.75),
-                              ),
+                        suffixIcon: PopupMenuButton<String>(
+                          tooltip: s.currencyPickerLabel,
+                          padding: EdgeInsets.zero,
+                          initialValue: _selectedCurrencyId,
+                          onSelected: (v) =>
+                              setState(() => _selectedCurrencyId = v),
+                          itemBuilder: (context) => widget.currencies
+                              .map(
+                                (c) => PopupMenuItem<String>(
+                                  value: c.id,
+                                  child: Text(c.displayLabel),
+                                ),
+                              )
+                              .toList(),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12, left: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _currencyCodeForId(
+                                    widget.currencies,
+                                    _selectedCurrencyId,
+                                  ),
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.2,
+                                    color: cs.onSurface.withValues(alpha: 0.75),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.expand_more_rounded,
+                                  size: 18,
+                                  color: cs.onSurface.withValues(alpha: 0.45),
+                                ),
+                              ],
                             ),
-                            Icon(
-                              Icons.expand_more_rounded,
-                              size: 18,
-                              color: cs.onSurface.withValues(alpha: 0.45),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
                 );
               },
             ),
@@ -611,9 +597,7 @@ class _IngredientFormBodyState extends ConsumerState<_IngredientFormBody> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(
-                      editing == null ? s.actionAdd : s.actionSave,
-                    ),
+                    child: Text(editing == null ? s.actionAdd : s.actionSave),
                   ),
                 ),
               ],
@@ -652,9 +636,10 @@ class _PulsingInfoButtonState extends State<PulsingInfoButton>
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
-    _opacity = Tween<double>(begin: 0.5, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _opacity = Tween<double>(
+      begin: 0.5,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override

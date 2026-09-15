@@ -24,10 +24,14 @@ class SetupRepository {
 
   Future<List<BreadCategoryModel>> getBreadCategories(String shopId) async {
     try {
-      final res = await _apiClient.dio.get('${_shopPath(shopId)}/bread-categories');
+      final res = await _apiClient.dio.get(
+        '${_shopPath(shopId)}/bread-categories',
+      );
       final data = _body(res)['data'] as Map<String, dynamic>;
       final list = data['bread_categories'] as List;
-      return list.map((e) => BreadCategoryModel.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => BreadCategoryModel.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -51,7 +55,9 @@ class SetupRepository {
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
-      return BreadCategoryModel.fromJson(data['bread_category'] as Map<String, dynamic>);
+      return BreadCategoryModel.fromJson(
+        data['bread_category'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -78,7 +84,9 @@ class SetupRepository {
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
-      return BreadCategoryModel.fromJson(data['bread_category'] as Map<String, dynamic>);
+      return BreadCategoryModel.fromJson(
+        data['bread_category'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -97,7 +105,9 @@ class SetupRepository {
       final res = await _apiClient.dio.get('${_shopPath(shopId)}/ingredients');
       final data = _body(res)['data'] as Map<String, dynamic>;
       final list = data['ingredients'] as List;
-      return list.map((e) => IngredientModel.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => IngredientModel.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -123,7 +133,9 @@ class SetupRepository {
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
-      return IngredientModel.fromJson(data['ingredient'] as Map<String, dynamic>);
+      return IngredientModel.fromJson(
+        data['ingredient'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -152,7 +164,9 @@ class SetupRepository {
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
-      return IngredientModel.fromJson(data['ingredient'] as Map<String, dynamic>);
+      return IngredientModel.fromJson(
+        data['ingredient'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -171,7 +185,9 @@ class SetupRepository {
       final res = await _apiClient.dio.get('${_shopPath(shopId)}/recipes');
       final data = _body(res)['data'] as Map<String, dynamic>;
       final list = data['recipes'] as List;
-      return list.map((e) => RecipeModel.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => RecipeModel.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -195,6 +211,26 @@ class SetupRepository {
           'output_quantity': outputQuantity,
           'ingredients': ingredients,
         },
+      );
+      final data = _body(res)['data'] as Map<String, dynamic>;
+      return RecipeModel.fromJson(data['recipe'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  /// Retseptni yangilash — tarkib butunlay almashtiriladi, tannarx
+  /// backendda qayta hisoblanadi.
+  Future<RecipeModel> updateRecipe(
+    String shopId,
+    String id, {
+    required int outputQuantity,
+    required List<Map<String, dynamic>> ingredients,
+  }) async {
+    try {
+      final res = await _apiClient.dio.put(
+        '${_shopPath(shopId)}/recipes/$id',
+        data: {'output_quantity': outputQuantity, 'ingredients': ingredients},
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
       return RecipeModel.fromJson(data['recipe'] as Map<String, dynamic>);

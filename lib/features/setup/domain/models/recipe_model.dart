@@ -70,15 +70,20 @@ class RecipeModel {
       id: json['id'] as String,
       shopId: json['shop_id'] as String,
       name: json['name'] as String,
-      breadCategory:
-          bcJson != null ? BreadCategoryModel.fromJson(bcJson) : null,
-      measurementUnit:
-          muJson != null ? MeasurementUnitModel.fromJson(muJson) : null,
+      breadCategory: bcJson != null
+          ? BreadCategoryModel.fromJson(bcJson)
+          : null,
+      measurementUnit: muJson != null
+          ? MeasurementUnitModel.fromJson(muJson)
+          : null,
       outputQuantity: jsonInt(json['output_quantity']),
       isActive: json['is_active'] as bool? ?? true,
-      ingredients: (json['ingredients'] as List?)
-              ?.map((e) =>
-                  RecipeIngredientModel.fromJson(e as Map<String, dynamic>))
+      ingredients:
+          (json['ingredients'] as List?)
+              ?.map(
+                (e) =>
+                    RecipeIngredientModel.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           const [],
       totalCost: json['total_cost']?.toString(),

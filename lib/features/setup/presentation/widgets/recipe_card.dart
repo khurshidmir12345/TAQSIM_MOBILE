@@ -14,12 +14,16 @@ class RecipeCard extends StatelessWidget {
     required this.formatNumber,
     required this.formatMoney,
     required this.onDelete,
+    required this.onEdit,
   });
 
   final RecipeModel recipe;
   final String Function(dynamic value) formatNumber;
   final String Function(dynamic value) formatMoney;
   final VoidCallback onDelete;
+
+  /// Kartaga bosilganda yoki qalam ikonkasida — tahrirlash ekrani.
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -40,61 +44,66 @@ class RecipeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
         side: BorderSide(color: cs.outline.withValues(alpha: 0.08)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _HeaderRow(
-              title: recipe.productDisplayName,
-              subtitle: s.recipeRecipeBatchLine(
-                unitName.isNotEmpty ? unitName : '·',
-                '${recipe.outputQuantity}',
-              ),
-              onDelete: onDelete,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Divider(height: 1, color: cs.outline.withValues(alpha: 0.12)),
-            const SizedBox(height: AppSpacing.sm),
-            _StatsRow(
-              recipe: recipe,
-              s: s,
-              formatNumber: formatNumber,
-              formatMoney: formatMoney,
-              currencyLabel: s.currency,
-            ),
-            if (recipe.ingredients.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                s.recipeCardSectionIngredients,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  fontSize: 10,
-                  color: cs.onSurface.withValues(alpha: 0.58),
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.15,
+      child: InkWell(
+        onTap: onEdit,
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _HeaderRow(
+                title: recipe.productDisplayName,
+                subtitle: s.recipeRecipeBatchLine(
+                  unitName.isNotEmpty ? unitName : '·',
+                  '${recipe.outputQuantity}',
                 ),
+                onDelete: onDelete,
+                onEdit: onEdit,
               ),
-              const SizedBox(height: 3),
-              Wrap(
-                spacing: 3,
-                runSpacing: 3,
-                children: recipe.ingredients.asMap().entries.map((e) {
-                  final i = e.key;
-                  final ri = e.value;
-                  final (bg, fg) = _ingredientChipPair(theme.brightness, i);
-                  return _IngredientMiniChip(
-                    label: s.recipeCardIngredientLine(
-                      ri.ingredient?.name ?? '—',
-                      formatNumber(ri.quantity),
-                      ri.ingredient?.displayUnitLine ?? 'kg',
-                    ),
-                    backgroundColor: bg,
-                    foregroundColor: fg,
-                  );
-                }).toList(),
+              const SizedBox(height: AppSpacing.sm),
+              Divider(height: 1, color: cs.outline.withValues(alpha: 0.12)),
+              const SizedBox(height: AppSpacing.sm),
+              _StatsRow(
+                recipe: recipe,
+                s: s,
+                formatNumber: formatNumber,
+                formatMoney: formatMoney,
+                currencyLabel: s.currency,
               ),
+              if (recipe.ingredients.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  s.recipeCardSectionIngredients,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontSize: 10,
+                    color: cs.onSurface.withValues(alpha: 0.58),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.15,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Wrap(
+                  spacing: 3,
+                  runSpacing: 3,
+                  children: recipe.ingredients.asMap().entries.map((e) {
+                    final i = e.key;
+                    final ri = e.value;
+                    final (bg, fg) = _ingredientChipPair(theme.brightness, i);
+                    return _IngredientMiniChip(
+                      label: s.recipeCardIngredientLine(
+                        ri.ingredient?.name ?? '—',
+                        formatNumber(ri.quantity),
+                        ri.ingredient?.displayUnitLine ?? 'kg',
+                      ),
+                      backgroundColor: bg,
+                      foregroundColor: fg,
+                    );
+                  }).toList(),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -185,11 +194,13 @@ class _HeaderRow extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onDelete,
+    required this.onEdit,
   });
 
   final String title;
   final String subtitle;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -218,21 +229,33 @@ class _HeaderRow extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.15,
-                      height: 1.25,
-                    ),
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.15,
+                  height: 1.25,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 subtitle,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: cs.onSurface.withValues(alpha: 0.55),
-                      height: 1.3,
-                    ),
+                  color: cs.onSurface.withValues(alpha: 0.55),
+                  height: 1.3,
+                ),
               ),
             ],
           ),
+        ),
+        IconButton(
+          visualDensity: VisualDensity.compact,
+          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          padding: EdgeInsets.zero,
+          tooltip: S.of(context).recipeEditTitle,
+          icon: Icon(
+            Icons.edit_outlined,
+            size: 20,
+            color: AppColors.primary.withValues(alpha: 0.9),
+          ),
+          onPressed: onEdit,
         ),
         IconButton(
           visualDensity: VisualDensity.compact,

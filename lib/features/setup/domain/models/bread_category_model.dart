@@ -51,11 +51,11 @@ class BreadCategoryModel {
       name: json['name'] as String,
       sellingPrice: json['selling_price'].toString(),
       currencyId: json['currency_id'] as String?,
-      currency:
-          curJson != null ? CurrencyModel.fromJson(curJson) : null,
+      currency: curJson != null ? CurrencyModel.fromJson(curJson) : null,
       measurementUnitId: json['measurement_unit_id'] as String?,
-      measurementUnit:
-          muJson != null ? MeasurementUnitModel.fromJson(muJson) : null,
+      measurementUnit: muJson != null
+          ? MeasurementUnitModel.fromJson(muJson)
+          : null,
       imageUrl: json['image_url'] as String?,
       sortOrder: json['sort_order'] as int? ?? 0,
       isActive: json['is_active'] as bool? ?? true,

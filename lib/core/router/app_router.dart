@@ -22,6 +22,8 @@ import '../../features/setup/presentation/screens/setup_screen.dart';
 import '../../features/setup/presentation/screens/bread_categories_screen.dart';
 import '../../features/setup/presentation/screens/ingredients_screen.dart';
 import '../../features/setup/presentation/screens/recipe_create_screen.dart';
+import '../../features/setup/domain/models/recipe_model.dart';
+import '../../features/setup/presentation/screens/recipe_edit_screen.dart';
 import '../../features/setup/presentation/screens/recipes_screen.dart';
 import '../../features/shell/presentation/screens/shell_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
@@ -167,6 +169,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/recipe-create',
         builder: (context, state) => const RecipeCreateScreen(),
+      ),
+      GoRoute(
+        path: '/recipe-edit',
+        builder: (context, state) =>
+            RecipeEditScreen(recipe: state.extra as RecipeModel),
       ),
       GoRoute(
         path: '/production-create',

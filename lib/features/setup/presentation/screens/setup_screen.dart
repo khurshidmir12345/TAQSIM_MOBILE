@@ -25,7 +25,9 @@ abstract final class _SetupRoutes {
 }
 
 SystemUiOverlayStyle _setupStatusBarOverlay(Brightness b) =>
-    b == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;
+    b == Brightness.dark
+    ? SystemUiOverlayStyle.light
+    : SystemUiOverlayStyle.dark;
 
 void _setupPopOrShell(BuildContext context) {
   if (context.canPop()) {
@@ -77,7 +79,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
     // Barcha bosqich tugagach ko'rsatkich kerak emas — ekranni band qilmasin.
     final allDone = hasCat && hasIng && hasRec;
-
 
     final screen = AnnotatedRegion<SystemUiOverlayStyle>(
       value: _setupStatusBarOverlay(theme.brightness),
@@ -167,10 +168,9 @@ class _SectionTabs extends StatelessWidget {
           visualDensity: VisualDensity.compact,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           textStyle: WidgetStatePropertyAll(
-            Theme.of(context)
-                .textTheme
-                .labelLarge
-                ?.copyWith(fontWeight: FontWeight.w700),
+            Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
       ),
@@ -254,9 +254,9 @@ class _SetupJourneyPanel extends StatelessWidget {
                   child: Text(
                     s.setupJourneyTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.2,
-                        ),
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                 ),
                 if (isLoading)
@@ -274,10 +274,10 @@ class _SetupJourneyPanel extends StatelessWidget {
             Text(
               s.setupJourneyHint,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: cs.onSurface.withValues(alpha: 0.72),
-                    height: 1.45,
-                    fontSize: 13,
-                  ),
+                color: cs.onSurface.withValues(alpha: 0.72),
+                height: 1.45,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: AppSpacing.md),
             Row(
@@ -308,8 +308,8 @@ class _SetupJourneyPanel extends StatelessWidget {
                     color: completed
                         ? AppColors.primary
                         : isEmph
-                            ? AppColors.primary.withValues(alpha: 0.12)
-                            : cs.surfaceContainerHighest,
+                        ? AppColors.primary.withValues(alpha: 0.12)
+                        : cs.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                     border: isEmph && !completed
                         ? Border.all(color: AppColors.primary, width: 2)
@@ -369,9 +369,9 @@ class _SetupJourneyPanel extends StatelessWidget {
                   Text(
                     s.setupJourneyAllDone,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: AppColors.income,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: AppColors.income,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
@@ -430,9 +430,9 @@ class _GradientHeader extends StatelessWidget {
               child: Text(
                 title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.3,
-                    ),
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                ),
               ),
             ),
           ],
@@ -441,4 +441,3 @@ class _GradientHeader extends StatelessWidget {
     );
   }
 }
-

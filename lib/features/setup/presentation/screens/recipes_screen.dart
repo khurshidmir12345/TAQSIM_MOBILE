@@ -25,7 +25,6 @@ class RecipesScreen extends ConsumerStatefulWidget {
 }
 
 class _RecipesScreenState extends ConsumerState<RecipesScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -73,16 +72,13 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state    = ref.watch(recipeProvider);
-    final cs       = Theme.of(context).colorScheme;
-    final s        = S.of(context);
+    final state = ref.watch(recipeProvider);
+    final cs = Theme.of(context).colorScheme;
+    final s = S.of(context);
     final Widget scaffold = Scaffold(
       appBar: widget.embedded
           ? null
-          : AppBar(
-              title: Text(s.recipeScreenTitle),
-              scrolledUnderElevation: 0,
-            ),
+          : AppBar(title: Text(s.recipeScreenTitle), scrolledUnderElevation: 0),
       body: state.isLoading
           ? const AppLoading()
           : RefreshIndicator(
@@ -103,6 +99,10 @@ class _RecipesScreenState extends ConsumerState<RecipesScreen> {
                           formatNumber: (v) => formatRecipeNumber(context, v),
                           formatMoney: (v) => formatRecipeMoney(context, v),
                           onDelete: () => _onDeleteRecipe(context, recipe),
+                          onEdit: () {
+                            HapticFeedback.selectionClick();
+                            context.push('/recipe-edit', extra: recipe);
+                          },
                         );
                       },
                     ),
@@ -179,11 +179,7 @@ class _RecipesBottomDock extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.home_rounded,
-                          size: 20,
-                          color: cs.onPrimary,
-                        ),
+                        Icon(Icons.home_rounded, size: 20, color: cs.onPrimary),
                         const SizedBox(width: 10),
                         Flexible(
                           child: Text(
@@ -233,10 +229,7 @@ class _RecipesBottomDock extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({
-    required this.s,
-    required this.cs,
-  });
+  const _EmptyState({required this.s, required this.cs});
 
   final S s;
   final ColorScheme cs;
@@ -253,44 +246,40 @@ class _EmptyState extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-            SvgPicture.asset(
-              AppIcons.emptyBasket,
-              width: 112,
-              height: 112,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              s.recipeEmptyTitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              s.recipeEmptySubtitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurface.withValues(alpha: 0.55),
-                    height: 1.45,
-                  ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            FilledButton.icon(
-              onPressed: () => context.push('/recipe-create'),
-              icon: const Icon(Icons.add_rounded, size: 22),
-              label: Text(s.recipeAddCta),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(220, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    AppSpacing.borderRadiusLg + 2,
+              SvgPicture.asset(AppIcons.emptyBasket, width: 112, height: 112),
+              const SizedBox(height: AppSpacing.lg),
+              Text(
+                s.recipeEmptyTitle,
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                s.recipeEmptySubtitle,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.55),
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              FilledButton.icon(
+                onPressed: () => context.push('/recipe-create'),
+                icon: const Icon(Icons.add_rounded, size: 22),
+                label: Text(s.recipeAddCta),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(220, 52),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.borderRadiusLg + 2,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );

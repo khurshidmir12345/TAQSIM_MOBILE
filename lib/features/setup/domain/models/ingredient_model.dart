@@ -75,8 +75,7 @@ class IngredientModel {
       isFlour: json['is_flour'] as bool? ?? false,
       pricePerUnit: json['price_per_unit']?.toString() ?? '0',
       currencyId: json['currency_id'] as String?,
-      currency:
-          curJson != null ? CurrencyModel.fromJson(curJson) : null,
+      currency: curJson != null ? CurrencyModel.fromJson(curJson) : null,
       sortOrder: (json['sort_order'] as num?)?.toInt() ?? 0,
       isActive: json['is_active'] as bool? ?? true,
       createdAt: json['created_at'] as String?,

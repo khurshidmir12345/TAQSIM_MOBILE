@@ -892,4 +892,8 @@ const Map<String, String> kEnTranslations = {
   'recipeSingleIngredientAddMore': 'Add more',
   'recipeSingleIngredientSaveAnyway': 'Save anyway',
   'recipeSingleUnitMissing': 'The “Piece” unit for single-item mode was not found',
+  'recipeEditTitle': 'Edit calculation',
+  'recipeEditHint': 'Add ingredients or change quantities — the cost is recalculated',
+  'recipeUpdateSuccess': 'Calculation updated',
+  'recipeEditPreviewTitle': 'New calculation',
 };

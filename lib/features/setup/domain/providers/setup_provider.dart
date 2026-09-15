@@ -125,7 +125,9 @@ class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
 }
 
 final breadCategoryProvider =
-    NotifierProvider<BreadCategoryNotifier, BreadCategoryListState>(BreadCategoryNotifier.new);
+    NotifierProvider<BreadCategoryNotifier, BreadCategoryListState>(
+      BreadCategoryNotifier.new,
+    );
 
 // -- Ingredient --
 class IngredientListState {
@@ -229,7 +231,9 @@ class IngredientNotifier extends Notifier<IngredientListState> {
 }
 
 final ingredientProvider =
-    NotifierProvider<IngredientNotifier, IngredientListState>(IngredientNotifier.new);
+    NotifierProvider<IngredientNotifier, IngredientListState>(
+      IngredientNotifier.new,
+    );
 
 // -- Recipe --
 class RecipeListState {
@@ -296,6 +300,26 @@ class RecipeNotifier extends Notifier<RecipeListState> {
     }
   }
 
+  Future<bool> update({
+    required String id,
+    required int outputQuantity,
+    required List<Map<String, dynamic>> ingredients,
+  }) async {
+    try {
+      await _repo.updateRecipe(
+        _shopId(ref),
+        id,
+        outputQuantity: outputQuantity,
+        ingredients: ingredients,
+      );
+      await load();
+      return true;
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      return false;
+    }
+  }
+
   Future<bool> delete(String id) async {
     try {
       await _repo.deleteRecipe(_shopId(ref), id);
@@ -308,5 +332,6 @@ class RecipeNotifier extends Notifier<RecipeListState> {
   }
 }
 
-final recipeProvider =
-    NotifierProvider<RecipeNotifier, RecipeListState>(RecipeNotifier.new);
+final recipeProvider = NotifierProvider<RecipeNotifier, RecipeListState>(
+  RecipeNotifier.new,
+);

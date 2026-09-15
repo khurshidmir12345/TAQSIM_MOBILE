@@ -375,6 +375,10 @@ class S {
   String get recipeValidationIngredients => _t('recipeValidationIngredients');
   String get recipeValidationDuplicateIngredient =>
       _t('recipeValidationDuplicateIngredient');
+  String get recipeEditTitle => _t('recipeEditTitle');
+  String get recipeEditHint => _t('recipeEditHint');
+  String get recipeUpdateSuccess => _t('recipeUpdateSuccess');
+  String get recipeEditPreviewTitle => _t('recipeEditPreviewTitle');
 
   // ─── Retsept: hisob turi, maxsus birlik, tarkib qo‘riqchilari ───
   String get recipeStepMode => _t('recipeStepMode');
@@ -1498,6 +1502,10 @@ class S {
     'recipeStepProduct': 'Mahsulot',
     'recipeStepBatch': 'Partiya',
     'recipeStepIngredients': 'Tarkib',
+    'recipeEditTitle': 'Hisoblashni tahrirlash',
+    'recipeEditHint': 'Xom ashyo qo‘shing yoki miqdorni o‘zgartiring — tannarx qayta hisoblanadi',
+    'recipeUpdateSuccess': 'Hisoblash yangilandi',
+    'recipeEditPreviewTitle': 'Yangi hisob',
     'recipeStepMode': 'Hisob turi',
     'recipeModeQuestion': 'Bu mahsulot uchun hisob qanday?',
     'recipeModeSingleTitle': 'Bir dona',
@@ -2421,6 +2429,10 @@ class S {
     'recipeStepProduct': 'Маҳсулот',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Таркиб',
+    'recipeEditTitle': 'Ҳисоблашни таҳрирлаш',
+    'recipeEditHint': 'Хом ашё қўшинг ёки миқдорни ўзгартиринг — таннарх қайта ҳисобланади',
+    'recipeUpdateSuccess': 'Ҳисоблаш янгиланди',
+    'recipeEditPreviewTitle': 'Янги ҳисоб',
     'recipeStepMode': 'Ҳисоб тури',
     'recipeModeQuestion': 'Бу маҳсулот учун ҳисоб қандай?',
     'recipeModeSingleTitle': 'Бир дона',
@@ -3332,6 +3344,10 @@ class S {
     'recipeStepProduct': 'Продукция',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Состав',
+    'recipeEditTitle': 'Изменить расчёт',
+    'recipeEditHint': 'Добавьте сырьё или измените количество — себестоимость пересчитается',
+    'recipeUpdateSuccess': 'Расчёт обновлён',
+    'recipeEditPreviewTitle': 'Новый расчёт',
     'recipeStepMode': 'Тип расчёта',
     'recipeModeQuestion': 'Как считать этот продукт?',
     'recipeModeSingleTitle': 'Одна штука',
@@ -4244,6 +4260,10 @@ class S {
     'recipeStepProduct': 'Өнім',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Құрам',
+    'recipeEditTitle': 'Есепті өңдеу',
+    'recipeEditHint': 'Шикізат қосыңыз немесе мөлшерін өзгертіңіз — өзіндік құн қайта есептеледі',
+    'recipeUpdateSuccess': 'Есеп жаңартылды',
+    'recipeEditPreviewTitle': 'Жаңа есеп',
     'recipeStepMode': 'Есеп түрі',
     'recipeModeQuestion': 'Бұл өнімді қалай есептейміз?',
     'recipeModeSingleTitle': 'Бір дана',
@@ -5152,6 +5172,10 @@ class S {
     'recipeStepProduct': 'Өнүм',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Курамы',
+    'recipeEditTitle': 'Эсепти түзөтүү',
+    'recipeEditHint': 'Чийки зат кошуңуз же өлчөмүн өзгөртүңүз — өздүк наркы кайра эсептелет',
+    'recipeUpdateSuccess': 'Эсеп жаңыланды',
+    'recipeEditPreviewTitle': 'Жаңы эсеп',
     'recipeStepMode': 'Эсеп түрү',
     'recipeModeQuestion': 'Бул продуктту кантип эсептейбиз?',
     'recipeModeSingleTitle': 'Бир даана',
@@ -6057,6 +6081,10 @@ class S {
     'recipeStepProduct': 'Ürün',
     'recipeStepBatch': 'Parti',
     'recipeStepIngredients': 'İçerik',
+    'recipeEditTitle': 'Hesabı düzenle',
+    'recipeEditHint': 'Hammadde ekleyin veya miktarı değiştirin — maliyet yeniden hesaplanır',
+    'recipeUpdateSuccess': 'Hesap güncellendi',
+    'recipeEditPreviewTitle': 'Yeni hesap',
     'recipeStepMode': 'Hesap türü',
     'recipeModeQuestion': 'Bu ürün nasıl hesaplansın?',
     'recipeModeSingleTitle': 'Tek parça',

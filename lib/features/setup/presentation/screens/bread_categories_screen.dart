@@ -62,9 +62,7 @@ class BreadCategoriesScreen extends ConsumerStatefulWidget {
       _BreadCategoriesScreenState();
 }
 
-class _BreadCategoriesScreenState
-    extends ConsumerState<BreadCategoriesScreen> {
-
+class _BreadCategoriesScreenState extends ConsumerState<BreadCategoriesScreen> {
   @override
   void initState() {
     super.initState();
@@ -72,8 +70,7 @@ class _BreadCategoriesScreenState
   }
 
   String _currencySuffix(S s) {
-    final cur =
-        ref.watch(shopProvider.select((s) => s.selected?.currency));
+    final cur = ref.watch(shopProvider.select((s) => s.selected?.currency));
     final sym = cur?.symbol;
     if (sym != null && sym.isNotEmpty) return sym;
     final code = cur?.code;
@@ -112,160 +109,155 @@ class _BreadCategoriesScreenState
       body: state.isLoading
           ? const AppLoading()
           : state.items.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SvgPicture.asset(
-                          AppIcons.emptyBasket,
-                          width: 120,
-                          height: 120,
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          s.productCategoriesEmptyTitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          s.productCategoriesEmptySubtitle,
-                          textAlign: TextAlign.center,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: cs.onSurface.withValues(alpha: 0.5),
-                                  ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        ElevatedButton.icon(
-                          onPressed: () => _showCategorySheet(null),
-                          icon: const Icon(Icons.add, size: 20),
-                          label: Text(s.productCategoriesAddCta),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(200, 48),
-                          ),
-                        ),
-                      ],
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SvgPicture.asset(
+                      AppIcons.emptyBasket,
+                      width: 120,
+                      height: 120,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      s.productCategoriesEmptyTitle,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      s.productCategoriesEmptySubtitle,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    ElevatedButton.icon(
+                      onPressed: () => _showCategorySheet(null),
+                      icon: const Icon(Icons.add, size: 20),
+                      label: Text(s.productCategoriesAddCta),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(200, 48),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : ListView.separated(
+              padding: AppSpacing.screenPadding,
+              itemCount: state.items.length,
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+              itemBuilder: (context, index) {
+                final cat = state.items[index];
+                final unitName =
+                    cat.measurementUnit?.localizedName(localeCode) ?? '';
+                final priceLine = unitName.isEmpty
+                    ? '${cat.sellingPrice} ${cat.priceSuffix(currency)}'
+                    : '${cat.sellingPrice} ${cat.priceSuffix(currency)} / ${unitName.toLowerCase()}';
+                return Container(
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: cs.outline.withValues(alpha: 0.12),
                     ),
                   ),
-                )
-              : ListView.separated(
-                  padding: AppSpacing.screenPadding,
-                  itemCount: state.items.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: AppSpacing.sm),
-                  itemBuilder: (context, index) {
-                    final cat = state.items[index];
-                    final unitName =
-                        cat.measurementUnit?.localizedName(localeCode) ?? '';
-                    final priceLine = unitName.isEmpty
-                        ? '${cat.sellingPrice} ${cat.priceSuffix(currency)}'
-                        : '${cat.sellingPrice} ${cat.priceSuffix(currency)} / ${unitName.toLowerCase()}';
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: cs.outline.withValues(alpha: 0.12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => _showCategorySheet(cat),
+                          borderRadius: BorderRadius.circular(20),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 44,
+                                  height: 44,
+                                  decoration: BoxDecoration(
+                                    color: cs.primary.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.category_rounded,
+                                    color: cs.primary,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        cat.name,
+                                        style: TextStyle(
+                                          color: cs.onSurface,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        priceLine,
+                                        style: TextStyle(
+                                          color: cs.onSurface.withValues(
+                                            alpha: 0.55,
+                                          ),
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () => _showCategorySheet(cat),
-                              borderRadius: BorderRadius.circular(20),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 44,
-                                      height: 44,
-                                      decoration: BoxDecoration(
-                                        color: cs.primary.withValues(
-                                          alpha: 0.12,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(
-                                        Icons.category_rounded,
-                                        color: cs.primary,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            cat.name,
-                                            style: TextStyle(
-                                              color: cs.onSurface,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            priceLine,
-                                            style: TextStyle(
-                                              color: cs.onSurface
-                                                  .withValues(alpha: 0.55),
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.error,
+                          size: 20,
+                        ),
+                        onPressed: () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          final ok = await ref
+                              .read(breadCategoryProvider.notifier)
+                              .delete(cat.id);
+                          if (!mounted) return;
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                ok
+                                    ? s.snackbarCategoryDeleted(cat.name)
+                                    : s.snackbarErrorGeneric,
                               ),
+                              behavior: SnackBarBehavior.floating,
+                              backgroundColor: ok
+                                  ? AppColors.success
+                                  : AppColors.error,
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: AppColors.error,
-                              size: 20,
-                            ),
-                            onPressed: () async {
-                              final messenger =
-                                  ScaffoldMessenger.of(context);
-                              final ok = await ref
-                                  .read(breadCategoryProvider.notifier)
-                                  .delete(cat.id);
-                              if (!mounted) return;
-                              messenger.showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    ok
-                                        ? s.snackbarCategoryDeleted(cat.name)
-                                        : s.snackbarErrorGeneric,
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                  backgroundColor: ok
-                                      ? AppColors.success
-                                      : AppColors.error,
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
+                    ],
+                  ),
+                );
+              },
+            ),
       floatingActionButton: state.items.isEmpty
           ? null
           : FloatingActionButton(
@@ -293,8 +285,9 @@ class _CategoryFormSheet extends ConsumerStatefulWidget {
 }
 
 class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
-  late final TextEditingController _nameCtl =
-      TextEditingController(text: widget.editing?.name ?? '');
+  late final TextEditingController _nameCtl = TextEditingController(
+    text: widget.editing?.name ?? '',
+  );
   late final TextEditingController _priceCtl = TextEditingController(
     text: widget.editing != null
         ? _formatCategoryPriceField(widget.editing!.sellingPrice)
@@ -337,19 +330,15 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
         padding: EdgeInsets.all(40),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text('$e'),
-      ),
+      error: (e, _) =>
+          Padding(padding: const EdgeInsets.all(24), child: Text('$e')),
       data: (units) => curAsync.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(40),
           child: Center(child: CircularProgressIndicator()),
         ),
-        error: (e, _) => Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text('$e'),
-        ),
+        error: (e, _) =>
+            Padding(padding: const EdgeInsets.all(24), child: Text('$e')),
         data: (currencies) {
           if (units.isEmpty || currencies.isEmpty) {
             return Padding(
@@ -380,8 +369,7 @@ class _CategoryFormSheetState extends ConsumerState<_CategoryFormSheet> {
         child: Container(
           decoration: BoxDecoration(
             color: cs.surface,
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
             boxShadow: [
               BoxShadow(
                 color: sheetShadow,
@@ -459,9 +447,7 @@ class _CategoryFormBodyState extends ConsumerState<_CategoryFormBody> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(
-          color: cs.outline.withValues(alpha: 0.18),
-        ),
+        borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.18)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
@@ -470,10 +456,7 @@ class _CategoryFormBodyState extends ConsumerState<_CategoryFormBody> {
           width: 1.5,
         ),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
 
@@ -497,19 +480,23 @@ class _CategoryFormBodyState extends ConsumerState<_CategoryFormBody> {
     navigator.pop();
 
     final ok = editing == null
-        ? await ref.read(breadCategoryProvider.notifier).create(
-              name: name,
-              sellingPrice: price,
-              currencyId: _selectedCurrencyId,
-              measurementUnitId: _selectedMeasurementUnitId,
-            )
-        : await ref.read(breadCategoryProvider.notifier).update(
-              id: editing.id,
-              name: name,
-              sellingPrice: price,
-              currencyId: _selectedCurrencyId,
-              measurementUnitId: _selectedMeasurementUnitId,
-            );
+        ? await ref
+              .read(breadCategoryProvider.notifier)
+              .create(
+                name: name,
+                sellingPrice: price,
+                currencyId: _selectedCurrencyId,
+                measurementUnitId: _selectedMeasurementUnitId,
+              )
+        : await ref
+              .read(breadCategoryProvider.notifier)
+              .update(
+                id: editing.id,
+                name: name,
+                sellingPrice: price,
+                currencyId: _selectedCurrencyId,
+                measurementUnitId: _selectedMeasurementUnitId,
+              );
 
     if (!mounted) return;
 
@@ -518,8 +505,8 @@ class _CategoryFormBodyState extends ConsumerState<_CategoryFormBody> {
         content: Text(
           ok
               ? (editing == null
-                  ? s.snackbarCategoryAdded(name)
-                  : s.snackbarCategoryUpdated(name))
+                    ? s.snackbarCategoryAdded(name)
+                    : s.snackbarCategoryUpdated(name))
               : s.snackbarErrorGeneric,
         ),
         behavior: SnackBarBehavior.floating,
@@ -647,8 +634,9 @@ class _CategoryFormBodyState extends ConsumerState<_CategoryFormBody> {
                           _selectedMeasurementUnitId = u.id;
                         });
                       },
-                      selectedColor:
-                          cs.primaryContainer.withValues(alpha: 0.85),
+                      selectedColor: cs.primaryContainer.withValues(
+                        alpha: 0.85,
+                      ),
                       checkmarkColor: cs.onPrimaryContainer,
                       side: BorderSide(
                         color: u.id == _selectedMeasurementUnitId
@@ -683,60 +671,53 @@ class _CategoryFormBodyState extends ConsumerState<_CategoryFormBody> {
                     decimal: true,
                   ),
                   inputFormatters: const [DecimalTextInputFormatter()],
-                  decoration: _fieldDeco(
-                    cs,
-                    priceLabel,
-                    s.sellingPriceHint,
-                  ).copyWith(
-                    suffixIconConstraints: const BoxConstraints(
-                      minWidth: 52,
-                      minHeight: 24,
-                      maxHeight: 40,
-                    ),
-                    suffixIcon: PopupMenuButton<String>(
-                      tooltip: s.currencyPickerLabel,
-                      padding: EdgeInsets.zero,
-                      initialValue: _selectedCurrencyId,
-                      onSelected: (v) =>
-                          setState(() => _selectedCurrencyId = v),
-                      itemBuilder: (context) => widget.currencies
-                          .map(
-                            (c) => PopupMenuItem<String>(
-                              value: c.id,
-                              child: Text(c.displayLabel),
-                            ),
-                          )
-                          .toList(),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          right: 12,
-                          left: 4,
+                  decoration: _fieldDeco(cs, priceLabel, s.sellingPriceHint)
+                      .copyWith(
+                        suffixIconConstraints: const BoxConstraints(
+                          minWidth: 52,
+                          minHeight: 24,
+                          maxHeight: 40,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _currencyCodeForId(
-                                widget.currencies,
-                                _selectedCurrencyId,
-                              ),
-                              style: theme.textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.2,
-                                color: cs.onSurface
-                                    .withValues(alpha: 0.75),
-                              ),
+                        suffixIcon: PopupMenuButton<String>(
+                          tooltip: s.currencyPickerLabel,
+                          padding: EdgeInsets.zero,
+                          initialValue: _selectedCurrencyId,
+                          onSelected: (v) =>
+                              setState(() => _selectedCurrencyId = v),
+                          itemBuilder: (context) => widget.currencies
+                              .map(
+                                (c) => PopupMenuItem<String>(
+                                  value: c.id,
+                                  child: Text(c.displayLabel),
+                                ),
+                              )
+                              .toList(),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12, left: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _currencyCodeForId(
+                                    widget.currencies,
+                                    _selectedCurrencyId,
+                                  ),
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.2,
+                                    color: cs.onSurface.withValues(alpha: 0.75),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.expand_more_rounded,
+                                  size: 18,
+                                  color: cs.onSurface.withValues(alpha: 0.45),
+                                ),
+                              ],
                             ),
-                            Icon(
-                              Icons.expand_more_rounded,
-                              size: 18,
-                              color: cs.onSurface.withValues(alpha: 0.45),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ),
                 );
               },
             ),
@@ -772,9 +753,7 @@ class _CategoryFormBodyState extends ConsumerState<_CategoryFormBody> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(
-                      editing == null ? s.actionAdd : s.actionSave,
-                    ),
+                    child: Text(editing == null ? s.actionAdd : s.actionSave),
                   ),
                 ),
               ],
