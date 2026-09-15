@@ -45,8 +45,9 @@ class CashRangeNotifier extends Notifier<CashRange> {
   }
 }
 
-final cashRangeProvider =
-    NotifierProvider<CashRangeNotifier, CashRange>(CashRangeNotifier.new);
+final cashRangeProvider = NotifierProvider<CashRangeNotifier, CashRange>(
+  CashRangeNotifier.new,
+);
 
 class CashState {
   final CashSummary summary;
@@ -86,8 +87,9 @@ class CashState {
   }
 }
 
-final cashProvider =
-    AsyncNotifierProvider<CashNotifier, CashState>(CashNotifier.new);
+final cashProvider = AsyncNotifierProvider<CashNotifier, CashState>(
+  CashNotifier.new,
+);
 
 class CashNotifier extends AsyncNotifier<CashState> {
   CashRepository get _repo => ref.read(cashRepositoryProvider);
@@ -138,12 +140,14 @@ class CashNotifier extends AsyncNotifier<CashState> {
         page: current.currentPage + 1,
       );
 
-      state = AsyncData(current.copyWith(
-        entries: [...current.entries, ...page.entries],
-        currentPage: page.currentPage,
-        lastPage: page.lastPage,
-        isLoadingMore: false,
-      ));
+      state = AsyncData(
+        current.copyWith(
+          entries: [...current.entries, ...page.entries],
+          currentPage: page.currentPage,
+          lastPage: page.lastPage,
+          isLoadingMore: false,
+        ),
+      );
     } catch (_) {
       state = AsyncData(current.copyWith(isLoadingMore: false));
     }
@@ -180,9 +184,11 @@ class CashNotifier extends AsyncNotifier<CashState> {
     if (shopId == null || current == null) return;
 
     // Ro'yxatdan darhol olib tashlaymiz — javob kutilmasin.
-    state = AsyncData(current.copyWith(
-      entries: current.entries.where((e) => e.id != entryId).toList(),
-    ));
+    state = AsyncData(
+      current.copyWith(
+        entries: current.entries.where((e) => e.id != entryId).toList(),
+      ),
+    );
 
     try {
       await _repo.delete(shopId, entryId);
@@ -218,25 +224,33 @@ class CashNotifier extends AsyncNotifier<CashState> {
 
   /// Sozlama o'zgarganda server avtomatik yozuvlarni qayta quradi —
   /// shuning uchun ekranni to'liq yangilaymiz.
-  Future<void> setSetting({bool? trackProduction, bool? trackReturns}) async {
+  Future<void> setSetting({
+    bool? trackProduction,
+    bool? trackReturns,
+    bool? trackOutletPayments,
+  }) async {
     final shopId = _shopId;
     final current = state.asData?.value;
 
     if (shopId == null || current == null) return;
 
     // Tugma darhol o'zgarsin, so'ng server javobiga moslanadi.
-    state = AsyncData(current.copyWith(
-      settings: current.settings.copyWith(
-        trackProduction: trackProduction,
-        trackReturns: trackReturns,
+    state = AsyncData(
+      current.copyWith(
+        settings: current.settings.copyWith(
+          trackProduction: trackProduction,
+          trackReturns: trackReturns,
+          trackOutletPayments: trackOutletPayments,
+        ),
       ),
-    ));
+    );
 
     try {
       await _repo.updateSettings(
         shopId,
         trackProduction: trackProduction,
         trackReturns: trackReturns,
+        trackOutletPayments: trackOutletPayments,
       );
       await refresh();
     } catch (_) {
@@ -282,17 +296,19 @@ class CashCategoryQuery {
 /// Kassa kategoriyalari — kirim va chiqim uchun bir xil manba.
 final cashCategoriesProvider = FutureProvider.autoDispose
     .family<List<CashCategory>, CashCategoryQuery>((ref, query) async {
-  final shopId = ref.watch(shopProvider).selected?.id;
+      final shopId = ref.watch(shopProvider).selected?.id;
 
-  if (shopId == null) return const [];
+      if (shopId == null) return const [];
 
-  return ref.read(cashRepositoryProvider).categories(
-        shopId,
-        type: query.type,
-        locale: query.locale,
-        search: query.search,
-      );
-});
+      return ref
+          .read(cashRepositoryProvider)
+          .categories(
+            shopId,
+            type: query.type,
+            locale: query.locale,
+            search: query.search,
+          );
+    });
 
 /// Kategoriya qo'shish, nomini o'zgartirish va o'chirish.
 class CashCategoryActions {
@@ -331,5 +347,6 @@ class CashCategoryActions {
   }
 }
 
-final cashCategoryActionsProvider =
-    Provider<CashCategoryActions>(CashCategoryActions.new);
+final cashCategoryActionsProvider = Provider<CashCategoryActions>(
+  CashCategoryActions.new,
+);

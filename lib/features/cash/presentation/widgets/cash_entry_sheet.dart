@@ -15,11 +15,7 @@ import '../../domain/providers/cash_provider.dart';
 /// yozuvni o'chirish mumkin. Avtomatik yozuv faqat ko'rsatiladi: uning
 /// manbasi asosiy sahifada.
 class CashEntrySheet extends ConsumerStatefulWidget {
-  const CashEntrySheet({
-    super.key,
-    required this.entry,
-    required this.money,
-  });
+  const CashEntrySheet({super.key, required this.entry, required this.money});
 
   final CashEntry entry;
   final String Function(double) money;
@@ -60,9 +56,7 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
   @override
   void initState() {
     super.initState();
-    _amountCtl = TextEditingController(
-      text: _entry.amount.toStringAsFixed(0),
-    );
+    _amountCtl = TextEditingController(text: _entry.amount.toStringAsFixed(0));
     _descCtl = TextEditingController(text: _entry.description ?? '');
   }
 
@@ -74,16 +68,16 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
   }
 
   Future<void> _save() async {
-    final amount = double.tryParse(
-      _amountCtl.text.trim().replaceAll(',', '.'),
-    );
+    final amount = double.tryParse(_amountCtl.text.trim().replaceAll(',', '.'));
 
     if (amount == null || amount <= 0) return;
 
     setState(() => _saving = true);
 
     try {
-      await ref.read(cashProvider.notifier).updateEntry(
+      await ref
+          .read(cashProvider.notifier)
+          .updateEntry(
             _entry.id,
             amount: amount,
             description: _descCtl.text.trim(),
@@ -138,9 +132,9 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
     } catch (_) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).noInternet)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(S.of(context).noInternet)));
     }
   }
 
@@ -152,9 +146,7 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
     final parsed = DateTime.tryParse(_entry.date);
 
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.viewInsetsOf(context).bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
         child: Column(
@@ -210,8 +202,9 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
               TextField(
                 controller: _amountCtl,
                 autofocus: true,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                 ],
@@ -219,8 +212,9 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
                   labelText: s.expenseAmountLabel,
                   suffixText: s.currency,
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.borderRadiusLg),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.borderRadiusLg,
+                    ),
                   ),
                 ),
               ),
@@ -231,8 +225,9 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
                 decoration: InputDecoration(
                   labelText: s.expenseDescriptionLabel,
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.borderRadiusLg),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.borderRadiusLg,
+                    ),
                   ),
                 ),
               ),
@@ -269,8 +264,9 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.borderRadiusLg),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.borderRadiusLg,
+                    ),
                   ),
                   child: Text(
                     _entry.description!.trim(),
@@ -303,7 +299,10 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
                           ),
                         ),
                         onPressed: _delete,
-                        icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                        ),
                         label: Text(s.delete),
                       ),
                     ),
@@ -315,8 +314,9 @@ class _CashEntrySheetState extends ConsumerState<CashEntrySheet> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.borderRadiusLg),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.borderRadiusLg,
+                    ),
                   ),
                   child: Row(
                     children: [

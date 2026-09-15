@@ -8,6 +8,9 @@ class DailyReportModel {
   final double netSales;
   final ReportExpenses expenses;
   final double profit;
+
+  /// Do'konlar: berildi / to'landi / nasiya (berildi − to'landi).
+  final ReportOutlets outlets;
   final List<ReportReturnByCategory> returnsByCategory;
   final List<ReportProductBreakdown> productBreakdown;
 
@@ -19,6 +22,7 @@ class DailyReportModel {
     required this.netSales,
     required this.expenses,
     required this.profit,
+    this.outlets = const ReportOutlets(),
     this.returnsByCategory = const [],
     this.productBreakdown = const [],
   });
@@ -28,21 +32,34 @@ class DailyReportModel {
     final pb = json['product_breakdown'];
     return DailyReportModel(
       period: ReportPeriod.fromJson(json['period'] as Map<String, dynamic>),
-      production: ReportProduction.fromJson(json['production'] as Map<String, dynamic>),
+      production: ReportProduction.fromJson(
+        json['production'] as Map<String, dynamic>,
+      ),
       sales: ReportSales.fromJson(json['sales'] as Map<String, dynamic>),
       returns: ReportReturns.fromJson(json['returns'] as Map<String, dynamic>),
       netSales: jsonDouble(json['net_sales']),
-      expenses: ReportExpenses.fromJson(json['expenses'] as Map<String, dynamic>),
+      expenses: ReportExpenses.fromJson(
+        json['expenses'] as Map<String, dynamic>,
+      ),
       profit: jsonDouble(json['profit']),
+      outlets: ReportOutlets.fromJson(json['outlets'] as Map<String, dynamic>?),
       returnsByCategory: rbc is List
           ? rbc
-              .map((e) => ReportReturnByCategory.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map(
+                  (e) => ReportReturnByCategory.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
           : const [],
       productBreakdown: pb is List
           ? pb
-              .map((e) => ReportProductBreakdown.fromJson(e as Map<String, dynamic>))
-              .toList()
+                .map(
+                  (e) => ReportProductBreakdown.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
           : const [],
     );
   }
@@ -119,10 +136,7 @@ class ReportPeriod {
   const ReportPeriod({required this.from, required this.to});
 
   factory ReportPeriod.fromJson(Map<String, dynamic> json) {
-    return ReportPeriod(
-      from: json['from'] as String,
-      to: json['to'] as String,
-    );
+    return ReportPeriod(from: json['from'] as String, to: json['to'] as String);
   }
 }
 
@@ -151,8 +165,10 @@ class ReportProduction {
 
 class ReportSales {
   final int totalQuantity;
+
   /// Netto tushum (vozvratdan keyin). Backend `sales.total_amount`.
   final double totalAmount;
+
   /// Brutto (chiqim × narx yig‘indisi), agar API yuborsa.
   final double? grossAmount;
 
@@ -222,10 +238,35 @@ class ReportExpenses {
 Map<String, double> _parseExpenseByCategory(dynamic raw) {
   if (raw == null) return {};
   if (raw is Map) {
-    return raw.map(
-      (k, v) => MapEntry(k.toString(), jsonDouble(v)),
-    );
+    return raw.map((k, v) => MapEntry(k.toString(), jsonDouble(v)));
   }
   if (raw is List) return {};
   return {};
+}
+
+class ReportOutlets {
+  final double delivered;
+  final double returned;
+  final double paid;
+
+  /// Musbat — shu davrda nasiya berildi (foydadan ayrilgan), manfiy — do'konlar
+  /// avvalgi qarzini to'ladi (foydaga qo'shilgan).
+  final double credit;
+
+  const ReportOutlets({
+    this.delivered = 0,
+    this.returned = 0,
+    this.paid = 0,
+    this.credit = 0,
+  });
+
+  factory ReportOutlets.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return const ReportOutlets();
+    return ReportOutlets(
+      delivered: jsonDouble(json['delivered']),
+      returned: jsonDouble(json['returned']),
+      paid: jsonDouble(json['paid']),
+      credit: jsonDouble(json['credit']),
+    );
+  }
 }

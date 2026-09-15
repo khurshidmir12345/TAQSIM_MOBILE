@@ -24,6 +24,10 @@ import '../../features/setup/presentation/screens/ingredients_screen.dart';
 import '../../features/setup/presentation/screens/recipe_create_screen.dart';
 import '../../features/setup/domain/models/recipe_model.dart';
 import '../../features/setup/presentation/screens/recipe_edit_screen.dart';
+import '../../features/outlets/domain/models/outlet_model.dart';
+import '../../features/outlets/presentation/screens/outlets_screen.dart';
+import '../../features/outlets/presentation/screens/outlet_form_screen.dart';
+import '../../features/outlets/presentation/screens/outlet_detail_screen.dart';
 import '../../features/setup/presentation/screens/recipes_screen.dart';
 import '../../features/shell/presentation/screens/shell_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
@@ -169,6 +173,25 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/recipe-create',
         builder: (context, state) => const RecipeCreateScreen(),
+      ),
+      // ── Do'konlar (tarqatish nuqtalari) ──
+      GoRoute(
+        path: '/outlets',
+        builder: (context, state) => const OutletsScreen(),
+      ),
+      GoRoute(
+        path: '/outlets/new',
+        builder: (context, state) => const OutletFormScreen(),
+      ),
+      GoRoute(
+        path: '/outlets/:id',
+        builder: (context, state) =>
+            OutletDetailScreen(outletId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/outlets/:id/edit',
+        builder: (context, state) =>
+            OutletFormScreen(editing: state.extra as OutletModel?),
       ),
       GoRoute(
         path: '/recipe-edit',

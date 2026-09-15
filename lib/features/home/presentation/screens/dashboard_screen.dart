@@ -22,6 +22,7 @@ import '../../domain/models/daily_report_model.dart';
 import '../../domain/models/production_model.dart';
 import '../../domain/providers/daily_provider.dart';
 import '../widgets/production_summary_card.dart';
+import '../widgets/sections_drawer.dart';
 
 /// Qisqa sana formati. `intl` registratsiya qilmagan localelar uchun `uz`ga fallback.
 String _formatDateShort(BuildContext context, DateTime d) {
@@ -157,14 +158,14 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    final shop        = ref.watch(shopProvider.select((s) => s.selected));
+    final shop = ref.watch(shopProvider.select((s) => s.selected));
     final reportState = ref.watch(dailyReportProvider);
-    final report      = reportState.report;
-    final cs          = Theme.of(context).colorScheme;
-    final pad         = Responsive.horizontalPadding(context);
-    final s           = S.of(context);
-    final term        = ref.watch(terminologyProvider);
-    final showHint    = ref.watch(shopTutorialProvider);
+    final report = reportState.report;
+    final cs = Theme.of(context).colorScheme;
+    final pad = Responsive.horizontalPadding(context);
+    final s = S.of(context);
+    final term = ref.watch(terminologyProvider);
+    final showHint = ref.watch(shopTutorialProvider);
 
     final scaffold = Scaffold(
       body: Column(
@@ -183,63 +184,70 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
               children: [
                 Positioned.fill(
                   child: RefreshIndicator(
-              onRefresh: () async => refresh(),
-              color: cs.primary,
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(0, 20, 0, pad + 96),
-                children: [
-                  if (reportState.isLoading)
-                    const Padding(
-                      padding: EdgeInsets.all(48),
-                      child: AppLoading(),
-                    )
-                  else ...[
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: pad),
-                      child: RepaintBoundary(
-                        child: _BalanceCard(
-                          report: report,
-                          fmt: _fmt,
-                          selectedDate: _selectedDate,
-                          isFiltered: !_isToday(_selectedDate),
-                          onDateTap: _pickDate,
-                          onHistoryTap: () {
-                            HapticFeedback.selectionClick();
-                            context.push('/history');
-                          },
-                        ),
-                      ),
+                    onRefresh: () async => refresh(),
+                    color: cs.primary,
+                    child: ListView(
+                      padding: EdgeInsets.fromLTRB(0, 20, 0, pad + 96),
+                      children: [
+                        if (reportState.isLoading)
+                          const Padding(
+                            padding: EdgeInsets.all(48),
+                            child: AppLoading(),
+                          )
+                        else ...[
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: pad),
+                            child: RepaintBoundary(
+                              child: _BalanceCard(
+                                report: report,
+                                fmt: _fmt,
+                                selectedDate: _selectedDate,
+                                isFiltered: !_isToday(_selectedDate),
+                                onDateTap: _pickDate,
+                                onHistoryTap: () {
+                                  HapticFeedback.selectionClick();
+                                  context.push('/history');
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          RepaintBoundary(
+                            child: _ProductCarousel(
+                              productions: reportState.productions,
+                              fmt: _fmt,
+                              batchCountSuffix: s.dashboardBatchUnitGeneric,
+                              fallbackUnit: term.productUnit,
+                              fallbackCurrency: s.currency,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: pad),
+                            child: _ProductionList(
+                              productions: reportState.productions,
+                              fmt: _fmt,
+                              productUnit: term.productUnit,
+                              batchCountSuffix: s.dashboardBatchUnitGeneric,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    RepaintBoundary(
-                      child: _ProductCarousel(
-                        productions: reportState.productions,
-                        fmt: _fmt,
-                        batchCountSuffix: s.dashboardBatchUnitGeneric,
-                        fallbackUnit: term.productUnit,
-                        fallbackCurrency: s.currency,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: pad),
-                      child: _ProductionList(
-                        productions: reportState.productions,
-                        fmt: _fmt,
-                        productUnit: term.productUnit,
-                        batchCountSuffix: s.dashboardBatchUnitGeneric,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
+                  ),
                 ),
                 Positioned(
                   left: pad,
                   right: pad,
                   bottom: 12,
                   child: _ActionBar(pad: pad),
+                ),
+                // O'ng chetdagi dastak — bo'limlar paneli (tortib yoki bosib).
+                const Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(child: SectionsEdgeHandle()),
                 ),
               ],
             ),
@@ -440,7 +448,7 @@ class _BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s          = S.of(context);
+    final s = S.of(context);
     final brightness = Theme.of(context).brightness;
 
     // Backend: sales.total_amount va net_sales — vozvratdan keyingi netto tushum.
@@ -450,9 +458,10 @@ class _BalanceCard extends StatelessWidget {
     // (ijara, yoqilg'i va h.k.) kassaning ishi va bu yerga qo'shilmaydi.
     final productCost = report?.expenses.ingredientCost ?? 0.0;
     final foyda = report?.profit ?? (netSales - productCost);
+    final outletCredit = report?.outlets.credit ?? 0.0;
 
     final dateStr = _formatDateShort(context, selectedDate);
-    final isLoss     = foyda < 0;
+    final isLoss = foyda < 0;
     final gradColors = AppColors.balanceGradient(brightness, isLoss);
 
     return Container(
@@ -580,8 +589,10 @@ class _BalanceCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -633,6 +644,14 @@ class _BalanceCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (outletCredit.abs() > 0.005) ...[
+              const SizedBox(height: 10),
+              _OutletCreditLine(
+                label: s.dashboardOutletCredit,
+                value: fmt(outletCredit.abs()),
+                isCredit: outletCredit > 0,
+              ),
+            ],
           ],
         ),
       ),
@@ -642,6 +661,51 @@ class _BalanceCard extends StatelessWidget {
 
 /// Tushum va mahsulot xarajati nisbati — raqamlarni o'qimasdan ham
 /// kunning holati ko'rinsin.
+/// Balans kartasidagi qo'shimcha qator: do'konlarga nasiya berilgan (−)
+/// yoki do'konlardan tushgan (+) pul.
+class _OutletCreditLine extends StatelessWidget {
+  const _OutletCreditLine({
+    required this.label,
+    required this.value,
+    required this.isCredit,
+  });
+
+  final String label;
+  final String value;
+  final bool isCredit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          Icons.storefront_rounded,
+          size: 14,
+          color: Colors.white.withValues(alpha: 0.75),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.75),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          '${isCredit ? '−' : '+'}$value',
+          style: TextStyle(
+            color: isCredit ? const Color(0xFFFFE08A) : const Color(0xFF98F4C8),
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _BalanceProportionBar extends StatelessWidget {
   const _BalanceProportionBar({required this.income, required this.expense});
 
@@ -742,8 +806,7 @@ class _DashboardIconBtn extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(8),
           child: Ink(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
@@ -786,8 +849,9 @@ class _ProductCarousel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pad = Responsive.horizontalPadding(context);
-    final localeCode =
-        ref.watch(localeProvider.select((a) => (a.value ?? AppLocale.uz).code));
+    final localeCode = ref.watch(
+      localeProvider.select((a) => (a.value ?? AppLocale.uz).code),
+    );
 
     if (productions.isEmpty) {
       return Padding(
@@ -835,7 +899,8 @@ class _ProductCarousel extends ConsumerWidget {
     final map = <String, _ProductGroup>{};
     for (final p in list) {
       final cat = p.breadCategory;
-      final unit = cat?.measurementUnit?.localizedName(localeCode) ??
+      final unit =
+          cat?.measurementUnit?.localizedName(localeCode) ??
           cat?.measurementUnit?.code ??
           fallbackUnit;
       final currency = cat?.priceSuffix(fallbackCurrency) ?? fallbackCurrency;
@@ -973,8 +1038,7 @@ class _ProductSummaryCard extends StatelessWidget {
                           color: cs.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(7),
                         ),
-                        child: Icon(_kProductIcon,
-                            color: cs.primary, size: 14),
+                        child: Icon(_kProductIcon, color: cs.primary, size: 14),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -1076,8 +1140,11 @@ class _ProductCarouselEmpty extends StatelessWidget {
               color: cs.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(_kProductIcon,
-                color: cs.primary.withValues(alpha: 0.7), size: 18),
+            child: Icon(
+              _kProductIcon,
+              color: cs.primary.withValues(alpha: 0.7),
+              size: 18,
+            ),
           ),
           const SizedBox(width: 12),
           Flexible(
@@ -1141,9 +1208,7 @@ class _ProductDetailSheet extends StatelessWidget {
       builder: (_, scrollCtl) => Container(
         decoration: BoxDecoration(
           color: cs.surface,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           children: [
@@ -1168,8 +1233,7 @@ class _ProductDetailSheet extends StatelessWidget {
                       color: cs.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(11),
                     ),
-                    child: Icon(_kProductIcon,
-                        color: cs.primary, size: 22),
+                    child: Icon(_kProductIcon, color: cs.primary, size: 22),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -1235,8 +1299,7 @@ class _ProductDetailSheet extends StatelessWidget {
                     rows: [
                       _DetailStatRow(
                         label: s.productDetailGross,
-                        value:
-                            '${fmt(group.grossAmount)} ${group.currency}',
+                        value: '${fmt(group.grossAmount)} ${group.currency}',
                         color: cs.onSurface,
                       ),
                       _DetailStatRow(
@@ -1250,8 +1313,7 @@ class _ProductDetailSheet extends StatelessWidget {
                       ),
                       _DetailStatRow(
                         label: s.productDetailNetAmount,
-                        value:
-                            '${fmt(group.netAmount)} ${group.currency}',
+                        value: '${fmt(group.netAmount)} ${group.currency}',
                         color: AppColors.success,
                         bold: true,
                       ),
@@ -1279,8 +1341,7 @@ class _ProductDetailSheet extends StatelessWidget {
                       cs: cs,
                       returnedSuffix: s.productDetailReturnedSuffix,
                     ),
-                    if (i < group.batches.length - 1)
-                      const SizedBox(height: 8),
+                    if (i < group.batches.length - 1) const SizedBox(height: 8),
                   ],
                 ],
               ),
@@ -1392,7 +1453,8 @@ class _BatchRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final time = formatTimeHm(batch.createdAt);
-    final hasRet = batch.returnsQuantityAllocated > 0 || batch.returnsAmount > 0;
+    final hasRet =
+        batch.returnsQuantityAllocated > 0 || batch.returnsAmount > 0;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
@@ -1461,8 +1523,11 @@ class _BatchRow extends StatelessWidget {
               padding: const EdgeInsets.only(left: 32),
               child: Row(
                 children: [
-                  const Icon(Icons.undo_rounded,
-                      size: 12, color: AppColors.error),
+                  const Icon(
+                    Icons.undo_rounded,
+                    size: 12,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(width: 5),
                   Text(
                     '$returnedSuffix ${fmt(batch.returnsQuantityAllocated)} $unit · ${fmt(batch.returnsAmount)} $currency',
@@ -1574,37 +1639,39 @@ class _ActionBar extends ConsumerWidget {
     final s = S.of(context);
 
     // Seller faqat ruxsati bor amallarni ko'radi (owner barchasini).
-    final canProduce =
-        ref.watch(hasPermissionProvider(ShopPermissions.manageProduction));
-    final canSell =
-        ref.watch(hasPermissionProvider(ShopPermissions.manageSales));
+    final canProduce = ref.watch(
+      hasPermissionProvider(ShopPermissions.manageProduction),
+    );
+    final canSell = ref.watch(
+      hasPermissionProvider(ShopPermissions.manageSales),
+    );
 
     if (!canProduce && !canSell) {
       return const SizedBox.shrink();
     }
 
     return Row(
-        children: [
-          if (canProduce)
-            Expanded(
-              child: _ActionButton(
-                icon: Icons.north_east_rounded,
-                label: s.productOut,
-                color: AppColors.primary,
-                onTap: () => context.push('/production-create'),
-              ),
+      children: [
+        if (canProduce)
+          Expanded(
+            child: _ActionButton(
+              icon: Icons.north_east_rounded,
+              label: s.productOut,
+              color: AppColors.primary,
+              onTap: () => context.push('/production-create'),
             ),
-          if (canProduce && canSell) const SizedBox(width: 12),
-          if (canSell)
-            Expanded(
-              child: _ActionButton(
-                icon: Icons.south_west_rounded,
-                label: s.productReturned,
-                color: AppColors.error,
-                onTap: () => context.push('/return-create'),
-              ),
+          ),
+        if (canProduce && canSell) const SizedBox(width: 12),
+        if (canSell)
+          Expanded(
+            child: _ActionButton(
+              icon: Icons.south_west_rounded,
+              label: s.productReturned,
+              color: AppColors.error,
+              onTap: () => context.push('/return-create'),
             ),
-        ],
+          ),
+      ],
     );
   }
 }
@@ -1636,32 +1703,35 @@ class _ActionButton extends StatelessWidget {
         ],
       ),
       child: Material(
-      color: color,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
+        color: color,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
-          height: 54,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(label,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            height: 54,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    label,
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700),
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
-              ),
-            ],
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

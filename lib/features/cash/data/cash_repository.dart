@@ -21,11 +21,7 @@ class CashRepository {
     try {
       final response = await _apiClient.dio.get(
         _path(shopId),
-        queryParameters: {
-          'from': _ymd(from),
-          'to': _ymd(to),
-          'page': page,
-        },
+        queryParameters: {'from': _ymd(from), 'to': _ymd(to), 'page': page},
       );
 
       return CashPage.fromJson(response.data['data'] as Map<String, dynamic>);
@@ -102,6 +98,7 @@ class CashRepository {
     String shopId, {
     bool? trackProduction,
     bool? trackReturns,
+    bool? trackOutletPayments,
   }) async {
     try {
       final response = await _apiClient.dio.put(
@@ -109,6 +106,7 @@ class CashRepository {
         data: {
           'track_production': ?trackProduction,
           'track_returns': ?trackReturns,
+          'track_outlet_payments': ?trackOutletPayments,
         },
       );
 

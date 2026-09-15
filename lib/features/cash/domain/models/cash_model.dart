@@ -7,7 +7,7 @@ enum CashType { income, expense }
 ///
 /// `manual` — foydalanuvchi kassada o'zi yozgan, tahrirlash mumkin.
 /// Qolganlari asosiy sahifadagi amaldan avtomatik olingan.
-enum CashSource { manual, production, breadReturn }
+enum CashSource { manual, production, breadReturn, outlet }
 
 class CashEntry {
   final String id;
@@ -52,6 +52,7 @@ class CashEntry {
       source: switch (json['source']) {
         'production' => CashSource.production,
         'return' => CashSource.breadReturn,
+        'outlet' => CashSource.outlet,
         _ => CashSource.manual,
       },
       category: json['category'] as String? ?? '',
@@ -120,22 +121,32 @@ class CashSettings {
   final bool trackProduction;
   final bool trackReturns;
 
+  /// Do'kon to'lovi kassaga «Do'kondan tushum» kirimi bo'lib tushsinmi.
+  final bool trackOutletPayments;
+
   const CashSettings({
     this.trackProduction = true,
     this.trackReturns = true,
+    this.trackOutletPayments = true,
   });
 
   factory CashSettings.fromJson(Map<String, dynamic> json) {
     return CashSettings(
       trackProduction: json['track_production'] as bool? ?? true,
       trackReturns: json['track_returns'] as bool? ?? true,
+      trackOutletPayments: json['track_outlet_payments'] as bool? ?? true,
     );
   }
 
-  CashSettings copyWith({bool? trackProduction, bool? trackReturns}) {
+  CashSettings copyWith({
+    bool? trackProduction,
+    bool? trackReturns,
+    bool? trackOutletPayments,
+  }) {
     return CashSettings(
       trackProduction: trackProduction ?? this.trackProduction,
       trackReturns: trackReturns ?? this.trackReturns,
+      trackOutletPayments: trackOutletPayments ?? this.trackOutletPayments,
     );
   }
 }

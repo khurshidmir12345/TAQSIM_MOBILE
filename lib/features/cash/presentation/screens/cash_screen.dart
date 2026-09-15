@@ -73,8 +73,10 @@ class CashScreenState extends ConsumerState<CashScreen> {
         ? '${l.languageCode}_${l.countryCode}'
         : l.languageCode;
 
-    return NumberFormat.decimalPatternDigits(locale: tag, decimalDigits: 0)
-        .format(n);
+    return NumberFormat.decimalPatternDigits(
+      locale: tag,
+      decimalDigits: 0,
+    ).format(n);
   }
 
   /// Tez davrlar bugundan orqaga sanaladi.
@@ -173,7 +175,8 @@ class CashScreenState extends ConsumerState<CashScreen> {
             icon: const Icon(Icons.tune_rounded),
             onPressed: () {
               HapticFeedback.selectionClick();
-              final settings = ref.read(cashProvider).asData?.value.settings ??
+              final settings =
+                  ref.read(cashProvider).asData?.value.settings ??
                   const CashSettings();
               CashSettingsSheet.show(context, settings);
             },
@@ -185,8 +188,9 @@ class CashScreenState extends ConsumerState<CashScreen> {
           _PeriodTabs(
             selected: _period,
             onSelected: _selectPeriod,
-            rangeLabel:
-                _period == _QuickPeriod.custom ? _rangeLabel(range) : null,
+            rangeLabel: _period == _QuickPeriod.custom
+                ? _rangeLabel(range)
+                : null,
             onClearFilter: _clearFilter,
           ),
           Expanded(
@@ -233,8 +237,9 @@ class CashScreenState extends ConsumerState<CashScreen> {
                                 child: SizedBox(
                                   width: 22,
                                   height: 22,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                               ),
                             ),
@@ -284,43 +289,49 @@ class CashScreenState extends ConsumerState<CashScreen> {
 
       final parsed = DateTime.tryParse(currentDate);
 
-      widgets.add(Padding(
-        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-        child: Text(
-          parsed == null ? currentDate : DateFormat.yMMMMd(loc).format(parsed),
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
-            color: cs.onSurface.withValues(alpha: 0.5),
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+          child: Text(
+            parsed == null
+                ? currentDate
+                : DateFormat.yMMMMd(loc).format(parsed),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+              color: cs.onSurface.withValues(alpha: 0.5),
+            ),
           ),
         ),
-      ));
+      );
 
-      widgets.add(ClipRRect(
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
-        child: ColoredBox(
-          color: cs.surface,
-          child: Column(
-            children: [
-              for (var i = 0; i < group.length; i++) ...[
-                if (i > 0)
-                  Divider(
-                    height: 1,
-                    indent: 58,
-                    endIndent: 12,
-                    color: cs.outline.withValues(alpha: 0.08),
+      widgets.add(
+        ClipRRect(
+          borderRadius: BorderRadius.circular(AppSpacing.borderRadiusLg),
+          child: ColoredBox(
+            color: cs.surface,
+            child: Column(
+              children: [
+                for (var i = 0; i < group.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 1,
+                      indent: 58,
+                      endIndent: 12,
+                      color: cs.outline.withValues(alpha: 0.08),
+                    ),
+                  CashEntryTile(
+                    entry: group[i],
+                    money: _money,
+                    onTap: () => _onEntryTap(group[i]),
                   ),
-                CashEntryTile(
-                  entry: group[i],
-                  money: _money,
-                  onTap: () => _onEntryTap(group[i]),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ));
+      );
 
       group = <CashEntry>[];
     }
@@ -374,7 +385,10 @@ class _PeriodTabs extends StatelessWidget {
             child: SegmentedButton<_QuickPeriod>(
               segments: [
                 ButtonSegment(value: _QuickPeriod.year, label: Text(s.yearly)),
-                ButtonSegment(value: _QuickPeriod.month, label: Text(s.monthly)),
+                ButtonSegment(
+                  value: _QuickPeriod.month,
+                  label: Text(s.monthly),
+                ),
                 ButtonSegment(value: _QuickPeriod.day, label: Text(s.daily)),
               ],
               // Filtr ishlatilganda hech biri tanlangan ko'rinmaydi.
@@ -387,10 +401,9 @@ class _PeriodTabs extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 textStyle: WidgetStatePropertyAll(
-                  Theme.of(context)
-                      .textTheme
-                      .labelLarge
-                      ?.copyWith(fontWeight: FontWeight.w700),
+                  Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ),

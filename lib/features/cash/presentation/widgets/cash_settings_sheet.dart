@@ -75,9 +75,17 @@ class CashSettingsSheet extends ConsumerWidget {
               title: s.cashSettingTrackReturns,
               subtitle: s.cashSettingTrackReturnsDesc,
               value: live.trackReturns,
+              onChanged: (v) =>
+                  _apply(context, () => notifier.setSetting(trackReturns: v)),
+            ),
+            const SizedBox(height: 10),
+            _CheckTile(
+              title: s.cashSettingTrackOutlets,
+              subtitle: s.cashSettingTrackOutletsDesc,
+              value: live.trackOutletPayments,
               onChanged: (v) => _apply(
                 context,
-                () => notifier.setSetting(trackReturns: v),
+                () => notifier.setSetting(trackOutletPayments: v),
               ),
             ),
           ],
@@ -86,7 +94,10 @@ class CashSettingsSheet extends ConsumerWidget {
     );
   }
 
-  Future<void> _apply(BuildContext context, Future<void> Function() action) async {
+  Future<void> _apply(
+    BuildContext context,
+    Future<void> Function() action,
+  ) async {
     HapticFeedback.selectionClick();
 
     try {
@@ -94,9 +105,9 @@ class CashSettingsSheet extends ConsumerWidget {
     } catch (_) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).noInternet)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(S.of(context).noInternet)));
     }
   }
 }

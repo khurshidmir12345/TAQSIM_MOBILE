@@ -51,10 +51,10 @@ class _CashEntryCreateScreenState extends ConsumerState<CashEntryCreateScreen> {
   }
 
   CashCategoryQuery get _query => CashCategoryQuery(
-        type: widget.type,
-        locale: expenseApiLocale(context),
-        search: _search,
-      );
+    type: widget.type,
+    locale: expenseApiLocale(context),
+    search: _search,
+  );
 
   void _onSearchChanged(String value) {
     _searchDebounce?.cancel();
@@ -116,8 +116,9 @@ class _CashEntryCreateScreenState extends ConsumerState<CashEntryCreateScreen> {
                   hintText: s.expenseAddCategoryNameHint,
                   filled: true,
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.borderRadiusLg),
+                    borderRadius: BorderRadius.circular(
+                      AppSpacing.borderRadiusLg,
+                    ),
                   ),
                 ),
                 onSubmitted: (v) => Navigator.of(sheetContext).pop(v.trim()),
@@ -255,7 +256,9 @@ class _CashEntryCreateScreenState extends ConsumerState<CashEntryCreateScreen> {
     setState(() => _isSaving = true);
 
     try {
-      await ref.read(cashProvider.notifier).create(
+      await ref
+          .read(cashProvider.notifier)
+          .create(
             type: widget.type,
             amount: amount,
             category: _selectedId!,
@@ -304,9 +307,9 @@ class _CashEntryCreateScreenState extends ConsumerState<CashEntryCreateScreen> {
           Text(
             _isIncome ? s.cashCreateIncomeSubtitle : s.expenseCreateSubtitle,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.62),
-                  height: 1.35,
-                ),
+              color: cs.onSurface.withValues(alpha: 0.62),
+              height: 1.35,
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           TextField(
@@ -326,9 +329,9 @@ class _CashEntryCreateScreenState extends ConsumerState<CashEntryCreateScreen> {
             children: [
               Text(
                 s.expenseSelectCategory,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
               ),
               const Spacer(),
               TextButton.icon(
@@ -477,11 +480,13 @@ class _CategoryStrip extends StatelessWidget {
                   color: selected
                       ? accent.withValues(alpha: 0.12)
                       : cs.surfaceContainerHighest.withValues(alpha: 0.65),
-                  borderRadius:
-                      BorderRadius.circular(AppSpacing.borderRadiusLg),
+                  borderRadius: BorderRadius.circular(
+                    AppSpacing.borderRadiusLg,
+                  ),
                   border: Border.all(
-                    color:
-                        selected ? accent : cs.outline.withValues(alpha: 0.25),
+                    color: selected
+                        ? accent
+                        : cs.outline.withValues(alpha: 0.25),
                     width: selected ? 2 : 1,
                   ),
                 ),
@@ -506,14 +511,14 @@ class _CategoryStrip extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.15,
-                                    color: selected
-                                        ? accent
-                                        : cs.onSurface.withValues(alpha: 0.85),
-                                  ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                height: 1.15,
+                                color: selected
+                                    ? accent
+                                    : cs.onSurface.withValues(alpha: 0.85),
+                              ),
                         ),
                       ],
                     ),
