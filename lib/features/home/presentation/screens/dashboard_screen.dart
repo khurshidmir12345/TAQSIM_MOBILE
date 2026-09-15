@@ -242,12 +242,12 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
                   bottom: 12,
                   child: _ActionBar(pad: pad),
                 ),
-                // O'ng chetdagi dastak — bo'limlar paneli (tortib yoki bosib).
+                // O'ng chet: dastak bosilsa yoki chapga tortilsa bo'limlar chiqadi.
                 const Positioned(
                   right: 0,
                   top: 0,
                   bottom: 0,
-                  child: Center(child: SectionsEdgeHandle()),
+                  child: SectionsEdgeHandle(),
                 ),
               ],
             ),

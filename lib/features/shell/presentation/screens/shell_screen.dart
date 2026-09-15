@@ -13,7 +13,6 @@ import '../../domain/shell_tab_provider.dart';
 import '../../domain/shell_tab_utils.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../../home/presentation/screens/dashboard_screen.dart';
-import '../../../home/presentation/widgets/sections_drawer.dart';
 import '../../../cash/presentation/screens/cash_screen.dart';
 import '../../../orders/presentation/screens/orders_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
@@ -291,12 +290,6 @@ class _ShellScreenState extends ConsumerState<ShellScreen> with RouteAware {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      // Bo'limlar paneli: asosiy sahifada o'ng chetdan tortiladi. Butun
-      // ekranni (pastki menyu bilan) qoplashi uchun shell darajasida turadi.
-      endDrawer: const SectionsDrawer(),
-      endDrawerEnableOpenDragGesture: tabs[currentIndex] == ShellTab.home,
-      drawerScrimColor: Colors.transparent,
-      drawerEdgeDragWidth: 32,
       body: IndexedStack(
         index: currentIndex,
         children: [for (final tab in tabs) _buildTab(tab)],
