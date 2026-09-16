@@ -950,4 +950,12 @@ const Map<String, String> kEnTranslations = {
   'cashSettingTrackOutletsDesc': 'Products on credit are written as an expense, outlet payments as income',
   'dashboardOutletCredit': 'Outlet credit',
   'outletEdgeHint': 'Sections',
+  'ingredientUsageTitle': 'Ingredient usage',
+  'ingredientUsageSubtitle': 'Ingredients used for this day\'s production',
+  'ingredientUsageTotalCost': 'Total ingredient cost',
+  'ingredientUsageProductions': '{n} batches',
+  'ingredientUsageEmpty': 'No production on this day',
+  'ingredientUsageHint': 'Tap a row to see the split by product',
+  'statsPeriodTotal': 'Period total',
+  'statsChartHint': 'Tap a bar for the exact amount',
 };

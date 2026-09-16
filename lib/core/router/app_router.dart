@@ -24,6 +24,7 @@ import '../../features/setup/presentation/screens/ingredients_screen.dart';
 import '../../features/setup/presentation/screens/recipe_create_screen.dart';
 import '../../features/setup/domain/models/recipe_model.dart';
 import '../../features/setup/presentation/screens/recipe_edit_screen.dart';
+import '../../features/home/presentation/screens/ingredient_usage_screen.dart';
 import '../../features/outlets/domain/models/outlet_model.dart';
 import '../../features/outlets/presentation/screens/outlets_screen.dart';
 import '../../features/outlets/presentation/screens/outlet_form_screen.dart';
@@ -173,6 +174,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/recipe-create',
         builder: (context, state) => const RecipeCreateScreen(),
+      ),
+      GoRoute(
+        path: '/ingredient-usage',
+        builder: (context, state) => IngredientUsageScreen(
+          initialDate:
+              DateTime.tryParse(state.uri.queryParameters['date'] ?? '') ??
+              DateTime.now(),
+        ),
       ),
       // ── Do'konlar (tarqatish nuqtalari) ──
       GoRoute(

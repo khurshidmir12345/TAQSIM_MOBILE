@@ -6,6 +6,7 @@ import '../../../auth/domain/providers/auth_provider.dart';
 import '../../data/daily_repository.dart';
 import '../models/bread_return_model.dart';
 import '../models/daily_report_model.dart';
+import '../models/ingredient_usage_model.dart';
 import '../models/expense_model.dart';
 import '../models/production_model.dart';
 
@@ -115,7 +116,9 @@ class DailyReportNotifier extends Notifier<DailyReportState> {
 }
 
 final dailyReportProvider =
-    NotifierProvider<DailyReportNotifier, DailyReportState>(DailyReportNotifier.new);
+    NotifierProvider<DailyReportNotifier, DailyReportState>(
+      DailyReportNotifier.new,
+    );
 
 /// Xarajat kategoriyalari: `id → nom` (tizim kodlari va foydalanuvchi UUID'lari).
 ///
@@ -124,12 +127,20 @@ final dailyReportProvider =
 /// aylantiradi (`expenseCategoryLabel`).
 final expenseCategoryNamesProvider =
     FutureProvider.family<Map<String, String>, String>((ref, locale) async {
-  final shop = ref.watch(shopProvider).selected;
-  if (shop == null) return const <String, String>{};
+      final shop = ref.watch(shopProvider).selected;
+      if (shop == null) return const <String, String>{};
 
-  final list = await ref
-      .read(dailyRepositoryProvider)
-      .fetchExpenseCategories(shop.id, locale: locale);
+      final list = await ref
+          .read(dailyRepositoryProvider)
+          .fetchExpenseCategories(shop.id, locale: locale);
 
-  return {for (final c in list) c.id: c.name};
-});
+      return {for (final c in list) c.id: c.name};
+    });
+
+/// Kun bo'yicha xom ashyo sarfi — sana `yyyy-MM-dd`. Ekran yopilgach tozalanadi.
+final ingredientUsageProvider = FutureProvider.autoDispose
+    .family<IngredientUsageModel, String>((ref, date) {
+      final shopId = ref.watch(shopProvider.select((s) => s.selected?.id));
+      if (shopId == null) throw StateError('shop not selected');
+      return ref.read(dailyRepositoryProvider).getIngredientUsage(shopId, date);
+    });

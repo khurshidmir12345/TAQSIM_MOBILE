@@ -7,6 +7,7 @@ import '../../../core/api/api_exceptions.dart';
 import '../domain/models/bread_return_model.dart';
 import '../../statistics/domain/models/statistics_model.dart';
 import '../domain/models/daily_report_model.dart';
+import '../domain/models/ingredient_usage_model.dart';
 import '../domain/models/expense_category_option.dart';
 import '../domain/models/expense_model.dart';
 import '../domain/models/paginated_result.dart';
@@ -34,11 +35,7 @@ class DailyRepository {
     try {
       final res = await _apiClient.dio.get(
         '${_shopPath(shopId)}/productions',
-        queryParameters: {
-          'paginate': true,
-          'page': page,
-          'per_page': perPage,
-        },
+        queryParameters: {'paginate': true, 'page': page, 'per_page': perPage},
       );
       final root = _body(res);
       final list = root['data'] as List;
@@ -66,11 +63,7 @@ class DailyRepository {
     try {
       final res = await _apiClient.dio.get(
         '${_shopPath(shopId)}/returns',
-        queryParameters: {
-          'paginate': true,
-          'page': page,
-          'per_page': perPage,
-        },
+        queryParameters: {'paginate': true, 'page': page, 'per_page': perPage},
       );
       final root = _body(res);
       final list = root['data'] as List;
@@ -90,7 +83,10 @@ class DailyRepository {
     }
   }
 
-  Future<List<ProductionModel>> getProductions(String shopId, String date) async {
+  Future<List<ProductionModel>> getProductions(
+    String shopId,
+    String date,
+  ) async {
     try {
       final res = await _apiClient.dio.get(
         '${_shopPath(shopId)}/productions',
@@ -98,7 +94,9 @@ class DailyRepository {
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
       final list = data['productions'] as List;
-      return list.map((e) => ProductionModel.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ProductionModel.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -122,7 +120,9 @@ class DailyRepository {
         },
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
-      return ProductionModel.fromJson(data['production'] as Map<String, dynamic>);
+      return ProductionModel.fromJson(
+        data['production'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -147,7 +147,9 @@ class DailyRepository {
         data: {'batch_count': batchCount},
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
-      return ProductionModel.fromJson(data['production'] as Map<String, dynamic>);
+      return ProductionModel.fromJson(
+        data['production'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -161,7 +163,9 @@ class DailyRepository {
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
       final list = data['returns'] as List;
-      return list.map((e) => BreadReturnModel.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => BreadReturnModel.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -211,14 +215,13 @@ class DailyRepository {
     try {
       final res = await _apiClient.dio.get(
         '${_shopPath(shopId)}/expenses',
-        queryParameters: {
-          'date': date,
-          'locale': ?locale,
-        },
+        queryParameters: {'date': date, 'locale': ?locale},
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
       final list = data['expenses'] as List;
-      return list.map((e) => ExpenseModel.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => ExpenseModel.fromJson(e as Map<String, dynamic>))
+          .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -314,10 +317,7 @@ class DailyRepository {
     try {
       final res = await _apiClient.dio.post(
         '${_shopPath(shopId)}/expense-categories',
-        data: {
-          'name': name,
-          'locale': ?locale,
-        },
+        data: {'name': name, 'locale': ?locale},
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
       return ExpenseCategoryOption.fromJson(
@@ -336,6 +336,25 @@ class DailyRepository {
       );
       final data = _body(res)['data'] as Map<String, dynamic>;
       return DailyReportModel.fromJson(data['report'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
+  /// Kun bo'yicha ishlatilgan xom ashyo (miqdor + qiymat).
+  Future<IngredientUsageModel> getIngredientUsage(
+    String shopId,
+    String date,
+  ) async {
+    try {
+      final res = await _apiClient.dio.get(
+        '${_shopPath(shopId)}/reports/ingredients',
+        queryParameters: {'date': date},
+      );
+      final data = _body(res)['data'] as Map<String, dynamic>;
+      return IngredientUsageModel.fromJson(
+        data['usage'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }

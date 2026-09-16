@@ -376,6 +376,16 @@ class S {
   String get recipeValidationDuplicateIngredient =>
       _t('recipeValidationDuplicateIngredient');
 
+  // ─── Xom ashyo sarfi va statistika grafigi ───
+  String get ingredientUsageTitle => _t('ingredientUsageTitle');
+  String get ingredientUsageSubtitle => _t('ingredientUsageSubtitle');
+  String get ingredientUsageTotalCost => _t('ingredientUsageTotalCost');
+  String ingredientUsageProductions(String n) => _t('ingredientUsageProductions').replaceAll('{n}', n);
+  String get ingredientUsageEmpty => _t('ingredientUsageEmpty');
+  String get ingredientUsageHint => _t('ingredientUsageHint');
+  String get statsPeriodTotal => _t('statsPeriodTotal');
+  String get statsChartHint => _t('statsChartHint');
+
   // ─── Do‘konlar bo‘limi ───
   String get outletsTitle => _t('outletsTitle');
   String get sectionsDrawerTitle => _t('sectionsDrawerTitle');
@@ -1558,6 +1568,14 @@ class S {
     'recipeStepProduct': 'Mahsulot',
     'recipeStepBatch': 'Partiya',
     'recipeStepIngredients': 'Tarkib',
+    'ingredientUsageTitle': 'Xom ashyo sarfi',
+    'ingredientUsageSubtitle': 'Shu kungi chiqimlarga ketgan xom ashyo',
+    'ingredientUsageTotalCost': 'Jami xom ashyo qiymati',
+    'ingredientUsageProductions': '{n} ta chiqim',
+    'ingredientUsageEmpty': 'Bu kunda chiqim yo‘q',
+    'ingredientUsageHint': 'Qatorni bosing — qaysi mahsulotga qancha ketgani',
+    'statsPeriodTotal': 'Davr jami',
+    'statsChartHint': 'Ustunni bosing — aniq summa',
     'outletsTitle': 'Do‘konlar',
     'sectionsDrawerTitle': 'Bo‘limlar',
     'outletsBlockSubtitle': 'Kim qancha oldi, qancha to‘ladi',
@@ -2539,6 +2557,14 @@ class S {
     'recipeStepProduct': 'Маҳсулот',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Таркиб',
+    'ingredientUsageTitle': 'Хом ашё сарфи',
+    'ingredientUsageSubtitle': 'Шу кунги чиқимларга кетган хом ашё',
+    'ingredientUsageTotalCost': 'Жами хом ашё қиймати',
+    'ingredientUsageProductions': '{n} та чиқим',
+    'ingredientUsageEmpty': 'Бу кунда чиқим йўқ',
+    'ingredientUsageHint': 'Қаторни босинг — қайси маҳсулотга қанча кетгани',
+    'statsPeriodTotal': 'Давр жами',
+    'statsChartHint': 'Устунни босинг — аниқ сумма',
     'outletsTitle': 'Дўконлар',
     'sectionsDrawerTitle': 'Бўлимлар',
     'outletsBlockSubtitle': 'Ким қанча олди, қанча тўлади',
@@ -3508,6 +3534,14 @@ class S {
     'recipeStepProduct': 'Продукция',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Состав',
+    'ingredientUsageTitle': 'Расход сырья',
+    'ingredientUsageSubtitle': 'Сырьё, ушедшее на выпуск за этот день',
+    'ingredientUsageTotalCost': 'Стоимость сырья всего',
+    'ingredientUsageProductions': 'Выпусков: {n}',
+    'ingredientUsageEmpty': 'В этот день выпуска не было',
+    'ingredientUsageHint': 'Нажмите на строку — сколько ушло на каждый продукт',
+    'statsPeriodTotal': 'Итого за период',
+    'statsChartHint': 'Нажмите на столбец — точная сумма',
     'outletsTitle': 'Магазины',
     'sectionsDrawerTitle': 'Разделы',
     'outletsBlockSubtitle': 'Кто сколько взял и заплатил',
@@ -4478,6 +4512,14 @@ class S {
     'recipeStepProduct': 'Өнім',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Құрам',
+    'ingredientUsageTitle': 'Шикізат шығыны',
+    'ingredientUsageSubtitle': 'Осы күнгі өндіріске кеткен шикізат',
+    'ingredientUsageTotalCost': 'Шикізаттың жалпы құны',
+    'ingredientUsageProductions': '{n} өндіріс',
+    'ingredientUsageEmpty': 'Бұл күні өндіріс болмады',
+    'ingredientUsageHint': 'Жолды басыңыз — әр өнімге қанша кеткені',
+    'statsPeriodTotal': 'Кезең жиыны',
+    'statsChartHint': 'Бағанды басыңыз — нақты сома',
     'outletsTitle': 'Дүкендер',
     'sectionsDrawerTitle': 'Бөлімдер',
     'outletsBlockSubtitle': 'Кім қанша алды, қанша төледі',
@@ -5444,6 +5486,14 @@ class S {
     'recipeStepProduct': 'Өнүм',
     'recipeStepBatch': 'Партия',
     'recipeStepIngredients': 'Курамы',
+    'ingredientUsageTitle': 'Чийки зат сарпталышы',
+    'ingredientUsageSubtitle': 'Ушул күнкү өндүрүшкө кеткен чийки зат',
+    'ingredientUsageTotalCost': 'Чийки заттын жалпы наркы',
+    'ingredientUsageProductions': '{n} өндүрүш',
+    'ingredientUsageEmpty': 'Бул күнү өндүрүш болгон жок',
+    'ingredientUsageHint': 'Сапты басыңыз — ар продуктка канча кеткени',
+    'statsPeriodTotal': 'Мезгил жыйынтыгы',
+    'statsChartHint': 'Мамычаны басыңыз — так сумма',
     'outletsTitle': 'Дүкөндөр',
     'sectionsDrawerTitle': 'Бөлүмдөр',
     'outletsBlockSubtitle': 'Ким канча алды, канча төлөдү',
@@ -6407,6 +6457,14 @@ class S {
     'recipeStepProduct': 'Ürün',
     'recipeStepBatch': 'Parti',
     'recipeStepIngredients': 'İçerik',
+    'ingredientUsageTitle': 'Hammadde tüketimi',
+    'ingredientUsageSubtitle': 'Bu günkü üretime giden hammadde',
+    'ingredientUsageTotalCost': 'Toplam hammadde maliyeti',
+    'ingredientUsageProductions': '{n} üretim',
+    'ingredientUsageEmpty': 'Bu gün üretim yok',
+    'ingredientUsageHint': 'Satıra dokunun — hangi ürüne ne kadar gitti',
+    'statsPeriodTotal': 'Dönem toplamı',
+    'statsChartHint': 'Çubuğa dokunun — kesin tutar',
     'outletsTitle': 'Bayiler',
     'sectionsDrawerTitle': 'Bölümler',
     'outletsBlockSubtitle': 'Kim ne aldı, ne ödedi',

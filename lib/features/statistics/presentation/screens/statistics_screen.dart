@@ -15,7 +15,7 @@ import '../../../../core/widgets/segmented_tabs.dart';
 import '../../../auth/domain/providers/auth_provider.dart';
 import '../../domain/models/statistics_model.dart';
 import '../../domain/providers/statistics_provider.dart';
-import '../widgets/stats_line_chart.dart';
+import '../widgets/stats_bar_chart.dart';
 
 /// Statistika — ataylab sodda: davr tanlovi, bitta grafik, bitta summalar
 /// kartasi va mahsulotning asl tannarxi.
@@ -44,10 +44,7 @@ class StatisticsScreen extends ConsumerWidget {
     // Bo'lim hisobda yoqilmagan bo'lsa — neytral xabar. Tab pastki
     // menyuda o'z joyida qoladi, faqat ichi almashadi.
     if (!ref.watch(hasFeatureProvider(ShopFeatures.reports))) {
-      return Scaffold(
-        appBar: _appBar(s),
-        body: FeatureGuard.lockedBody(s),
-      );
+      return Scaffold(appBar: _appBar(s), body: FeatureGuard.lockedBody(s));
     }
 
     return Scaffold(
@@ -115,12 +112,15 @@ class StatisticsScreen extends ConsumerWidget {
             children: [
               _Card(
                 title: s.statsChartTitle,
-                child: StatsLineChart(
+                child: StatsBarChart(
                   series: stats.series,
+                  totals: stats.totals,
                   isMonthly: stats.isMonthly,
                   incomeLabel: s.statsIncome,
                   expenseLabel: s.statsExpense,
                   profitLabel: s.statsProfit,
+                  periodTotalLabel: s.statsPeriodTotal,
+                  hint: s.statsChartHint,
                   moneySuffix: money.suffix,
                 ),
               ),
@@ -128,11 +128,7 @@ class StatisticsScreen extends ConsumerWidget {
               _TotalsCard(totals: stats.totals, s: s, money: money),
               if (stats.products.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.md),
-                _TrueCostCard(
-                  products: stats.products,
-                  s: s,
-                  money: money,
-                ),
+                _TrueCostCard(products: stats.products, s: s, money: money),
               ],
             ],
           ),
@@ -145,11 +141,11 @@ class StatisticsScreen extends ConsumerWidget {
 /// Pul formati — do'kon valyutasi bilan.
 class _MoneyFormat {
   _MoneyFormat(BuildContext context, WidgetRef ref)
-      : _locale = Localizations.localeOf(context).toLanguageTag(),
-        suffix = ref.read(shopProvider).selected?.currency?.symbol?.isNotEmpty ==
-                true
-            ? ref.read(shopProvider).selected!.currency!.symbol!
-            : S.of(context).currency;
+    : _locale = Localizations.localeOf(context).toLanguageTag(),
+      suffix =
+          ref.read(shopProvider).selected?.currency?.symbol?.isNotEmpty == true
+          ? ref.read(shopProvider).selected!.currency!.symbol!
+          : S.of(context).currency;
 
   final String _locale;
   final String suffix;
@@ -247,8 +243,14 @@ class _TotalsCard extends StatelessWidget {
           ),
           const _Divider(),
           // Xarajat nimadan iboratligi — grafikda ko'rinmaydigan tafsilot.
-          _Row(label: s.statsIngredientCost, value: money(totals.ingredientCost)),
-          _Row(label: s.statsExternalExpenses, value: money(totals.externalExpenses)),
+          _Row(
+            label: s.statsIngredientCost,
+            value: money(totals.ingredientCost),
+          ),
+          _Row(
+            label: s.statsExternalExpenses,
+            value: money(totals.externalExpenses),
+          ),
           if (totals.returns > 0)
             _Row(label: s.returnAmount, value: money(totals.returns)),
         ],

@@ -208,6 +208,13 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
                                   HapticFeedback.selectionClick();
                                   context.push('/history');
                                 },
+                                onCostTap: () {
+                                  HapticFeedback.selectionClick();
+                                  final d = _selectedDate;
+                                  final iso =
+                                      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+                                  context.push('/ingredient-usage?date=$iso');
+                                },
                               ),
                             ),
                           ),
@@ -437,6 +444,9 @@ class _BalanceCard extends StatelessWidget {
   final VoidCallback onDateTap;
   final VoidCallback onHistoryTap;
 
+  /// "Xom ashyo" ko'rsatkichi bosilganda — kunlik sarf sahifasi.
+  final VoidCallback onCostTap;
+
   const _BalanceCard({
     required this.report,
     required this.fmt,
@@ -444,6 +454,7 @@ class _BalanceCard extends StatelessWidget {
     required this.isFiltered,
     required this.onDateTap,
     required this.onHistoryTap,
+    required this.onCostTap,
   });
 
   @override
@@ -640,6 +651,7 @@ class _BalanceCard extends StatelessWidget {
                     label: s.dashboardProductCost,
                     value: fmt(productCost),
                     valueColor: const Color(0xFFFFCDD2),
+                    onTap: onCostTap,
                   ),
                 ),
               ],
@@ -746,16 +758,21 @@ class _MiniKPI extends StatelessWidget {
   final String value;
   final Color valueColor;
 
+  /// Berilsa — bosiladigan bo'ladi va o'ng chetida kichik strelka chiqadi
+  /// (masalan xom ashyo → kunlik sarf sahifasi).
+  final VoidCallback? onTap;
+
   const _MiniKPI({
     required this.icon,
     required this.label,
     required this.value,
     required this.valueColor,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final row = Row(
       children: [
         Icon(icon, color: valueColor, size: 16),
         const SizedBox(width: 8),
@@ -779,7 +796,35 @@ class _MiniKPI extends StatelessWidget {
             ],
           ),
         ),
+        if (onTap != null)
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: const Icon(
+              Icons.chevron_right_rounded,
+              size: 16,
+              color: Colors.white,
+            ),
+          ),
       ],
+    );
+
+    if (onTap == null) return row;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: row,
+        ),
+      ),
     );
   }
 }
