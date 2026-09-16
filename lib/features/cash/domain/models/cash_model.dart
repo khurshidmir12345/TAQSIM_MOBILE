@@ -52,7 +52,7 @@ class CashEntry {
       source: switch (json['source']) {
         'production' => CashSource.production,
         'return' => CashSource.breadReturn,
-        'outlet' || 'outlet_credit' => CashSource.outlet,
+        'outlet' || 'outlet_credit' || 'outlet_return' => CashSource.outlet,
         _ => CashSource.manual,
       },
       category: json['category'] as String? ?? '',
