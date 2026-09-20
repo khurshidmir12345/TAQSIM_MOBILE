@@ -100,7 +100,8 @@ class CashNotifier extends AsyncNotifier<CashState> {
   Future<CashState> build() async {
     // Davr o'zgarsa ekran o'zi qayta yuklanadi.
     final range = ref.watch(cashRangeProvider);
-    final shopId = _shopId;
+    // Do'kon almashsa kassa ham qayta quriladi.
+    final shopId = ref.watch(shopProvider.select((s) => s.selected?.id));
 
     if (shopId == null) return const CashState();
 

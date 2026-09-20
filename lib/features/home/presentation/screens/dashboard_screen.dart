@@ -134,26 +134,14 @@ class DashboardScreenState extends ConsumerState<DashboardScreen>
     return NumberFormat('#,##0.##', 'uz').format(n);
   }
 
-  Future<void> _onShopSelected() async {
-    // Do'kon o'zgarganda tanlangan sanani saqlab qolamiz (mavjud bo'lsa).
-    final selected = ref.read(dailyReportProvider).selectedDate;
-    final notifier = ref.read(dailyReportProvider.notifier);
-    if (selected == null) {
-      await notifier.loadToday();
-    } else {
-      await notifier.loadDate(selected);
-    }
-  }
-
   /// Biznes tanlash/boshqarish ekraniga o'tadi. Oldin bottom-sheet edi, ammo
   /// Android'da past qirralar tizim tugmalari bilan to'qnashib, bir biznesli
   /// holatda kartani yarmi tagiga yopiltirar edi — endi doim to'liq sahifa.
   /// Qaytganda joriy do'konning ma'lumotlarini qayta yuklaymiz.
   Future<void> _openShopManager() async {
     HapticFeedback.selectionClick();
+    // Do'kon almashsa `dailyReportProvider` o'zi tozalab qayta yuklaydi.
     await context.push('/shop-select');
-    if (!mounted) return;
-    await _onShopSelected();
   }
 
   @override

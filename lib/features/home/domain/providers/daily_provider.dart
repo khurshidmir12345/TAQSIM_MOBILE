@@ -58,7 +58,18 @@ class DailyReportState {
 
 class DailyReportNotifier extends Notifier<DailyReportState> {
   @override
-  DailyReportState build() => const DailyReportState();
+  DailyReportState build() {
+    // Do'kon almashsa asosiy sahifa darhol tozalanadi va o'sha sana uchun
+    // yangi do'kon hisoboti yuklanadi.
+    ref.listen(shopProvider.select((s) => s.selected?.id), (prev, next) {
+      if (prev == next) return;
+      final date = state.selectedDate;
+      state = DailyReportState(selectedDate: date, isLoading: next != null);
+      if (next == null) return;
+      date == null ? loadToday() : loadDate(date);
+    });
+    return const DailyReportState();
+  }
 
   DailyRepository get _repo => ref.read(dailyRepositoryProvider);
 

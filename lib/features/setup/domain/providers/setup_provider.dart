@@ -45,7 +45,16 @@ class BreadCategoryListState {
 
 class BreadCategoryNotifier extends Notifier<BreadCategoryListState> {
   @override
-  BreadCategoryListState build() => const BreadCategoryListState();
+  BreadCategoryListState build() {
+    // Do'kon almashsa eski ro'yxat darhol tozalanadi va yangisi yuklanadi —
+    // aks holda oldingi do'kon ma'lumotlari ko'rinib qolardi.
+    ref.listen(shopProvider.select((s) => s.selected?.id), (prev, next) {
+      if (prev == next) return;
+      state = const BreadCategoryListState();
+      if (next != null) load();
+    });
+    return const BreadCategoryListState();
+  }
 
   SetupRepository get _repo => ref.read(setupRepositoryProvider);
 
@@ -156,7 +165,16 @@ class IngredientListState {
 
 class IngredientNotifier extends Notifier<IngredientListState> {
   @override
-  IngredientListState build() => const IngredientListState();
+  IngredientListState build() {
+    // Do'kon almashsa eski ro'yxat darhol tozalanadi va yangisi yuklanadi —
+    // aks holda oldingi do'kon ma'lumotlari ko'rinib qolardi.
+    ref.listen(shopProvider.select((s) => s.selected?.id), (prev, next) {
+      if (prev == next) return;
+      state = const IngredientListState();
+      if (next != null) load();
+    });
+    return const IngredientListState();
+  }
 
   SetupRepository get _repo => ref.read(setupRepositoryProvider);
 
@@ -262,7 +280,16 @@ class RecipeListState {
 
 class RecipeNotifier extends Notifier<RecipeListState> {
   @override
-  RecipeListState build() => const RecipeListState();
+  RecipeListState build() {
+    // Do'kon almashsa eski ro'yxat darhol tozalanadi va yangisi yuklanadi —
+    // aks holda oldingi do'kon ma'lumotlari ko'rinib qolardi.
+    ref.listen(shopProvider.select((s) => s.selected?.id), (prev, next) {
+      if (prev == next) return;
+      state = const RecipeListState();
+      if (next != null) load();
+    });
+    return const RecipeListState();
+  }
 
   SetupRepository get _repo => ref.read(setupRepositoryProvider);
 

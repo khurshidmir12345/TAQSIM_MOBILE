@@ -42,7 +42,13 @@ class OutletsState {
 
 class OutletsNotifier extends Notifier<OutletsState> {
   @override
-  OutletsState build() => const OutletsState();
+  OutletsState build() {
+    // Do'kon almashsa ro'yxat tozalanadi; ekran ochilganda qayta yuklanadi.
+    ref.listen(shopProvider.select((s) => s.selected?.id), (prev, next) {
+      if (prev != next) state = const OutletsState();
+    });
+    return const OutletsState();
+  }
 
   OutletsRepository get _repo => ref.read(outletsRepositoryProvider);
 
@@ -194,7 +200,12 @@ class OutletLedgerNotifier extends Notifier<OutletLedgerState> {
   final String outletId;
 
   @override
-  OutletLedgerState build() => const OutletLedgerState();
+  OutletLedgerState build() {
+    ref.listen(shopProvider.select((s) => s.selected?.id), (prev, next) {
+      if (prev != next) state = const OutletLedgerState();
+    });
+    return const OutletLedgerState();
+  }
 
   OutletsRepository get _repo => ref.read(outletsRepositoryProvider);
 
