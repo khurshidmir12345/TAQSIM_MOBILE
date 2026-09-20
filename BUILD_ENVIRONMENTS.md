@@ -13,35 +13,20 @@ Taqseem mobile uses compile-time `--dart-define-from-file` config. Dev builds ma
 
 ## Defaults (no define file)
 
-> ⚠️ **TEMPORARY: `AppConstants.defaultToDev` is currently `true`.**
-> Every build — including a define-less Archive — points at **dev**
-> (`api.dev.taqseem.uz`). This is deliberate: the next release (custom batch
-> units, new calculation flow) is being tested against the dev backend.
->
-> **Set it back to `false` before the next App Store submission.**
-
-Current behaviour while the flag is `true`:
-
-| Build | API | DEV banner |
-|-------|-----|-----------|
-| Debug / profile | dev | shown |
-| Release / Archive | **dev** | **shown** |
-| `config/prod.json` (`build-prod-*.sh`) | prod | hidden |
-
-Once the flag is set back to `false`:
+`AppConstants.defaultToDev` is `false` (release state): a define-less
+Archive / `flutter build` points at **prod** and hides the DEV banner.
 
 | Build | API | DEV banner |
 |-------|-----|-----------|
 | Debug / profile | dev | shown |
 | Release / Archive | **prod** | hidden |
+| `config/dev.json` (`build-dev-*.sh`) | dev | shown |
+
+Set the flag to `true` only for a TestFlight / internal round against the dev
+backend, and set it back before the store submission.
 
 **How to tell what you are about to ship:** open the app. If the **DEV banner**
-is visible, the build talks to dev — do not submit it to the App Store. An
-explicit `config/prod.json` build always overrides the flag, so
-`./scripts/build-prod-ios.sh` is safe to ship at any time.
-
-Dev builds may go to internal TestFlight, but must never be submitted as the
-production App Store release.
+is visible, the build talks to dev — do not submit it to the App Store.
 
 > The test `definessiz release: bayroqqa mos va DEV holati ko‘rinadigan` in
 > `test/l10n_and_env_test.dart` guards the safety property: whenever a
