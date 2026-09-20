@@ -29,12 +29,13 @@ class StatsPalette {
   };
 }
 
-/// Bitta ko'rsatkich — ustunli grafik.
+/// Daromad / Xarajat / Foyda — har kun uchun yonma-yon uchta ustun.
 ///
-/// Uchta chiziq bir-birining ustiga chiqib o'qib bo'lmas edi; endi
-/// foydalanuvchi ko'rsatkichni tanlaydi (Daromad / Xarajat / Foyda), har kun
-/// bitta ustun, ustun bosilsa tepada aniq sana va summa chiqadi. Manfiy foyda
-/// nol chizig'idan pastga, qizil rangda.
+/// Uchta egri chiziq bir-birining ustiga chiqib o'qib bo'lmas edi; ustunlar
+/// yonma-yon turadi va taqqoslash oson. Tepadagi tugmalar legenda: bittasi
+/// bosilsa o'sha ko'rsatkich ajralib, qolganlari xiralashadi. Ustun bosilsa
+/// tepada aniq sana va uchala summa chiqadi. Manfiy foyda nol chizig'idan
+/// pastga, qizil rangda.
 class StatsBarChart extends StatefulWidget {
   const StatsBarChart({
     super.key,
@@ -67,16 +68,17 @@ class StatsBarChart extends StatefulWidget {
 }
 
 class _StatsBarChartState extends State<StatsBarChart> {
-  StatsMetric _metric = StatsMetric.income;
+  /// Ajratib ko'rsatilayotgan ko'rsatkich; `null` — hammasi teng.
+  StatsMetric? _focus;
   int? _selected;
 
-  double _value(StatPoint p) => switch (_metric) {
+  static double _valueOf(StatPoint p, StatsMetric m) => switch (m) {
     StatsMetric.income => p.income,
     StatsMetric.expense => p.expense,
     StatsMetric.profit => p.profit,
   };
 
-  double _total() => switch (_metric) {
+  double _totalOf(StatsMetric m) => switch (m) {
     StatsMetric.income => widget.totals.income,
     StatsMetric.expense => widget.totals.expense,
     StatsMetric.profit => widget.totals.profit,
@@ -105,14 +107,14 @@ class _StatsBarChartState extends State<StatsBarChart> {
 
     if (series.isEmpty) return const SizedBox.shrink();
 
-    final color = StatsPalette.of(_metric, dark);
-    final values = series.map(_value).toList();
-
     var lo = 0.0;
     var hi = 0.0;
-    for (final v in values) {
-      if (v < lo) lo = v;
-      if (v > hi) hi = v;
+    for (final p in series) {
+      for (final m in StatsMetric.values) {
+        final v = _valueOf(p, m);
+        if (v < lo) lo = v;
+        if (v > hi) hi = v;
+      }
     }
     if (hi == lo) hi = lo + 1;
     final maxY = hi + (hi - lo) * 0.12;
@@ -127,12 +129,22 @@ class _StatsBarChartState extends State<StatsBarChart> {
             widget.isMonthly ? 'LLLL yyyy' : 'd MMMM, EEEE',
             locale,
           ).format(series[sel].date);
-    final headValue = sel == null ? _total() : values[sel];
+
+    double headValue(StatsMetric m) =>
+        sel == null ? _totalOf(m) : _valueOf(series[sel], m);
+
+    double alphaFor(StatsMetric m, int i) {
+      final dimByFocus = _focus != null && _focus != m;
+      final dimBySel = sel != null && sel != i;
+      if (dimByFocus && dimBySel) return 0.12;
+      if (dimByFocus || dimBySel) return 0.3;
+      return 0.92;
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Ko'rsatkich tanlovi ──
+        // ── Legenda / ajratish ──
         Row(
           children: [
             for (final m in StatsMetric.values) ...[
@@ -140,13 +152,10 @@ class _StatsBarChartState extends State<StatsBarChart> {
                 child: _MetricChip(
                   label: _label(m),
                   color: StatsPalette.of(m, dark),
-                  selected: m == _metric,
+                  selected: m == _focus,
                   onTap: () {
                     HapticFeedback.selectionClick();
-                    setState(() {
-                      _metric = m;
-                      _selected = null;
-                    });
+                    setState(() => _focus = _focus == m ? null : m);
                   },
                 ),
               ),
@@ -155,7 +164,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
           ],
         ),
         const SizedBox(height: 14),
-        // ── Sarlavha: tanlangan kun yoki davr jami ──
+        // ── Sarlavha: tanlangan kun yoki davr jami, uchala summa ──
         Text(
           headDate,
           style: TextStyle(
@@ -164,15 +173,21 @@ class _StatsBarChartState extends State<StatsBarChart> {
             color: cs.onSurface.withValues(alpha: 0.55),
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          _money(headValue, locale),
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.3,
-            color: headValue < 0 ? AppColors.error : cs.onSurface,
-          ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            for (final m in StatsMetric.values) ...[
+              Expanded(
+                child: _HeadValue(
+                  color: StatsPalette.of(m, dark),
+                  text: _money(headValue(m), locale),
+                  dimmed: _focus != null && _focus != m,
+                  negative: headValue(m) < 0,
+                ),
+              ),
+              if (m != StatsMetric.values.last) const SizedBox(width: 8),
+            ],
+          ],
         ),
         const SizedBox(height: 12),
         SizedBox(
@@ -182,31 +197,31 @@ class _StatsBarChartState extends State<StatsBarChart> {
               minY: minY,
               maxY: maxY,
               alignment: BarChartAlignment.spaceBetween,
-              groupsSpace: 2,
+              groupsSpace: 4,
               barGroups: [
-                for (var i = 0; i < values.length; i++)
+                for (var i = 0; i < series.length; i++)
                   BarChartGroupData(
                     x: i,
+                    barsSpace: 1,
                     barRods: [
-                      BarChartRodData(
-                        toY: values[i],
-                        width: _barWidth(values.length),
-                        borderRadius: BorderRadius.vertical(
-                          top: values[i] >= 0
-                              ? const Radius.circular(4)
-                              : Radius.zero,
-                          bottom: values[i] < 0
-                              ? const Radius.circular(4)
-                              : Radius.zero,
+                      for (final m in StatsMetric.values)
+                        BarChartRodData(
+                          toY: _valueOf(series[i], m),
+                          width: _barWidth(series.length),
+                          borderRadius: BorderRadius.vertical(
+                            top: _valueOf(series[i], m) >= 0
+                                ? const Radius.circular(3)
+                                : Radius.zero,
+                            bottom: _valueOf(series[i], m) < 0
+                                ? const Radius.circular(3)
+                                : Radius.zero,
+                          ),
+                          color:
+                              (_valueOf(series[i], m) < 0
+                                      ? AppColors.error
+                                      : StatsPalette.of(m, dark))
+                                  .withValues(alpha: alphaFor(m, i)),
                         ),
-                        color: values[i] < 0
-                            ? AppColors.error.withValues(
-                                alpha: sel == null || sel == i ? 0.9 : 0.35,
-                              )
-                            : color.withValues(
-                                alpha: sel == null || sel == i ? 0.9 : 0.3,
-                              ),
-                      ),
                     ],
                   ),
               ],
@@ -315,11 +330,12 @@ class _StatsBarChartState extends State<StatsBarChart> {
     );
   }
 
+  /// Har kunda uchta ustun — kenglik kunlar soniga qarab.
   static double _barWidth(int count) {
-    if (count <= 7) return 22;
-    if (count <= 14) return 14;
-    if (count <= 31) return 7;
-    return 4;
+    if (count <= 7) return 9;
+    if (count <= 14) return 5;
+    if (count <= 31) return 2.5;
+    return 1.5;
   }
 
   static int _labelStep(int count) {
@@ -360,6 +376,55 @@ class _StatsBarChartState extends State<StatsBarChart> {
       return '$sign${(a / 1000).toStringAsFixed(a >= 10000 ? 0 : 1)}K';
     }
     return v.toStringAsFixed(0);
+  }
+}
+
+/// Sarlavhadagi bitta summa — rangli nuqta bilan.
+class _HeadValue extends StatelessWidget {
+  const _HeadValue({
+    required this.color,
+    required this.text,
+    required this.dimmed,
+    required this.negative,
+  });
+
+  final Color color;
+  final String text;
+  final bool dimmed;
+  final bool negative;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Opacity(
+      opacity: dimmed ? 0.4 : 1,
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                text,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.2,
+                  color: negative ? AppColors.error : cs.onSurface,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

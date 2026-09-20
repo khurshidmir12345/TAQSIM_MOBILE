@@ -33,7 +33,7 @@ void main() {
     ),
   );
 
-  testWidgets('shows period total and switches metric', (tester) async {
+  testWidgets('shows all three totals and highlights a metric', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -41,15 +41,16 @@ void main() {
     await tester.pumpWidget(harness());
     await tester.pumpAndSettle();
 
+    // Uchala jami bir vaqtda ko'rinadi.
     expect(find.text('Davr jami'), findsOneWidget);
     expect(find.text('2,800,000 so‘m'), findsOneWidget);
-
-    await tester.tap(find.text('Foyda'));
-    await tester.pumpAndSettle();
+    expect(find.text('1,120,000 so‘m'), findsOneWidget);
     expect(find.text('1,500,000 so‘m'), findsOneWidget);
 
-    await tester.tap(find.text('Xarajat'));
+    // Legenda bosilsa ajratiladi, summalar joyida qoladi.
+    await tester.tap(find.text('Foyda'));
     await tester.pumpAndSettle();
-    expect(find.text('1,120,000 so‘m'), findsOneWidget);
+    expect(find.text('2,800,000 so‘m'), findsOneWidget);
+    expect(find.text('1,500,000 so‘m'), findsOneWidget);
   });
 }
